@@ -1,0 +1,48 @@
+{
+  "name": "forex-trading-platform-ui",
+  "version": "1.0.0",
+  "description": "UI Service for Forex Trading Platform",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.0",
+    "@mui/x-data-grid": "^6.4.0",
+    "d3": "^7.8.4",
+    "lightweight-charts": "^4.0.1",
+    "next": "13.4.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-query": "^3.39.3",
+    "recharts": "^2.6.2",
+    "swr": "^2.1.5",
+    "typescript": "5.0.4",
+    "zustand": "^4.3.8"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^14.0.0",
+    "@types/axios": "^0.9.36",
+    "@types/d3": "^7.4.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "20.1.4",
+    "@types/react": "18.2.6",
+    "@types/react-dom": "18.2.4",
+    "autoprefixer": "^10.4.14",
+    "axios": "^1.9.0",
+    "eslint": "^8.40.0",
+    "eslint-config-next": "13.4.2",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "postcss": "^8.4.23",
+    "tailwindcss": "^3.3.2"
+  }
+}

@@ -1,0 +1,17 @@
+{
+    "memory_cache_size": 1073741824,
+    "memory_cache_ttl": 300,
+    "use_disk_cache": true,
+    "disk_cache_path": "cache",
+    "disk_cache_size": 53687091200,
+    "disk_cache_ttl": 86400,
+    "historical_data_memory_ttl": 3600,
+    "historical_data_disk_ttl": 604800,
+    "recent_data_memory_ttl": 300,
+    "recent_data_disk_ttl": 86400,
+    "enable_parallel_processing": true,
+    "max_parallel_tasks": 8,
+    "enable_metrics_collection": true,
+    "metrics_log_interval": 3600,
+    "metrics_retention_days": 30
+}

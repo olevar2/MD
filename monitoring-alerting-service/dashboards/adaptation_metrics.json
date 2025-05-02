@@ -1,0 +1,248 @@
+{
+  "dashboard": {
+    "title": "Adaptation Metrics Dashboard",
+    "description": "Monitors key adaptation metrics including rolling Sharpe ratio, hit rate, and other performance indicators over time",
+    "refreshRate": "5m",
+    "tags": ["adaptation", "feedback-loop", "performance"],
+    "uid": "adaptation-metrics",
+    "version": 1
+  },
+  "panels": [
+    {
+      "title": "Strategy Adaptation Overview",
+      "type": "stat-panel",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
+      "targets": [
+        {
+          "metric": "forex_adaptations_count",
+          "aggregation": "sum",
+          "timeRange": "24h"
+        },
+        {
+          "metric": "forex_adaptations_success_rate",
+          "aggregation": "avg",
+          "timeRange": "24h",
+          "format": "percentunit"
+        },
+        {
+          "metric": "forex_adaptation_average_impact",
+          "aggregation": "avg",
+          "timeRange": "24h",
+          "format": "percent"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area"
+      }
+    },
+    {
+      "title": "Rolling Sharpe Ratio by Strategy",
+      "type": "graph-panel",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_rolling_sharpe_ratio",
+          "aggregation": "avg",
+          "groupBy": ["strategy_id", "timeframe"],
+          "timeRange": "$timeRange"
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" },
+        "xaxis": { "mode": "time" },
+        "yaxes": [
+          { "label": "Sharpe Ratio", "decimals": 2 },
+          { "show": false }
+        ],
+        "thresholds": [
+          {
+            "value": 0,
+            "colorMode": "critical",
+            "op": "lt",
+            "fill": true,
+            "line": true
+          },
+          {
+            "value": 1,
+            "colorMode": "warning",
+            "op": "lt",
+            "fill": true,
+            "line": true
+          }
+        ]
+      }
+    },
+    {
+      "title": "Hit Rate over Last N Cycles",
+      "type": "graph-panel",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_adaptation_hit_rate",
+          "aggregation": "avg",
+          "groupBy": ["strategy_id", "market_regime"],
+          "timeRange": "$timeRange"
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" },
+        "xaxis": { "mode": "time" },
+        "yaxes": [
+          { "format": "percentunit", "label": "Hit Rate", "min": 0, "max": 1 },
+          { "show": false }
+        ],
+        "thresholds": [
+          {
+            "value": 0.5,
+            "colorMode": "critical",
+            "op": "lt",
+            "fill": true,
+            "line": true
+          }
+        ]
+      }
+    },
+    {
+      "title": "Strategy Performance by Market Regime",
+      "type": "heatmap",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_strategy_regime_performance",
+          "aggregation": "avg",
+          "groupBy": ["strategy_id", "market_regime"]
+        }
+      ],
+      "options": {
+        "tooltip": { "show": true },
+        "legend": { "show": true }
+      }
+    },
+    {
+      "title": "Average Adaptation Impact by Type",
+      "type": "bar-chart",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_adaptation_impact",
+          "aggregation": "avg",
+          "groupBy": ["adaptation_type"],
+          "timeRange": "$timeRange"
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" }
+      }
+    },
+    {
+      "title": "Adaptation Success by Parameter",
+      "type": "bar-chart",
+      "gridPos": { "x": 0, "y": 20, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_parameter_adaptation_success_rate",
+          "aggregation": "avg",
+          "groupBy": ["parameter_name"],
+          "timeRange": "30d"
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" },
+        "yaxes": [
+          { "format": "percentunit", "label": "Success Rate", "min": 0, "max": 1 }
+        ]
+      }
+    },
+    {
+      "title": "Profitability Trends After Adaptation",
+      "type": "graph-panel",
+      "gridPos": { "x": 12, "y": 20, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_post_adaptation_profit",
+          "aggregation": "avg",
+          "groupBy": ["strategy_id", "adaptation_id"],
+          "timeRange": "90d"
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" },
+        "xaxis": { "mode": "time" },
+        "yaxes": [
+          { "format": "currencyUSD", "label": "Profit/Loss" },
+          { "show": false }
+        ]
+      }
+    },
+    {
+      "title": "Model Retraining Impact Timeline",
+      "type": "timeline",
+      "gridPos": { "x": 0, "y": 28, "w": 24, "h": 6 },
+      "targets": [
+        {
+          "metric": "forex_model_retraining_events",
+          "aggregation": "events",
+          "timeRange": "$timeRange",
+          "groupBy": ["model_id", "event_type"]
+        }
+      ],
+      "options": {
+        "showValue": "auto",
+        "rowHeight": 0.9,
+        "mergeValues": true,
+        "legend": { "show": true }
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "strategy_id",
+      "type": "query",
+      "query": "label_values(forex_adaptation_hit_rate, strategy_id)",
+      "multi": true,
+      "includeAll": true
+    },
+    {
+      "name": "market_regime",
+      "type": "query",
+      "query": "label_values(forex_adaptation_hit_rate, market_regime)",
+      "multi": true,
+      "includeAll": true
+    },
+    {
+      "name": "timeRange",
+      "type": "interval",
+      "options": ["24h", "7d", "30d", "90d", "180d"],
+      "default": "30d"
+    },
+    {
+      "name": "n_cycles",
+      "type": "custom",
+      "options": ["10", "25", "50", "100"],
+      "default": "50"
+    }
+  ],
+  "links": [
+    {
+      "title": "Analysis Engine Service",
+      "url": "/service/analysis-engine-service",
+      "type": "link"
+    },
+    {
+      "title": "ML Retraining Monitoring",
+      "url": "/dashboard/ml-retraining-monitoring",
+      "type": "dashboard"
+    },
+    {
+      "title": "Strategy Backtest Performance",
+      "url": "/dashboard/strategy-backtest-performance",
+      "type": "dashboard"
+    }
+  ]
+}

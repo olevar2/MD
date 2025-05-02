@@ -1,0 +1,64 @@
+{
+  "deprecation_date": "2023-12-31",
+  "removal_date": "2024-01-15",
+  "modules": [
+    {
+      "name": "analysis_engine.core.config",
+      "file_path": "analysis_engine/core/config.py",
+      "replacement": "analysis_engine.config",
+      "migration_guide": "docs/configuration_migration_guide.md",
+      "migration_tool": "tools/migrate_config_imports.py",
+      "description": "Legacy configuration module that has been replaced by the centralized configuration system",
+      "impact_level": "high"
+    },
+    {
+      "name": "config.config",
+      "file_path": "config/config.py",
+      "replacement": "analysis_engine.config",
+      "migration_guide": "docs/configuration_migration_guide.md",
+      "migration_tool": "tools/migrate_config_imports.py",
+      "description": "Legacy configuration module that has been replaced by the centralized configuration system",
+      "impact_level": "high"
+    },
+    {
+      "name": "analysis_engine.api.router",
+      "file_path": "analysis_engine/api/router.py",
+      "replacement": "analysis_engine.api.routes",
+      "migration_guide": "docs/api_router_migration_guide.md",
+      "migration_tool": "tools/migrate_router_imports.py",
+      "description": "Legacy router module that has been replaced by the more comprehensive routes module",
+      "impact_level": "medium"
+    }
+  ],
+  "notification": {
+    "email": {
+      "recipients": ["dev-team@example.com", "platform-team@example.com"],
+      "schedule": "weekly",
+      "urgency_levels": {
+        "critical": 30,
+        "high": 60,
+        "medium": 90,
+        "low": 91
+      }
+    },
+    "slack": {
+      "channels": ["#dev-team", "#platform-updates"],
+      "schedule": "weekly",
+      "mention_group": "platform-developers"
+    },
+    "jira": {
+      "project": "AES",
+      "component": "Deprecation",
+      "assignee": "tech-lead"
+    }
+  },
+  "monitoring": {
+    "dashboard_update_frequency": "daily",
+    "report_directory": "logs/deprecation",
+    "threshold_levels": {
+      "high_usage": 100,
+      "medium_usage": 20,
+      "low_usage": 1
+    }
+  }
+}

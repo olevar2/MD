@@ -1,0 +1,383 @@
+// Mobile optimizations for the Forex Trading Platform UI
+
+// Variables
+$breakpoint-mobile: 576px;
+$breakpoint-tablet: 992px;
+$breakpoint-desktop: 1400px;
+
+// Color variables
+$primary-color: #0d6efd;
+$secondary-color: #6c757d;
+$success-color: #198754;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #0dcaf0;
+$light-color: #f8f9fa;
+$dark-color: #212529;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// ===========================================
+// Global mobile optimizations
+// ===========================================
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+// Optimize tap targets
+@media (max-width: $breakpoint-mobile) {
+  button, 
+  [role="button"],
+  a.button,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: $spacing-sm $spacing-md;
+    
+    &.small-button {
+      min-height: 32px;
+      min-width: 32px;
+      padding: $spacing-xs $spacing-sm;
+    }
+  }
+  
+  .input-field {
+    padding: $spacing-sm;
+    height: 44px;
+    font-size: 16px; // Prevents iOS zoom on focus
+  }
+}
+
+// Improve font rendering
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  @media (max-width: $breakpoint-mobile) {
+    font-size: 0.95rem; // Slightly reduce overall font size
+  }
+}
+
+// ===========================================
+// Layout adjustments
+// ===========================================
+
+.mobile-container {
+  width: 100%;
+  padding: $spacing-sm;
+  box-sizing: border-box;
+}
+
+// Stack elements vertically on mobile
+.flex-layout {
+  display: flex;
+  gap: $spacing-md;
+  
+  @media (max-width: $breakpoint-mobile) {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+  
+  &.reverse-on-mobile {
+    @media (max-width: $breakpoint-mobile) {
+      flex-direction: column-reverse;
+    }
+  }
+}
+
+// Collapsible sections
+.collapsible-section {
+  @media (max-width: $breakpoint-tablet) {
+    .section-header {
+      cursor: pointer;
+      
+      &:after {
+        content: '▼';
+        float: right;
+        transition: transform 0.3s ease;
+      }
+      
+      &.collapsed:after {
+        transform: rotate(180deg);
+      }
+    }
+    
+    .section-content.collapsed {
+      display: none;
+    }
+  }
+}
+
+// ===========================================
+// Component-specific optimizations
+// ===========================================
+
+// Card optimization for mobile
+.card {
+  @media (max-width: $breakpoint-mobile) {
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    
+    .card-header {
+      padding: $spacing-sm;
+      
+      h2, h3, h4 {
+        font-size: 1.1rem;
+        margin: 0;
+      }
+    }
+    
+    .card-body {
+      padding: $spacing-sm;
+    }
+  }
+}
+
+// Table optimizations for mobile
+.data-table {
+  width: 100%;
+  
+  @media (max-width: $breakpoint-mobile) {
+    // Option 1: Horizontal scrolling
+    &.scroll-horizontal {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    // Option 2: Stacked view
+    &.stack-on-mobile {
+      display: block;
+      
+      thead {
+        display: none;
+      }
+      
+      tbody, tr {
+        display: block;
+        width: 100%;
+      }
+      
+      tr {
+        margin-bottom: $spacing-md;
+        border: 1px solid $light-color;
+        border-radius: 8px;
+      }
+      
+      td {
+        display: flex;
+        padding: $spacing-xs $spacing-sm;
+        text-align: left;
+        
+        &:before {
+          content: attr(data-label);
+          font-weight: bold;
+          width: 40%;
+          margin-right: $spacing-sm;
+        }
+      }
+    }
+  }
+}
+
+// Dashboard optimization
+.dashboard {
+  @media (max-width: $breakpoint-tablet) {
+    .dashboard-sidebar {
+      position: fixed;
+      z-index: 1000;
+      left: -250px;
+      top: 0;
+      height: 100vh;
+      width: 250px;
+      background-color: $dark-color;
+      transition: left 0.3s ease;
+      
+      &.visible {
+        left: 0;
+      }
+    }
+    
+    .dashboard-toggle {
+      display: block;
+      position: fixed;
+      z-index: 1001;
+      top: $spacing-md;
+      left: $spacing-md;
+      padding: $spacing-xs;
+      background-color: rgba($dark-color, 0.7);
+      border-radius: 4px;
+    }
+  }
+}
+
+// Chart optimizations
+.chart-container {
+  width: 100%;
+  
+  @media (max-width: $breakpoint-mobile) {
+    height: 200px;
+    
+    canvas {
+      max-height: 100%;
+    }
+  }
+}
+
+// Position monitor specific optimizations
+.positions-monitor {
+  @media (max-width: $breakpoint-mobile) {
+    .position-details-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .position-actions {
+      flex-direction: column;
+      gap: $spacing-xs;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// ===========================================
+// Touch optimizations
+// ===========================================
+
+// Custom scrollbars for mobile
+@media (max-width: $breakpoint-tablet) {
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba($light-color, 0.5);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba($dark-color, 0.3);
+      border-radius: 4px;
+    }
+  }
+}
+
+// Touch-friendly sliders
+.touch-slider {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  display: flex;
+  
+  .slide-item {
+    flex: 0 0 auto;
+    width: 80%;
+    scroll-snap-align: center;
+    margin-right: $spacing-sm;
+    
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+// Pull-to-refresh indicator (needs JS implementation)
+.pull-to-refresh {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  transform: translateY(-50px);
+  transition: transform 0.3s ease;
+  
+  &.visible {
+    transform: translateY(0);
+  }
+  
+  .refresh-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba($primary-color, 0.3);
+    border-top: 2px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+// ===========================================
+// Performance optimizations
+// ===========================================
+
+// Hardware acceleration for smoother animations
+.hardware-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+// Reduce UI complexity on low-powered devices
+@media (max-width: $breakpoint-mobile) {
+  .battery-saver {
+    .animations-reduced {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
+    
+    .effects-reduced {
+      box-shadow: none !important;
+      filter: none !important;
+    }
+    
+    .background-simplified {
+      background-image: none !important;
+    }
+  }
+}
+
+// ===========================================
+// Dark mode optimizations
+// ===========================================
+
+@media (prefers-color-scheme: dark) {
+  .dark-mode-support {
+    --background-color: #121212;
+    --text-color: #e0e0e0;
+    --card-background: #1e1e1e;
+    --border-color: #333;
+    
+    background-color: var(--background-color);
+    color: var(--text-color);
+    
+    .card {
+      background-color: var(--card-background);
+      border-color: var(--border-color);
+    }
+    
+    .border-element {
+      border-color: var(--border-color);
+    }
+  }
+}

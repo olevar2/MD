@@ -1,0 +1,52 @@
+{
+    "verification": {
+        "input_validation": {
+            "required_columns": {
+                "price_data": ["timestamp", "open", "high", "low", "close", "volume"],
+                "indicator_data": ["timestamp", "value"],
+                "signal_data": ["timestamp", "signal_type", "direction", "confidence"]
+            }
+        },
+        "risk_limits": {
+            "max_position_size": 100000,
+            "max_leverage": 20,
+            "max_drawdown": 0.10,
+            "max_daily_loss": 0.05
+        },
+        "decision_validation": {
+            "consistency_window": 24,
+            "min_confidence": 0.6
+        }
+    },
+    "signal_filtering": {
+        "price": {
+            "outlier_std_threshold": 3.0,
+            "min_tick_size": 0.00001,
+            "max_spike_percent": 0.02
+        },
+        "volume": {
+            "outlier_std_threshold": 4.0,
+            "min_volume": 0
+        },
+        "indicator": {
+            "smoothing_window": 3,
+            "noise_threshold": 0.1
+        }
+    },
+    "recovery": {
+        "storage": {
+            "state_dir": "recovery_states"
+        },
+        "thresholds": {
+            "max_retry_attempts": 3,
+            "retry_delay_seconds": 5,
+            "state_retention_days": 7
+        },
+        "priorities": {
+            "trading_engine": "critical",
+            "risk_manager": "high",
+            "data_pipeline": "high",
+            "monitoring": "medium"
+        }
+    }
+}

@@ -1,0 +1,65 @@
+groups:
+  - name: trading_performance_alerts
+    rules:
+      - alert: TradingPerformanceAnomaly
+        expr: |
+          abs(
+            rate(trading_pnl_total[1h])
+            - avg_over_time(rate(trading_pnl_total[24h])[1h:1h])
+          ) > historical_volatility * 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Trading performance anomaly detected
+          description: "Strategy {{ $labels.strategy }} showing abnormal P&L movement"
+
+      - alert: DrawdownThresholdBreach
+        expr: trading_drawdown_percentage > 5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Drawdown threshold breached
+          description: "Strategy {{ $labels.strategy }} drawdown at {{ $value }}%"
+
+      - alert: ModelDegradation
+        expr: ml_model_performance_score < 0.7
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: ML model performance degradation
+          description: "Model {{ $labels.model }} showing degraded performance"
+
+      - alert: ExecutionQualityIssue
+        expr: avg_over_time(execution_slippage_pips[5m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High execution slippage detected
+          description: "Symbol {{ $labels.symbol }} showing high slippage"
+
+  - name: system_health_alerts
+    rules:
+      - alert: ServiceLatencySpike
+        expr: |
+          histogram_quantile(0.95, 
+            rate(http_request_duration_seconds_bucket{job=~".*-service"}[5m])
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Service latency spike detected
+          description: "Service {{ $labels.job }} showing high latency"
+
+      - alert: DataPipelineDelay
+        expr: time() - timestamp(last_successful_data_pipeline_run) > 300
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Data pipeline delay detected
+          description: "Data pipeline hasn't run successfully in over 5 minutes"

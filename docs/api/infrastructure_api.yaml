@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  title: Forex Trading Platform Infrastructure API
+  version: 1.0.0
+  description: API documentation for infrastructure management endpoints
+
+paths:
+  /backup/create:
+    post:
+      summary: Create a backup
+      operationId: createBackup
+      tags: [Backup]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                databaseId:
+                  type: string
+                  description: ID of the database to backup
+                backupType:
+                  type: string
+                  enum: [full, incremental]
+                  description: Type of backup to create
+      responses:
+        '200':
+          description: Backup created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupResponse'
+
+  /incident/report:
+    post:
+      summary: Report a new incident
+      operationId: reportIncident
+      tags: [Incident]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentReport'
+      responses:
+        '200':
+          description: Incident reported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentResponse'
+
+  /config/update:
+    put:
+      summary: Update configuration
+      operationId: updateConfig
+      tags: [Configuration]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigUpdate'
+      responses:
+        '200':
+          description: Configuration updated successfully
+
+components:
+  schemas:
+    BackupResponse:
+      type: object
+      properties:
+        backupId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [success, failed]
+        validationStatus:
+          type: string
+          enum: [passed, failed]
+
+    IncidentReport:
+      type: object
+      properties:
+        service:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low]
+        description:
+          type: string
+        errorData:
+          type: object
+
+    IncidentResponse:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        assignedTeam:
+          type: string
+
+    ConfigUpdate:
+      type: object
+      properties:
+        component:
+          type: string
+        changes:
+          type: object
+        user:
+          type: string

@@ -1,0 +1,65 @@
+# Stress test configuration
+
+# Name of the stress test environment/profile
+environment_name: high_volume_forex_stress
+
+# Overall test duration (in seconds)
+duration_seconds: 600
+
+# Endpoints to target in the platform
+target_endpoints:
+  order_service: http://order-service.stress-test-ns.svc.cluster.local:8080/api/v1/orders
+  portfolio_service: http://api-gateway.stress-test-ns.svc.cluster.local:8080/api/v1/portfolio
+
+# Load generation profile
+load_profile:
+  # Type of load generator: 'api_request' or 'market_data'
+  type: api_request
+  base_url: http://api-gateway.stress-test-ns.svc.cluster.local:8080
+  endpoints:
+    - method: GET
+      path: /api/v1/portfolio
+    - method: POST
+      path: /api/v1/orders
+      data:
+        symbol: EURUSD
+        amount: 1000
+        type: MARKET
+        side: BUY
+  # Maximum concurrent tasks
+  concurrency: 100
+  # Target requests per second
+  rate_per_second: 5000
+  # Ramp-up duration before hitting full load
+  ramp_up_seconds: 60
+
+# Components/services to monitor
+monitored_components:
+  - api_gateway
+  - order_service
+
+# Performance thresholds (pass/fail criteria)
+performance_thresholds:
+  cpu_utilization_percent:
+    max: 80.0
+  memory_utilization_percent:
+    max: 75.0
+  api_latency_p95_ms:
+    max: 500.0
+  error_rate_percent:
+    max: 1.0
+
+# Reporting settings
+reporting:
+  format: prometheus  # push to Prometheus Pushgateway
+  endpoint: http://prometheus-pushgateway.monitoring.svc.cluster.local:9091
+
+# Resource limits for the load generator container/pod
+resource_limits:
+  load_generator_cpu: "2"
+  load_generator_memory: "4Gi"
+
+# For distributed load generation, list of worker hosts
+distributed_workers:
+  - worker-1.stress-test-ns.svc.cluster.local
+  - worker-2.stress-test-ns.svc.cluster.local

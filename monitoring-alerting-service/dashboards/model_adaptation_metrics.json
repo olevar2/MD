@@ -1,0 +1,69 @@
+{
+  "title": "Model Adaptation Metrics Dashboard",
+  "description": "Comprehensive monitoring of model adaptation performance and metrics",
+  "refresh": "1m",
+  "panels": [
+    {
+      "title": "Adaptation Success Rate",
+      "type": "gauge",
+      "query": "rate(model_adaptation_success_total[24h]) / rate(model_adaptation_attempts_total[24h]) * 100",
+      "thresholds": [
+        { "value": 80, "color": "green" },
+        { "value": 60, "color": "yellow" },
+        { "value": 0, "color": "red" }
+      ]
+    },
+    {
+      "title": "Adaptation Response Time",
+      "type": "graph",
+      "query": "histogram_quantile(0.95, sum(rate(model_adaptation_duration_seconds_bucket[1h])) by (le))",
+      "yAxisLabel": "95th Percentile Duration (s)"
+    },
+    {
+      "title": "Model Performance Impact",
+      "type": "graph",
+      "query": "delta(model_performance_score[24h])",
+      "description": "Change in model performance after adaptation"
+    },
+    {
+      "title": "Adaptation Triggers Breakdown",
+      "type": "pie",
+      "query": "sum(model_adaptation_triggers_total) by (trigger_type)",
+      "legend": true
+    },
+    {
+      "title": "Failed Adaptations",
+      "type": "table",
+      "query": "model_adaptation_failures_total",
+      "columns": ["model_id", "failure_reason", "count"]
+    },
+    {
+      "title": "Adaptation Stability",
+      "type": "heatmap",
+      "query": "model_adaptation_rollback_rate",
+      "description": "Frequency of adaptation rollbacks by model type"
+    }
+  ],
+  "variables": {
+    "model_type": {
+      "type": "query",
+      "query": "label_values(model_type)"
+    },
+    "timeframe": {
+      "type": "interval",
+      "values": ["1h", "6h", "24h", "7d", "30d"]
+    }
+  },
+  "alerts": [
+    {
+      "name": "LowAdaptationSuccessRate",
+      "condition": "rate(model_adaptation_success_total[6h]) / rate(model_adaptation_attempts_total[6h]) < 0.6",
+      "severity": "warning"
+    },
+    {
+      "name": "HighAdaptationFailureRate",
+      "condition": "rate(model_adaptation_failures_total[1h]) > 5",
+      "severity": "critical"
+    }
+  ]
+}

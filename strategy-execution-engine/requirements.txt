@@ -1,0 +1,10 @@
+# Base dependencies for strategy execution
+pandas>=1.3.0,<2.0.0
+numpy>=1.20.0,<2.0.0
+
+# For API calls to other services
+httpx>=0.24.0,<1.0.0
+
+# Other potential dependencies (add as needed)
+# pyyaml>=6.0.0,<7.0.0
+# asyncio>=3.4.3,<4.0.0

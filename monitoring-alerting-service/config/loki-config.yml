@@ -1,0 +1,48 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 0 # Disable gRPC server for now
+
+ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 1h
+  max_chunk_age: 1h
+  chunk_target_size: 1048576
+  chunk_retain_period: 30s
+  max_transfer_retries: 0
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /tmp/loki/boltdb-shipper-active
+    cache_location: /tmp/loki/boltdb-shipper-cache
+    cache_ttl: 24h
+    shared_store: filesystem
+  filesystem:
+    directory: /tmp/loki/chunks
+
+limits_config:
+  retention_period: 744h # 31 days
+
+rulers:
+  alerting_rules_path: /etc/loki/rules
+  alert:
+    for_outage_tolerance: 1m
+    for_grace_period: 1m
+    resend_delay: 2m

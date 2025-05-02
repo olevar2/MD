@@ -1,0 +1,170 @@
+{
+    "assets": [
+        {
+            "symbol": "EURUSD",
+            "display_name": "EUR/USD",
+            "asset_class": "forex",
+            "market_type": "spot",
+            "base_currency": "EUR",
+            "quote_currency": "USD",
+            "config": {
+                "min_price_precision": 5,
+                "pip_value": 0.0001,
+                "pip_location": -4,
+                "min_quantity": 0.01,
+                "quantity_precision": 2,
+                "margin_rate": 0.03,
+                "lot_size": 100000,
+                "trading_fee": 0.0002
+            },
+            "available_timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"]
+        },
+        {
+            "symbol": "GBPUSD",
+            "display_name": "GBP/USD",
+            "asset_class": "forex",
+            "market_type": "spot",
+            "base_currency": "GBP",
+            "quote_currency": "USD",
+            "config": {
+                "min_price_precision": 5,
+                "pip_value": 0.0001,
+                "pip_location": -4,
+                "min_quantity": 0.01,
+                "quantity_precision": 2,
+                "margin_rate": 0.05,
+                "lot_size": 100000,
+                "trading_fee": 0.0002
+            },
+            "available_timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"]
+        },
+        {
+            "symbol": "USDJPY",
+            "display_name": "USD/JPY",
+            "asset_class": "forex",
+            "market_type": "spot",
+            "base_currency": "USD",
+            "quote_currency": "JPY",
+            "config": {
+                "min_price_precision": 3,
+                "pip_value": 0.01,
+                "pip_location": -2,
+                "min_quantity": 0.01,
+                "quantity_precision": 2,
+                "margin_rate": 0.04,
+                "lot_size": 100000,
+                "trading_fee": 0.0002
+            },
+            "available_timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"]
+        },
+        {
+            "symbol": "BTCUSD",
+            "display_name": "Bitcoin",
+            "asset_class": "crypto",
+            "market_type": "spot",
+            "base_currency": "BTC",
+            "quote_currency": "USD",
+            "config": {
+                "min_price_precision": 2,
+                "pip_value": 1.0,
+                "pip_location": 0,
+                "min_quantity": 0.001,
+                "quantity_precision": 5,
+                "trading_fee": 0.001
+            },
+            "available_timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"]
+        },
+        {
+            "symbol": "ETHUSD",
+            "display_name": "Ethereum",
+            "asset_class": "crypto",
+            "market_type": "spot",
+            "base_currency": "ETH",
+            "quote_currency": "USD",
+            "config": {
+                "min_price_precision": 2,
+                "pip_value": 1.0,
+                "pip_location": 0,
+                "min_quantity": 0.01,
+                "quantity_precision": 5,
+                "trading_fee": 0.001
+            },
+            "available_timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"]
+        },
+        {
+            "symbol": "AAPL",
+            "display_name": "Apple Inc.",
+            "asset_class": "stocks",
+            "market_type": "spot",
+            "config": {
+                "min_price_precision": 2,
+                "pip_value": 0.01,
+                "pip_location": -2,
+                "min_quantity": 1,
+                "quantity_precision": 0,
+                "trading_fee": 0.0005
+            },
+            "available_timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"],
+            "metadata": {
+                "sector": "Technology",
+                "industry": "Consumer Electronics",
+                "exchange": "NASDAQ"
+            }
+        },
+        {
+            "symbol": "MSFT",
+            "display_name": "Microsoft Corporation",
+            "asset_class": "stocks",
+            "market_type": "spot",
+            "config": {
+                "min_price_precision": 2,
+                "pip_value": 0.01,
+                "pip_location": -2,
+                "min_quantity": 1,
+                "quantity_precision": 0,
+                "trading_fee": 0.0005
+            },
+            "available_timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"],
+            "metadata": {
+                "sector": "Technology",
+                "industry": "Software",
+                "exchange": "NASDAQ"
+            }
+        }
+    ],
+    "correlations": [
+        {
+            "symbol1": "EURUSD",
+            "symbol2": "GBPUSD",
+            "correlation": 0.85,
+            "as_of_date": "2025-04-15T00:00:00Z",
+            "lookback_days": 30
+        },
+        {
+            "symbol1": "EURUSD",
+            "symbol2": "USDJPY",
+            "correlation": -0.55,
+            "as_of_date": "2025-04-15T00:00:00Z",
+            "lookback_days": 30
+        },
+        {
+            "symbol1": "BTCUSD",
+            "symbol2": "ETHUSD",
+            "correlation": 0.78,
+            "as_of_date": "2025-04-15T00:00:00Z",
+            "lookback_days": 30
+        },
+        {
+            "symbol1": "AAPL",
+            "symbol2": "MSFT",
+            "correlation": 0.68,
+            "as_of_date": "2025-04-15T00:00:00Z",
+            "lookback_days": 30
+        }
+    ],
+    "groups": {
+        "major_forex": ["EURUSD", "GBPUSD", "USDJPY"],
+        "major_crypto": ["BTCUSD", "ETHUSD"],
+        "tech_stocks": ["AAPL", "MSFT"]
+    }
+}

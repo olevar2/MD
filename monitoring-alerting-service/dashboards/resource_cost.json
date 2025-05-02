@@ -1,0 +1,118 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "graphTooltip": 0,
+  "id": 3,
+  "panels": [
+    {
+      "title": "Cloud Costs Overview",
+      "type": "row",
+      "collapse": false,
+      "panels": [
+        {
+          "title": "Total Cost by Service",
+          "type": "timeseries",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "sum by (service) (service_daily_cost)",
+              "legendFormat": "{{service}}"
+            }
+          ]
+        },
+        {
+          "title": "Cost Efficiency Scores",
+          "type": "gauge",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "service_cost_efficiency",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "options": {
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "steps": [
+                { "value": 0, "color": "red" },
+                { "value": 0.5, "color": "yellow" },
+                { "value": 0.8, "color": "green" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "title": "Resource Utilization",
+      "type": "row",
+      "collapse": false,
+      "panels": [
+        {
+          "title": "CPU Utilization Patterns",
+          "type": "heatmap",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "resource_cpu_utilization",
+              "legendFormat": "{{service}} - {{instance}}"
+            }
+          ]
+        },
+        {
+          "title": "Memory Usage Trends",
+          "type": "timeseries",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "resource_memory_utilization",
+              "legendFormat": "{{service}} - {{instance}}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Cost Optimization Opportunities",
+      "type": "row",
+      "collapse": false,
+      "panels": [
+        {
+          "title": "Underutilized Resources",
+          "type": "table",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "avg_over_time(resource_cpu_utilization[24h]) < 20",
+              "legendFormat": "{{service}} - {{instance}}"
+            }
+          ]
+        },
+        {
+          "title": "Storage Cost Analysis",
+          "type": "timeseries",
+          "datasource": "Prometheus",
+          "targets": [
+            {
+              "expr": "sum by (service, storage_type) (resource_storage_utilization)",
+              "legendFormat": "{{service}} - {{storage_type}}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 33,
+  "style": "dark",
+  "tags": ["cost", "resources"],
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "title": "Resource and Cost Management Dashboard",
+  "version": 0
+}

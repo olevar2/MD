@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "portfolio-management-service"
+version = "0.1.0"
+description = "Portfolio Management Service for Forex Trading Platform"
+authors = ["FX Trading <python@example.com>"]
+readme = "README.md" # Assuming a README might exist or be created later
+packages = [{include = "portfolio_management_service"}]
+
+[tool.poetry.dependencies]
+python = "^3.10" # Match common-lib's Python version
+fastapi = "^0.100.0" # Or match version from other services if known
+uvicorn = {extras = ["standard"], version = "^0.23.0"} # Or match version
+prometheus-client = "^0.16.0" # From main.py import
+
+# Local dependencies
+core-foundations = {path = "../core-foundations", develop = true}
+common-lib = {path = "../common-lib", develop = true, extras = ["database"]} # Add common-lib with database extras
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+black = "^23.7.0"
+# Add other dev dependencies as needed (e.g., isort, mypy, pytest-asyncio)
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

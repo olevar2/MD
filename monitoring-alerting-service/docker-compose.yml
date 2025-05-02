@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  prometheus:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/prometheus/Dockerfile
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  grafana:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/grafana/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  loki:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/loki/Dockerfile
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-data:/tmp/loki
+    command:
+      - '-config.file=/etc/loki/local-config.yaml'
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  tempo:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/tempo/Dockerfile
+    ports:
+      - "3200:3200"
+      - "14250:14250"
+      - "14268:14268"
+      - "4317:4317"
+      - "55681:55681"
+    volumes:
+      - tempo-data:/tmp/tempo
+    command:
+      - '--config.file=/etc/tempo/config.yml'
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  resource-cost-exporter:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/resource-cost-exporter/Dockerfile
+    environment:
+      - CLOUD_PROVIDER=aws  # or azure
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+    ports:
+      - "9091:9090"
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  tempo-data:
+
+networks:
+  monitoring-network:
+    driver: bridge

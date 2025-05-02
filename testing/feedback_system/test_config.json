@@ -1,0 +1,39 @@
+{
+    "testConfig": {
+        "parallelTests": 4,
+        "timeoutSeconds": 300,
+        "retryAttempts": 2
+    },
+    "adaptationScenarios": [
+        {
+            "name": "performance_drift",
+            "modelCount": 5,
+            "driftRate": 0.02,
+            "durationMinutes": 30,
+            "expectedAdaptations": 2
+        },
+        {
+            "name": "market_regime_change",
+            "modelCount": 3,
+            "regimeChanges": ["trending", "volatile", "ranging"],
+            "changeDurationMinutes": 15
+        },
+        {
+            "name": "high_load",
+            "modelCount": 20,
+            "concurrentAdaptations": 10,
+            "expectedLatencyMs": 5000
+        }
+    ],
+    "metrics": {
+        "successRateThreshold": 0.95,
+        "maxLatencyMs": 10000,
+        "minPerformanceImprovement": 0.05,
+        "maxRollbackRate": 0.1
+    },
+    "monitoring": {
+        "metricsPort": 9090,
+        "scrapeIntervalSeconds": 15,
+        "retentionDays": 7
+    }
+}

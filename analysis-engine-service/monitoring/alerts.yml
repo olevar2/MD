@@ -1,0 +1,205 @@
+groups:
+- name: analysis-engine-alerts
+  rules:
+  # Service Health Alerts
+  - alert: HighErrorRate
+    expr: sum(rate(analysis_engine_errors_total[5m])) by (operation) / sum(rate(analysis_engine_requests_total[5m])) by (operation) > 0.05
+    for: 5m
+    labels:
+      severity: warning
+      category: service_health
+    annotations:
+      summary: "High error rate for {{ $labels.operation }}"
+      description: "Error rate for {{ $labels.operation }} is {{ $value | humanizePercentage }} (> 5%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard?var-operation={{ $labels.operation }}"
+
+  - alert: CriticalErrorRate
+    expr: sum(rate(analysis_engine_errors_total[5m])) by (operation) / sum(rate(analysis_engine_requests_total[5m])) by (operation) > 0.20
+    for: 5m
+    labels:
+      severity: critical
+      category: service_health
+    annotations:
+      summary: "Critical error rate for {{ $labels.operation }}"
+      description: "Error rate for {{ $labels.operation }} is {{ $value | humanizePercentage }} (> 20%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard?var-operation={{ $labels.operation }}"
+
+  - alert: HighLatency
+    expr: histogram_quantile(0.95, sum(rate(analysis_engine_duration_seconds_bucket[5m])) by (operation, le)) > 2
+    for: 5m
+    labels:
+      severity: warning
+      category: performance
+    annotations:
+      summary: "High latency for {{ $labels.operation }}"
+      description: "P95 latency for {{ $labels.operation }} is {{ $value }}s (> 2s)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard?var-operation={{ $labels.operation }}"
+
+  - alert: CriticalLatency
+    expr: histogram_quantile(0.95, sum(rate(analysis_engine_duration_seconds_bucket[5m])) by (operation, le)) > 5
+    for: 5m
+    labels:
+      severity: critical
+      category: performance
+    annotations:
+      summary: "Critical latency for {{ $labels.operation }}"
+      description: "P95 latency for {{ $labels.operation }} is {{ $value }}s (> 5s)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard?var-operation={{ $labels.operation }}"
+
+  # Dependency Alerts
+  - alert: DependencyUnhealthy
+    expr: analysis_engine_dependency_health == 0
+    for: 5m
+    labels:
+      severity: critical
+      category: dependencies
+    annotations:
+      summary: "Dependency {{ $labels.dependency_name }} is unhealthy"
+      description: "Dependency {{ $labels.dependency_name }} has been unhealthy for 5 minutes"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  - alert: DependencyHighLatency
+    expr: histogram_quantile(0.95, sum(rate(analysis_engine_dependency_latency_seconds_bucket[5m])) by (dependency_name, le)) > 1
+    for: 5m
+    labels:
+      severity: warning
+      category: dependencies
+    annotations:
+      summary: "High latency for dependency {{ $labels.dependency_name }}"
+      description: "P95 latency for dependency {{ $labels.dependency_name }} is {{ $value }}s (> 1s)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  # Resource Usage Alerts
+  - alert: HighMemoryUsage
+    expr: analysis_engine_resource_usage{resource_type="memory"} > 85
+    for: 10m
+    labels:
+      severity: warning
+      category: resources
+    annotations:
+      summary: "High memory usage"
+      description: "Memory usage is {{ $value | humanizePercentage }} (> 85%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  - alert: CriticalMemoryUsage
+    expr: analysis_engine_resource_usage{resource_type="memory"} > 95
+    for: 5m
+    labels:
+      severity: critical
+      category: resources
+    annotations:
+      summary: "Critical memory usage"
+      description: "Memory usage is {{ $value | humanizePercentage }} (> 95%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  - alert: HighCPUUsage
+    expr: analysis_engine_resource_usage{resource_type="cpu"} > 90
+    for: 10m
+    labels:
+      severity: warning
+      category: resources
+    annotations:
+      summary: "High CPU usage"
+      description: "CPU usage is {{ $value | humanizePercentage }} (> 90%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  - alert: CriticalCPUUsage
+    expr: analysis_engine_resource_usage{resource_type="cpu"} > 95
+    for: 5m
+    labels:
+      severity: critical
+      category: resources
+    annotations:
+      summary: "Critical CPU usage"
+      description: "CPU usage is {{ $value | humanizePercentage }} (> 95%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  # Cache Performance Alerts
+  - alert: LowCacheHitRate
+    expr: sum(rate(analysis_engine_cache_hits_total[5m])) by (cache_type) / (sum(rate(analysis_engine_cache_hits_total[5m])) by (cache_type) + sum(rate(analysis_engine_cache_misses_total[5m])) by (cache_type)) < 0.5
+    for: 15m
+    labels:
+      severity: warning
+      category: performance
+    annotations:
+      summary: "Low cache hit rate for {{ $labels.cache_type }}"
+      description: "Cache hit rate for {{ $labels.cache_type }} is {{ $value | humanizePercentage }} (< 50%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  # API Performance Alerts
+  - alert: APIErrorRate
+    expr: sum(rate(analysis_engine_api_requests_total{status_code=~"5.."}[5m])) / sum(rate(analysis_engine_api_requests_total[5m])) > 0.01
+    for: 5m
+    labels:
+      severity: warning
+      category: api
+    annotations:
+      summary: "High API error rate"
+      description: "API error rate is {{ $value | humanizePercentage }} (> 1%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  - alert: CriticalAPIErrorRate
+    expr: sum(rate(analysis_engine_api_requests_total{status_code=~"5.."}[5m])) / sum(rate(analysis_engine_api_requests_total[5m])) > 0.05
+    for: 5m
+    labels:
+      severity: critical
+      category: api
+    annotations:
+      summary: "Critical API error rate"
+      description: "API error rate is {{ $value | humanizePercentage }} (> 5%)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard"
+
+  - alert: HighAPILatency
+    expr: histogram_quantile(0.95, sum(rate(analysis_engine_api_duration_seconds_bucket[5m])) by (endpoint, le)) > 1
+    for: 5m
+    labels:
+      severity: warning
+      category: api
+    annotations:
+      summary: "High API latency for {{ $labels.endpoint }}"
+      description: "P95 latency for {{ $labels.endpoint }} is {{ $value }}s (> 1s)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine/analysis-engine-dashboard?var-endpoint={{ $labels.endpoint }}"
+
+  # Business Metrics Alerts
+  - alert: LowSignalQuality
+    expr: avg(analysis_engine_signal_quality_score) by (signal_type, symbol) < 30
+    for: 30m
+    labels:
+      severity: warning
+      category: business
+    annotations:
+      summary: "Low signal quality for {{ $labels.signal_type }} on {{ $labels.symbol }}"
+      description: "Signal quality score is {{ $value }} (< 30)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine-business/analysis-engine-business-dashboard?var-symbol={{ $labels.symbol }}"
+
+  - alert: HighPredictionError
+    expr: avg(analysis_engine_prediction_error) by (prediction_type, symbol) > 10
+    for: 30m
+    labels:
+      severity: warning
+      category: business
+    annotations:
+      summary: "High prediction error for {{ $labels.prediction_type }} on {{ $labels.symbol }}"
+      description: "Prediction error is {{ $value }} (> 10)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine-business/analysis-engine-business-dashboard?var-symbol={{ $labels.symbol }}"
+
+  - alert: MarketRegimeChange
+    expr: sum(delta(analysis_engine_market_regime[1h])) by (symbol, regime_type) != 0
+    labels:
+      severity: info
+      category: business
+    annotations:
+      summary: "Market regime change for {{ $labels.symbol }}"
+      description: "Market regime for {{ $labels.symbol }} has changed to {{ $labels.regime_type }}"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine-business/analysis-engine-business-dashboard?var-symbol={{ $labels.symbol }}"
+
+  - alert: HighVolatility
+    expr: max(analysis_engine_volatility_index) by (symbol) > 80
+    for: 15m
+    labels:
+      severity: warning
+      category: business
+    annotations:
+      summary: "High volatility for {{ $labels.symbol }}"
+      description: "Volatility index for {{ $labels.symbol }} is {{ $value }} (> 80)"
+      dashboard_url: "https://grafana.example.com/d/analysis-engine-business/analysis-engine-business-dashboard?var-symbol={{ $labels.symbol }}"

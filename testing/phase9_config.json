@@ -1,0 +1,50 @@
+{
+  "test_suites": ["integration", "workflow", "production", "stress", "regression"],
+  "currency_pairs": ["EUR/USD", "GBP/USD", "USD/JPY", "AUD/USD", "USD/CAD", "NZD/USD", "USD/CHF", "EUR/GBP"],
+  "timeframes": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"],
+  "indicators": [
+    "advanced_macd", 
+    "multi_timeframe_rsi", 
+    "adaptive_bollinger", 
+    "volume_profile", 
+    "market_structure_detector",
+    "fibonacci_extension",
+    "machine_learning_predictor",
+    "volatility_regime",
+    "smart_pivot_points",
+    "harmonic_pattern_detector"
+  ],
+  "stress_test_duration": 7200,
+  "production_simulation_cycles": 10,
+  "parallel_execution": true,
+  "report_path": "./phase9_test_report.json",
+  "test_environments": [
+    {
+      "name": "standard",
+      "description": "Standard testing environment with normal load",
+      "data_volume_multiplier": 1.0,
+      "concurrent_users": 100
+    },
+    {
+      "name": "high_volume",
+      "description": "High volume environment with 10x normal data rate",
+      "data_volume_multiplier": 10.0,
+      "concurrent_users": 500
+    },
+    {
+      "name": "extreme",
+      "description": "Extreme testing environment with 50x normal load",
+      "data_volume_multiplier": 50.0,
+      "concurrent_users": 2000
+    }
+  ],
+  "market_scenarios": [
+    "normal_volatility",
+    "high_volatility",
+    "flash_crash",
+    "trend_reversal",
+    "range_bound",
+    "news_event",
+    "liquidity_gap"
+  ]
+}

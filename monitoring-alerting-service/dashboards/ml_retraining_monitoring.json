@@ -1,0 +1,179 @@
+{
+  "dashboard": {
+    "title": "ML Retraining Monitoring Dashboard",
+    "description": "Monitors ML model retraining jobs, success rates, and performance metrics",
+    "refreshRate": "30s",
+    "tags": ["ml", "model-training", "feedback-loop"],
+    "uid": "ml-retraining-monitoring",
+    "version": 1
+  },
+  "panels": [
+    {
+      "title": "Retraining Jobs Status",
+      "type": "stat-panel",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 4 },
+      "targets": [
+        {
+          "metric": "forex_ml_jobs_active_count",
+          "aggregation": "current"
+        },
+        {
+          "metric": "forex_ml_jobs_completed_count",
+          "aggregation": "sum",
+          "timeRange": "24h"
+        },
+        {
+          "metric": "forex_ml_jobs_failed_count",
+          "aggregation": "sum",
+          "timeRange": "24h"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            { "color": "green", "value": null },
+            { "color": "red", "value": 3 }
+          ]
+        }
+      }
+    },
+    {
+      "title": "Retraining Job Execution Time",
+      "type": "graph-panel",
+      "gridPos": { "x": 8, "y": 0, "w": 16, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_ml_job_execution_time_seconds",
+          "aggregation": "avg",
+          "groupBy": ["model_id"]
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" },
+        "yaxes": [
+          { "format": "s", "label": "Duration", "min": 0 },
+          { "show": false }
+        ],
+        "xaxis": { "mode": "time" },
+        "thresholds": [
+          {
+            "value": 3600,
+            "colorMode": "warning",
+            "op": "gt",
+            "fill": true,
+            "line": true
+          },
+          {
+            "value": 7200,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true
+          }
+        ]
+      }
+    },
+    {
+      "title": "ML Model Training Success Rate",
+      "type": "gauge",
+      "gridPos": { "x": 0, "y": 4, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_ml_job_success_rate",
+          "aggregation": "avg",
+          "timeRange": "7d"
+        }
+      ],
+      "options": {
+        "unit": "percentunit",
+        "min": 0,
+        "max": 1,
+        "thresholds": [
+          { "color": "red", "value": null },
+          { "color": "orange", "value": 0.7 },
+          { "color": "yellow", "value": 0.8 },
+          { "color": "green", "value": 0.9 }
+        ]
+      }
+    },
+    {
+      "title": "Retraining Jobs by Model",
+      "type": "bar-chart",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_ml_jobs_completed_count",
+          "aggregation": "sum",
+          "timeRange": "30d",
+          "groupBy": ["model_id"]
+        }
+      ],
+      "options": {
+        "stacking": "normal",
+        "xaxis": { "mode": "categories" }
+      }
+    },
+    {
+      "title": "Job Failure Reasons",
+      "type": "pie-chart",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_ml_jobs_failed_count",
+          "aggregation": "sum",
+          "timeRange": "30d",
+          "groupBy": ["failure_reason"]
+        }
+      ],
+      "options": {
+        "legend": { "show": true }
+      }
+    },
+    {
+      "title": "ML Model Retraining Latency History",
+      "type": "heatmap",
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_ml_job_execution_time_seconds",
+          "aggregation": "avg"
+        }
+      ],
+      "options": {
+        "yBucketBound": "auto",
+        "yAxis": { "format": "s", "decimals": 0 },
+        "tooltip": { "show": true }
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "model_id",
+      "type": "query",
+      "query": "label_values(forex_ml_jobs_completed_count, model_id)",
+      "multi": true,
+      "includeAll": true
+    },
+    {
+      "name": "timeRange",
+      "type": "custom",
+      "options": ["1h", "6h", "12h", "24h", "7d", "30d"],
+      "default": "24h"
+    }
+  ],
+  "links": [
+    {
+      "title": "ML Integration Service",
+      "url": "/service/ml-integration-service",
+      "type": "link"
+    },
+    {
+      "title": "Feedback Loop Performance",
+      "url": "/dashboard/feedback-loop-monitoring",
+      "type": "dashboard"
+    }
+  ]
+}

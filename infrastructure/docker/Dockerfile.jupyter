@@ -1,0 +1,81 @@
+FROM jupyter/scipy-notebook:latest
+
+USER root
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    build-essential \
+    cmake \
+    libpq-dev \
+    postgresql-client \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+USER jovyan
+
+# Install Python packages for financial analysis
+RUN pip install --no-cache-dir \
+    # Core data science packages
+    pandas>=2.0.0 \
+    numpy>=1.22.0 \
+    matplotlib>=3.5.0 \
+    seaborn>=0.12.0 \
+    scikit-learn>=1.2.0 \
+    scipy>=1.10.0 \
+    statsmodels>=0.13.0 \
+    ipywidgets>=8.0.0 \
+    # Financial packages
+    pandas-ta>=0.3.0 \
+    yfinance>=0.2.0 \
+    ta>=0.10.0 \
+    pyfolio>=0.9.0 \
+    pandas-market-calendars>=4.1.0 \
+    # Deep Learning packages
+    tensorflow>=2.11.0 \
+    keras>=2.11.0 \
+    torch>=1.13.0 \
+    # DB access
+    sqlalchemy>=2.0.0 \
+    psycopg2-binary>=2.9.0 \
+    redis>=4.5.0 \
+    # API and client interfaces
+    requests>=2.28.0 \
+    aiohttp>=3.8.0 \
+    fastapi>=0.95.0 \
+    # Utility libraries
+    tqdm>=4.65.0 \
+    pydantic>=2.0.0 \
+    PyYAML>=6.0.0 \
+    python-dotenv>=1.0.0 \
+    joblib>=1.2.0 \
+    # Charting and interactive viz
+    plotly>=5.13.0 \
+    bokeh>=3.1.0 \
+    mplfinance>=0.12.0 \
+    pycountry>=22.3.0
+
+# Install TA-Lib (technical analysis library)
+# This library has C dependencies that need to be compiled
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
+    tar -xzf ta-lib-0.4.0-src.tar.gz && \
+    cd ta-lib/ && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf ta-lib-0.4.0-src.tar.gz ta-lib/ && \
+    pip install --no-cache-dir TA-Lib>=0.4.0
+
+# Install Jupyter lab extensions
+RUN pip install --no-cache-dir \
+    jupyterlab-plotly>=5.13.0 \
+    jupyterlab-git>=0.41.0 \
+    jupyterlab-lsp>=4.0.0 \
+    python-lsp-server>=1.7.0
+
+# Setup working directory
+WORKDIR /home/jovyan/notebooks
+
+CMD ["start-notebook.sh", "--NotebookApp.token=''"]

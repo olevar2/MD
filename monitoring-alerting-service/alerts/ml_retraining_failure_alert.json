@@ -1,0 +1,36 @@
+{
+  "name": "ml_retraining_failure_alert",
+  "description": "Alerts when ML retraining jobs fail repeatedly or show high failure rates",
+  "type": "MetricAlert",
+  "severity": "warning",
+  "evaluateEvery": "1m",
+  "conditions": [
+    {
+      "type": "query",
+      "query": {
+        "metric": "forex_ml_jobs_failed_count",
+        "aggregation": "sum",
+        "timeRange": "1h"
+      },
+      "reducer": "sum",
+      "evaluator": {
+        "type": "gt",
+        "params": [2]
+      }
+    }
+  ],
+  "notifications": [
+    {
+      "uid": "ml_team_channel",
+      "name": "ML Team Alert Channel",
+      "type": "slack"
+    },
+    {
+      "uid": "ml_operations_email",
+      "name": "ML Operations Email",
+      "type": "email"
+    }
+  ],
+  "message": "Multiple ML retraining job failures detected in the past hour. Please investigate possible issues with training data, infrastructure, or model configuration.",
+  "tags": ["ml", "retraining", "failure"]
+}

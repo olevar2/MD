@@ -1,0 +1,20 @@
+{
+    "EUR/USD": {
+        "bid": 1.1050,
+        "ask": 1.1052,
+        "daily_volatility": 0.0045,
+        "weekly_range": [1.0950, 1.1150]
+    },
+    "GBP/USD": {
+        "bid": 1.3020,
+        "ask": 1.3023,
+        "daily_volatility": 0.0065,
+        "weekly_range": [1.2900, 1.3200]
+    },
+    "USD/JPY": {
+        "bid": 108.20,
+        "ask": 108.22,
+        "daily_volatility": 0.0055,
+        "weekly_range": [107.50, 109.00]
+    }
+}

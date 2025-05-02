@@ -1,0 +1,29 @@
+groups:
+  - name: tracing_monitoring
+    rules:
+      - alert: HighLatencyOperation
+        expr: histogram_quantile(0.95, sum(rate(trace_duration_seconds_bucket[5m])) by (operation, le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High latency in {{ $labels.operation }}
+          description: 95th percentile latency is above 1s for operation {{ $labels.operation }}
+
+      - alert: ErrorRateInTrace
+        expr: sum(rate(trace_error_total[5m])) by (operation) / sum(rate(trace_total[5m])) by (operation) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High error rate in traced operation
+          description: Error rate is above 5% for operation {{ $labels.operation }}
+
+      - alert: CriticalPathDegradation
+        expr: avg_over_time(critical_path_duration_seconds[5m]) > avg_over_time(critical_path_duration_seconds[1h]) * 1.5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Critical path performance degradation
+          description: Critical path duration is 50% higher than 1-hour average

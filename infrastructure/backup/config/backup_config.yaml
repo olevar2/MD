@@ -1,0 +1,44 @@
+# Backup Configuration for Forex Trading Platform
+
+# Default backup retention policies
+default_retention:
+  daily: 30  # days
+  weekly: 180  # days
+  monthly: 730  # days
+
+# Database backup schedules
+backup_schedules:
+  feature_store_db:
+    frequency: "0 1 * * *"  # Daily at 1 AM UTC
+    type: "postgresql"
+    retention: "default"
+    validation_required: true
+    encrypt: true
+    
+  trading_history_db:
+    frequency: "0 2 * * *"  # Daily at 2 AM UTC
+    type: "timescale"
+    retention: "default"
+    validation_required: true
+    encrypt: true
+    
+  market_data_db:
+    frequency: "0 */4 * * *"  # Every 4 hours
+    type: "clickhouse"
+    retention: "default"
+    validation_required: true
+    encrypt: true
+
+# Backup storage configuration
+storage:
+  provider: "cloud"
+  region: "secondary"  # Different from primary region
+  encryption:
+    enabled: true
+    key_rotation: 90  # days
+
+# Recovery validation
+validation:
+  integrity_check: true
+  sample_restore_test: true
+  frequency: "0 3 * * 0"  # Weekly on Sunday at 3 AM UTC

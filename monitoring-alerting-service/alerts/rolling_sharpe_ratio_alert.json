@@ -1,0 +1,32 @@
+{
+  "name": "rolling_sharpe_ratio_alert",
+  "description": "Alerts when the rolling Sharpe ratio drops below acceptable thresholds",
+  "type": "MetricAlert",
+  "severity": "warning",
+  "evaluateEvery": "15m",
+  "conditions": [
+    {
+      "type": "query",
+      "query": {
+        "metric": "forex_rolling_sharpe_ratio",
+        "aggregation": "avg",
+        "timeRange": "24h",
+        "filter": "active_strategies"
+      },
+      "reducer": "avg",
+      "evaluator": {
+        "type": "lt",
+        "params": [0.5]
+      }
+    }
+  ],
+  "notifications": [
+    {
+      "uid": "trading_operations_channel",
+      "name": "Trading Operations Channel",
+      "type": "slack"
+    }
+  ],
+  "message": "Warning: The average rolling Sharpe ratio across active strategies has fallen below 0.5 over the past 24 hours. This indicates declining risk-adjusted returns and may require adaptation adjustments.",
+  "tags": ["adaptation", "performance", "sharpe"]
+}

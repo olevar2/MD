@@ -1,0 +1,64 @@
+monitoring:
+  loki:
+    url: "http://loki:3100"
+    retention_periods:
+      error: "30d"
+      warning: "14d"
+      info: "7d"
+
+  tempo:
+    url: "http://tempo:3200"
+    sampling:
+      order_execution: 1.0  # Sample all order executions
+      market_data: 0.1      # Sample 10% of market data operations
+      default: 0.01         # Sample 1% of other operations
+
+  prometheus:
+    url: "http://prometheus:9090"
+    scrape_interval: "15s"
+    evaluation_interval: "15s"
+
+  alertmanager:
+    url: "http://alertmanager:9093"
+    resolve_timeout: "5m"
+    routes:
+      - match:
+          severity: critical
+        receiver: pagerduty
+      - match:
+          severity: warning
+        receiver: slack
+
+  cost_monitoring:
+    providers:
+      - name: "aws"
+        region: "us-east-1"
+        update_interval: "1h"
+      - name: "azure"
+        subscription_id: "${AZURE_SUBSCRIPTION_ID}"
+        update_interval: "1h"
+
+  dashboards:
+    refresh_interval: "10s"
+    retention_days: 90
+
+  resource_monitoring:
+    thresholds:
+      cpu_warning: 80
+      cpu_critical: 90
+      memory_warning: 80
+      memory_critical: 90
+      disk_warning: 85
+      disk_critical: 90
+
+  incident_management:
+    pagerduty:
+      service_key: "${PAGERDUTY_SERVICE_KEY}"
+      urgency_rules:
+        high: "critical"
+        low: "warning"
+    slack:
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channels:
+        alerts: "#forex-alerts"
+        costs: "#forex-costs"

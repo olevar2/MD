@@ -1,0 +1,29 @@
+groups:
+  - name: log_monitoring
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(log_error_total[5m])) by (service) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High error rate in {{ $labels.service }}
+          description: Error rate is above 10% in the last 5 minutes
+
+      - alert: CriticalLogPattern
+        expr: sum(rate(log_critical_pattern_matched[5m])) by (pattern) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Critical log pattern detected
+          description: Pattern {{ $labels.pattern }} detected in logs
+
+      - alert: LogVolumeSpike
+        expr: sum(rate(log_lines_total[5m])) by (service) > hist_quantile(0.95, rate(log_lines_total[1h]))
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Unusual log volume in {{ $labels.service }}
+          description: Log volume is significantly higher than normal

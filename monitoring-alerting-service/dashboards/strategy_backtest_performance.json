@@ -1,0 +1,206 @@
+{
+  "dashboard": {
+    "title": "Strategy Backtest Performance Dashboard",
+    "description": "Monitors backtest performance metrics for newly mutated strategies",
+    "refreshRate": "1m",
+    "tags": ["strategy", "backtest", "mutation", "performance"],
+    "uid": "strategy-backtest-performance",
+    "version": 1
+  },
+  "panels": [
+    {
+      "title": "Recent Strategy Mutations",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 6 },
+      "targets": [
+        {
+          "metric": "forex_strategy_mutations",
+          "aggregation": "latest",
+          "timeRange": "7d",
+          "groupBy": ["strategy_id", "mutation_id", "mutation_type", "timestamp"]
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "columns": [
+          {"text": "Strategy ID", "field": "strategy_id"},
+          {"text": "Mutation ID", "field": "mutation_id"},
+          {"text": "Mutation Type", "field": "mutation_type"},
+          {"text": "Timestamp", "field": "timestamp"}
+        ],
+        "sortBy": [{ "field": "timestamp", "desc": true }]
+      }
+    },
+    {
+      "title": "Backtest Performance Changes",
+      "type": "bar-gauge",
+      "gridPos": { "x": 0, "y": 6, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_backtest_sharpe_ratio_delta",
+          "aggregation": "latest",
+          "groupBy": ["strategy_id"]
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "minVizWidth": 100,
+        "minVizHeight": 30,
+        "thresholds": [
+          { "color": "red", "value": null },
+          { "color": "orange", "value": -0.1 },
+          { "color": "yellow", "value": 0 },
+          { "color": "green", "value": 0.1 }
+        ]
+      }
+    },
+    {
+      "title": "Backtest Win Rate Delta",
+      "type": "bar-gauge",
+      "gridPos": { "x": 8, "y": 6, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_backtest_win_rate_delta",
+          "aggregation": "latest",
+          "groupBy": ["strategy_id"]
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "unit": "percentunit",
+        "thresholds": [
+          { "color": "red", "value": null },
+          { "color": "orange", "value": -0.05 },
+          { "color": "yellow", "value": 0 },
+          { "color": "green", "value": 0.05 }
+        ]
+      }
+    },
+    {
+      "title": "Max Drawdown Reduction",
+      "type": "bar-gauge",
+      "gridPos": { "x": 16, "y": 6, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_backtest_max_drawdown_delta",
+          "aggregation": "latest",
+          "groupBy": ["strategy_id"],
+          "multiplier": -1
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "unit": "percentunit",
+        "thresholds": [
+          { "color": "red", "value": null },
+          { "color": "orange", "value": -0.01 },
+          { "color": "yellow", "value": 0 },
+          { "color": "green", "value": 0.01 }
+        ]
+      }
+    },
+    {
+      "title": "Strategy Backtest Sharpe Ratio History",
+      "type": "graph-panel",
+      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_backtest_sharpe_ratio",
+          "aggregation": "avg",
+          "groupBy": ["strategy_id", "version"]
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" },
+        "xaxis": { "mode": "time" },
+        "yaxes": [
+          { "label": "Sharpe Ratio", "min": 0 },
+          { "show": false }
+        ]
+      }
+    },
+    {
+      "title": "Strategy Backtest Win Rate History",
+      "type": "graph-panel",
+      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_backtest_win_rate",
+          "aggregation": "avg",
+          "groupBy": ["strategy_id", "version"]
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltip": { "mode": "multi" },
+        "xaxis": { "mode": "time" },
+        "yaxes": [
+          { "format": "percentunit", "label": "Win Rate", "min": 0, "max": 1 },
+          { "show": false }
+        ]
+      }
+    },
+    {
+      "title": "Mutation Acceptance Rate by Type",
+      "type": "pie-chart", 
+      "gridPos": { "x": 0, "y": 22, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_mutation_acceptance_rate",
+          "aggregation": "avg",
+          "timeRange": "30d",
+          "groupBy": ["mutation_type"]
+        }
+      ],
+      "options": {
+        "legend": { "show": true },
+        "tooltips": { "mode": "single" }
+      }
+    },
+    {
+      "title": "Mutation Performance Impact Distribution",
+      "type": "histogram",
+      "gridPos": { "x": 12, "y": 22, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "metric": "forex_backtest_sharpe_ratio_delta",
+          "aggregation": "histogram"
+        }
+      ],
+      "options": {
+        "tooltip": { "mode": "multi" }
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "strategy_id",
+      "type": "query",
+      "query": "label_values(forex_backtest_sharpe_ratio, strategy_id)",
+      "multi": true,
+      "includeAll": true
+    },
+    {
+      "name": "timeRange",
+      "type": "custom",
+      "options": ["24h", "7d", "30d", "90d"],
+      "default": "7d"
+    }
+  ],
+  "links": [
+    {
+      "title": "Strategy Execution Engine",
+      "url": "/service/strategy-execution-engine",
+      "type": "link"
+    },
+    {
+      "title": "ML Retraining Monitoring",
+      "url": "/dashboard/ml-retraining-monitoring",
+      "type": "dashboard"
+    }
+  ]
+}

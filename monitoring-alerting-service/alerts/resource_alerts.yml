@@ -1,0 +1,47 @@
+groups:
+  - name: resource_monitoring
+    rules:
+      - alert: HighResourceUtilization
+        expr: avg by(service)(resource_usage_percentage{resource="cpu"}) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: High resource utilization
+          description: Service {{ $labels.service }} using > 80% {{ $labels.resource }}
+
+      - alert: CostThresholdExceeded
+        expr: sum by(service)(service_cost_hourly) > cost_threshold
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: Service cost threshold exceeded
+          description: Service {{ $labels.service }} cost exceeding threshold
+
+      - alert: UnusedResources
+        expr: avg_over_time(resource_usage_percentage[24h]) < 20
+        for: 24h
+        labels:
+          severity: info
+        annotations:
+          summary: Potentially underutilized resources
+          description: Service {{ $labels.service }} showing low utilization
+
+      - alert: ScalingEfficiencyLow
+        expr: scaling_efficiency_score < 0.7
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: Low scaling efficiency
+          description: Service {{ $labels.service }} showing poor scaling efficiency
+
+      - alert: CostAnomaly
+        expr: abs(service_cost_zscore) > 2
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: Unusual cost pattern detected
+          description: Service {{ $labels.service }} showing abnormal cost pattern

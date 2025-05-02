@@ -1,0 +1,31 @@
+{
+  "name": "ml_retraining_high_latency_alert",
+  "description": "Alerts when ML retraining jobs exceed acceptable execution times",
+  "type": "MetricAlert",
+  "severity": "warning",
+  "evaluateEvery": "5m",
+  "conditions": [
+    {
+      "type": "query",
+      "query": {
+        "metric": "forex_ml_job_execution_time_seconds",
+        "aggregation": "avg",
+        "timeRange": "30m"
+      },
+      "reducer": "avg",
+      "evaluator": {
+        "type": "gt",
+        "params": [3600]
+      }
+    }
+  ],
+  "notifications": [
+    {
+      "uid": "ml_team_channel",
+      "name": "ML Team Alert Channel",
+      "type": "slack"
+    }
+  ],
+  "message": "ML retraining jobs are taking longer than expected (>1 hour). This may impact the timely adaptation of trading strategies. Check for resource constraints or inefficient training configurations.",
+  "tags": ["ml", "retraining", "latency", "performance"]
+}

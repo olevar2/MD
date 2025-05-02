@@ -1,0 +1,36 @@
+{
+  "name": "backtest_performance_degradation_alert",
+  "description": "Alerts when newly mutated strategies show significant performance degradation in backtest",
+  "type": "MetricAlert",
+  "severity": "critical",
+  "evaluateEvery": "5m",
+  "conditions": [
+    {
+      "type": "query",
+      "query": {
+        "metric": "forex_backtest_sharpe_ratio_delta",
+        "aggregation": "min",
+        "timeRange": "1h"
+      },
+      "reducer": "min",
+      "evaluator": {
+        "type": "lt",
+        "params": [-0.3]
+      }
+    }
+  ],
+  "notifications": [
+    {
+      "uid": "trading_strategy_channel",
+      "name": "Trading Strategy Team Channel",
+      "type": "slack"
+    },
+    {
+      "uid": "risk_management_email",
+      "name": "Risk Management Email",
+      "type": "email"
+    }
+  ],
+  "message": "CRITICAL: Significant performance degradation detected in a newly mutated strategy backtest (Sharpe ratio reduction >30%). Strategy deployment has been automatically prevented, but requires manual review.",
+  "tags": ["strategy", "backtest", "performance", "risk"]
+}

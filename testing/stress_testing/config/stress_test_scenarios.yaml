@@ -1,0 +1,68 @@
+# Stress Test Scenarios Configuration
+
+high_volume_simulation:
+  description: "High volume data throughput testing"
+  data_generation:
+    tick_rate: 5000  # ticks per second
+    currency_pairs: ["EUR/USD", "GBP/USD", "USD/JPY", "AUD/USD"]
+    duration_seconds: 300
+
+extreme_market_conditions:
+  description: "Testing under extreme market conditions"
+  scenarios:
+    - name: "flash_crash"
+      price_change: -0.15
+      duration_seconds: 60
+    - name: "high_volatility"
+      volatility_multiplier: 5.0
+      duration_seconds: 300
+    - name: "liquidity_gap"
+      gap_size: 0.05
+      duration_seconds: 30
+
+broker_failure_simulation:
+  description: "Broker connection failure and recovery testing"
+  scenarios:
+    - name: "complete_outage"
+      duration_seconds: 60
+    - name: "intermittent_failure"
+      failure_rate: 0.3
+      duration_seconds: 300
+    - name: "high_latency"
+      latency_ms: 2000
+      duration_seconds: 180
+
+component_failure:
+  description: "Testing system resilience to component failures"
+  scenarios:
+    - name: "data_pipeline_failure"
+      target_service: "data-pipeline-service"
+      failure_type: "crash"
+    - name: "ml_service_degradation"
+      target_service: "ml-integration-service"
+      failure_type: "memory_leak"
+    - name: "database_overload"
+      target_service: "feature-store-service"
+      failure_type: "connection_pool_exhaustion"
+
+recovery_scenarios:
+  description: "System recovery capability testing"
+  scenarios:
+    - name: "full_system_recovery"
+      failure_components: ["all"]
+      recovery_order: ["core", "data", "analysis", "trading"]
+    - name: "partial_recovery"
+      failure_components: ["ml-integration-service", "feature-store-service"]
+      recovery_order: ["feature-store-service", "ml-integration-service"]
+
+performance_metrics:
+  response_time:
+    warning_threshold_ms: 500
+    critical_threshold_ms: 2000
+  error_rate:
+    warning_threshold: 0.01  # 1%
+    critical_threshold: 0.05  # 5%
+  resource_utilization:
+    cpu_warning_threshold: 0.80  # 80%
+    memory_warning_threshold: 0.85  # 85%
+    disk_warning_threshold: 0.90  # 90%

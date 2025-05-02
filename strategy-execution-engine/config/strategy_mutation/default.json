@@ -1,0 +1,112 @@
+{
+    "mutable_parameters": {
+        "atr_multiple_sl": {
+            "type": "float",
+            "bounds": [0.5, 3.0],
+            "step": 0.1,
+            "description": "ATR multiplier for stop loss placement"
+        },
+        "atr_multiple_tp": {
+            "type": "float",
+            "bounds": [1.0, 5.0],
+            "step": 0.1,
+            "description": "ATR multiplier for take profit placement"
+        },
+        "min_timeframe_agreement": {
+            "type": "int",
+            "bounds": [2, 5],
+            "step": 1,
+            "description": "Minimum number of timeframes that must agree for a valid signal"
+        },
+        "directional_agreement_threshold": {
+            "type": "float",
+            "bounds": [0.6, 0.95],
+            "step": 0.05,
+            "description": "Threshold for directional agreement between timeframes"
+        },
+        "confirmation_bars": {
+            "type": "int",
+            "bounds": [1, 5],
+            "step": 1,
+            "description": "Number of confirmation bars required before entry"
+        }
+    },
+    "mutation_rules": {
+        "after_consecutive_losses": {
+            "trigger": 3,
+            "parameters": ["atr_multiple_sl", "min_timeframe_agreement"],
+            "action": "increase",
+            "magnitude": 0.15
+        },
+        "after_consecutive_wins": {
+            "trigger": 5,
+            "parameters": ["atr_multiple_tp"],
+            "action": "increase",
+            "magnitude": 0.1
+        },
+        "high_win_rate_low_profit": {
+            "win_rate_above": 0.7,
+            "profit_factor_below": 1.5,
+            "parameters": ["atr_multiple_tp"],
+            "action": "increase",
+            "magnitude": 0.2
+        },
+        "low_win_rate_high_profit": {
+            "win_rate_below": 0.4,
+            "profit_factor_above": 2.0,
+            "parameters": ["entry_filter_strength"],
+            "action": "decrease",
+            "magnitude": 0.1
+        }
+    },
+    "regime_specific_bounds": {
+        "TRENDING": {
+            "min_timeframe_agreement": {
+                "bounds": [2, 4],
+                "description": "Fewer timeframes need to agree in trending markets"
+            },
+            "directional_agreement_threshold": {
+                "bounds": [0.6, 0.8],
+                "description": "Lower threshold in trending markets"
+            },
+            "atr_multiple_tp": {
+                "bounds": [2.0, 5.0],
+                "description": "Higher take profit targets in trending markets"
+            }
+        },
+        "RANGING": {
+            "min_timeframe_agreement": {
+                "bounds": [3, 5],
+                "description": "More timeframes need to agree in ranging markets"
+            },
+            "directional_agreement_threshold": {
+                "bounds": [0.75, 0.95],
+                "description": "Higher threshold in ranging markets"
+            },
+            "atr_multiple_tp": {
+                "bounds": [1.0, 2.5],
+                "description": "Lower take profit targets in ranging markets"
+            }
+        },
+        "VOLATILE": {
+            "atr_multiple_sl": {
+                "bounds": [1.5, 3.0],
+                "description": "Wider stops in volatile markets"
+            },
+            "min_timeframe_agreement": {
+                "bounds": [4, 5],
+                "description": "More confirmation needed in volatile markets"
+            }
+        },
+        "BREAKOUT": {
+            "confirmation_bars": {
+                "bounds": [1, 2],
+                "description": "Fewer confirmation bars in breakout markets"
+            },
+            "atr_multiple_tp": {
+                "bounds": [2.5, 5.0],
+                "description": "Higher take profit targets in breakout markets"
+            }
+        }
+    }
+}
