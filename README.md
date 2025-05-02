@@ -1,4 +1,5 @@
-# Forex Trading Platform
+# Forex Trading Platform (MD)
+خدمات التداول الأساسية
 
 ## Overview
 
