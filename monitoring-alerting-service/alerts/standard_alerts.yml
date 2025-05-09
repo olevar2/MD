@@ -1,0 +1,210 @@
+groups:
+  - name: system_health
+    rules:
+      - alert: ServiceDown
+        expr: system_health{component=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "Service {{ $labels.component }} is down"
+          description: "Service {{ $labels.component }} has been reporting as unhealthy for more than 1 minute."
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/service-down"
+
+      - alert: HighCpuUsage
+        expr: system_cpu_usage_percent{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "High CPU usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} has been using more than 80% CPU for more than 5 minutes. Current value: {{ $value }}%"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/high-cpu-usage"
+
+      - alert: CriticalCpuUsage
+        expr: system_cpu_usage_percent{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "Critical CPU usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} has been using more than 95% CPU for more than 2 minutes. Current value: {{ $value }}%"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/critical-cpu-usage"
+
+      - alert: HighMemoryUsage
+        expr: system_memory_usage_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} / system_memory_total_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "High memory usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} has been using more than 80% memory for more than 5 minutes. Current value: {{ $value | humanizePercentage }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/high-memory-usage"
+
+      - alert: CriticalMemoryUsage
+        expr: system_memory_usage_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} / system_memory_total_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "Critical memory usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} has been using more than 95% memory for more than 2 minutes. Current value: {{ $value | humanizePercentage }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/critical-memory-usage"
+
+      - alert: HighDiskUsage
+        expr: system_disk_usage_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} / system_disk_total_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "High disk usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} has been using more than 85% disk for more than 10 minutes. Current value: {{ $value | humanizePercentage }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/high-disk-usage"
+
+      - alert: CriticalDiskUsage
+        expr: system_disk_usage_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} / system_disk_total_bytes{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"} * 100 > 95
+        for: 5m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "Critical disk usage on {{ $labels.service }}"
+          description: "{{ $labels.service }} has been using more than 95% disk for more than 5 minutes. Current value: {{ $value | humanizePercentage }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/critical-disk-usage"
+
+  - name: performance
+    rules:
+      - alert: HighApiLatency
+        expr: histogram_quantile(0.95, sum(rate(api_request_duration_seconds_bucket{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"}[5m])) by (service, endpoint, le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High API latency on {{ $labels.service }} - {{ $labels.endpoint }}"
+          description: "95th percentile latency for {{ $labels.service }} - {{ $labels.endpoint }} is above 1 second for more than 5 minutes. Current value: {{ $value | humanizeDuration }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/high-api-latency"
+
+      - alert: CriticalApiLatency
+        expr: histogram_quantile(0.95, sum(rate(api_request_duration_seconds_bucket{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"}[5m])) by (service, endpoint, le)) > 5
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "Critical API latency on {{ $labels.service }} - {{ $labels.endpoint }}"
+          description: "95th percentile latency for {{ $labels.service }} - {{ $labels.endpoint }} is above 5 seconds for more than 2 minutes. Current value: {{ $value | humanizeDuration }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/critical-api-latency"
+
+      - alert: HighErrorRate
+        expr: sum by (service) (rate(api_errors_total{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"}[5m])) / sum by (service) (rate(api_requests_total{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"}[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "{{ $labels.service }} has an error rate above 5% for more than 5 minutes. Current value: {{ $value | humanizePercentage }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/high-error-rate"
+
+      - alert: CriticalErrorRate
+        expr: sum by (service) (rate(api_errors_total{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"}[5m])) / sum by (service) (rate(api_requests_total{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"}[5m])) * 100 > 10
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "Critical error rate on {{ $labels.service }}"
+          description: "{{ $labels.service }} has an error rate above 10% for more than 2 minutes. Current value: {{ $value | humanizePercentage }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/critical-error-rate"
+
+      - alert: HighDatabaseLatency
+        expr: histogram_quantile(0.95, sum(rate(db_operation_duration_seconds_bucket{service=~"analysis-engine-service|trading-gateway-service|feature-store-service|ml-integration-service|strategy-execution-engine|data-pipeline-service"}[5m])) by (service, database, operation, le)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High database latency on {{ $labels.service }} - {{ $labels.database }} - {{ $labels.operation }}"
+          description: "95th percentile latency for {{ $labels.service }} - {{ $labels.database }} - {{ $labels.operation }} is above 500ms for more than 5 minutes. Current value: {{ $value | humanizeDuration }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/forex-performance-overview"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/high-database-latency"
+
+  - name: business
+    rules:
+      - alert: LowSignalQuality
+        expr: signal_quality_score{service="analysis-engine-service"} < 0.6
+        for: 15m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "Low signal quality for {{ $labels.signal_type }} - {{ $labels.instrument }} - {{ $labels.timeframe }}"
+          description: "Signal quality score for {{ $labels.signal_type }} - {{ $labels.instrument }} - {{ $labels.timeframe }} is below 0.6 for more than 15 minutes. Current value: {{ $value }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/trading-performance"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/low-signal-quality"
+
+      - alert: ModelPerformanceDegradation
+        expr: model_performance_score{service="ml-integration-service", metric_name="accuracy"} < 0.7
+        for: 30m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "Model performance degradation for {{ $labels.model_id }}"
+          description: "Model {{ $labels.model_id }} accuracy is below 0.7 for more than 30 minutes. Current value: {{ $value }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/model-adaptation-metrics"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/model-performance-degradation"
+
+      - alert: HighTradingSlippage
+        expr: avg(execution_slippage_bps) by (strategy) > 10
+        for: 15m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High trading slippage for {{ $labels.strategy }}"
+          description: "Strategy {{ $labels.strategy }} has average slippage above 10 bps for more than 15 minutes. Current value: {{ $value }} bps"
+          dashboard_url: "https://grafana.forex-platform.com/d/trading-performance"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/high-trading-slippage"
+
+      - alert: LowOrderFillRate
+        expr: avg(order_fill_rate) by (strategy) < 0.9
+        for: 15m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "Low order fill rate for {{ $labels.strategy }}"
+          description: "Strategy {{ $labels.strategy }} has order fill rate below 90% for more than 15 minutes. Current value: {{ $value | humanizePercentage }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/trading-performance"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/low-order-fill-rate"
+
+      - alert: AbnormalMarketRegimeDetection
+        expr: market_regime_confidence{service="analysis-engine-service"} < 0.5
+        for: 15m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "Low market regime detection confidence for {{ $labels.instrument }} - {{ $labels.timeframe }}"
+          description: "Market regime detection confidence for {{ $labels.instrument }} - {{ $labels.timeframe }} is below 0.5 for more than 15 minutes. Current value: {{ $value }}"
+          dashboard_url: "https://grafana.forex-platform.com/d/analysis-engine"
+          runbook_url: "https://wiki.forex-platform.com/runbooks/abnormal-market-regime-detection"

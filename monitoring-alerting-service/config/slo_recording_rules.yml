@@ -1,0 +1,53 @@
+groups:
+- name: sli_recording_rules
+  rules:
+  - expr: sum(rate(http_requests_total{service="trading-gateway-service",status_code=~"[2345].."}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service"}[5m]))
+    record: sli:http_request_availability:ratio_rate5m
+  - expr: 1 - (sum(rate(http_requests_total{service="trading-gateway-service",status_code=~"[2345].."}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service"}[5m])))
+    record: sli:http_request_availability:error_rate5m
+  - expr: sum(rate(sli:http_request_availability:error_rate5m[1h])) / (0.005 / 3600)
+    record: sli:http_request_availability:error_budget_burn_rate1h
+  - expr: sum(rate(sli:http_request_availability:error_rate5m[6h])) / (0.005 / 21600)
+    record: sli:http_request_availability:error_budget_burn_rate6h
+  - expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service"}[5m]))
+      by (le))
+    record: sli:http_request_latency:ratio_rate5m
+  - expr: (histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service"}[5m]))
+      by (le))) > 0.2
+    record: sli:http_request_latency:error_rate5m
+  - expr: sum(rate(sli:http_request_latency:error_rate5m[1h])) / (0.05 / 3600)
+    record: sli:http_request_latency:error_budget_burn_rate1h
+  - expr: sum(rate(sli:http_request_latency:error_rate5m[6h])) / (0.05 / 21600)
+    record: sli:http_request_latency:error_budget_burn_rate6h
+  - expr: sum(rate(order_execution_success_total{service="trading-gateway-service"}[5m]))
+      / sum(rate(order_execution_total{service="trading-gateway-service"}[5m]))
+    record: sli:order_execution_success:ratio_rate5m
+  - expr: 1 - (sum(rate(order_execution_success_total{service="trading-gateway-service"}[5m]))
+      / sum(rate(order_execution_total{service="trading-gateway-service"}[5m])))
+    record: sli:order_execution_success:error_rate5m
+  - expr: sum(rate(sli:order_execution_success:error_rate5m[1h])) / (0.005 / 3600)
+    record: sli:order_execution_success:error_budget_burn_rate1h
+  - expr: sum(rate(sli:order_execution_success:error_rate5m[6h])) / (0.005 / 21600)
+    record: sli:order_execution_success:error_budget_burn_rate6h
+  - expr: histogram_quantile(0.95, sum(rate(model_inference_duration_seconds_bucket{service="ml-integration-service"}[5m]))
+      by (le))
+    record: sli:model_inference_latency:ratio_rate5m
+  - expr: (histogram_quantile(0.95, sum(rate(model_inference_duration_seconds_bucket{service="ml-integration-service"}[5m]))
+      by (le))) > 0.1
+    record: sli:model_inference_latency:error_rate5m
+  - expr: sum(rate(sli:model_inference_latency:error_rate5m[1h])) / (0.05 / 3600)
+    record: sli:model_inference_latency:error_budget_burn_rate1h
+  - expr: sum(rate(sli:model_inference_latency:error_rate5m[6h])) / (0.05 / 21600)
+    record: sli:model_inference_latency:error_budget_burn_rate6h
+  - expr: histogram_quantile(0.95, sum(rate(strategy_execution_duration_seconds_bucket{service="strategy-execution-engine"}[5m]))
+      by (le))
+    record: sli:strategy_execution_latency:ratio_rate5m
+  - expr: (histogram_quantile(0.95, sum(rate(strategy_execution_duration_seconds_bucket{service="strategy-execution-engine"}[5m]))
+      by (le))) > 0.5
+    record: sli:strategy_execution_latency:error_rate5m
+  - expr: sum(rate(sli:strategy_execution_latency:error_rate5m[1h])) / (0.05 / 3600)
+    record: sli:strategy_execution_latency:error_budget_burn_rate1h
+  - expr: sum(rate(sli:strategy_execution_latency:error_rate5m[6h])) / (0.05 / 21600)
+    record: sli:strategy_execution_latency:error_budget_burn_rate6h

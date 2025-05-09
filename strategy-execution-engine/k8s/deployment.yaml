@@ -1,0 +1,174 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strategy-execution-engine
+  labels:
+    app: strategy-execution-engine
+    component: service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: strategy-execution-engine
+  template:
+    metadata:
+      labels:
+        app: strategy-execution-engine
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8003"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: strategy-execution-engine
+        image: ${DOCKER_REGISTRY}/strategy-execution-engine:${IMAGE_TAG}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8003
+          name: http
+        env:
+        - name: DEBUG_MODE
+          value: "false"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8003"
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: strategy-execution-engine-secrets
+              key: api-key
+        - name: SERVICE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: strategy-execution-engine-secrets
+              key: service-api-key
+        - name: ANALYSIS_ENGINE_URL
+          value: "http://analysis-engine-service:8002"
+        - name: FEATURE_STORE_URL
+          value: "http://feature-store-service:8001"
+        - name: TRADING_GATEWAY_URL
+          value: "http://trading-gateway-service:8004"
+        - name: RISK_MANAGEMENT_URL
+          value: "http://risk-management-service:8000"
+        - name: PORTFOLIO_MANAGEMENT_URL
+          value: "http://portfolio-management-service:8000"
+        - name: MONITORING_SERVICE_URL
+          value: "http://monitoring-alerting-service:8005"
+        - name: ANALYSIS_ENGINE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: strategy-execution-engine-secrets
+              key: analysis-engine-key
+        - name: FEATURE_STORE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: strategy-execution-engine-secrets
+              key: feature-store-key
+        - name: TRADING_GATEWAY_KEY
+          valueFrom:
+            secretKeyRef:
+              name: strategy-execution-engine-secrets
+              key: trading-gateway-key
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        volumeMounts:
+        - name: strategies-volume
+          mountPath: /app/strategies
+        - name: backtest-data-volume
+          mountPath: /app/backtest_data
+      volumes:
+      - name: strategies-volume
+        persistentVolumeClaim:
+          claimName: strategies-pvc
+      - name: backtest-data-volume
+        persistentVolumeClaim:
+          claimName: backtest-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strategy-execution-engine-service
+  labels:
+    app: strategy-execution-engine
+spec:
+  selector:
+    app: strategy-execution-engine
+  ports:
+  - port: 8003
+    targetPort: 8003
+    name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: strategies-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backtest-data-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: strategy-execution-engine-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: strategy-execution.forex-platform.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: strategy-execution-engine-service
+            port:
+              number: 8003
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: strategy-execution-engine-secrets
+type: Opaque
+data:
+  api-key: ${API_KEY_BASE64}
+  service-api-key: ${SERVICE_API_KEY_BASE64}
+  analysis-engine-key: ${ANALYSIS_ENGINE_KEY_BASE64}
+  feature-store-key: ${FEATURE_STORE_KEY_BASE64}
+  trading-gateway-key: ${TRADING_GATEWAY_KEY_BASE64}

@@ -1,0 +1,32 @@
+{
+  "indicators": [],
+  "memory": [
+    {
+      "size": 1000,
+      "memory_mb": 0.0
+    },
+    {
+      "size": 10000,
+      "memory_mb": 0.0
+    },
+    {
+      "size": 100000,
+      "memory_mb": 3.81640625
+    }
+  ],
+  "execution_time": [
+    {
+      "size": 1000,
+      "time_ms": 1.446533203125
+    },
+    {
+      "size": 10000,
+      "time_ms": 3.251218795776367
+    },
+    {
+      "size": 100000,
+      "time_ms": 26.207971572875977
+    }
+  ],
+  "accuracy": []
+}

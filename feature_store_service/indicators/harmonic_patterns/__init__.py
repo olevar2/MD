@@ -1,0 +1,3 @@
+"""
+Harmonic Patterns Package.
+"""

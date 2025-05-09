@@ -1,0 +1,166 @@
+{
+  "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130003",
+  "lastMigration": 1,
+  "name": "Analysis Engine Mock",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 8002,
+  "hostname": "0.0.0.0",
+  "routes": [
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130004",
+      "documentation": "Health check endpoint",
+      "method": "get",
+      "endpoint": "health",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130005",
+          "body": "{\n  \"status\": \"healthy\",\n  \"version\": \"0.1.0\",\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130006",
+      "documentation": "Technical analysis endpoint",
+      "method": "get",
+      "endpoint": "api/v1/analysis/technical",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130007",
+          "body": "{\n  \"instrument\": \"{{query 'instrument'}}\",\n  \"timeframe\": \"{{query 'timeframe'}}\",\n  \"start_date\": \"{{query 'start_date'}}\",\n  \"end_date\": \"{{query 'end_date'}}\",\n  \"indicators\": {\n    \"sma\": [\n      {\"timestamp\": \"2023-01-01T00:00:00Z\", \"value\": 1.1234},\n      {\"timestamp\": \"2023-01-02T00:00:00Z\", \"value\": 1.1245},\n      {\"timestamp\": \"2023-01-03T00:00:00Z\", \"value\": 1.1256}\n    ],\n    \"rsi\": [\n      {\"timestamp\": \"2023-01-01T00:00:00Z\", \"value\": 45.67},\n      {\"timestamp\": \"2023-01-02T00:00:00Z\", \"value\": 52.34},\n      {\"timestamp\": \"2023-01-03T00:00:00Z\", \"value\": 58.91}\n    ],\n    \"macd\": [\n      {\"timestamp\": \"2023-01-01T00:00:00Z\", \"macd\": 0.0012, \"signal\": 0.0010, \"histogram\": 0.0002},\n      {\"timestamp\": \"2023-01-02T00:00:00Z\", \"macd\": 0.0015, \"signal\": 0.0011, \"histogram\": 0.0004},\n      {\"timestamp\": \"2023-01-03T00:00:00Z\", \"macd\": 0.0018, \"signal\": 0.0013, \"histogram\": 0.0005}\n    ]\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130008",
+      "documentation": "Market regime endpoint",
+      "method": "get",
+      "endpoint": "api/v1/market-regime",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130009",
+          "body": "{\n  \"instrument\": \"{{query 'instrument'}}\",\n  \"timeframe\": \"{{query 'timeframe'}}\",\n  \"regime\": \"trending\",\n  \"trend_direction\": \"bullish\",\n  \"volatility\": \"medium\",\n  \"strength\": 0.75,\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130010",
+      "documentation": "Pattern recognition endpoint",
+      "method": "get",
+      "endpoint": "api/v1/analysis/patterns",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130011",
+          "body": "{\n  \"instrument\": \"{{query 'instrument'}}\",\n  \"timeframe\": \"{{query 'timeframe'}}\",\n  \"start_date\": \"{{query 'start_date'}}\",\n  \"end_date\": \"{{query 'end_date'}}\",\n  \"patterns\": [\n    {\n      \"type\": \"double_bottom\",\n      \"timestamp\": \"2023-01-02T00:00:00Z\",\n      \"confidence\": 0.85,\n      \"direction\": \"bullish\"\n    },\n    {\n      \"type\": \"head_and_shoulders\",\n      \"timestamp\": \"2023-01-03T00:00:00Z\",\n      \"confidence\": 0.72,\n      \"direction\": \"bearish\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ]
+}

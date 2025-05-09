@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Exporter for database metrics
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:postgres@timescaledb:5432/forex_platform?sslmode=disable
+    ports:
+      - "9187:9187"
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    depends_on:
+      - timescaledb
+    command:
+      - '--web.listen-address=:9187'
+      - '--web.telemetry-path=/metrics'
+      - '--log.level=info'
+      - '--collector.database'
+      - '--collector.default_metrics'
+      - '--collector.tables'
+      - '--collector.statements'
+      - '--collector.locks'
+      - '--collector.replication_slot'
+      - '--collector.replication'
+      - '--collector.bgwriter'
+      - '--collector.settings'
+
+  # Kafka Exporter for message queue metrics
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    ports:
+      - "9308:9308"
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    depends_on:
+      - kafka
+    command:
+      - '--kafka.server=kafka:9092'
+      - '--web.listen-address=:9308'
+      - '--web.telemetry-path=/metrics'
+      - '--log.level=info'
+      - '--topic.filter=.*'
+      - '--group.filter=.*'
+
+  # Redis Exporter for cache metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    depends_on:
+      - redis
+    command:
+      - '--web.listen-address=:9121'
+      - '--web.telemetry-path=/metrics'
+      - '--log-format=txt'
+      - '--namespace=forex_platform'
+      - '--redis.addr=redis://redis:6379'
+      - '--include-system-metrics'
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  # cAdvisor for container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+networks:
+  monitoring-network:
+    external: true

@@ -1,0 +1,3 @@
+"""
+Elliott Wave Analysis Package.
+"""

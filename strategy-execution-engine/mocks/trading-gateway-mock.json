@@ -1,0 +1,228 @@
+{
+  "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130021",
+  "lastMigration": 1,
+  "name": "Trading Gateway Mock",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 8004,
+  "hostname": "0.0.0.0",
+  "routes": [
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130022",
+      "documentation": "Health check endpoint",
+      "method": "get",
+      "endpoint": "health",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130023",
+          "body": "{\n  \"status\": \"healthy\",\n  \"version\": \"0.1.0\",\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130024",
+      "documentation": "Execute order endpoint",
+      "method": "post",
+      "endpoint": "api/v1/orders",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130025",
+          "body": "{\n  \"order_id\": \"{{faker 'random.uuid'}}\",\n  \"status\": \"pending\",\n  \"instrument\": \"{{body 'instrument'}}\",\n  \"type\": \"{{body 'type'}}\",\n  \"side\": \"{{body 'side'}}\",\n  \"quantity\": {{body 'quantity'}},\n  \"price\": {{body 'price'}},\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 201,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130026",
+      "documentation": "Get order status endpoint",
+      "method": "get",
+      "endpoint": "api/v1/orders/:order_id",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130027",
+          "body": "{\n  \"order_id\": \"{{params 'order_id'}}\",\n  \"status\": \"filled\",\n  \"instrument\": \"EUR/USD\",\n  \"type\": \"market\",\n  \"side\": \"buy\",\n  \"quantity\": 1.0,\n  \"price\": 1.1234,\n  \"filled_price\": 1.1235,\n  \"filled_quantity\": 1.0,\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130028",
+      "documentation": "Get account info endpoint",
+      "method": "get",
+      "endpoint": "api/v1/account",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130029",
+          "body": "{\n  \"account_id\": \"{{faker 'random.uuid'}}\",\n  \"balance\": 10000.0,\n  \"equity\": 10050.0,\n  \"margin\": 100.0,\n  \"free_margin\": 9950.0,\n  \"margin_level\": 100.5,\n  \"currency\": \"USD\",\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130030",
+      "documentation": "Get positions endpoint",
+      "method": "get",
+      "endpoint": "api/v1/positions",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130031",
+          "body": "[\n  {\n    \"position_id\": \"{{faker 'random.uuid'}}\",\n    \"instrument\": \"EUR/USD\",\n    \"type\": \"long\",\n    \"quantity\": 1.0,\n    \"entry_price\": 1.1234,\n    \"current_price\": 1.1245,\n    \"profit_loss\": 11.0,\n    \"profit_loss_pips\": 11.0,\n    \"timestamp\": \"{{now}}\"\n  },\n  {\n    \"position_id\": \"{{faker 'random.uuid'}}\",\n    \"instrument\": \"GBP/USD\",\n    \"type\": \"short\",\n    \"quantity\": 0.5,\n    \"entry_price\": 1.3456,\n    \"current_price\": 1.3445,\n    \"profit_loss\": 5.5,\n    \"profit_loss_pips\": 11.0,\n    \"timestamp\": \"{{now}}\"\n  }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    },
+    {
+      "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130032",
+      "documentation": "Get market data endpoint",
+      "method": "get",
+      "endpoint": "api/v1/market-data",
+      "responses": [
+        {
+          "uuid": "d3a8f3e0-5b9a-11ec-8d3d-0242ac130033",
+          "body": "{\n  \"instrument\": \"{{query 'instrument'}}\",\n  \"bid\": 1.1234,\n  \"ask\": 1.1236,\n  \"spread\": 0.0002,\n  \"timestamp\": \"{{now}}\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ]
+}

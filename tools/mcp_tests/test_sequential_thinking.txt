@@ -1,0 +1,13 @@
+To test the Sequential Thinking MCP server, copy and paste the following command into Claude Desktop:
+
+/tool sequential-thinking thought="I need to analyze the forex trading platform codebase" thoughtNumber=1 totalThoughts=5 nextThoughtNeeded=true
+
+If the Sequential Thinking MCP server is working correctly, you should see a response with a structured thinking process, including:
+- Current step description
+- Recommended tools
+- Expected outcome
+- Next step conditions
+
+Try following up with a second thought:
+
+/tool sequential-thinking thought="Let's examine the architecture and dependencies" thoughtNumber=2 totalThoughts=5 nextThoughtNeeded=true

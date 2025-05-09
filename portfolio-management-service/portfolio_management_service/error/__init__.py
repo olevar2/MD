@@ -1,0 +1,126 @@
+"""
+Error Handling Package
+
+This package provides error handling utilities for the Portfolio Management Service.
+"""
+
+from .exceptions_bridge import (
+    # Base exceptions
+    ForexTradingPlatformError,
+    
+    # Configuration exceptions
+    ConfigurationError,
+    ConfigValidationError,
+    
+    # Data exceptions
+    DataError,
+    DataValidationError,
+    DataFetchError,
+    DataStorageError,
+    DataTransformationError,
+    
+    # Service exceptions
+    ServiceError,
+    ServiceUnavailableError,
+    ServiceTimeoutError,
+    ServiceAuthenticationError,
+    
+    # Trading exceptions
+    TradingError,
+    OrderExecutionError,
+    PositionError,
+    
+    # Model exceptions
+    ModelError,
+    
+    # Security exceptions
+    SecurityError,
+    AuthenticationError,
+    AuthorizationError,
+    
+    # Resilience exceptions
+    ResilienceError,
+    CircuitBreakerOpenError,
+    RetryExhaustedError,
+    TimeoutError,
+    BulkheadFullError,
+    
+    # Portfolio Management specific exceptions
+    PortfolioManagementError,
+    PortfolioNotFoundError,
+    PositionNotFoundError,
+    InsufficientBalanceError,
+    PortfolioOperationError,
+    AccountReconciliationError,
+    TaxCalculationError,
+    
+    # Utility functions
+    convert_to_http_exception,
+    with_exception_handling,
+    async_with_exception_handling
+)
+
+from .error_handlers import (
+    register_exception_handlers,
+    format_error_response,
+    get_correlation_id
+)
+
+__all__ = [
+    # Base exceptions
+    "ForexTradingPlatformError",
+    
+    # Configuration exceptions
+    "ConfigurationError",
+    "ConfigValidationError",
+    
+    # Data exceptions
+    "DataError",
+    "DataValidationError",
+    "DataFetchError",
+    "DataStorageError",
+    "DataTransformationError",
+    
+    # Service exceptions
+    "ServiceError",
+    "ServiceUnavailableError",
+    "ServiceTimeoutError",
+    "ServiceAuthenticationError",
+    
+    # Trading exceptions
+    "TradingError",
+    "OrderExecutionError",
+    "PositionError",
+    
+    # Model exceptions
+    "ModelError",
+    
+    # Security exceptions
+    "SecurityError",
+    "AuthenticationError",
+    "AuthorizationError",
+    
+    # Resilience exceptions
+    "ResilienceError",
+    "CircuitBreakerOpenError",
+    "RetryExhaustedError",
+    "TimeoutError",
+    "BulkheadFullError",
+    
+    # Portfolio Management specific exceptions
+    "PortfolioManagementError",
+    "PortfolioNotFoundError",
+    "PositionNotFoundError",
+    "InsufficientBalanceError",
+    "PortfolioOperationError",
+    "AccountReconciliationError",
+    "TaxCalculationError",
+    
+    # Utility functions
+    "convert_to_http_exception",
+    "with_exception_handling",
+    "async_with_exception_handling",
+    "register_exception_handlers",
+    "format_error_response",
+    "get_correlation_id"
+]

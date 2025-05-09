@@ -1,0 +1,101 @@
+groups:
+  - name: performance
+    rules:
+      - alert: HighRequestLatency
+        expr: rate(api_request_duration_seconds_sum[5m]) / rate(api_request_duration_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High request latency on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has a request latency of {{ $value }}s, which is above the threshold of 1s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_latency"
+
+      - alert: HighRequestLatencyCritical
+        expr: rate(api_request_duration_seconds_sum[5m]) / rate(api_request_duration_seconds_count[5m]) > 2
+        for: 5m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "Critical request latency on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has a request latency of {{ $value }}s, which is above the critical threshold of 2s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_latency_critical"
+
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total{service_type="core"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High CPU usage on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has a CPU usage of {{ $value | humanizePercentage }}, which is above the threshold of 80% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_cpu"
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes{service_type="core"} / process_resident_memory_bytes{service_type="core"} * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High memory usage on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has a memory usage of {{ $value | humanizePercentage }}, which is above the threshold of 85% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_memory"
+
+      - alert: HighDatabaseCPUUsage
+        expr: rate(node_cpu_seconds_total{mode="user", service_type="database"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "High CPU usage on database {{ $labels.instance }}"
+          description: "Database {{ $labels.instance }} has a CPU usage of {{ $value | humanizePercentage }}, which is above the threshold of 80% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_db_cpu"
+
+      - alert: HighDatabaseMemoryUsage
+        expr: node_memory_MemAvailable_bytes{service_type="database"} / node_memory_MemTotal_bytes{service_type="database"} < 0.2
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "High memory usage on database {{ $labels.instance }}"
+          description: "Database {{ $labels.instance }} has less than 20% available memory for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_db_memory"
+
+      - alert: SlowDatabaseQueries
+        expr: rate(pg_stat_activity_max_tx_duration{service_type="database"}[5m]) > 30
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "Slow database queries on {{ $labels.instance }}"
+          description: "Database {{ $labels.instance }} has queries running for more than 30 seconds for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/slow_db_queries"
+
+      - alert: HighMessageQueueLag
+        expr: kafka_consumergroup_lag > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: message-queue
+        annotations:
+          summary: "High message queue lag on {{ $labels.consumergroup }}"
+          description: "Consumer group {{ $labels.consumergroup }} for topic {{ $labels.topic }} has a lag of {{ $value }} messages, which is above the threshold of 1000 for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_queue_lag"
+
+      - alert: LowCacheHitRate
+        expr: rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m])) < 0.5
+        for: 15m
+        labels:
+          severity: warning
+          category: cache
+        annotations:
+          summary: "Low cache hit rate on {{ $labels.instance }}"
+          description: "Cache {{ $labels.instance }} has a hit rate of {{ $value | humanizePercentage }}, which is below the threshold of 50% for the last 15 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/low_cache_hit_rate"

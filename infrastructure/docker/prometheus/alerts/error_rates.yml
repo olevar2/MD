@@ -1,0 +1,90 @@
+groups:
+  - name: error_rates
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(api_request_errors_total[5m])) by (service) / sum(rate(api_requests_total[5m])) by (service) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: errors
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_error_rate"
+
+      - alert: HighErrorRateCritical
+        expr: sum(rate(api_request_errors_total[5m])) by (service) / sum(rate(api_requests_total[5m])) by (service) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          category: errors
+        annotations:
+          summary: "Critical error rate on {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the critical threshold of 10% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_error_rate_critical"
+
+      - alert: HighDatabaseErrorRate
+        expr: rate(pg_stat_database_xact_rollback{service_type="database"}[5m]) / (rate(pg_stat_database_xact_commit{service_type="database"}[5m]) + rate(pg_stat_database_xact_rollback{service_type="database"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "High database error rate on {{ $labels.instance }}"
+          description: "Database {{ $labels.instance }} has a transaction rollback rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_db_error_rate"
+
+      - alert: HighMessageQueueErrorRate
+        expr: sum(rate(kafka_producer_error_total[5m])) by (client_id) / sum(rate(kafka_producer_request_total[5m])) by (client_id) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: message-queue
+        annotations:
+          summary: "High message queue error rate for {{ $labels.client_id }}"
+          description: "Kafka producer {{ $labels.client_id }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_queue_error_rate"
+
+      - alert: HighSignalGenerationErrorRate
+        expr: sum(rate(signal_generation_errors_total[5m])) by (service, signal_type) / sum(rate(signal_generation_operations_total[5m])) by (service, signal_type) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High signal generation error rate for {{ $labels.signal_type }} on {{ $labels.service }}"
+          description: "Signal generation for {{ $labels.signal_type }} on {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_signal_error_rate"
+
+      - alert: HighMarketRegimeDetectionErrorRate
+        expr: sum(rate(market_regime_detection_errors_total[5m])) by (service, instrument) / sum(rate(market_regime_detection_operations_total[5m])) by (service, instrument) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High market regime detection error rate for {{ $labels.instrument }} on {{ $labels.service }}"
+          description: "Market regime detection for {{ $labels.instrument }} on {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_regime_error_rate"
+
+      - alert: HighFeatureExtractionErrorRate
+        expr: sum(rate(feature_extraction_errors_total[5m])) by (service, feature_type) / sum(rate(feature_extraction_operations_total[5m])) by (service, feature_type) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High feature extraction error rate for {{ $labels.feature_type }} on {{ $labels.service }}"
+          description: "Feature extraction for {{ $labels.feature_type }} on {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_feature_error_rate"
+
+      - alert: HighMLModelInferenceErrorRate
+        expr: sum(rate(ml_model_inference_errors_total[5m])) by (service, model_name) / sum(rate(ml_model_inference_operations_total[5m])) by (service, model_name) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High ML model inference error rate for {{ $labels.model_name }} on {{ $labels.service }}"
+          description: "ML model inference for {{ $labels.model_name }} on {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_ml_error_rate"

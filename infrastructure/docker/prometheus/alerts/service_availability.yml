@@ -1,0 +1,79 @@
+groups:
+  - name: service_availability
+    rules:
+      - alert: ServiceDown
+        expr: up{service_type="core"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          description: "Service {{ $labels.service }} has been down for more than 1 minute."
+          runbook_url: "https://wiki.example.com/runbooks/service_down"
+
+      - alert: ServiceDegraded
+        expr: avg_over_time(up{service_type="core"}[5m]) < 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: availability
+        annotations:
+          summary: "Service {{ $labels.service }} is degraded"
+          description: "Service {{ $labels.service }} has been experiencing outages (availability < 80%) for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/service_degraded"
+
+      - alert: HighServiceRestarts
+        expr: changes(process_start_time_seconds{service_type="core"}[1h]) > 2
+        for: 5m
+        labels:
+          severity: warning
+          category: availability
+        annotations:
+          summary: "Service {{ $labels.service }} has restarted multiple times"
+          description: "Service {{ $labels.service }} has restarted {{ $value }} times in the last hour."
+          runbook_url: "https://wiki.example.com/runbooks/service_restarts"
+
+      - alert: InfrastructureServiceDown
+        expr: up{service_type="infrastructure"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "Infrastructure service {{ $labels.instance }} is down"
+          description: "Infrastructure service {{ $labels.instance }} has been down for more than 1 minute."
+          runbook_url: "https://wiki.example.com/runbooks/infrastructure_down"
+
+      - alert: DatabaseServiceDown
+        expr: up{service_type="database"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "Database service {{ $labels.instance }} is down"
+          description: "Database service {{ $labels.instance }} has been down for more than 1 minute."
+          runbook_url: "https://wiki.example.com/runbooks/database_down"
+
+      - alert: MessageQueueServiceDown
+        expr: up{service_type="message-queue"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: message-queue
+        annotations:
+          summary: "Message queue service {{ $labels.instance }} is down"
+          description: "Message queue service {{ $labels.instance }} has been down for more than 1 minute."
+          runbook_url: "https://wiki.example.com/runbooks/message_queue_down"
+
+      - alert: CacheServiceDown
+        expr: up{service_type="cache"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: cache
+        annotations:
+          summary: "Cache service {{ $labels.instance }} is down"
+          description: "Cache service {{ $labels.instance }} has been down for more than 1 minute."
+          runbook_url: "https://wiki.example.com/runbooks/cache_down"

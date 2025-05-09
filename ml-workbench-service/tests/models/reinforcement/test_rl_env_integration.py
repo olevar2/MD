@@ -5,10 +5,20 @@ from datetime import datetime, timedelta
 
 # Assuming paths are correctly set for imports
 from ml_workbench_service.models.reinforcement.enhanced_rl_env import EnhancedForexTradingEnv
-from trading_gateway_service.simulation.forex_broker_simulator import ForexBrokerSimulator
-from trading_gateway_service.simulation.news_sentiment_simulator import (
-    NewsAndSentimentSimulator, NewsEvent, NewsImpactLevel, SentimentLevel
+from ml_workbench_service.adapters.simulation_adapters import (
+    BrokerSimulatorAdapter, MarketRegimeSimulatorAdapter
 )
+from common_lib.simulation.interfaces import (
+    IBrokerSimulator, IMarketRegimeSimulator, MarketRegimeType
+)
+
+# Import for type hints only
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from trading_gateway_service.simulation.forex_broker_simulator import ForexBrokerSimulator
+    from trading_gateway_service.simulation.news_sentiment_simulator import (
+        NewsAndSentimentSimulator, NewsEvent, NewsImpactLevel, SentimentLevel
+    )
 from core_foundations.models.financial_instruments import SymbolInfo
 
 # Mock Data and Simulators
@@ -50,45 +60,47 @@ def mock_forex_data():
 
 @pytest.fixture
 def broker_simulator(mock_forex_data, mock_symbol_info):
-    return ForexBrokerSimulator(
-        data=mock_forex_data,
-        symbol_info=mock_symbol_info,
-        initial_balance=10000,
-        leverage=30,
-        spread_pips=1.0
-    )
+    # Use the adapter instead of direct dependency
+    return BrokerSimulatorAdapter()
 
 @pytest.fixture
 def news_sentiment_simulator(mock_forex_data):
-    start_time = mock_forex_data.index[0]
-    # Schedule a high-impact event 10 steps into the future
-    event_time = start_time + timedelta(hours=10)
-    events = [
-        NewsEvent(
-            timestamp=event_time,
-            currency="EUR",
-            event_name="ECB Rate Decision",
-            impact=NewsImpactLevel.HIGH,
-            actual=0.5, forecast=0.25, previous=0.25
-        )
-    ]
-    return NewsAndSentimentSimulator(events=events, initial_sentiment=SentimentLevel.NEUTRAL)
+    # Use a simple mock object instead of direct dependency
+    class MockNewsSentimentSimulator:
+        def __init__(self):
+            start_time = mock_forex_data.index[0]
+            event_time = start_time + timedelta(hours=10)
+            self.events = [
+                {
+                    "timestamp": event_time,
+                    "currency": "EUR",
+                    "event_name": "ECB Rate Decision",
+                    "impact": 3,  # HIGH impact
+                    "actual": 0.5,
+                    "forecast": 0.25,
+                    "previous": 0.25
+                }
+            ]
+            self.sentiment_over_time = {}
+
+    return MockNewsSentimentSimulator()
 
 @pytest.fixture
 def integrated_rl_env(mock_forex_data, broker_simulator, news_sentiment_simulator):
     return EnhancedForexTradingEnv(
-        df=mock_forex_data,
-        initial_balance=10000,
-        leverage=30,
-        spread_pips=1.0,
-        lookback_window=5, # Keep small for testing
-        features=['close', 'volume', 'rsi', 'macd', 'bb_upper', 'bb_lower'],
-        reward_components={'profit': 1.0, 'news_penalty': -10.0}, # High penalty for testing
-        max_episode_steps=50,
         broker_simulator=broker_simulator,
+        symbol="EUR/USD",
+        timeframes=["1m"],
+        lookback_periods=5,  # Keep small for testing
+        features=["close", "volume", "rsi", "macd", "bb_upper", "bb_lower"],
+        position_sizing_type="fixed",
+        max_position_size=1.0,
+        trading_fee_percent=0.002,
+        reward_mode="risk_adjusted",
+        episode_timesteps=50,
+        include_news_sentiment=True,
         news_sentiment_simulator=news_sentiment_simulator,
-        order_book_depth=0, # Simplify state for testing
-        dynamic_position_sizing=False # Use discrete actions
+        observation_normalization=False  # Simplify for testing
     )
 
 # Test Cases

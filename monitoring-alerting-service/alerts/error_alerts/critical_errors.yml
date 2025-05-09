@@ -1,0 +1,32 @@
+groups:
+  - name: critical_error_alerts
+    rules:
+      - alert: CircuitBreakerOpen
+        expr: forex_platform_circuit_breaker_state{state="1"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit breaker open in {{ $labels.service }}"
+          description: "Circuit breaker {{ $labels.circuit }} is open in {{ $labels.service }}"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"
+          
+      - alert: DataValidationErrors
+        expr: sum(rate(forex_platform_errors_total{error_type=~".*ValidationError|.*DataError"}[5m])) by (service, error_code) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate of data validation errors in {{ $labels.service }}"
+          description: "{{ $labels.service }} has a high rate of {{ $labels.error_code }} errors ({{ $value | printf \"%.2f\" }} errors/s)"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"
+          
+      - alert: ServiceUnavailableErrors
+        expr: sum(rate(forex_platform_errors_total{error_type=~".*ServiceUnavailableError|.*ServiceTimeoutError"}[5m])) by (service, error_code) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service unavailable errors in {{ $labels.service }}"
+          description: "{{ $labels.service }} is reporting service unavailable errors ({{ $value | printf \"%.2f\" }} errors/s)"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"

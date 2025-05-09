@@ -1,0 +1,22 @@
+groups:
+  - name: security_error_alerts
+    rules:
+      - alert: AuthenticationErrors
+        expr: sum(rate(forex_platform_errors_total{error_type=~".*AuthenticationError|.*AuthorizationError"}[5m])) by (service, error_code) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Authentication errors in {{ $labels.service }}"
+          description: "{{ $labels.service }} is reporting {{ $labels.error_code }} authentication errors ({{ $value | printf \"%.2f\" }} errors/s)"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"
+          
+      - alert: SecurityErrors
+        expr: sum(rate(forex_platform_errors_total{error_type=~".*SecurityError"}[5m])) by (service, error_code) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Security errors in {{ $labels.service }}"
+          description: "{{ $labels.service }} is reporting {{ $labels.error_code }} security errors ({{ $value | printf \"%.2f\" }} errors/s)"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"

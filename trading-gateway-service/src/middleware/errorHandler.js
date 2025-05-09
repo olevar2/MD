@@ -1,36 +1,43 @@
 /**
  * Error handling middleware for the Trading Gateway Service.
- * 
+ *
  * This middleware provides standardized error handling for the Express application,
  * mapping common-lib exception types to appropriate HTTP status codes and response formats.
+ * It uses the errorBridge to handle errors consistently between JavaScript and Python components.
  */
 
-const logger = require('../utils/logger');
+const {
+  convertPythonError,
+  handleError
+} = require('../utils/errorBridge');
+const {
+  ForexTradingPlatformError
+} = require('../utils/errors');
 
 // Error types that correspond to common-lib exceptions
 const ERROR_TYPES = {
   // Base error
   FOREX_PLATFORM_ERROR: 'ForexTradingPlatformError',
-  
+
   // Data errors
   DATA_VALIDATION_ERROR: 'DataValidationError',
   DATA_FETCH_ERROR: 'DataFetchError',
   DATA_STORAGE_ERROR: 'DataStorageError',
   DATA_TRANSFORMATION_ERROR: 'DataTransformationError',
-  
+
   // Service errors
   SERVICE_ERROR: 'ServiceError',
   SERVICE_UNAVAILABLE_ERROR: 'ServiceUnavailableError',
   SERVICE_TIMEOUT_ERROR: 'ServiceTimeoutError',
-  
+
   // Trading errors
   TRADING_ERROR: 'TradingError',
   ORDER_EXECUTION_ERROR: 'OrderExecutionError',
-  
+
   // Authentication/Authorization errors
   AUTHENTICATION_ERROR: 'AuthenticationError',
   AUTHORIZATION_ERROR: 'AuthorizationError',
-  
+
   // Configuration errors
   CONFIGURATION_ERROR: 'ConfigurationError'
 };
@@ -56,19 +63,44 @@ const ERROR_STATUS_CODES = {
  * Error handling middleware for Express
  */
 function errorHandler(err, req, res, next) {
+  // Create context for error handling
+  const context = {
+    path: req.path,
+    method: req.method,
+    headers: req.headers,
+    query: req.query,
+    body: req.method !== 'GET' ? req.body : undefined
+  };
+
+  // Check if this is a Python error (from API response)
+  if (err.response && err.response.data && err.response.data.error_type) {
+    // Convert Python error to JavaScript error
+    err = convertPythonError(err.response.data);
+  }
+
+  // Use the error bridge to handle the error (but don't rethrow)
+  handleError(err, context, false);
+
   // Default values
   let statusCode = 500;
   let errorType = 'InternalServerError';
   let message = 'An unexpected error occurred';
   let details = process.env.NODE_ENV === 'development' ? err.stack : undefined;
-  
-  // Check if this is a known error type
-  if (err.errorType && ERROR_STATUS_CODES[err.errorType]) {
+
+  // Check if this is a ForexTradingPlatformError
+  if (err instanceof ForexTradingPlatformError) {
+    errorType = err.constructor.name;
+    statusCode = ERROR_STATUS_CODES[errorType] || 500;
+    message = err.message;
+    details = err.details;
+  }
+  // Check if this is a known error type by errorType property
+  else if (err.errorType && ERROR_STATUS_CODES[err.errorType]) {
     statusCode = ERROR_STATUS_CODES[err.errorType];
     errorType = err.errorType;
     message = err.message || `${errorType} occurred`;
     details = err.details;
-  } 
+  }
   // Handle validation errors from express-validator
   else if (err.array && typeof err.array === 'function') {
     statusCode = 400;
@@ -81,25 +113,7 @@ function errorHandler(err, req, res, next) {
     statusCode = err.statusCode;
     message = err.message;
   }
-  
-  // Log the error with appropriate level based on severity
-  if (statusCode >= 500) {
-    logger.error(`${errorType}: ${message}`, {
-      path: req.path,
-      method: req.method,
-      errorType,
-      details,
-      stack: err.stack
-    });
-  } else {
-    logger.warn(`${errorType}: ${message}`, {
-      path: req.path,
-      method: req.method,
-      errorType,
-      details
-    });
-  }
-  
+
   // Send standardized error response
   res.status(statusCode).json({
     error_type: errorType,

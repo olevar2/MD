@@ -1,0 +1,200 @@
+[
+  {
+    "name": "trading_gateway_availability",
+    "description": "Trading Gateway API availability",
+    "service": "trading-gateway-service",
+    "sli": {
+      "metric_name": "http_request_availability",
+      "metric_query": "sum(rate(http_requests_total{service=\"trading-gateway-service\",status_code=~\"[2345]..\"}[5m])) / sum(rate(http_requests_total{service=\"trading-gateway-service\"}[5m]))",
+      "metric_type": "availability"
+    },
+    "slo": {
+      "target": 0.995,
+      "window": "30d",
+      "error_budget": 0.005
+    },
+    "alerting": {
+      "burn_rate_thresholds": [
+        {
+          "name": "1h_burn_rate_high",
+          "window": "1h",
+          "burn_rate": 14.4,
+          "alert": {
+            "name": "TradingGatewayHighErrorBudgetBurn1h",
+            "severity": "critical",
+            "description": "Trading Gateway is burning error budget 14.4x faster than normal (100% in ~1h)"
+          }
+        },
+        {
+          "name": "6h_burn_rate_high",
+          "window": "6h",
+          "burn_rate": 6,
+          "alert": {
+            "name": "TradingGatewayHighErrorBudgetBurn6h",
+            "severity": "warning",
+            "description": "Trading Gateway is burning error budget 6x faster than normal (100% in ~5h)"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "trading_gateway_latency",
+    "description": "Trading Gateway API latency",
+    "service": "trading-gateway-service",
+    "sli": {
+      "metric_name": "http_request_latency",
+      "metric_query": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service=\"trading-gateway-service\"}[5m])) by (le))",
+      "metric_type": "latency"
+    },
+    "slo": {
+      "target": 0.95,
+      "threshold": 0.2,
+      "window": "30d",
+      "error_budget": 0.05
+    },
+    "alerting": {
+      "burn_rate_thresholds": [
+        {
+          "name": "1h_burn_rate_high",
+          "window": "1h",
+          "burn_rate": 14.4,
+          "alert": {
+            "name": "TradingGatewayHighLatencyBudgetBurn1h",
+            "severity": "critical",
+            "description": "Trading Gateway is burning latency budget 14.4x faster than normal (100% in ~1h)"
+          }
+        },
+        {
+          "name": "6h_burn_rate_high",
+          "window": "6h",
+          "burn_rate": 6,
+          "alert": {
+            "name": "TradingGatewayHighLatencyBudgetBurn6h",
+            "severity": "warning",
+            "description": "Trading Gateway is burning latency budget 6x faster than normal (100% in ~5h)"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "order_execution_success",
+    "description": "Order execution success rate",
+    "service": "trading-gateway-service",
+    "sli": {
+      "metric_name": "order_execution_success",
+      "metric_query": "sum(rate(order_execution_success_total{service=\"trading-gateway-service\"}[5m])) / sum(rate(order_execution_total{service=\"trading-gateway-service\"}[5m]))",
+      "metric_type": "success_rate"
+    },
+    "slo": {
+      "target": 0.995,
+      "window": "30d",
+      "error_budget": 0.005
+    },
+    "alerting": {
+      "burn_rate_thresholds": [
+        {
+          "name": "1h_burn_rate_high",
+          "window": "1h",
+          "burn_rate": 14.4,
+          "alert": {
+            "name": "OrderExecutionHighErrorBudgetBurn1h",
+            "severity": "critical",
+            "description": "Order execution is burning error budget 14.4x faster than normal (100% in ~1h)"
+          }
+        },
+        {
+          "name": "6h_burn_rate_high",
+          "window": "6h",
+          "burn_rate": 6,
+          "alert": {
+            "name": "OrderExecutionHighErrorBudgetBurn6h",
+            "severity": "warning",
+            "description": "Order execution is burning error budget 6x faster than normal (100% in ~5h)"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "ml_model_inference_latency",
+    "description": "ML model inference latency",
+    "service": "ml-integration-service",
+    "sli": {
+      "metric_name": "model_inference_latency",
+      "metric_query": "histogram_quantile(0.95, sum(rate(model_inference_duration_seconds_bucket{service=\"ml-integration-service\"}[5m])) by (le))",
+      "metric_type": "latency"
+    },
+    "slo": {
+      "target": 0.95,
+      "threshold": 0.1,
+      "window": "30d",
+      "error_budget": 0.05
+    },
+    "alerting": {
+      "burn_rate_thresholds": [
+        {
+          "name": "1h_burn_rate_high",
+          "window": "1h",
+          "burn_rate": 14.4,
+          "alert": {
+            "name": "MLInferenceHighLatencyBudgetBurn1h",
+            "severity": "critical",
+            "description": "ML inference is burning latency budget 14.4x faster than normal (100% in ~1h)"
+          }
+        },
+        {
+          "name": "6h_burn_rate_high",
+          "window": "6h",
+          "burn_rate": 6,
+          "alert": {
+            "name": "MLInferenceHighLatencyBudgetBurn6h",
+            "severity": "warning",
+            "description": "ML inference is burning latency budget 6x faster than normal (100% in ~5h)"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "strategy_execution_latency",
+    "description": "Strategy execution latency",
+    "service": "strategy-execution-engine",
+    "sli": {
+      "metric_name": "strategy_execution_latency",
+      "metric_query": "histogram_quantile(0.95, sum(rate(strategy_execution_duration_seconds_bucket{service=\"strategy-execution-engine\"}[5m])) by (le))",
+      "metric_type": "latency"
+    },
+    "slo": {
+      "target": 0.95,
+      "threshold": 0.5,
+      "window": "30d",
+      "error_budget": 0.05
+    },
+    "alerting": {
+      "burn_rate_thresholds": [
+        {
+          "name": "1h_burn_rate_high",
+          "window": "1h",
+          "burn_rate": 14.4,
+          "alert": {
+            "name": "StrategyExecutionHighLatencyBudgetBurn1h",
+            "severity": "critical",
+            "description": "Strategy execution is burning latency budget 14.4x faster than normal (100% in ~1h)"
+          }
+        },
+        {
+          "name": "6h_burn_rate_high",
+          "window": "6h",
+          "burn_rate": 6,
+          "alert": {
+            "name": "StrategyExecutionHighLatencyBudgetBurn6h",
+            "severity": "warning",
+            "description": "Strategy execution is burning latency budget 6x faster than normal (100% in ~5h)"
+          }
+        }
+      ]
+    }
+  }
+]

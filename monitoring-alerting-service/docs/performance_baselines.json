@@ -1,0 +1,1504 @@
+{
+  "generated_at": "2025-05-08T13:49:00.045819",
+  "test_scenarios": [
+    {
+      "name": "normal_load",
+      "description": "Normal trading hours with moderate market activity",
+      "concurrent_users": 10,
+      "duration_seconds": 60,
+      "requests_per_second": 10
+    },
+    {
+      "name": "high_load",
+      "description": "Market open with high activity",
+      "concurrent_users": 50,
+      "duration_seconds": 60,
+      "requests_per_second": 50
+    },
+    {
+      "name": "peak_load",
+      "description": "News event with very high activity",
+      "concurrent_users": 100,
+      "duration_seconds": 30,
+      "requests_per_second": 100
+    }
+  ],
+  "services": {
+    "trading-gateway-service": {
+      "api_performance": {
+        "list_orders": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "create_order": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "list_positions": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        }
+      },
+      "resource_usage": {
+        "cpu_usage": {
+          "baseline": 30,
+          "warning": 70,
+          "critical": 90
+        },
+        "memory_usage": {
+          "baseline": 40,
+          "warning": 80,
+          "critical": 90
+        }
+      },
+      "business_metrics": {
+        "order_execution_time": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "slippage_bps": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "fill_rate": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        }
+      }
+    },
+    "analysis-engine-service": {
+      "api_performance": {
+        "market_analysis": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "pattern_detection": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "signal_generation": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        }
+      },
+      "resource_usage": {
+        "cpu_usage": {
+          "baseline": 30,
+          "warning": 70,
+          "critical": 90
+        },
+        "memory_usage": {
+          "baseline": 40,
+          "warning": 80,
+          "critical": 90
+        }
+      },
+      "business_metrics": {
+        "pattern_recognition_accuracy": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "signal_quality_score": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "market_regime_detection_confidence": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        }
+      }
+    },
+    "feature-store-service": {
+      "api_performance": {
+        "list_features": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "calculate_features": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "batch_calculate": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        }
+      },
+      "resource_usage": {
+        "cpu_usage": {
+          "baseline": 30,
+          "warning": 70,
+          "critical": 90
+        },
+        "memory_usage": {
+          "baseline": 40,
+          "warning": 80,
+          "critical": 90
+        }
+      },
+      "business_metrics": {
+        "feature_calculation_time": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "cache_hit_rate": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "data_freshness": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        }
+      }
+    },
+    "ml-integration-service": {
+      "api_performance": {
+        "list_models": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "model_prediction": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "batch_prediction": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        }
+      },
+      "resource_usage": {
+        "cpu_usage": {
+          "baseline": 30,
+          "warning": 70,
+          "critical": 90
+        },
+        "memory_usage": {
+          "baseline": 40,
+          "warning": 80,
+          "critical": 90
+        }
+      },
+      "business_metrics": {
+        "model_inference_time": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "prediction_accuracy": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "model_confidence": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        }
+      }
+    },
+    "strategy-execution-engine": {
+      "api_performance": {
+        "list_strategies": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "execute_strategy": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "backtest_strategy": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        }
+      },
+      "resource_usage": {
+        "cpu_usage": {
+          "baseline": 30,
+          "warning": 70,
+          "critical": 90
+        },
+        "memory_usage": {
+          "baseline": 40,
+          "warning": 80,
+          "critical": 90
+        }
+      },
+      "business_metrics": {
+        "strategy_execution_time": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "strategy_win_rate": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "strategy_sharpe_ratio": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        }
+      }
+    },
+    "data-pipeline-service": {
+      "api_performance": {
+        "get_market_data": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "process_data": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        },
+        "pipeline_status": {
+          "normal_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 10,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 7.0,
+                "critical": 5.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "high_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 50,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 35.0,
+                "critical": 25.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          },
+          "peak_load": {
+            "latency": {
+              "p50": 100,
+              "p95": 200,
+              "p99": 500
+            },
+            "throughput": 100,
+            "error_rate": 0.01,
+            "alert_thresholds": {
+              "latency": {
+                "warning": 300.0,
+                "critical": 600
+              },
+              "throughput": {
+                "warning": 70.0,
+                "critical": 50.0
+              },
+              "error_rate": {
+                "warning": 0.02,
+                "critical": 0.05
+              }
+            }
+          }
+        }
+      },
+      "resource_usage": {
+        "cpu_usage": {
+          "baseline": 30,
+          "warning": 70,
+          "critical": 90
+        },
+        "memory_usage": {
+          "baseline": 40,
+          "warning": 80,
+          "critical": 90
+        }
+      },
+      "business_metrics": {
+        "data_processing_time": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "data_quality_score": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        },
+        "pipeline_throughput": {
+          "baseline": 0.8,
+          "warning": 0.6,
+          "critical": 0.5
+        }
+      }
+    }
+  }
+}

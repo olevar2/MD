@@ -1,0 +1,20 @@
+{
+  "model_name": "sample_model",
+  "framework": "pytorch",
+  "target_hardware": "cpu",
+  "precision": "fp32",
+  "optimizations": [
+    {
+      "type": "threading_config",
+      "num_threads": 4
+    },
+    {
+      "type": "mkl_enabled"
+    },
+    {
+      "type": "jit_compilation"
+    }
+  ],
+  "timestamp": "2025-05-08T17:59:24.005454",
+  "optimized_model_path": "hardware_optimization_output\\sample_model_cpu_fp32.pt"
+}

@@ -1,0 +1,113 @@
+groups:
+- name: slo_alerting_rules
+  rules:
+  - alert: TradingGatewayHighErrorBudgetBurn1h
+    annotations:
+      description: Trading Gateway is burning error budget 14.4x faster than normal
+        (100% in ~1h)
+      summary: High error budget burn rate for Trading Gateway API availability
+    expr: sli:http_request_availability:error_budget_burn_rate1h > 14.4
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: critical
+      slo: trading_gateway_availability
+  - alert: TradingGatewayHighErrorBudgetBurn6h
+    annotations:
+      description: Trading Gateway is burning error budget 6x faster than normal (100%
+        in ~5h)
+      summary: High error budget burn rate for Trading Gateway API availability
+    expr: sli:http_request_availability:error_budget_burn_rate6h > 6
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: warning
+      slo: trading_gateway_availability
+  - alert: TradingGatewayHighLatencyBudgetBurn1h
+    annotations:
+      description: Trading Gateway is burning latency budget 14.4x faster than normal
+        (100% in ~1h)
+      summary: High error budget burn rate for Trading Gateway API latency
+    expr: sli:http_request_latency:error_budget_burn_rate1h > 14.4
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: critical
+      slo: trading_gateway_latency
+  - alert: TradingGatewayHighLatencyBudgetBurn6h
+    annotations:
+      description: Trading Gateway is burning latency budget 6x faster than normal
+        (100% in ~5h)
+      summary: High error budget burn rate for Trading Gateway API latency
+    expr: sli:http_request_latency:error_budget_burn_rate6h > 6
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: warning
+      slo: trading_gateway_latency
+  - alert: OrderExecutionHighErrorBudgetBurn1h
+    annotations:
+      description: Order execution is burning error budget 14.4x faster than normal
+        (100% in ~1h)
+      summary: High error budget burn rate for Order execution success rate
+    expr: sli:order_execution_success:error_budget_burn_rate1h > 14.4
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: critical
+      slo: order_execution_success
+  - alert: OrderExecutionHighErrorBudgetBurn6h
+    annotations:
+      description: Order execution is burning error budget 6x faster than normal (100%
+        in ~5h)
+      summary: High error budget burn rate for Order execution success rate
+    expr: sli:order_execution_success:error_budget_burn_rate6h > 6
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: warning
+      slo: order_execution_success
+  - alert: MLInferenceHighLatencyBudgetBurn1h
+    annotations:
+      description: ML inference is burning latency budget 14.4x faster than normal
+        (100% in ~1h)
+      summary: High error budget burn rate for ML model inference latency
+    expr: sli:model_inference_latency:error_budget_burn_rate1h > 14.4
+    for: 5m
+    labels:
+      service: ml-integration-service
+      severity: critical
+      slo: ml_model_inference_latency
+  - alert: MLInferenceHighLatencyBudgetBurn6h
+    annotations:
+      description: ML inference is burning latency budget 6x faster than normal (100%
+        in ~5h)
+      summary: High error budget burn rate for ML model inference latency
+    expr: sli:model_inference_latency:error_budget_burn_rate6h > 6
+    for: 5m
+    labels:
+      service: ml-integration-service
+      severity: warning
+      slo: ml_model_inference_latency
+  - alert: StrategyExecutionHighLatencyBudgetBurn1h
+    annotations:
+      description: Strategy execution is burning latency budget 14.4x faster than
+        normal (100% in ~1h)
+      summary: High error budget burn rate for Strategy execution latency
+    expr: sli:strategy_execution_latency:error_budget_burn_rate1h > 14.4
+    for: 5m
+    labels:
+      service: strategy-execution-engine
+      severity: critical
+      slo: strategy_execution_latency
+  - alert: StrategyExecutionHighLatencyBudgetBurn6h
+    annotations:
+      description: Strategy execution is burning latency budget 6x faster than normal
+        (100% in ~5h)
+      summary: High error budget burn rate for Strategy execution latency
+    expr: sli:strategy_execution_latency:error_budget_burn_rate6h > 6
+    for: 5m
+    labels:
+      service: strategy-execution-engine
+      severity: warning
+      slo: strategy_execution_latency

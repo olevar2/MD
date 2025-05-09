@@ -1,0 +1,155 @@
+{{ define "email.default.subject" }}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }} - {{ .CommonLabels.alertname }}
+{{ end }}
+
+{{ define "email.default.html" }}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ template "email.default.subject" . }}</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      padding: 10px;
+      background-color: {{ if eq .Status "firing" }}#c9302c{{ else }}#449d44{{ end }};
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 4px 4px 0 0;
+    }
+    .content {
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+    }
+    .alert {
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .alert-header {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .labels {
+      margin-bottom: 5px;
+    }
+    .label {
+      display: inline-block;
+      padding: 2px 5px;
+      background-color: #f5f5f5;
+      border-radius: 3px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    .annotations {
+      margin-top: 10px;
+    }
+    .annotation {
+      margin-bottom: 5px;
+    }
+    .footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      {{ .Status | toUpper }}{{ if eq .Status "firing" }}: {{ .Alerts.Firing | len }}{{ end }}
+    </div>
+    <div class="content">
+      <p>
+        <strong>Alert:</strong> {{ .CommonLabels.alertname }}<br>
+        <strong>Service:</strong> {{ .CommonLabels.service }}<br>
+        <strong>Severity:</strong> {{ .CommonLabels.severity }}<br>
+        <strong>Time:</strong> {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}
+      </p>
+      
+      {{ if gt (len .Alerts) 1 -}}
+      <p><strong>Alerts:</strong></p>
+      {{- end }}
+      
+      {{ range .Alerts -}}
+      <div class="alert">
+        <div class="alert-header">{{ .Labels.alertname }}</div>
+        <div class="labels">
+          {{ range .Labels.SortedPairs -}}
+          <span class="label">{{ .Name }}: {{ .Value }}</span>
+          {{ end -}}
+        </div>
+        <div class="annotations">
+          {{ range .Annotations.SortedPairs -}}
+          <div class="annotation"><strong>{{ .Name }}:</strong> {{ .Value }}</div>
+          {{ end -}}
+        </div>
+      </div>
+      {{ end -}}
+      
+      <div class="footer">
+        <p>
+          This alert was sent by the Forex Trading Platform Alertmanager.<br>
+          View in <a href="https://grafana.example.com/d/forex-platform-alerts">Grafana</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+{{ end }}
+
+{{ define "slack.default.title" }}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }} - {{ .CommonLabels.alertname }}
+{{ end }}
+
+{{ define "slack.default.text" }}
+{{ if gt (len .Alerts.Firing) 0 -}}
+*Alerts Firing:*
+{{ range .Alerts.Firing -}}
+• *{{ .Labels.alertname }}* - {{ .Annotations.summary }}
+  {{ .Annotations.description }}
+  *Service:* {{ .Labels.service }}
+  *Severity:* {{ .Labels.severity }}
+  *Started:* {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}
+{{ end -}}
+{{ end -}}
+
+{{ if gt (len .Alerts.Resolved) 0 -}}
+*Alerts Resolved:*
+{{ range .Alerts.Resolved -}}
+• *{{ .Labels.alertname }}* - {{ .Annotations.summary }}
+  *Service:* {{ .Labels.service }}
+  *Severity:* {{ .Labels.severity }}
+  *Resolved:* {{ .EndsAt.Format "2006-01-02 15:04:05 MST" }}
+{{ end -}}
+{{ end -}}
+{{ end }}
+
+{{ define "pagerduty.default.description" }}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }} - {{ .CommonLabels.alertname }}
+{{ end }}
+
+{{ define "pagerduty.default.instances" }}
+{{ range . -}}
+Alert: {{ .Labels.alertname }}
+Summary: {{ .Annotations.summary }}
+Description: {{ .Annotations.description }}
+Service: {{ .Labels.service }}
+Severity: {{ .Labels.severity }}
+{{ end -}}
+{{ end }}

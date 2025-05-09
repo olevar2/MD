@@ -1,0 +1,1557 @@
+groups:
+- name: api_performance
+  rules:
+  - alert: trading-gateway-service_list_orders_high_latency
+    annotations:
+      description: 95th percentile latency for trading-gateway-service - list_orders
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on trading-gateway-service - list_orders
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service",endpoint="list_orders"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: list_orders
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_list_orders_critical_latency
+    annotations:
+      description: 95th percentile latency for trading-gateway-service - list_orders
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on trading-gateway-service - list_orders
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service",endpoint="list_orders"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: list_orders
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_list_orders_high_error_rate
+    annotations:
+      description: Error rate for trading-gateway-service - list_orders is above 2.00%
+        for more than 5 minutes
+      summary: High error rate on trading-gateway-service - list_orders
+    expr: sum(rate(http_request_errors_total{service="trading-gateway-service",endpoint="list_orders"}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service",endpoint="list_orders"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: list_orders
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_list_orders_critical_error_rate
+    annotations:
+      description: Error rate for trading-gateway-service - list_orders is above 5.00%
+        for more than 5 minutes
+      summary: Critical error rate on trading-gateway-service - list_orders
+    expr: sum(rate(http_request_errors_total{service="trading-gateway-service",endpoint="list_orders"}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service",endpoint="list_orders"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: list_orders
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_create_order_high_latency
+    annotations:
+      description: 95th percentile latency for trading-gateway-service - create_order
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on trading-gateway-service - create_order
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service",endpoint="create_order"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: create_order
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_create_order_critical_latency
+    annotations:
+      description: 95th percentile latency for trading-gateway-service - create_order
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on trading-gateway-service - create_order
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service",endpoint="create_order"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: create_order
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_create_order_high_error_rate
+    annotations:
+      description: Error rate for trading-gateway-service - create_order is above
+        2.00% for more than 5 minutes
+      summary: High error rate on trading-gateway-service - create_order
+    expr: sum(rate(http_request_errors_total{service="trading-gateway-service",endpoint="create_order"}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service",endpoint="create_order"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: create_order
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_create_order_critical_error_rate
+    annotations:
+      description: Error rate for trading-gateway-service - create_order is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on trading-gateway-service - create_order
+    expr: sum(rate(http_request_errors_total{service="trading-gateway-service",endpoint="create_order"}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service",endpoint="create_order"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: create_order
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_list_positions_high_latency
+    annotations:
+      description: 95th percentile latency for trading-gateway-service - list_positions
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on trading-gateway-service - list_positions
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service",endpoint="list_positions"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: list_positions
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_list_positions_critical_latency
+    annotations:
+      description: 95th percentile latency for trading-gateway-service - list_positions
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on trading-gateway-service - list_positions
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="trading-gateway-service",endpoint="list_positions"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: list_positions
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_list_positions_high_error_rate
+    annotations:
+      description: Error rate for trading-gateway-service - list_positions is above
+        2.00% for more than 5 minutes
+      summary: High error rate on trading-gateway-service - list_positions
+    expr: sum(rate(http_request_errors_total{service="trading-gateway-service",endpoint="list_positions"}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service",endpoint="list_positions"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: list_positions
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_list_positions_critical_error_rate
+    annotations:
+      description: Error rate for trading-gateway-service - list_positions is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on trading-gateway-service - list_positions
+    expr: sum(rate(http_request_errors_total{service="trading-gateway-service",endpoint="list_positions"}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service",endpoint="list_positions"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: list_positions
+      service: trading-gateway-service
+      severity: critical
+  - alert: analysis-engine-service_market_analysis_high_latency
+    annotations:
+      description: 95th percentile latency for analysis-engine-service - market_analysis
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on analysis-engine-service - market_analysis
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="analysis-engine-service",endpoint="market_analysis"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: market_analysis
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_market_analysis_critical_latency
+    annotations:
+      description: 95th percentile latency for analysis-engine-service - market_analysis
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on analysis-engine-service - market_analysis
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="analysis-engine-service",endpoint="market_analysis"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: market_analysis
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_market_analysis_high_error_rate
+    annotations:
+      description: Error rate for analysis-engine-service - market_analysis is above
+        2.00% for more than 5 minutes
+      summary: High error rate on analysis-engine-service - market_analysis
+    expr: sum(rate(http_request_errors_total{service="analysis-engine-service",endpoint="market_analysis"}[5m]))
+      / sum(rate(http_requests_total{service="analysis-engine-service",endpoint="market_analysis"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: market_analysis
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_market_analysis_critical_error_rate
+    annotations:
+      description: Error rate for analysis-engine-service - market_analysis is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on analysis-engine-service - market_analysis
+    expr: sum(rate(http_request_errors_total{service="analysis-engine-service",endpoint="market_analysis"}[5m]))
+      / sum(rate(http_requests_total{service="analysis-engine-service",endpoint="market_analysis"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: market_analysis
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_pattern_detection_high_latency
+    annotations:
+      description: 95th percentile latency for analysis-engine-service - pattern_detection
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on analysis-engine-service - pattern_detection
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="analysis-engine-service",endpoint="pattern_detection"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: pattern_detection
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_pattern_detection_critical_latency
+    annotations:
+      description: 95th percentile latency for analysis-engine-service - pattern_detection
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on analysis-engine-service - pattern_detection
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="analysis-engine-service",endpoint="pattern_detection"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: pattern_detection
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_pattern_detection_high_error_rate
+    annotations:
+      description: Error rate for analysis-engine-service - pattern_detection is above
+        2.00% for more than 5 minutes
+      summary: High error rate on analysis-engine-service - pattern_detection
+    expr: sum(rate(http_request_errors_total{service="analysis-engine-service",endpoint="pattern_detection"}[5m]))
+      / sum(rate(http_requests_total{service="analysis-engine-service",endpoint="pattern_detection"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: pattern_detection
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_pattern_detection_critical_error_rate
+    annotations:
+      description: Error rate for analysis-engine-service - pattern_detection is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on analysis-engine-service - pattern_detection
+    expr: sum(rate(http_request_errors_total{service="analysis-engine-service",endpoint="pattern_detection"}[5m]))
+      / sum(rate(http_requests_total{service="analysis-engine-service",endpoint="pattern_detection"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: pattern_detection
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_signal_generation_high_latency
+    annotations:
+      description: 95th percentile latency for analysis-engine-service - signal_generation
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on analysis-engine-service - signal_generation
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="analysis-engine-service",endpoint="signal_generation"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: signal_generation
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_signal_generation_critical_latency
+    annotations:
+      description: 95th percentile latency for analysis-engine-service - signal_generation
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on analysis-engine-service - signal_generation
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="analysis-engine-service",endpoint="signal_generation"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: signal_generation
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_signal_generation_high_error_rate
+    annotations:
+      description: Error rate for analysis-engine-service - signal_generation is above
+        2.00% for more than 5 minutes
+      summary: High error rate on analysis-engine-service - signal_generation
+    expr: sum(rate(http_request_errors_total{service="analysis-engine-service",endpoint="signal_generation"}[5m]))
+      / sum(rate(http_requests_total{service="analysis-engine-service",endpoint="signal_generation"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: signal_generation
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_signal_generation_critical_error_rate
+    annotations:
+      description: Error rate for analysis-engine-service - signal_generation is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on analysis-engine-service - signal_generation
+    expr: sum(rate(http_request_errors_total{service="analysis-engine-service",endpoint="signal_generation"}[5m]))
+      / sum(rate(http_requests_total{service="analysis-engine-service",endpoint="signal_generation"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: signal_generation
+      service: analysis-engine-service
+      severity: critical
+  - alert: feature-store-service_list_features_high_latency
+    annotations:
+      description: 95th percentile latency for feature-store-service - list_features
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on feature-store-service - list_features
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="feature-store-service",endpoint="list_features"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: list_features
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_list_features_critical_latency
+    annotations:
+      description: 95th percentile latency for feature-store-service - list_features
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on feature-store-service - list_features
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="feature-store-service",endpoint="list_features"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: list_features
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_list_features_high_error_rate
+    annotations:
+      description: Error rate for feature-store-service - list_features is above 2.00%
+        for more than 5 minutes
+      summary: High error rate on feature-store-service - list_features
+    expr: sum(rate(http_request_errors_total{service="feature-store-service",endpoint="list_features"}[5m]))
+      / sum(rate(http_requests_total{service="feature-store-service",endpoint="list_features"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: list_features
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_list_features_critical_error_rate
+    annotations:
+      description: Error rate for feature-store-service - list_features is above 5.00%
+        for more than 5 minutes
+      summary: Critical error rate on feature-store-service - list_features
+    expr: sum(rate(http_request_errors_total{service="feature-store-service",endpoint="list_features"}[5m]))
+      / sum(rate(http_requests_total{service="feature-store-service",endpoint="list_features"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: list_features
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_calculate_features_high_latency
+    annotations:
+      description: 95th percentile latency for feature-store-service - calculate_features
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on feature-store-service - calculate_features
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="feature-store-service",endpoint="calculate_features"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: calculate_features
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_calculate_features_critical_latency
+    annotations:
+      description: 95th percentile latency for feature-store-service - calculate_features
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on feature-store-service - calculate_features
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="feature-store-service",endpoint="calculate_features"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: calculate_features
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_calculate_features_high_error_rate
+    annotations:
+      description: Error rate for feature-store-service - calculate_features is above
+        2.00% for more than 5 minutes
+      summary: High error rate on feature-store-service - calculate_features
+    expr: sum(rate(http_request_errors_total{service="feature-store-service",endpoint="calculate_features"}[5m]))
+      / sum(rate(http_requests_total{service="feature-store-service",endpoint="calculate_features"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: calculate_features
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_calculate_features_critical_error_rate
+    annotations:
+      description: Error rate for feature-store-service - calculate_features is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on feature-store-service - calculate_features
+    expr: sum(rate(http_request_errors_total{service="feature-store-service",endpoint="calculate_features"}[5m]))
+      / sum(rate(http_requests_total{service="feature-store-service",endpoint="calculate_features"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: calculate_features
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_batch_calculate_high_latency
+    annotations:
+      description: 95th percentile latency for feature-store-service - batch_calculate
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on feature-store-service - batch_calculate
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="feature-store-service",endpoint="batch_calculate"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: batch_calculate
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_batch_calculate_critical_latency
+    annotations:
+      description: 95th percentile latency for feature-store-service - batch_calculate
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on feature-store-service - batch_calculate
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="feature-store-service",endpoint="batch_calculate"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: batch_calculate
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_batch_calculate_high_error_rate
+    annotations:
+      description: Error rate for feature-store-service - batch_calculate is above
+        2.00% for more than 5 minutes
+      summary: High error rate on feature-store-service - batch_calculate
+    expr: sum(rate(http_request_errors_total{service="feature-store-service",endpoint="batch_calculate"}[5m]))
+      / sum(rate(http_requests_total{service="feature-store-service",endpoint="batch_calculate"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: batch_calculate
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_batch_calculate_critical_error_rate
+    annotations:
+      description: Error rate for feature-store-service - batch_calculate is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on feature-store-service - batch_calculate
+    expr: sum(rate(http_request_errors_total{service="feature-store-service",endpoint="batch_calculate"}[5m]))
+      / sum(rate(http_requests_total{service="feature-store-service",endpoint="batch_calculate"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: batch_calculate
+      service: feature-store-service
+      severity: critical
+  - alert: ml-integration-service_list_models_high_latency
+    annotations:
+      description: 95th percentile latency for ml-integration-service - list_models
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on ml-integration-service - list_models
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="ml-integration-service",endpoint="list_models"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: list_models
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_list_models_critical_latency
+    annotations:
+      description: 95th percentile latency for ml-integration-service - list_models
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on ml-integration-service - list_models
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="ml-integration-service",endpoint="list_models"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: list_models
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_list_models_high_error_rate
+    annotations:
+      description: Error rate for ml-integration-service - list_models is above 2.00%
+        for more than 5 minutes
+      summary: High error rate on ml-integration-service - list_models
+    expr: sum(rate(http_request_errors_total{service="ml-integration-service",endpoint="list_models"}[5m]))
+      / sum(rate(http_requests_total{service="ml-integration-service",endpoint="list_models"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: list_models
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_list_models_critical_error_rate
+    annotations:
+      description: Error rate for ml-integration-service - list_models is above 5.00%
+        for more than 5 minutes
+      summary: Critical error rate on ml-integration-service - list_models
+    expr: sum(rate(http_request_errors_total{service="ml-integration-service",endpoint="list_models"}[5m]))
+      / sum(rate(http_requests_total{service="ml-integration-service",endpoint="list_models"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: list_models
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_model_prediction_high_latency
+    annotations:
+      description: 95th percentile latency for ml-integration-service - model_prediction
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on ml-integration-service - model_prediction
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="ml-integration-service",endpoint="model_prediction"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: model_prediction
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_model_prediction_critical_latency
+    annotations:
+      description: 95th percentile latency for ml-integration-service - model_prediction
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on ml-integration-service - model_prediction
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="ml-integration-service",endpoint="model_prediction"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: model_prediction
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_model_prediction_high_error_rate
+    annotations:
+      description: Error rate for ml-integration-service - model_prediction is above
+        2.00% for more than 5 minutes
+      summary: High error rate on ml-integration-service - model_prediction
+    expr: sum(rate(http_request_errors_total{service="ml-integration-service",endpoint="model_prediction"}[5m]))
+      / sum(rate(http_requests_total{service="ml-integration-service",endpoint="model_prediction"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: model_prediction
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_model_prediction_critical_error_rate
+    annotations:
+      description: Error rate for ml-integration-service - model_prediction is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on ml-integration-service - model_prediction
+    expr: sum(rate(http_request_errors_total{service="ml-integration-service",endpoint="model_prediction"}[5m]))
+      / sum(rate(http_requests_total{service="ml-integration-service",endpoint="model_prediction"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: model_prediction
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_batch_prediction_high_latency
+    annotations:
+      description: 95th percentile latency for ml-integration-service - batch_prediction
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on ml-integration-service - batch_prediction
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="ml-integration-service",endpoint="batch_prediction"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: batch_prediction
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_batch_prediction_critical_latency
+    annotations:
+      description: 95th percentile latency for ml-integration-service - batch_prediction
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on ml-integration-service - batch_prediction
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="ml-integration-service",endpoint="batch_prediction"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: batch_prediction
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_batch_prediction_high_error_rate
+    annotations:
+      description: Error rate for ml-integration-service - batch_prediction is above
+        2.00% for more than 5 minutes
+      summary: High error rate on ml-integration-service - batch_prediction
+    expr: sum(rate(http_request_errors_total{service="ml-integration-service",endpoint="batch_prediction"}[5m]))
+      / sum(rate(http_requests_total{service="ml-integration-service",endpoint="batch_prediction"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: batch_prediction
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_batch_prediction_critical_error_rate
+    annotations:
+      description: Error rate for ml-integration-service - batch_prediction is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on ml-integration-service - batch_prediction
+    expr: sum(rate(http_request_errors_total{service="ml-integration-service",endpoint="batch_prediction"}[5m]))
+      / sum(rate(http_requests_total{service="ml-integration-service",endpoint="batch_prediction"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: batch_prediction
+      service: ml-integration-service
+      severity: critical
+  - alert: strategy-execution-engine_list_strategies_high_latency
+    annotations:
+      description: 95th percentile latency for strategy-execution-engine - list_strategies
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on strategy-execution-engine - list_strategies
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="strategy-execution-engine",endpoint="list_strategies"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: list_strategies
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_list_strategies_critical_latency
+    annotations:
+      description: 95th percentile latency for strategy-execution-engine - list_strategies
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on strategy-execution-engine - list_strategies
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="strategy-execution-engine",endpoint="list_strategies"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: list_strategies
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_list_strategies_high_error_rate
+    annotations:
+      description: Error rate for strategy-execution-engine - list_strategies is above
+        2.00% for more than 5 minutes
+      summary: High error rate on strategy-execution-engine - list_strategies
+    expr: sum(rate(http_request_errors_total{service="strategy-execution-engine",endpoint="list_strategies"}[5m]))
+      / sum(rate(http_requests_total{service="strategy-execution-engine",endpoint="list_strategies"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: list_strategies
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_list_strategies_critical_error_rate
+    annotations:
+      description: Error rate for strategy-execution-engine - list_strategies is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on strategy-execution-engine - list_strategies
+    expr: sum(rate(http_request_errors_total{service="strategy-execution-engine",endpoint="list_strategies"}[5m]))
+      / sum(rate(http_requests_total{service="strategy-execution-engine",endpoint="list_strategies"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: list_strategies
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_execute_strategy_high_latency
+    annotations:
+      description: 95th percentile latency for strategy-execution-engine - execute_strategy
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on strategy-execution-engine - execute_strategy
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="strategy-execution-engine",endpoint="execute_strategy"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: execute_strategy
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_execute_strategy_critical_latency
+    annotations:
+      description: 95th percentile latency for strategy-execution-engine - execute_strategy
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on strategy-execution-engine - execute_strategy
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="strategy-execution-engine",endpoint="execute_strategy"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: execute_strategy
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_execute_strategy_high_error_rate
+    annotations:
+      description: Error rate for strategy-execution-engine - execute_strategy is
+        above 2.00% for more than 5 minutes
+      summary: High error rate on strategy-execution-engine - execute_strategy
+    expr: sum(rate(http_request_errors_total{service="strategy-execution-engine",endpoint="execute_strategy"}[5m]))
+      / sum(rate(http_requests_total{service="strategy-execution-engine",endpoint="execute_strategy"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: execute_strategy
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_execute_strategy_critical_error_rate
+    annotations:
+      description: Error rate for strategy-execution-engine - execute_strategy is
+        above 5.00% for more than 5 minutes
+      summary: Critical error rate on strategy-execution-engine - execute_strategy
+    expr: sum(rate(http_request_errors_total{service="strategy-execution-engine",endpoint="execute_strategy"}[5m]))
+      / sum(rate(http_requests_total{service="strategy-execution-engine",endpoint="execute_strategy"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: execute_strategy
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_backtest_strategy_high_latency
+    annotations:
+      description: 95th percentile latency for strategy-execution-engine - backtest_strategy
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on strategy-execution-engine - backtest_strategy
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="strategy-execution-engine",endpoint="backtest_strategy"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: backtest_strategy
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_backtest_strategy_critical_latency
+    annotations:
+      description: 95th percentile latency for strategy-execution-engine - backtest_strategy
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on strategy-execution-engine - backtest_strategy
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="strategy-execution-engine",endpoint="backtest_strategy"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: backtest_strategy
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_backtest_strategy_high_error_rate
+    annotations:
+      description: Error rate for strategy-execution-engine - backtest_strategy is
+        above 2.00% for more than 5 minutes
+      summary: High error rate on strategy-execution-engine - backtest_strategy
+    expr: sum(rate(http_request_errors_total{service="strategy-execution-engine",endpoint="backtest_strategy"}[5m]))
+      / sum(rate(http_requests_total{service="strategy-execution-engine",endpoint="backtest_strategy"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: backtest_strategy
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_backtest_strategy_critical_error_rate
+    annotations:
+      description: Error rate for strategy-execution-engine - backtest_strategy is
+        above 5.00% for more than 5 minutes
+      summary: Critical error rate on strategy-execution-engine - backtest_strategy
+    expr: sum(rate(http_request_errors_total{service="strategy-execution-engine",endpoint="backtest_strategy"}[5m]))
+      / sum(rate(http_requests_total{service="strategy-execution-engine",endpoint="backtest_strategy"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: backtest_strategy
+      service: strategy-execution-engine
+      severity: critical
+  - alert: data-pipeline-service_get_market_data_high_latency
+    annotations:
+      description: 95th percentile latency for data-pipeline-service - get_market_data
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on data-pipeline-service - get_market_data
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="data-pipeline-service",endpoint="get_market_data"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: get_market_data
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_get_market_data_critical_latency
+    annotations:
+      description: 95th percentile latency for data-pipeline-service - get_market_data
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on data-pipeline-service - get_market_data
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="data-pipeline-service",endpoint="get_market_data"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: get_market_data
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_get_market_data_high_error_rate
+    annotations:
+      description: Error rate for data-pipeline-service - get_market_data is above
+        2.00% for more than 5 minutes
+      summary: High error rate on data-pipeline-service - get_market_data
+    expr: sum(rate(http_request_errors_total{service="data-pipeline-service",endpoint="get_market_data"}[5m]))
+      / sum(rate(http_requests_total{service="data-pipeline-service",endpoint="get_market_data"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: get_market_data
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_get_market_data_critical_error_rate
+    annotations:
+      description: Error rate for data-pipeline-service - get_market_data is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on data-pipeline-service - get_market_data
+    expr: sum(rate(http_request_errors_total{service="data-pipeline-service",endpoint="get_market_data"}[5m]))
+      / sum(rate(http_requests_total{service="data-pipeline-service",endpoint="get_market_data"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: get_market_data
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_process_data_high_latency
+    annotations:
+      description: 95th percentile latency for data-pipeline-service - process_data
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on data-pipeline-service - process_data
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="data-pipeline-service",endpoint="process_data"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: process_data
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_process_data_critical_latency
+    annotations:
+      description: 95th percentile latency for data-pipeline-service - process_data
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on data-pipeline-service - process_data
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="data-pipeline-service",endpoint="process_data"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: process_data
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_process_data_high_error_rate
+    annotations:
+      description: Error rate for data-pipeline-service - process_data is above 2.00%
+        for more than 5 minutes
+      summary: High error rate on data-pipeline-service - process_data
+    expr: sum(rate(http_request_errors_total{service="data-pipeline-service",endpoint="process_data"}[5m]))
+      / sum(rate(http_requests_total{service="data-pipeline-service",endpoint="process_data"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: process_data
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_process_data_critical_error_rate
+    annotations:
+      description: Error rate for data-pipeline-service - process_data is above 5.00%
+        for more than 5 minutes
+      summary: Critical error rate on data-pipeline-service - process_data
+    expr: sum(rate(http_request_errors_total{service="data-pipeline-service",endpoint="process_data"}[5m]))
+      / sum(rate(http_requests_total{service="data-pipeline-service",endpoint="process_data"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: process_data
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_pipeline_status_high_latency
+    annotations:
+      description: 95th percentile latency for data-pipeline-service - pipeline_status
+        is above 300.0ms for more than 5 minutes
+      summary: High latency on data-pipeline-service - pipeline_status
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="data-pipeline-service",endpoint="pipeline_status"}[5m]))
+      by (le)) > 0.3
+    for: 5m
+    labels:
+      endpoint: pipeline_status
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_pipeline_status_critical_latency
+    annotations:
+      description: 95th percentile latency for data-pipeline-service - pipeline_status
+        is above 600ms for more than 5 minutes
+      summary: Critical latency on data-pipeline-service - pipeline_status
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="data-pipeline-service",endpoint="pipeline_status"}[5m]))
+      by (le)) > 0.6
+    for: 5m
+    labels:
+      endpoint: pipeline_status
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_pipeline_status_high_error_rate
+    annotations:
+      description: Error rate for data-pipeline-service - pipeline_status is above
+        2.00% for more than 5 minutes
+      summary: High error rate on data-pipeline-service - pipeline_status
+    expr: sum(rate(http_request_errors_total{service="data-pipeline-service",endpoint="pipeline_status"}[5m]))
+      / sum(rate(http_requests_total{service="data-pipeline-service",endpoint="pipeline_status"}[5m]))
+      > 0.02
+    for: 5m
+    labels:
+      endpoint: pipeline_status
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_pipeline_status_critical_error_rate
+    annotations:
+      description: Error rate for data-pipeline-service - pipeline_status is above
+        5.00% for more than 5 minutes
+      summary: Critical error rate on data-pipeline-service - pipeline_status
+    expr: sum(rate(http_request_errors_total{service="data-pipeline-service",endpoint="pipeline_status"}[5m]))
+      / sum(rate(http_requests_total{service="data-pipeline-service",endpoint="pipeline_status"}[5m]))
+      > 0.05
+    for: 5m
+    labels:
+      endpoint: pipeline_status
+      service: data-pipeline-service
+      severity: critical
+- name: resource_usage
+  rules:
+  - alert: trading-gateway-service_high_cpu_usage
+    annotations:
+      description: CPU usage for trading-gateway-service is above 70% for more than
+        5 minutes
+      summary: High CPU usage on trading-gateway-service
+    expr: process_cpu_seconds_total{service="trading-gateway-service"} > 70
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_critical_cpu_usage
+    annotations:
+      description: CPU usage for trading-gateway-service is above 90% for more than
+        5 minutes
+      summary: Critical CPU usage on trading-gateway-service
+    expr: process_cpu_seconds_total{service="trading-gateway-service"} > 90
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_high_memory_usage
+    annotations:
+      description: Memory usage for trading-gateway-service is above 80% for more
+        than 5 minutes
+      summary: High memory usage on trading-gateway-service
+    expr: process_resident_memory_bytes{service="trading-gateway-service"} / process_virtual_memory_bytes{service="trading-gateway-service"}
+      > 0.8
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_critical_memory_usage
+    annotations:
+      description: Memory usage for trading-gateway-service is above 90% for more
+        than 5 minutes
+      summary: Critical memory usage on trading-gateway-service
+    expr: process_resident_memory_bytes{service="trading-gateway-service"} / process_virtual_memory_bytes{service="trading-gateway-service"}
+      > 0.9
+    for: 5m
+    labels:
+      service: trading-gateway-service
+      severity: critical
+  - alert: analysis-engine-service_high_cpu_usage
+    annotations:
+      description: CPU usage for analysis-engine-service is above 70% for more than
+        5 minutes
+      summary: High CPU usage on analysis-engine-service
+    expr: process_cpu_seconds_total{service="analysis-engine-service"} > 70
+    for: 5m
+    labels:
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_critical_cpu_usage
+    annotations:
+      description: CPU usage for analysis-engine-service is above 90% for more than
+        5 minutes
+      summary: Critical CPU usage on analysis-engine-service
+    expr: process_cpu_seconds_total{service="analysis-engine-service"} > 90
+    for: 5m
+    labels:
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_high_memory_usage
+    annotations:
+      description: Memory usage for analysis-engine-service is above 80% for more
+        than 5 minutes
+      summary: High memory usage on analysis-engine-service
+    expr: process_resident_memory_bytes{service="analysis-engine-service"} / process_virtual_memory_bytes{service="analysis-engine-service"}
+      > 0.8
+    for: 5m
+    labels:
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_critical_memory_usage
+    annotations:
+      description: Memory usage for analysis-engine-service is above 90% for more
+        than 5 minutes
+      summary: Critical memory usage on analysis-engine-service
+    expr: process_resident_memory_bytes{service="analysis-engine-service"} / process_virtual_memory_bytes{service="analysis-engine-service"}
+      > 0.9
+    for: 5m
+    labels:
+      service: analysis-engine-service
+      severity: critical
+  - alert: feature-store-service_high_cpu_usage
+    annotations:
+      description: CPU usage for feature-store-service is above 70% for more than
+        5 minutes
+      summary: High CPU usage on feature-store-service
+    expr: process_cpu_seconds_total{service="feature-store-service"} > 70
+    for: 5m
+    labels:
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_critical_cpu_usage
+    annotations:
+      description: CPU usage for feature-store-service is above 90% for more than
+        5 minutes
+      summary: Critical CPU usage on feature-store-service
+    expr: process_cpu_seconds_total{service="feature-store-service"} > 90
+    for: 5m
+    labels:
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_high_memory_usage
+    annotations:
+      description: Memory usage for feature-store-service is above 80% for more than
+        5 minutes
+      summary: High memory usage on feature-store-service
+    expr: process_resident_memory_bytes{service="feature-store-service"} / process_virtual_memory_bytes{service="feature-store-service"}
+      > 0.8
+    for: 5m
+    labels:
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_critical_memory_usage
+    annotations:
+      description: Memory usage for feature-store-service is above 90% for more than
+        5 minutes
+      summary: Critical memory usage on feature-store-service
+    expr: process_resident_memory_bytes{service="feature-store-service"} / process_virtual_memory_bytes{service="feature-store-service"}
+      > 0.9
+    for: 5m
+    labels:
+      service: feature-store-service
+      severity: critical
+  - alert: ml-integration-service_high_cpu_usage
+    annotations:
+      description: CPU usage for ml-integration-service is above 70% for more than
+        5 minutes
+      summary: High CPU usage on ml-integration-service
+    expr: process_cpu_seconds_total{service="ml-integration-service"} > 70
+    for: 5m
+    labels:
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_critical_cpu_usage
+    annotations:
+      description: CPU usage for ml-integration-service is above 90% for more than
+        5 minutes
+      summary: Critical CPU usage on ml-integration-service
+    expr: process_cpu_seconds_total{service="ml-integration-service"} > 90
+    for: 5m
+    labels:
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_high_memory_usage
+    annotations:
+      description: Memory usage for ml-integration-service is above 80% for more than
+        5 minutes
+      summary: High memory usage on ml-integration-service
+    expr: process_resident_memory_bytes{service="ml-integration-service"} / process_virtual_memory_bytes{service="ml-integration-service"}
+      > 0.8
+    for: 5m
+    labels:
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_critical_memory_usage
+    annotations:
+      description: Memory usage for ml-integration-service is above 90% for more than
+        5 minutes
+      summary: Critical memory usage on ml-integration-service
+    expr: process_resident_memory_bytes{service="ml-integration-service"} / process_virtual_memory_bytes{service="ml-integration-service"}
+      > 0.9
+    for: 5m
+    labels:
+      service: ml-integration-service
+      severity: critical
+  - alert: strategy-execution-engine_high_cpu_usage
+    annotations:
+      description: CPU usage for strategy-execution-engine is above 70% for more than
+        5 minutes
+      summary: High CPU usage on strategy-execution-engine
+    expr: process_cpu_seconds_total{service="strategy-execution-engine"} > 70
+    for: 5m
+    labels:
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_critical_cpu_usage
+    annotations:
+      description: CPU usage for strategy-execution-engine is above 90% for more than
+        5 minutes
+      summary: Critical CPU usage on strategy-execution-engine
+    expr: process_cpu_seconds_total{service="strategy-execution-engine"} > 90
+    for: 5m
+    labels:
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_high_memory_usage
+    annotations:
+      description: Memory usage for strategy-execution-engine is above 80% for more
+        than 5 minutes
+      summary: High memory usage on strategy-execution-engine
+    expr: process_resident_memory_bytes{service="strategy-execution-engine"} / process_virtual_memory_bytes{service="strategy-execution-engine"}
+      > 0.8
+    for: 5m
+    labels:
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_critical_memory_usage
+    annotations:
+      description: Memory usage for strategy-execution-engine is above 90% for more
+        than 5 minutes
+      summary: Critical memory usage on strategy-execution-engine
+    expr: process_resident_memory_bytes{service="strategy-execution-engine"} / process_virtual_memory_bytes{service="strategy-execution-engine"}
+      > 0.9
+    for: 5m
+    labels:
+      service: strategy-execution-engine
+      severity: critical
+  - alert: data-pipeline-service_high_cpu_usage
+    annotations:
+      description: CPU usage for data-pipeline-service is above 70% for more than
+        5 minutes
+      summary: High CPU usage on data-pipeline-service
+    expr: process_cpu_seconds_total{service="data-pipeline-service"} > 70
+    for: 5m
+    labels:
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_critical_cpu_usage
+    annotations:
+      description: CPU usage for data-pipeline-service is above 90% for more than
+        5 minutes
+      summary: Critical CPU usage on data-pipeline-service
+    expr: process_cpu_seconds_total{service="data-pipeline-service"} > 90
+    for: 5m
+    labels:
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_high_memory_usage
+    annotations:
+      description: Memory usage for data-pipeline-service is above 80% for more than
+        5 minutes
+      summary: High memory usage on data-pipeline-service
+    expr: process_resident_memory_bytes{service="data-pipeline-service"} / process_virtual_memory_bytes{service="data-pipeline-service"}
+      > 0.8
+    for: 5m
+    labels:
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_critical_memory_usage
+    annotations:
+      description: Memory usage for data-pipeline-service is above 90% for more than
+        5 minutes
+      summary: Critical memory usage on data-pipeline-service
+    expr: process_resident_memory_bytes{service="data-pipeline-service"} / process_virtual_memory_bytes{service="data-pipeline-service"}
+      > 0.9
+    for: 5m
+    labels:
+      service: data-pipeline-service
+      severity: critical
+- name: business_metrics
+  rules:
+  - alert: trading-gateway-service_order_execution_time_warning
+    annotations:
+      description: order_execution_time for trading-gateway-service is below 0.6 for
+        more than 15 minutes
+      summary: Low order_execution_time on trading-gateway-service
+    expr: order_execution_time{service="trading-gateway-service"} < 0.6
+    for: 15m
+    labels:
+      metric: order_execution_time
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_order_execution_time_critical
+    annotations:
+      description: order_execution_time for trading-gateway-service is below 0.5 for
+        more than 15 minutes
+      summary: Critical order_execution_time on trading-gateway-service
+    expr: order_execution_time{service="trading-gateway-service"} < 0.5
+    for: 15m
+    labels:
+      metric: order_execution_time
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_slippage_bps_warning
+    annotations:
+      description: slippage_bps for trading-gateway-service is below 0.6 for more
+        than 15 minutes
+      summary: Low slippage_bps on trading-gateway-service
+    expr: slippage_bps{service="trading-gateway-service"} < 0.6
+    for: 15m
+    labels:
+      metric: slippage_bps
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_slippage_bps_critical
+    annotations:
+      description: slippage_bps for trading-gateway-service is below 0.5 for more
+        than 15 minutes
+      summary: Critical slippage_bps on trading-gateway-service
+    expr: slippage_bps{service="trading-gateway-service"} < 0.5
+    for: 15m
+    labels:
+      metric: slippage_bps
+      service: trading-gateway-service
+      severity: critical
+  - alert: trading-gateway-service_fill_rate_warning
+    annotations:
+      description: fill_rate for trading-gateway-service is below 0.6 for more than
+        15 minutes
+      summary: Low fill_rate on trading-gateway-service
+    expr: fill_rate{service="trading-gateway-service"} < 0.6
+    for: 15m
+    labels:
+      metric: fill_rate
+      service: trading-gateway-service
+      severity: warning
+  - alert: trading-gateway-service_fill_rate_critical
+    annotations:
+      description: fill_rate for trading-gateway-service is below 0.5 for more than
+        15 minutes
+      summary: Critical fill_rate on trading-gateway-service
+    expr: fill_rate{service="trading-gateway-service"} < 0.5
+    for: 15m
+    labels:
+      metric: fill_rate
+      service: trading-gateway-service
+      severity: critical
+  - alert: analysis-engine-service_pattern_recognition_accuracy_warning
+    annotations:
+      description: pattern_recognition_accuracy for analysis-engine-service is below
+        0.6 for more than 15 minutes
+      summary: Low pattern_recognition_accuracy on analysis-engine-service
+    expr: pattern_recognition_accuracy{service="analysis-engine-service"} < 0.6
+    for: 15m
+    labels:
+      metric: pattern_recognition_accuracy
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_pattern_recognition_accuracy_critical
+    annotations:
+      description: pattern_recognition_accuracy for analysis-engine-service is below
+        0.5 for more than 15 minutes
+      summary: Critical pattern_recognition_accuracy on analysis-engine-service
+    expr: pattern_recognition_accuracy{service="analysis-engine-service"} < 0.5
+    for: 15m
+    labels:
+      metric: pattern_recognition_accuracy
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_signal_quality_score_warning
+    annotations:
+      description: signal_quality_score for analysis-engine-service is below 0.6 for
+        more than 15 minutes
+      summary: Low signal_quality_score on analysis-engine-service
+    expr: signal_quality_score{service="analysis-engine-service"} < 0.6
+    for: 15m
+    labels:
+      metric: signal_quality_score
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_signal_quality_score_critical
+    annotations:
+      description: signal_quality_score for analysis-engine-service is below 0.5 for
+        more than 15 minutes
+      summary: Critical signal_quality_score on analysis-engine-service
+    expr: signal_quality_score{service="analysis-engine-service"} < 0.5
+    for: 15m
+    labels:
+      metric: signal_quality_score
+      service: analysis-engine-service
+      severity: critical
+  - alert: analysis-engine-service_market_regime_detection_confidence_warning
+    annotations:
+      description: market_regime_detection_confidence for analysis-engine-service
+        is below 0.6 for more than 15 minutes
+      summary: Low market_regime_detection_confidence on analysis-engine-service
+    expr: market_regime_detection_confidence{service="analysis-engine-service"} <
+      0.6
+    for: 15m
+    labels:
+      metric: market_regime_detection_confidence
+      service: analysis-engine-service
+      severity: warning
+  - alert: analysis-engine-service_market_regime_detection_confidence_critical
+    annotations:
+      description: market_regime_detection_confidence for analysis-engine-service
+        is below 0.5 for more than 15 minutes
+      summary: Critical market_regime_detection_confidence on analysis-engine-service
+    expr: market_regime_detection_confidence{service="analysis-engine-service"} <
+      0.5
+    for: 15m
+    labels:
+      metric: market_regime_detection_confidence
+      service: analysis-engine-service
+      severity: critical
+  - alert: feature-store-service_feature_calculation_time_warning
+    annotations:
+      description: feature_calculation_time for feature-store-service is below 0.6
+        for more than 15 minutes
+      summary: Low feature_calculation_time on feature-store-service
+    expr: feature_calculation_time{service="feature-store-service"} < 0.6
+    for: 15m
+    labels:
+      metric: feature_calculation_time
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_feature_calculation_time_critical
+    annotations:
+      description: feature_calculation_time for feature-store-service is below 0.5
+        for more than 15 minutes
+      summary: Critical feature_calculation_time on feature-store-service
+    expr: feature_calculation_time{service="feature-store-service"} < 0.5
+    for: 15m
+    labels:
+      metric: feature_calculation_time
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_cache_hit_rate_warning
+    annotations:
+      description: cache_hit_rate for feature-store-service is below 0.6 for more
+        than 15 minutes
+      summary: Low cache_hit_rate on feature-store-service
+    expr: cache_hit_rate{service="feature-store-service"} < 0.6
+    for: 15m
+    labels:
+      metric: cache_hit_rate
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_cache_hit_rate_critical
+    annotations:
+      description: cache_hit_rate for feature-store-service is below 0.5 for more
+        than 15 minutes
+      summary: Critical cache_hit_rate on feature-store-service
+    expr: cache_hit_rate{service="feature-store-service"} < 0.5
+    for: 15m
+    labels:
+      metric: cache_hit_rate
+      service: feature-store-service
+      severity: critical
+  - alert: feature-store-service_data_freshness_warning
+    annotations:
+      description: data_freshness for feature-store-service is below 0.6 for more
+        than 15 minutes
+      summary: Low data_freshness on feature-store-service
+    expr: data_freshness{service="feature-store-service"} < 0.6
+    for: 15m
+    labels:
+      metric: data_freshness
+      service: feature-store-service
+      severity: warning
+  - alert: feature-store-service_data_freshness_critical
+    annotations:
+      description: data_freshness for feature-store-service is below 0.5 for more
+        than 15 minutes
+      summary: Critical data_freshness on feature-store-service
+    expr: data_freshness{service="feature-store-service"} < 0.5
+    for: 15m
+    labels:
+      metric: data_freshness
+      service: feature-store-service
+      severity: critical
+  - alert: ml-integration-service_model_inference_time_warning
+    annotations:
+      description: model_inference_time for ml-integration-service is below 0.6 for
+        more than 15 minutes
+      summary: Low model_inference_time on ml-integration-service
+    expr: model_inference_time{service="ml-integration-service"} < 0.6
+    for: 15m
+    labels:
+      metric: model_inference_time
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_model_inference_time_critical
+    annotations:
+      description: model_inference_time for ml-integration-service is below 0.5 for
+        more than 15 minutes
+      summary: Critical model_inference_time on ml-integration-service
+    expr: model_inference_time{service="ml-integration-service"} < 0.5
+    for: 15m
+    labels:
+      metric: model_inference_time
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_prediction_accuracy_warning
+    annotations:
+      description: prediction_accuracy for ml-integration-service is below 0.6 for
+        more than 15 minutes
+      summary: Low prediction_accuracy on ml-integration-service
+    expr: prediction_accuracy{service="ml-integration-service"} < 0.6
+    for: 15m
+    labels:
+      metric: prediction_accuracy
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_prediction_accuracy_critical
+    annotations:
+      description: prediction_accuracy for ml-integration-service is below 0.5 for
+        more than 15 minutes
+      summary: Critical prediction_accuracy on ml-integration-service
+    expr: prediction_accuracy{service="ml-integration-service"} < 0.5
+    for: 15m
+    labels:
+      metric: prediction_accuracy
+      service: ml-integration-service
+      severity: critical
+  - alert: ml-integration-service_model_confidence_warning
+    annotations:
+      description: model_confidence for ml-integration-service is below 0.6 for more
+        than 15 minutes
+      summary: Low model_confidence on ml-integration-service
+    expr: model_confidence{service="ml-integration-service"} < 0.6
+    for: 15m
+    labels:
+      metric: model_confidence
+      service: ml-integration-service
+      severity: warning
+  - alert: ml-integration-service_model_confidence_critical
+    annotations:
+      description: model_confidence for ml-integration-service is below 0.5 for more
+        than 15 minutes
+      summary: Critical model_confidence on ml-integration-service
+    expr: model_confidence{service="ml-integration-service"} < 0.5
+    for: 15m
+    labels:
+      metric: model_confidence
+      service: ml-integration-service
+      severity: critical
+  - alert: strategy-execution-engine_strategy_execution_time_warning
+    annotations:
+      description: strategy_execution_time for strategy-execution-engine is below
+        0.6 for more than 15 minutes
+      summary: Low strategy_execution_time on strategy-execution-engine
+    expr: strategy_execution_time{service="strategy-execution-engine"} < 0.6
+    for: 15m
+    labels:
+      metric: strategy_execution_time
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_strategy_execution_time_critical
+    annotations:
+      description: strategy_execution_time for strategy-execution-engine is below
+        0.5 for more than 15 minutes
+      summary: Critical strategy_execution_time on strategy-execution-engine
+    expr: strategy_execution_time{service="strategy-execution-engine"} < 0.5
+    for: 15m
+    labels:
+      metric: strategy_execution_time
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_strategy_win_rate_warning
+    annotations:
+      description: strategy_win_rate for strategy-execution-engine is below 0.6 for
+        more than 15 minutes
+      summary: Low strategy_win_rate on strategy-execution-engine
+    expr: strategy_win_rate{service="strategy-execution-engine"} < 0.6
+    for: 15m
+    labels:
+      metric: strategy_win_rate
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_strategy_win_rate_critical
+    annotations:
+      description: strategy_win_rate for strategy-execution-engine is below 0.5 for
+        more than 15 minutes
+      summary: Critical strategy_win_rate on strategy-execution-engine
+    expr: strategy_win_rate{service="strategy-execution-engine"} < 0.5
+    for: 15m
+    labels:
+      metric: strategy_win_rate
+      service: strategy-execution-engine
+      severity: critical
+  - alert: strategy-execution-engine_strategy_sharpe_ratio_warning
+    annotations:
+      description: strategy_sharpe_ratio for strategy-execution-engine is below 0.6
+        for more than 15 minutes
+      summary: Low strategy_sharpe_ratio on strategy-execution-engine
+    expr: strategy_sharpe_ratio{service="strategy-execution-engine"} < 0.6
+    for: 15m
+    labels:
+      metric: strategy_sharpe_ratio
+      service: strategy-execution-engine
+      severity: warning
+  - alert: strategy-execution-engine_strategy_sharpe_ratio_critical
+    annotations:
+      description: strategy_sharpe_ratio for strategy-execution-engine is below 0.5
+        for more than 15 minutes
+      summary: Critical strategy_sharpe_ratio on strategy-execution-engine
+    expr: strategy_sharpe_ratio{service="strategy-execution-engine"} < 0.5
+    for: 15m
+    labels:
+      metric: strategy_sharpe_ratio
+      service: strategy-execution-engine
+      severity: critical
+  - alert: data-pipeline-service_data_processing_time_warning
+    annotations:
+      description: data_processing_time for data-pipeline-service is below 0.6 for
+        more than 15 minutes
+      summary: Low data_processing_time on data-pipeline-service
+    expr: data_processing_time{service="data-pipeline-service"} < 0.6
+    for: 15m
+    labels:
+      metric: data_processing_time
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_data_processing_time_critical
+    annotations:
+      description: data_processing_time for data-pipeline-service is below 0.5 for
+        more than 15 minutes
+      summary: Critical data_processing_time on data-pipeline-service
+    expr: data_processing_time{service="data-pipeline-service"} < 0.5
+    for: 15m
+    labels:
+      metric: data_processing_time
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_data_quality_score_warning
+    annotations:
+      description: data_quality_score for data-pipeline-service is below 0.6 for more
+        than 15 minutes
+      summary: Low data_quality_score on data-pipeline-service
+    expr: data_quality_score{service="data-pipeline-service"} < 0.6
+    for: 15m
+    labels:
+      metric: data_quality_score
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_data_quality_score_critical
+    annotations:
+      description: data_quality_score for data-pipeline-service is below 0.5 for more
+        than 15 minutes
+      summary: Critical data_quality_score on data-pipeline-service
+    expr: data_quality_score{service="data-pipeline-service"} < 0.5
+    for: 15m
+    labels:
+      metric: data_quality_score
+      service: data-pipeline-service
+      severity: critical
+  - alert: data-pipeline-service_pipeline_throughput_warning
+    annotations:
+      description: pipeline_throughput for data-pipeline-service is below 0.6 for
+        more than 15 minutes
+      summary: Low pipeline_throughput on data-pipeline-service
+    expr: pipeline_throughput{service="data-pipeline-service"} < 0.6
+    for: 15m
+    labels:
+      metric: pipeline_throughput
+      service: data-pipeline-service
+      severity: warning
+  - alert: data-pipeline-service_pipeline_throughput_critical
+    annotations:
+      description: pipeline_throughput for data-pipeline-service is below 0.5 for
+        more than 15 minutes
+      summary: Critical pipeline_throughput on data-pipeline-service
+    expr: pipeline_throughput{service="data-pipeline-service"} < 0.5
+    for: 15m
+    labels:
+      metric: pipeline_throughput
+      service: data-pipeline-service
+      severity: critical

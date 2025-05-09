@@ -1,0 +1,32 @@
+groups:
+  - name: error_rate_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(forex_platform_errors_total[5m])) by (service) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate in {{ $labels.service }}"
+          description: "{{ $labels.service }} has a high error rate ({{ $value | printf \"%.2f\" }} errors/s)"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"
+          
+      - alert: CriticalErrorRate
+        expr: sum(rate(forex_platform_errors_total[5m])) by (service) > 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error rate in {{ $labels.service }}"
+          description: "{{ $labels.service }} has a critical error rate ({{ $value | printf \"%.2f\" }} errors/s)"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"
+          
+      - alert: HTTP5xxErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (service) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx error rate in {{ $labels.service }}"
+          description: "{{ $labels.service }} has a high rate of HTTP 5xx errors ({{ $value | printf \"%.2f\" }} errors/s)"
+          dashboard: "https://grafana.forex-platform.local/d/forex-errors/forex-platform-error-monitoring"

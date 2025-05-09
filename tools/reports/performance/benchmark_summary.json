@@ -1,0 +1,190 @@
+{
+  "order_execution": {
+    "low": {
+      "avg_time": 0.17109107971191406,
+      "bottlenecks": [
+        {
+          "component": "order_validation",
+          "avg_time": 0.03,
+          "impact": "high"
+        },
+        {
+          "component": "order_execution",
+          "avg_time": 0.05,
+          "impact": "high"
+        }
+      ]
+    },
+    "medium": {
+      "avg_time": 0.8844139575958252,
+      "bottlenecks": [
+        {
+          "component": "order_validation",
+          "avg_time": 0.3,
+          "impact": "high"
+        },
+        {
+          "component": "order_execution",
+          "avg_time": 0.5,
+          "impact": "high"
+        }
+      ]
+    },
+    "high": {
+      "avg_time": 4.090590159098308,
+      "bottlenecks": [
+        {
+          "component": "order_validation",
+          "avg_time": 1.5,
+          "impact": "high"
+        },
+        {
+          "component": "order_execution",
+          "avg_time": 2.5,
+          "impact": "high"
+        }
+      ]
+    }
+  },
+  "market_data": {
+    "low": {
+      "avg_time": 0.07656264305114746,
+      "bottlenecks": [
+        {
+          "component": "data_storage",
+          "avg_time": 0.03,
+          "impact": "high"
+        },
+        {
+          "component": "data_normalization",
+          "avg_time": 0.02,
+          "impact": "medium"
+        }
+      ]
+    },
+    "medium": {
+      "avg_time": 0.6219356854756674,
+      "bottlenecks": [
+        {
+          "component": "data_storage",
+          "avg_time": 0.3,
+          "impact": "high"
+        },
+        {
+          "component": "data_normalization",
+          "avg_time": 0.2,
+          "impact": "medium"
+        }
+      ]
+    },
+    "high": {
+      "avg_time": 6.061847845713298,
+      "bottlenecks": [
+        {
+          "component": "data_storage",
+          "avg_time": 3.0,
+          "impact": "high"
+        },
+        {
+          "component": "data_normalization",
+          "avg_time": 2.0,
+          "impact": "medium"
+        }
+      ]
+    }
+  },
+  "signal_generation": {
+    "low": {
+      "avg_time": 0.25294001897176105,
+      "bottlenecks": [
+        {
+          "component": "indicator_calculation",
+          "avg_time": 0.05,
+          "impact": "high"
+        },
+        {
+          "component": "signal_generation",
+          "avg_time": 0.1,
+          "impact": "high"
+        }
+      ]
+    },
+    "medium": {
+      "avg_time": 0.8504037857055664,
+      "bottlenecks": [
+        {
+          "component": "indicator_calculation",
+          "avg_time": 0.2,
+          "impact": "high"
+        },
+        {
+          "component": "signal_generation",
+          "avg_time": 0.4,
+          "impact": "high"
+        }
+      ]
+    },
+    "high": {
+      "avg_time": 2.0555801391601562,
+      "bottlenecks": [
+        {
+          "component": "indicator_calculation",
+          "avg_time": 0.5,
+          "impact": "high"
+        },
+        {
+          "component": "signal_generation",
+          "avg_time": 1.0,
+          "impact": "high"
+        }
+      ]
+    }
+  },
+  "ml_inference": {
+    "low": {
+      "avg_time": 0.11535151799519856,
+      "bottlenecks": [
+        {
+          "component": "model_inference",
+          "avg_time": 0.05,
+          "impact": "high"
+        },
+        {
+          "component": "feature_extraction",
+          "avg_time": 0.02,
+          "impact": "low"
+        }
+      ]
+    },
+    "medium": {
+      "avg_time": 0.264711856842041,
+      "bottlenecks": [
+        {
+          "component": "model_inference",
+          "avg_time": 0.2,
+          "impact": "high"
+        },
+        {
+          "component": "feature_extraction",
+          "avg_time": 0.02,
+          "impact": "low"
+        }
+      ]
+    },
+    "high": {
+      "avg_time": 0.5683769385019938,
+      "bottlenecks": [
+        {
+          "component": "model_inference",
+          "avg_time": 0.5,
+          "impact": "high"
+        },
+        {
+          "component": "feature_extraction",
+          "avg_time": 0.02,
+          "impact": "low"
+        }
+      ]
+    }
+  }
+}

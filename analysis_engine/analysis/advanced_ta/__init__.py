@@ -1,0 +1,3 @@
+"""
+Advanced Technical Analysis package.
+"""

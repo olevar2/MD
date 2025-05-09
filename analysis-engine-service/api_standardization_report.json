@@ -1,0 +1,722 @@
+{
+  "summary": {
+    "total_endpoints": 44,
+    "standardized_endpoints": 26,
+    "non_standardized_endpoints": 18,
+    "standardization_percentage": 59.09090909090909
+  },
+  "endpoints": [
+    {
+      "path": "/api/v1/adaptive-layer/adaptations/history",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/adaptive-layer/feedback/insights/{strategy_id}",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path part '{strategy_id}' is not in kebab-case"
+      ]
+    },
+    {
+      "path": "/api/v1/adaptive-layer/feedback/outcomes",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/adaptive-layer/feedback/performance/{strategy_id}",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path part '{strategy_id}' is not in kebab-case"
+      ]
+    },
+    {
+      "path": "/api/v1/adaptive-layer/parameters/adjust",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/adaptive-layer/parameters/generate",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/adaptive-layer/parameters/history/{strategy_id}/{instrument}/{timeframe}",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path part '{strategy_id}' is not in kebab-case",
+        "Path part '{instrument}' is not in kebab-case",
+        "Path part '{timeframe}' is not in kebab-case"
+      ]
+    },
+    {
+      "path": "/api/v1/adaptive-layer/strategy/effectiveness-trend",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/adaptive-layer/strategy/recommendations",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/adaptive-layer/strategy/update",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/adaptations/history",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/feedback/insights/{strategy_id}",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path part '{strategy_id}' is not in kebab-case"
+      ]
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/feedback/outcomes",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/feedback/performance/{strategy_id}",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path part '{strategy_id}' is not in kebab-case"
+      ]
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/parameters/adjust",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/parameters/generate",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/parameters/history/{strategy_id}/{instrument}/{timeframe}",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path part '{strategy_id}' is not in kebab-case",
+        "Path part '{instrument}' is not in kebab-case",
+        "Path part '{timeframe}' is not in kebab-case"
+      ]
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/strategy/effectiveness-trend",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/strategy/recommendations",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/adaptations/strategy/update",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Adaptive Layer"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/health-checks",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Health"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/health-checks/liveness",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Health"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/health-checks/readiness",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Health"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/detect",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/history",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/performance-report",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/tools/complementarity",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/tools/effectiveness-trends",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/tools/optimal-conditions",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/tools/recommendations",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/tools/regime-analysis",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/api/v1/analysis/market-regimes/tools/underperforming",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Market Regime"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": true,
+      "standardization_issues": []
+    },
+    {
+      "path": "/health",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/health/live",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/health/ready",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/complementarity/",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/detect/",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/effectiveness-trends/",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/history/",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/optimal-conditions/",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/performance-report/",
+      "methods": [
+        "GET"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/recommend-tools/",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/regime-analysis/",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    },
+    {
+      "path": "/market-regime/underperforming-tools/",
+      "methods": [
+        "POST"
+      ],
+      "tags": [
+        "Legacy"
+      ],
+      "summary": null,
+      "description": null,
+      "module_path": null,
+      "function_name": null,
+      "is_standardized": false,
+      "standardization_issues": [
+        "Path does not start with /api/v1/",
+        "Path does not follow the pattern /api/v1/{service}/{domain}/{resource}"
+      ]
+    }
+  ]
+}

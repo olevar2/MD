@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Query Performance Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 30px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .slow-query {
+            background-color: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Database Query Performance Dashboard</h1>
+            <p class="lead">Monitor and analyze database query performance</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Queries</h5>
+                        <h2 id="total-queries">Loading...</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Avg. Query Duration (ms)</h5>
+                        <h2 id="avg-duration">Loading...</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Slow Queries</h5>
+                        <h2 id="slow-queries">Loading...</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Query Types</h5>
+                        <div class="chart-container">
+                            <canvas id="query-types-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tables</h5>
+                        <div class="chart-container">
+                            <canvas id="tables-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Slow Query Threshold</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="threshold-form" class="row g-3">
+                            <div class="col-auto">
+                                <label for="threshold" class="form-label">Threshold (seconds)</label>
+                                <input type="number" class="form-control" id="threshold" min="0.1" step="0.1" value="0.5">
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary mt-4">Update Threshold</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Slow Queries</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Query Type</th>
+                                        <th>Table</th>
+                                        <th>Duration (ms)</th>
+                                        <th>Timestamp</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="slow-queries-table">
+                                    <tr>
+                                        <td colspan="5" class="text-center">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Charts
+        let queryTypesChart;
+        let tablesChart;
+
+        // Fetch query performance stats
+        async function fetchQueryPerformance() {
+            try {
+                const response = await fetch('/api/v1/monitoring/query-performance');
+                const data = await response.json();
+                
+                // Update dashboard
+                document.getElementById('total-queries').textContent = data.total_queries;
+                document.getElementById('avg-duration').textContent = (data.avg_duration * 1000).toFixed(2);
+                document.getElementById('slow-queries').textContent = data.slow_queries;
+                
+                // Update charts
+                updateQueryTypesChart(data.queries_per_type);
+                updateTablesChart(data.queries_per_table);
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching query performance stats:', error);
+            }
+        }
+
+        // Fetch slow queries
+        async function fetchSlowQueries() {
+            try {
+                const response = await fetch('/api/v1/monitoring/slow-queries');
+                const data = await response.json();
+                
+                // Update slow queries table
+                updateSlowQueriesTable(data);
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching slow queries:', error);
+            }
+        }
+
+        // Update query types chart
+        function updateQueryTypesChart(queriesPerType) {
+            const ctx = document.getElementById('query-types-chart').getContext('2d');
+            
+            const labels = Object.keys(queriesPerType);
+            const counts = labels.map(type => queriesPerType[type].count);
+            
+            if (queryTypesChart) {
+                queryTypesChart.destroy();
+            }
+            
+            queryTypesChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            '#36a2eb',
+                            '#ff6384',
+                            '#4bc0c0',
+                            '#ff9f40',
+                            '#9966ff'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Update tables chart
+        function updateTablesChart(queriesPerTable) {
+            const ctx = document.getElementById('tables-chart').getContext('2d');
+            
+            const labels = Object.keys(queriesPerTable);
+            const counts = labels.map(table => queriesPerTable[table].count);
+            
+            if (tablesChart) {
+                tablesChart.destroy();
+            }
+            
+            tablesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Query Count',
+                        data: counts,
+                        backgroundColor: '#36a2eb'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update slow queries table
+        function updateSlowQueriesTable(slowQueries) {
+            const tableBody = document.getElementById('slow-queries-table');
+            
+            if (slowQueries.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No slow queries found</td></tr>';
+                return;
+            }
+            
+            tableBody.innerHTML = '';
+            
+            slowQueries.forEach(query => {
+                const row = document.createElement('tr');
+                
+                // Add class for very slow queries
+                if (query.duration > 1.0) {
+                    row.classList.add('slow-query');
+                }
+                
+                row.innerHTML = `
+                    <td>${query.query_type}</td>
+                    <td>${query.table}</td>
+                    <td>${(query.duration * 1000).toFixed(2)}</td>
+                    <td>${new Date(query.timestamp).toLocaleString()}</td>
+                    <td>${query.status}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update slow query threshold
+        document.getElementById('threshold-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const threshold = document.getElementById('threshold').value;
+            
+            try {
+                const response = await fetch('/api/v1/monitoring/slow-query-threshold', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        threshold: parseFloat(threshold)
+                    })
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                // Refresh data
+                fetchQueryPerformance();
+                fetchSlowQueries();
+            } catch (error) {
+                console.error('Error updating threshold:', error);
+                alert('Error updating threshold: ' + error.message);
+            }
+        });
+
+        // Initial fetch
+        fetchQueryPerformance();
+        fetchSlowQueries();
+        
+        // Refresh every 30 seconds
+        setInterval(() => {
+            fetchQueryPerformance();
+            fetchSlowQueries();
+        }, 30000);
+    </script>
+</body>
+</html>

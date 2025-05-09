@@ -1,0 +1,791 @@
+{
+  "summary": {
+    "total_suggestions": 87,
+    "files_affected": 12
+  },
+  "suggestions": [
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\adaptive_layer\\trading_feedback_collector.py",
+      "line_number": 699,
+      "line": "                \"health_check_endpoint\": \"/health\" # Example relative path for health check\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "                \"health_check_endpoint\": \"/api/v1/analysis/health-checks\" # Example relative path for health check\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\adaptive_layer\\trading_feedback_collector.py",
+      "line_number": 936,
+      "line": "        health_endpoint = await self._get_orchestration_endpoint(\"/health\") # Example health endpoint\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        health_endpoint = await self._get_orchestration_endpoint(\"/api/v1/analysis/health-checks\") # Example health endpoint\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health.py",
+      "line_number": 34,
+      "line": "@router.get(\"/health\", response_model=ServiceHealth)\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks\", response_model=ServiceHealth)\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health.py",
+      "line_number": 46,
+      "line": "@router.get(\"/health/live\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/live\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health.py",
+      "line_number": 46,
+      "line": "@router.get(\"/health/live\")\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/liveness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health.py",
+      "line_number": 59,
+      "line": "@router.get(\"/health/ready\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/ready\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health.py",
+      "line_number": 59,
+      "line": "@router.get(\"/health/ready\")\n",
+      "matched_text": "/health/ready",
+      "legacy_endpoint": "/health/ready",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/readiness",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/readiness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 35,
+      "line": "@router.get(\"/health\", response_model=ServiceHealth)\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks\", response_model=ServiceHealth)\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 47,
+      "line": "@router.get(\"/health/live\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/live\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 47,
+      "line": "@router.get(\"/health/live\")\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/liveness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 60,
+      "line": "@router.get(\"/health/ready\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/ready\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 60,
+      "line": "@router.get(\"/health/ready\")\n",
+      "matched_text": "/health/ready",
+      "legacy_endpoint": "/health/ready",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/readiness",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/readiness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 129,
+      "line": "@router.get(\"/v1/analysis-engine/healths\", response_model=ServiceHealth)\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/v1/analysis-engine/api/v1/analysis/health-checkss\", response_model=ServiceHealth)\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 132,
+      "line": "@router.get(\"/v1/analysis-engine/healths/live\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/v1/analysis-engine/api/v1/analysis/health-checkss/live\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 135,
+      "line": "@router.get(\"/v1/analysis-engine/healths/ready\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/v1/analysis-engine/api/v1/analysis/health-checkss/ready\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 140,
+      "line": "@router.get(\"/health\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 142,
+      "line": "    \"\"\"Legacy endpoint for backward compatibility. Use /v1/analysis-engine/healths instead.\"\"\"\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    \"\"\"Legacy endpoint for backward compatibility. Use /v1/analysis-engine/api/v1/analysis/health-checkss instead.\"\"\"\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 143,
+      "line": "    logger.info(f\"Legacy endpoint /health called - consider migrating to /v1/analysis-engine/healths\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    logger.info(f\"Legacy endpoint /api/v1/analysis/health-checks called - consider migrating to /v1/analysis-engine/api/v1/analysis/health-checkss\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 148,
+      "line": "@router.get(\"/health/live\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/live\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 148,
+      "line": "@router.get(\"/health/live\")\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/liveness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 150,
+      "line": "    \"\"\"Legacy endpoint for backward compatibility. Use /v1/analysis-engine/healths/live instead.\"\"\"\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    \"\"\"Legacy endpoint for backward compatibility. Use /v1/analysis-engine/api/v1/analysis/health-checkss/live instead.\"\"\"\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 151,
+      "line": "    logger.info(f\"Legacy endpoint /health/live called - consider migrating to /v1/analysis-engine/healths/live\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    logger.info(f\"Legacy endpoint /api/v1/analysis/health-checks/live called - consider migrating to /v1/analysis-engine/api/v1/analysis/health-checkss/live\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 151,
+      "line": "    logger.info(f\"Legacy endpoint /health/live called - consider migrating to /v1/analysis-engine/healths/live\")\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "    logger.info(f\"Legacy endpoint /api/v1/analysis/health-checks/liveness called - consider migrating to /v1/analysis-engine/healths/live\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 156,
+      "line": "@router.get(\"/health/ready\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/ready\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 156,
+      "line": "@router.get(\"/health/ready\")\n",
+      "matched_text": "/health/ready",
+      "legacy_endpoint": "/health/ready",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/readiness",
+      "suggested_code": "@router.get(\"/api/v1/analysis/health-checks/readiness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 158,
+      "line": "    \"\"\"Legacy endpoint for backward compatibility. Use /v1/analysis-engine/healths/ready instead.\"\"\"\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    \"\"\"Legacy endpoint for backward compatibility. Use /v1/analysis-engine/api/v1/analysis/health-checkss/ready instead.\"\"\"\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 159,
+      "line": "    logger.info(f\"Legacy endpoint /health/ready called - consider migrating to /v1/analysis-engine/healths/ready\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    logger.info(f\"Legacy endpoint /api/v1/analysis/health-checks/ready called - consider migrating to /v1/analysis-engine/api/v1/analysis/health-checkss/ready\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\health_migrated.py",
+      "line_number": 159,
+      "line": "    logger.info(f\"Legacy endpoint /health/ready called - consider migrating to /v1/analysis-engine/healths/ready\")\n",
+      "matched_text": "/health/ready",
+      "legacy_endpoint": "/health/ready",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/readiness",
+      "suggested_code": "    logger.info(f\"Legacy endpoint /api/v1/analysis/health-checks/readiness called - consider migrating to /v1/analysis-engine/healths/ready\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\middleware.py",
+      "line_number": 197,
+      "line": "        self.exclude_paths = exclude_paths or [\"/health\", \"/metrics\"]\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        self.exclude_paths = exclude_paths or [\"/api/v1/analysis/health-checks\", \"/metrics\"]\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\routes.py",
+      "line_number": 50,
+      "line": "@main_router.get(\"/health\", tags=[\"health\"])\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@main_router.get(\"/api/v1/analysis/health-checks\", tags=[\"health\"])\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 23,
+      "line": "    prefix=\"/v1/analysis/health-checks\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    prefix=\"/v1/analysis/api/v1/analysis/health-checks-checks\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 154,
+      "line": "@legacy_router.get(\"/health\", response_model=ServiceHealth)\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@legacy_router.get(\"/api/v1/analysis/health-checks\", response_model=ServiceHealth)\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 164,
+      "line": "    logger.info(\"Legacy health check endpoint called - consider migrating to /v1/analysis/health-checks\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    logger.info(\"Legacy health check endpoint called - consider migrating to /v1/analysis/api/v1/analysis/health-checks-checks\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 167,
+      "line": "@legacy_router.get(\"/health/live\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@legacy_router.get(\"/api/v1/analysis/health-checks/live\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 167,
+      "line": "@legacy_router.get(\"/health/live\")\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "@legacy_router.get(\"/api/v1/analysis/health-checks/liveness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 175,
+      "line": "    logger.info(\"Legacy liveness probe endpoint called - consider migrating to /v1/analysis/health-checks/liveness\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    logger.info(\"Legacy liveness probe endpoint called - consider migrating to /v1/analysis/api/v1/analysis/health-checks-checks/liveness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 178,
+      "line": "@legacy_router.get(\"/health/ready\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "@legacy_router.get(\"/api/v1/analysis/health-checks/ready\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 178,
+      "line": "@legacy_router.get(\"/health/ready\")\n",
+      "matched_text": "/health/ready",
+      "legacy_endpoint": "/health/ready",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/readiness",
+      "suggested_code": "@legacy_router.get(\"/api/v1/analysis/health-checks/readiness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\api\\v1\\health.py",
+      "line_number": 193,
+      "line": "    logger.info(\"Legacy readiness probe endpoint called - consider migrating to /v1/analysis/health-checks/readiness\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    logger.info(\"Legacy readiness probe endpoint called - consider migrating to /v1/analysis/api/v1/analysis/health-checks-checks/readiness\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\monitoring\\health_checks.py",
+      "line_number": 354,
+      "line": "                    f\"{service_url}/health/live\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "                    f\"{service_url}/api/v1/analysis/health-checks/live\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\monitoring\\health_checks.py",
+      "line_number": 354,
+      "line": "                    f\"{service_url}/health/live\",\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "                    f\"{service_url}/api/v1/analysis/health-checks/liveness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\monitoring\\health_checks.py",
+      "line_number": 387,
+      "line": "                f\"{service_url}/health/live\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "                f\"{service_url}/api/v1/analysis/health-checks/live\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\monitoring\\health_checks.py",
+      "line_number": 387,
+      "line": "                f\"{service_url}/health/live\",\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "                f\"{service_url}/api/v1/analysis/health-checks/liveness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 257,
+      "line": "        \"/api/v1/analysis/health-checks\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/v1/analysis/api/v1/analysis/health-checks-checks\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 258,
+      "line": "        \"/api/v1/analysis/health-checks/liveness\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/v1/analysis/api/v1/analysis/health-checks-checks/liveness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 259,
+      "line": "        \"/api/v1/analysis/health-checks/readiness\"\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/v1/analysis/api/v1/analysis/health-checks-checks/readiness\"\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 264,
+      "line": "        \"/api/v1/adaptive-layer/parameters/generate\",\n",
+      "matched_text": "/api/v1/adaptive-layer/parameters/generate",
+      "legacy_endpoint": "/api/v1/adaptive-layer/parameters/generate",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/parameters/generate",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/parameters/generate\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 265,
+      "line": "        \"/api/v1/adaptive-layer/parameters/adjust\",\n",
+      "matched_text": "/api/v1/adaptive-layer/parameters/adjust",
+      "legacy_endpoint": "/api/v1/adaptive-layer/parameters/adjust",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/parameters/adjust",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/parameters/adjust\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 266,
+      "line": "        \"/api/v1/adaptive-layer/strategy/update\",\n",
+      "matched_text": "/api/v1/adaptive-layer/strategy/update",
+      "legacy_endpoint": "/api/v1/adaptive-layer/strategy/update",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/strategy/update",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/strategy/update\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 267,
+      "line": "        \"/api/v1/adaptive-layer/strategy/recommendations\",\n",
+      "matched_text": "/api/v1/adaptive-layer/strategy/recommendations",
+      "legacy_endpoint": "/api/v1/adaptive-layer/strategy/recommendations",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/strategy/recommendations",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/strategy/recommendations\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 268,
+      "line": "        \"/api/v1/adaptive-layer/strategy/effectiveness-trend\",\n",
+      "matched_text": "/api/v1/adaptive-layer/strategy/effectiveness-trend",
+      "legacy_endpoint": "/api/v1/adaptive-layer/strategy/effectiveness-trend",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/strategy/effectiveness-trend",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/strategy/effectiveness-trend\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 269,
+      "line": "        \"/api/v1/adaptive-layer/feedback/outcomes\",\n",
+      "matched_text": "/api/v1/adaptive-layer/feedback/outcomes",
+      "legacy_endpoint": "/api/v1/adaptive-layer/feedback/outcomes",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/feedback/outcomes",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/feedback/outcomes\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 270,
+      "line": "        \"/api/v1/adaptive-layer/adaptations/history\",\n",
+      "matched_text": "/api/v1/adaptive-layer/adaptations/history",
+      "legacy_endpoint": "/api/v1/adaptive-layer/adaptations/history",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/adaptations/history",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/adaptations/history\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 271,
+      "line": "        \"/api/v1/adaptive-layer/parameters/history/{strategy_id}/{instrument}/{timeframe}\",\n",
+      "matched_text": "/api/v1/adaptive-layer/parameters/history",
+      "legacy_endpoint": "/api/v1/adaptive-layer/parameters/history",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/parameters/history",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/parameters/history/{strategy_id}/{instrument}/{timeframe}\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 272,
+      "line": "        \"/api/v1/adaptive-layer/feedback/insights/{strategy_id}\",\n",
+      "matched_text": "/api/v1/adaptive-layer/feedback/insights",
+      "legacy_endpoint": "/api/v1/adaptive-layer/feedback/insights",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/feedback/insights",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/feedback/insights/{strategy_id}\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 273,
+      "line": "        \"/api/v1/adaptive-layer/feedback/performance/{strategy_id}\",\n",
+      "matched_text": "/api/v1/adaptive-layer/feedback/performance",
+      "legacy_endpoint": "/api/v1/adaptive-layer/feedback/performance",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/feedback/performance",
+      "suggested_code": "        \"/api/v1/analysis/adaptations/feedback/performance/{strategy_id}\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 283,
+      "line": "        \"/health\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/v1/analysis/health-checks\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 284,
+      "line": "        \"/health/live\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/v1/analysis/health-checks/live\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 284,
+      "line": "        \"/health/live\",\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "        \"/api/v1/analysis/health-checks/liveness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 285,
+      "line": "        \"/health/ready\"\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/v1/analysis/health-checks/ready\"\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\api_standardization_validator.py",
+      "line_number": 285,
+      "line": "        \"/health/ready\"\n",
+      "matched_text": "/health/ready",
+      "legacy_endpoint": "/health/ready",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/readiness",
+      "suggested_code": "        \"/api/v1/analysis/health-checks/readiness\"\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 103,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/parameters/generate\",\n",
+      "matched_text": "/api/v1/adaptive-layer/parameters/generate",
+      "legacy_endpoint": "/api/v1/adaptive-layer/parameters/generate",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/parameters/generate",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/parameters/generate\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 109,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/parameters/adjust\",\n",
+      "matched_text": "/api/v1/adaptive-layer/parameters/adjust",
+      "legacy_endpoint": "/api/v1/adaptive-layer/parameters/adjust",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/parameters/adjust",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/parameters/adjust\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 115,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/strategy/update\",\n",
+      "matched_text": "/api/v1/adaptive-layer/strategy/update",
+      "legacy_endpoint": "/api/v1/adaptive-layer/strategy/update",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/strategy/update",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/strategy/update\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 121,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/strategy/recommendations\",\n",
+      "matched_text": "/api/v1/adaptive-layer/strategy/recommendations",
+      "legacy_endpoint": "/api/v1/adaptive-layer/strategy/recommendations",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/strategy/recommendations",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/strategy/recommendations\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 127,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/strategy/effectiveness-trend\",\n",
+      "matched_text": "/api/v1/adaptive-layer/strategy/effectiveness-trend",
+      "legacy_endpoint": "/api/v1/adaptive-layer/strategy/effectiveness-trend",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/strategy/effectiveness-trend",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/strategy/effectiveness-trend\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 133,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/feedback/outcomes\",\n",
+      "matched_text": "/api/v1/adaptive-layer/feedback/outcomes",
+      "legacy_endpoint": "/api/v1/adaptive-layer/feedback/outcomes",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/feedback/outcomes",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/feedback/outcomes\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 139,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/adaptations/history\",\n",
+      "matched_text": "/api/v1/adaptive-layer/adaptations/history",
+      "legacy_endpoint": "/api/v1/adaptive-layer/adaptations/history",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/adaptations/history",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/adaptations/history\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 145,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/parameters/history\",\n",
+      "matched_text": "/api/v1/adaptive-layer/parameters/history",
+      "legacy_endpoint": "/api/v1/adaptive-layer/parameters/history",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/parameters/history",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/parameters/history\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 151,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/feedback/insights\",\n",
+      "matched_text": "/api/v1/adaptive-layer/feedback/insights",
+      "legacy_endpoint": "/api/v1/adaptive-layer/feedback/insights",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/feedback/insights",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/feedback/insights\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 157,
+      "line": "            legacy_path=\"/api/v1/adaptive-layer/feedback/performance\",\n",
+      "matched_text": "/api/v1/adaptive-layer/feedback/performance",
+      "legacy_endpoint": "/api/v1/adaptive-layer/feedback/performance",
+      "standardized_endpoint": "/api/v1/analysis/adaptations/feedback/performance",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/adaptations/feedback/performance\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 165,
+      "line": "            legacy_path=\"/health\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/health-checks\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 166,
+      "line": "            standardized_path=\"/api/v1/analysis/health-checks\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "            standardized_path=\"/api/v1/analysis/api/v1/analysis/health-checks-checks\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 170,
+      "line": "            legacy_path=\"/health/live\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/health-checks/live\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 170,
+      "line": "            legacy_path=\"/health/live\",\n",
+      "matched_text": "/health/live",
+      "legacy_endpoint": "/health/live",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/liveness",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/health-checks/liveness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 171,
+      "line": "            standardized_path=\"/api/v1/analysis/health-checks/liveness\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "            standardized_path=\"/api/v1/analysis/api/v1/analysis/health-checks-checks/liveness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 175,
+      "line": "            legacy_path=\"/health/ready\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/health-checks/ready\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 175,
+      "line": "            legacy_path=\"/health/ready\",\n",
+      "matched_text": "/health/ready",
+      "legacy_endpoint": "/health/ready",
+      "standardized_endpoint": "/api/v1/analysis/health-checks/readiness",
+      "suggested_code": "            legacy_path=\"/api/v1/analysis/health-checks/readiness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\analysis_engine\\tools\\client_code_migrator.py",
+      "line_number": 176,
+      "line": "            standardized_path=\"/api/v1/analysis/health-checks/readiness\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "            standardized_path=\"/api/v1/analysis/api/v1/analysis/health-checks-checks/readiness\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\test_main.py",
+      "line_number": 45,
+      "line": "    response = client.get(\"/api/health\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    response = client.get(\"/api/api/v1/analysis/health-checks\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\test_main.py",
+      "line_number": 56,
+      "line": "        \"/api/health\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/api/v1/analysis/health-checks\",\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\test_main.py",
+      "line_number": 100,
+      "line": "        response = client.get(\"/api/health\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        response = client.get(\"/api/api/v1/analysis/health-checks\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\test_main.py",
+      "line_number": 107,
+      "line": "        response = client.get(\"/api/health\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        response = client.get(\"/api/api/v1/analysis/health-checks\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\api\\test_analysis_endpoints.py",
+      "line_number": 230,
+      "line": "    \"\"\"Test the /health endpoint.\"\"\"\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    \"\"\"Test the /api/v1/analysis/health-checks endpoint.\"\"\"\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\api\\test_analysis_endpoints.py",
+      "line_number": 231,
+      "line": "    response = client.get(\"/api/v1/health\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    response = client.get(\"/api/v1/api/v1/analysis/health-checks\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\api\\test_routes.py",
+      "line_number": 33,
+      "line": "    response = client.get(\"/api/health\")\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "    response = client.get(\"/api/api/v1/analysis/health-checks\")\n"
+    },
+    {
+      "file_path": "D:/MD/forex_trading_platform/analysis-engine-service\\tests\\api\\test_routes.py",
+      "line_number": 99,
+      "line": "        \"/api/health\",\n",
+      "matched_text": "/health",
+      "legacy_endpoint": "/health",
+      "standardized_endpoint": "/api/v1/analysis/health-checks",
+      "suggested_code": "        \"/api/api/v1/analysis/health-checks\",\n"
+    }
+  ]
+}

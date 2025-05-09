@@ -1,0 +1,48 @@
+alerting:
+  alert_channels:
+  - email
+  - slack
+  regression_threshold_critical: 1.5
+  regression_threshold_warning: 1.2
+reporting:
+  email_recipients:
+  - forex-platform-team@example.com
+  generate_report: true
+  results_retention_days: 90
+  send_report_email: true
+  store_results: true
+schedule:
+  daily_test:
+    cron: 0 1 * * *
+    services: all
+    test_type: normal
+  monthly_test:
+    cron: 0 3 1 * *
+    services: all
+    test_type: full
+  weekly_test:
+    cron: 0 2 * * 0
+    services: all
+    test_type: comprehensive
+test_types:
+  comprehensive:
+    alert_on_regression: true
+    compare_to_baseline: true
+    duration: 120
+    scenarios:
+    - normal_load
+    - high_load
+  full:
+    alert_on_regression: true
+    compare_to_baseline: true
+    duration: 300
+    scenarios:
+    - normal_load
+    - high_load
+    - peak_load
+  normal:
+    alert_on_regression: true
+    compare_to_baseline: true
+    duration: 60
+    scenarios:
+    - normal_load

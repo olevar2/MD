@@ -1,0 +1,31 @@
+{
+  "integrations": {
+    "github_mcp": {
+      "enabled": true,
+      "client_script": "tools/mcp_integration/github_mcp_client.py",
+      "config_path": "tools/mcp_integration/mcp_config.json"
+    },
+    "memory_mcp": {
+      "enabled": true,
+      "client_script": "tools/mcp_integration/memory_mcp_client.py",
+      "config_path": "tools/mcp_integration/mcp_config.json"
+    }
+  },
+  "mcpServers": {
+    "mem0-memory-mcp": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@mem0ai/mem0-memory-mcp",
+        "--key",
+        "754fe7d4-39e7-44d6-8e00-f224aefb069a",
+        "--profile",
+        "sick-harrier-8F2ypE"
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+groups:
+  - name: business_metrics
+    rules:
+      - alert: HighSignalGenerationLatency
+        expr: rate(signal_generation_duration_seconds_sum[5m]) / rate(signal_generation_duration_seconds_count[5m]) > 2
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High signal generation latency for {{ $labels.signal_type }} on {{ $labels.service }}"
+          description: "Signal generation for {{ $labels.signal_type }} on {{ $labels.service }} has a latency of {{ $value }}s, which is above the threshold of 2s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_signal_latency"
+
+      - alert: HighMarketRegimeDetectionLatency
+        expr: rate(market_regime_detection_duration_seconds_sum[5m]) / rate(market_regime_detection_duration_seconds_count[5m]) > 2
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High market regime detection latency for {{ $labels.instrument }} on {{ $labels.service }}"
+          description: "Market regime detection for {{ $labels.instrument }} on {{ $labels.service }} has a latency of {{ $value }}s, which is above the threshold of 2s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_regime_latency"
+
+      - alert: HighFeatureExtractionLatency
+        expr: rate(feature_extraction_duration_seconds_sum[5m]) / rate(feature_extraction_duration_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High feature extraction latency for {{ $labels.feature_type }} on {{ $labels.service }}"
+          description: "Feature extraction for {{ $labels.feature_type }} on {{ $labels.service }} has a latency of {{ $value }}s, which is above the threshold of 1s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_feature_latency"
+
+      - alert: HighMLModelInferenceLatency
+        expr: rate(ml_model_inference_duration_seconds_sum[5m]) / rate(ml_model_inference_duration_seconds_count[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High ML model inference latency for {{ $labels.model_name }} on {{ $labels.service }}"
+          description: "ML model inference for {{ $labels.model_name }} on {{ $labels.service }} has a latency of {{ $value }}s, which is above the threshold of 0.5s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_ml_latency"
+
+      - alert: HighOrderExecutionLatency
+        expr: rate(order_execution_duration_seconds_sum[5m]) / rate(order_execution_duration_seconds_count[5m]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High order execution latency for {{ $labels.order_type }} on {{ $labels.service }}"
+          description: "Order execution for {{ $labels.order_type }} on {{ $labels.service }} has a latency of {{ $value }}s, which is above the threshold of 0.2s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_order_latency"
+
+      - alert: HighOrderExecutionLatencyCritical
+        expr: rate(order_execution_duration_seconds_sum[5m]) / rate(order_execution_duration_seconds_count[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          category: business
+        annotations:
+          summary: "Critical order execution latency for {{ $labels.order_type }} on {{ $labels.service }}"
+          description: "Order execution for {{ $labels.order_type }} on {{ $labels.service }} has a latency of {{ $value }}s, which is above the critical threshold of 0.5s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_order_latency_critical"
+
+      - alert: HighOrderExecutionErrorRate
+        expr: sum(rate(order_execution_errors_total[5m])) by (service, order_type) / sum(rate(order_execution_operations_total[5m])) by (service, order_type) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          category: business
+        annotations:
+          summary: "High order execution error rate for {{ $labels.order_type }} on {{ $labels.service }}"
+          description: "Order execution for {{ $labels.order_type }} on {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 1% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_order_error_rate"
+
+      - alert: HighDataPipelineLatency
+        expr: rate(data_pipeline_duration_seconds_sum[5m]) / rate(data_pipeline_duration_seconds_count[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High data pipeline latency for {{ $labels.pipeline_name }} on {{ $labels.service }}"
+          description: "Data pipeline {{ $labels.pipeline_name }} on {{ $labels.service }} has a latency of {{ $value }}s, which is above the threshold of 5s for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_pipeline_latency"
+
+      - alert: HighDataPipelineErrorRate
+        expr: sum(rate(data_pipeline_errors_total[5m])) by (service, pipeline_name) / sum(rate(data_pipeline_operations_total[5m])) by (service, pipeline_name) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High data pipeline error rate for {{ $labels.pipeline_name }} on {{ $labels.service }}"
+          description: "Data pipeline {{ $labels.pipeline_name }} on {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }}, which is above the threshold of 5% for the last 5 minutes."
+          runbook_url: "https://wiki.example.com/runbooks/high_pipeline_error_rate"

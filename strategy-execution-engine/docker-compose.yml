@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  strategy-execution-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8003
+      - API_KEY=dev_api_key
+      - SERVICE_API_KEY=dev_service_api_key
+      - ANALYSIS_ENGINE_URL=http://analysis-engine-service:8002
+      - FEATURE_STORE_URL=http://feature-store-service:8001
+      - TRADING_GATEWAY_URL=http://trading-gateway-service:8004
+      - RISK_MANAGEMENT_URL=http://risk-management-service:8000
+      - PORTFOLIO_MANAGEMENT_URL=http://portfolio-management-service:8000
+      - MONITORING_SERVICE_URL=http://monitoring-alerting-service:8005
+      - ANALYSIS_ENGINE_KEY=dev_analysis_engine_key
+      - FEATURE_STORE_KEY=dev_feature_store_key
+      - TRADING_GATEWAY_KEY=dev_trading_gateway_key
+    volumes:
+      - ./:/app
+      - ./strategies:/app/strategies
+      - ./backtest_data:/app/backtest_data
+    networks:
+      - forex-platform-network
+    depends_on:
+      - analysis-engine-service
+      - feature-store-service
+      - trading-gateway-service
+
+  # Mock services for local development
+  analysis-engine-service:
+    image: mockoon/cli:latest
+    command: ["--data", "/data/analysis-engine-mock.json", "--port", "8002"]
+    volumes:
+      - ./mocks:/data
+    ports:
+      - "8002:8002"
+    networks:
+      - forex-platform-network
+
+  feature-store-service:
+    image: mockoon/cli:latest
+    command: ["--data", "/data/feature-store-mock.json", "--port", "8001"]
+    volumes:
+      - ./mocks:/data
+    ports:
+      - "8001:8001"
+    networks:
+      - forex-platform-network
+
+  trading-gateway-service:
+    image: mockoon/cli:latest
+    command: ["--data", "/data/trading-gateway-mock.json", "--port", "8004"]
+    volumes:
+      - ./mocks:/data
+    ports:
+      - "8004:8004"
+    networks:
+      - forex-platform-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - forex-platform-network
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    networks:
+      - forex-platform-network
+    depends_on:
+      - prometheus
+
+networks:
+  forex-platform-network:
+    driver: bridge

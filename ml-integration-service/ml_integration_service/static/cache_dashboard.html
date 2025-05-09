@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Integration Service - Cache Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 30px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ML Integration Service - Cache Dashboard</h1>
+            <p class="lead">Monitor and manage the caching system performance</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Cache Entries</h5>
+                        <h2 id="total-entries">Loading...</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Active Cache Entries</h5>
+                        <h2 id="active-entries">Loading...</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Avg. Execution Time (ms)</h5>
+                        <h2 id="avg-execution-time">Loading...</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Cache Distribution</h5>
+                        <div class="chart-container">
+                            <canvas id="cache-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Cache Status</h5>
+                        <div class="chart-container">
+                            <canvas id="cache-status-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Cache Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="clear-cache-form">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="model-name" class="form-label">Model Name</label>
+                                    <input type="text" class="form-control" id="model-name" placeholder="Leave empty to clear all models">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="symbol" class="form-label">Symbol</label>
+                                    <input type="text" class="form-control" id="symbol" placeholder="Leave empty to clear all symbols">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="clear-all" class="form-label">Clear All Caches</label>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="clear-all">
+                                        <label class="form-check-label" for="clear-all">
+                                            Clear all caches
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-danger">Clear Cache</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Cache Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Model Cache</h6>
+                                <ul id="model-cache-details" class="list-group">
+                                    <li class="list-group-item">Loading...</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Feature Cache</h6>
+                                <ul id="feature-cache-details" class="list-group">
+                                    <li class="list-group-item">Loading...</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cache distribution chart
+        let cacheDistributionChart;
+        let cacheStatusChart;
+
+        // Fetch cache statistics
+        async function fetchCacheStats() {
+            try {
+                const response = await fetch('/api/v1/cache/stats');
+                const data = await response.json();
+                
+                // Update dashboard
+                document.getElementById('total-entries').textContent = data.total_entries;
+                document.getElementById('active-entries').textContent = data.total_active_entries;
+                document.getElementById('avg-execution-time').textContent = 
+                    ((data.model_cache.avg_execution_time + data.feature_cache.avg_execution_time) / 2 * 1000).toFixed(2);
+                
+                // Update charts
+                updateCacheDistributionChart(data);
+                updateCacheStatusChart(data);
+                
+                // Update details
+                updateModelCacheDetails(data.model_cache);
+                updateFeatureCacheDetails(data.feature_cache);
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching cache statistics:', error);
+            }
+        }
+
+        // Update cache distribution chart
+        function updateCacheDistributionChart(data) {
+            const ctx = document.getElementById('cache-distribution-chart').getContext('2d');
+            
+            if (cacheDistributionChart) {
+                cacheDistributionChart.destroy();
+            }
+            
+            cacheDistributionChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Model Cache', 'Feature Cache'],
+                    datasets: [{
+                        data: [data.model_cache.total_entries, data.feature_cache.total_entries],
+                        backgroundColor: ['#36a2eb', '#ff6384']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Update cache status chart
+        function updateCacheStatusChart(data) {
+            const ctx = document.getElementById('cache-status-chart').getContext('2d');
+            
+            if (cacheStatusChart) {
+                cacheStatusChart.destroy();
+            }
+            
+            cacheStatusChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Active', 'Expired'],
+                    datasets: [{
+                        label: 'Cache Entries',
+                        data: [data.total_active_entries, data.total_expired_entries],
+                        backgroundColor: ['#4bc0c0', '#ff9f40']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update model cache details
+        function updateModelCacheDetails(modelCache) {
+            const detailsElement = document.getElementById('model-cache-details');
+            detailsElement.innerHTML = '';
+            
+            const details = [
+                `Total Entries: ${modelCache.total_entries}`,
+                `Active Entries: ${modelCache.active_entries}`,
+                `Expired Entries: ${modelCache.expired_entries}`,
+                `Average Execution Time: ${(modelCache.avg_execution_time * 1000).toFixed(2)} ms`,
+                `Models: ${modelCache.models.join(', ') || 'None'}`,
+                `Symbols: ${modelCache.symbols.join(', ') || 'None'}`,
+                `Timeframes: ${modelCache.timeframes.join(', ') || 'None'}`
+            ];
+            
+            details.forEach(detail => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = detail;
+                detailsElement.appendChild(li);
+            });
+        }
+
+        // Update feature cache details
+        function updateFeatureCacheDetails(featureCache) {
+            const detailsElement = document.getElementById('feature-cache-details');
+            detailsElement.innerHTML = '';
+            
+            const details = [
+                `Total Entries: ${featureCache.total_entries}`,
+                `Active Entries: ${featureCache.active_entries}`,
+                `Expired Entries: ${featureCache.expired_entries}`,
+                `Average Execution Time: ${(featureCache.avg_execution_time * 1000).toFixed(2)} ms`,
+                `Models: ${featureCache.models.join(', ') || 'None'}`,
+                `Symbols: ${featureCache.symbols.join(', ') || 'None'}`,
+                `Timeframes: ${featureCache.timeframes.join(', ') || 'None'}`
+            ];
+            
+            details.forEach(detail => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = detail;
+                detailsElement.appendChild(li);
+            });
+        }
+
+        // Clear cache
+        document.getElementById('clear-cache-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const modelName = document.getElementById('model-name').value;
+            const symbol = document.getElementById('symbol').value;
+            const clearAll = document.getElementById('clear-all').checked;
+            
+            try {
+                const response = await fetch('/api/v1/cache/clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model_name: modelName || null,
+                        symbol: symbol || null,
+                        clear_all: clearAll
+                    })
+                });
+                
+                const data = await response.json();
+                alert(data.message);
+                
+                // Refresh statistics
+                fetchCacheStats();
+            } catch (error) {
+                console.error('Error clearing cache:', error);
+                alert('Error clearing cache: ' + error.message);
+            }
+        });
+
+        // Initial fetch
+        fetchCacheStats();
+        
+        // Refresh every 30 seconds
+        setInterval(fetchCacheStats, 30000);
+    </script>
+</body>
+</html>

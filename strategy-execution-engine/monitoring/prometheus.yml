@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'strategy-execution-engine'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['strategy-execution-engine:8003']
+    metrics_path: '/metrics'
+
+  - job_name: 'analysis-engine-service'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['analysis-engine-service:8002']
+    metrics_path: '/metrics'
+
+  - job_name: 'feature-store-service'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['feature-store-service:8001']
+    metrics_path: '/metrics'
+
+  - job_name: 'trading-gateway-service'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['trading-gateway-service:8004']
+    metrics_path: '/metrics'
