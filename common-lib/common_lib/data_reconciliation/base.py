@@ -13,10 +13,9 @@ import uuid
 
 import pandas as pd
 import numpy as np
+import logging
 
-from core_foundations.utils.logger import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class DataSourceType(Enum):
@@ -62,7 +61,7 @@ class ReconciliationStrategy(Enum):
 
 class DataSource:
     """Represents a data source for reconciliation."""
-    
+
     def __init__(
         self,
         source_id: str,
@@ -73,7 +72,7 @@ class DataSource:
     ):
         """
         Initialize a data source.
-        
+
         Args:
             source_id: Unique identifier for the source
             name: Human-readable name of the source
@@ -86,14 +85,14 @@ class DataSource:
         self.source_type = source_type
         self.priority = priority
         self.metadata = metadata or {}
-        
+
     def __repr__(self) -> str:
         return f"DataSource(id={self.source_id}, name={self.name}, type={self.source_type.name}, priority={self.priority})"
 
 
 class Discrepancy:
     """Represents a discrepancy between data sources."""
-    
+
     def __init__(
         self,
         discrepancy_id: Optional[str] = None,
@@ -105,7 +104,7 @@ class Discrepancy:
     ):
         """
         Initialize a discrepancy.
-        
+
         Args:
             discrepancy_id: Unique identifier for the discrepancy
             field: Field or attribute where the discrepancy was found
@@ -120,10 +119,10 @@ class Discrepancy:
         self.severity = severity
         self.timestamp = timestamp or datetime.utcnow()
         self.metadata = metadata or {}
-        
+
         # Calculate statistics
         self._calculate_statistics()
-        
+
     def _calculate_statistics(self) -> None:
         """Calculate statistics about the discrepancy."""
         values = list(self.sources.values())
@@ -135,22 +134,22 @@ class Discrepancy:
             self.std_dev = None
             self.range_pct = None
             return
-            
+
         self.min_value = min(values)
         self.max_value = max(values)
         self.mean_value = sum(values) / len(values)
         self.median_value = sorted(values)[len(values) // 2]
-        
+
         if len(values) > 1:
             self.std_dev = np.std(values)
         else:
             self.std_dev = 0
-            
+
         if self.mean_value != 0:
             self.range_pct = (self.max_value - self.min_value) / abs(self.mean_value) * 100
         else:
             self.range_pct = None
-            
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -169,14 +168,14 @@ class Discrepancy:
             },
             "metadata": self.metadata
         }
-        
+
     def __repr__(self) -> str:
         return f"Discrepancy(id={self.discrepancy_id}, field={self.field}, severity={self.severity.name})"
 
 
 class DiscrepancyResolution:
     """Represents the resolution of a discrepancy."""
-    
+
     def __init__(
         self,
         discrepancy: Discrepancy,
@@ -188,7 +187,7 @@ class DiscrepancyResolution:
     ):
         """
         Initialize a discrepancy resolution.
-        
+
         Args:
             discrepancy: The discrepancy being resolved
             resolved_value: The value used to resolve the discrepancy
@@ -203,7 +202,7 @@ class DiscrepancyResolution:
         self.resolution_source = resolution_source
         self.timestamp = timestamp or datetime.utcnow()
         self.metadata = metadata or {}
-        
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -215,14 +214,14 @@ class DiscrepancyResolution:
             "timestamp": self.timestamp.isoformat(),
             "metadata": self.metadata
         }
-        
+
     def __repr__(self) -> str:
         return f"DiscrepancyResolution(discrepancy_id={self.discrepancy.discrepancy_id}, strategy={self.strategy.name})"
 
 
 class ReconciliationConfig:
     """Configuration for a reconciliation process."""
-    
+
     def __init__(
         self,
         sources: List[DataSource],
@@ -238,7 +237,7 @@ class ReconciliationConfig:
     ):
         """
         Initialize reconciliation configuration.
-        
+
         Args:
             sources: List of data sources to reconcile
             strategy: Strategy for resolving discrepancies
@@ -261,7 +260,7 @@ class ReconciliationConfig:
         self.auto_resolve = auto_resolve
         self.notification_threshold = notification_threshold
         self.metadata = metadata or {}
-        
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -280,7 +279,7 @@ class ReconciliationConfig:
 
 class ReconciliationResult:
     """Results of a reconciliation process."""
-    
+
     def __init__(
         self,
         reconciliation_id: str,
@@ -294,7 +293,7 @@ class ReconciliationResult:
     ):
         """
         Initialize reconciliation result.
-        
+
         Args:
             reconciliation_id: Unique identifier for the reconciliation
             config: Configuration used for the reconciliation
@@ -313,31 +312,31 @@ class ReconciliationResult:
         self.discrepancies = discrepancies or []
         self.resolutions = resolutions or []
         self.metadata = metadata or {}
-        
+
     @property
     def duration_seconds(self) -> Optional[float]:
         """Get the duration of the reconciliation in seconds."""
         if self.end_time and self.start_time:
             return (self.end_time - self.start_time).total_seconds()
         return None
-        
+
     @property
     def discrepancy_count(self) -> int:
         """Get the total number of discrepancies."""
         return len(self.discrepancies)
-        
+
     @property
     def resolution_count(self) -> int:
         """Get the total number of resolutions."""
         return len(self.resolutions)
-        
+
     @property
     def resolution_rate(self) -> float:
         """Get the percentage of discrepancies that were resolved."""
         if self.discrepancy_count == 0:
             return 100.0
         return (self.resolution_count / self.discrepancy_count) * 100
-        
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -354,18 +353,18 @@ class ReconciliationResult:
             "resolutions": [r.to_dict() for r in self.resolutions],
             "metadata": self.metadata
         }
-        
+
     def __repr__(self) -> str:
         return f"ReconciliationResult(id={self.reconciliation_id}, status={self.status.name}, discrepancies={self.discrepancy_count}, resolutions={self.resolution_count})"
 
 
 class DataReconciliationBase(ABC):
     """Base class for data reconciliation implementations."""
-    
+
     def __init__(self, config: ReconciliationConfig):
         """
         Initialize data reconciliation.
-        
+
         Args:
             config: Configuration for the reconciliation process
         """
@@ -376,88 +375,88 @@ class DataReconciliationBase(ABC):
             config=config,
             status=ReconciliationStatus.NOT_STARTED
         )
-        
+
     @abstractmethod
     async def fetch_data(self, source: DataSource, **kwargs) -> Any:
         """
         Fetch data from a source.
-        
+
         Args:
             source: The data source to fetch from
             **kwargs: Additional parameters for fetching
-            
+
         Returns:
             The fetched data
         """
         pass
-        
+
     @abstractmethod
     async def compare_data(self, data_map: Dict[str, Any]) -> List[Discrepancy]:
         """
         Compare data from different sources to identify discrepancies.
-        
+
         Args:
             data_map: Dictionary mapping source IDs to their data
-            
+
         Returns:
             List of identified discrepancies
         """
         pass
-        
+
     @abstractmethod
     async def resolve_discrepancies(self, discrepancies: List[Discrepancy]) -> List[DiscrepancyResolution]:
         """
         Resolve discrepancies using the configured strategy.
-        
+
         Args:
             discrepancies: List of discrepancies to resolve
-            
+
         Returns:
             List of discrepancy resolutions
         """
         pass
-        
+
     @abstractmethod
     async def apply_resolutions(self, resolutions: List[DiscrepancyResolution]) -> bool:
         """
         Apply resolutions to the data.
-        
+
         Args:
             resolutions: List of resolutions to apply
-            
+
         Returns:
             Whether all resolutions were successfully applied
         """
         pass
-        
+
     async def reconcile(self, **kwargs) -> ReconciliationResult:
         """
         Perform the reconciliation process.
-        
+
         Args:
             **kwargs: Additional parameters for reconciliation
-            
+
         Returns:
             Results of the reconciliation process
         """
         self.result.status = ReconciliationStatus.IN_PROGRESS
         self.result.start_time = datetime.utcnow()
-        
+
         try:
             # Step 1: Fetch data from all sources
             data_map = {}
             for source in self.config.sources:
                 data_map[source.source_id] = await self.fetch_data(source, **kwargs)
-                
+
             # Step 2: Compare data to identify discrepancies
             discrepancies = await self.compare_data(data_map)
             self.result.discrepancies = discrepancies
-            
+
             # Step 3: Resolve discrepancies if auto-resolve is enabled
             if self.config.auto_resolve and discrepancies:
                 resolutions = await self.resolve_discrepancies(discrepancies)
                 self.result.resolutions = resolutions
-                
+
                 # Step 4: Apply resolutions
                 success = await self.apply_resolutions(resolutions)
                 if not success:
@@ -466,13 +465,13 @@ class DataReconciliationBase(ABC):
                     self.result.status = ReconciliationStatus.COMPLETED
             else:
                 self.result.status = ReconciliationStatus.COMPLETED
-                
+
         except Exception as e:
             logger.error(f"Reconciliation failed: {str(e)}")
             self.result.status = ReconciliationStatus.FAILED
             self.result.metadata["error"] = str(e)
-            
+
         finally:
             self.result.end_time = datetime.utcnow()
-            
+
         return self.result

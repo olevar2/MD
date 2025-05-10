@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Callable, Union
 
 import numpy as np
 import pandas as pd
+import logging
 
 from common_lib.data_reconciliation.base import (
     DataSource,
@@ -18,23 +19,22 @@ from common_lib.data_reconciliation.base import (
     DiscrepancyResolution,
     ReconciliationStrategy,
 )
-from core_foundations.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ResolutionStrategyBase(ABC):
     """Base class for resolution strategies."""
-    
+
     def __init__(self, strategy_type: ReconciliationStrategy):
         """
         Initialize resolution strategy.
-        
+
         Args:
             strategy_type: Type of resolution strategy
         """
         self.strategy_type = strategy_type
-        
+
     @abstractmethod
     async def resolve(
         self,
@@ -44,12 +44,12 @@ class ResolutionStrategyBase(ABC):
     ) -> DiscrepancyResolution:
         """
         Resolve a discrepancy.
-        
+
         Args:
             discrepancy: The discrepancy to resolve
             sources: Dictionary mapping source IDs to DataSource objects
             **kwargs: Additional parameters for resolution
-            
+
         Returns:
             Resolution for the discrepancy
         """
@@ -58,11 +58,11 @@ class ResolutionStrategyBase(ABC):
 
 class SourcePriorityStrategy(ResolutionStrategyBase):
     """Resolve discrepancies by using data from the highest priority source."""
-    
+
     def __init__(self):
         """Initialize source priority strategy."""
         super().__init__(ReconciliationStrategy.SOURCE_PRIORITY)
-        
+
     async def resolve(
         self,
         discrepancy: Discrepancy,
@@ -71,12 +71,12 @@ class SourcePriorityStrategy(ResolutionStrategyBase):
     ) -> DiscrepancyResolution:
         """
         Resolve a discrepancy using the highest priority source.
-        
+
         Args:
             discrepancy: The discrepancy to resolve
             sources: Dictionary mapping source IDs to DataSource objects
             **kwargs: Additional parameters for resolution
-            
+
         Returns:
             Resolution for the discrepancy
         """
@@ -84,20 +84,20 @@ class SourcePriorityStrategy(ResolutionStrategyBase):
         highest_priority = -1
         highest_priority_source_id = None
         resolved_value = None
-        
+
         for source_id, value in discrepancy.sources.items():
             if source_id in sources and sources[source_id].priority > highest_priority:
                 highest_priority = sources[source_id].priority
                 highest_priority_source_id = source_id
                 resolved_value = value
-                
+
         if highest_priority_source_id is None:
             logger.warning(f"No valid source found for discrepancy {discrepancy.discrepancy_id}")
             # Use the first available value as fallback
             source_id = next(iter(discrepancy.sources))
             resolved_value = discrepancy.sources[source_id]
             highest_priority_source_id = source_id
-            
+
         return DiscrepancyResolution(
             discrepancy=discrepancy,
             resolved_value=resolved_value,
@@ -108,11 +108,11 @@ class SourcePriorityStrategy(ResolutionStrategyBase):
 
 class MostRecentStrategy(ResolutionStrategyBase):
     """Resolve discrepancies by using the most recently updated data."""
-    
+
     def __init__(self):
         """Initialize most recent strategy."""
         super().__init__(ReconciliationStrategy.MOST_RECENT)
-        
+
     async def resolve(
         self,
         discrepancy: Discrepancy,
@@ -121,13 +121,13 @@ class MostRecentStrategy(ResolutionStrategyBase):
     ) -> DiscrepancyResolution:
         """
         Resolve a discrepancy using the most recently updated data.
-        
+
         Args:
             discrepancy: The discrepancy to resolve
             sources: Dictionary mapping source IDs to DataSource objects
             **kwargs: Additional parameters for resolution
                 - timestamps: Dict mapping source_id to timestamp
-            
+
         Returns:
             Resolution for the discrepancy
         """
@@ -136,25 +136,25 @@ class MostRecentStrategy(ResolutionStrategyBase):
             logger.warning("No timestamps provided for MostRecentStrategy, falling back to SourcePriorityStrategy")
             fallback = SourcePriorityStrategy()
             return await fallback.resolve(discrepancy, sources)
-            
+
         # Find the most recent timestamp
         most_recent_time = datetime.min
         most_recent_source_id = None
         resolved_value = None
-        
+
         for source_id, value in discrepancy.sources.items():
             if source_id in timestamps and timestamps[source_id] > most_recent_time:
                 most_recent_time = timestamps[source_id]
                 most_recent_source_id = source_id
                 resolved_value = value
-                
+
         if most_recent_source_id is None:
             logger.warning(f"No valid timestamp found for discrepancy {discrepancy.discrepancy_id}")
             # Use the first available value as fallback
             source_id = next(iter(discrepancy.sources))
             resolved_value = discrepancy.sources[source_id]
             most_recent_source_id = source_id
-            
+
         return DiscrepancyResolution(
             discrepancy=discrepancy,
             resolved_value=resolved_value,
@@ -166,11 +166,11 @@ class MostRecentStrategy(ResolutionStrategyBase):
 
 class AverageValuesStrategy(ResolutionStrategyBase):
     """Resolve discrepancies by using the average of all values."""
-    
+
     def __init__(self):
         """Initialize average values strategy."""
         super().__init__(ReconciliationStrategy.AVERAGE)
-        
+
     async def resolve(
         self,
         discrepancy: Discrepancy,
@@ -179,26 +179,26 @@ class AverageValuesStrategy(ResolutionStrategyBase):
     ) -> DiscrepancyResolution:
         """
         Resolve a discrepancy using the average of all values.
-        
+
         Args:
             discrepancy: The discrepancy to resolve
             sources: Dictionary mapping source IDs to DataSource objects
             **kwargs: Additional parameters for resolution
-            
+
         Returns:
             Resolution for the discrepancy
         """
         values = list(discrepancy.sources.values())
-        
+
         # Check if values are numeric
         if not all(isinstance(v, (int, float)) for v in values):
             logger.warning(f"Non-numeric values found for discrepancy {discrepancy.discrepancy_id}, falling back to SourcePriorityStrategy")
             fallback = SourcePriorityStrategy()
             return await fallback.resolve(discrepancy, sources)
-            
+
         # Calculate average
         resolved_value = sum(values) / len(values)
-        
+
         return DiscrepancyResolution(
             discrepancy=discrepancy,
             resolved_value=resolved_value,
@@ -209,11 +209,11 @@ class AverageValuesStrategy(ResolutionStrategyBase):
 
 class MedianValuesStrategy(ResolutionStrategyBase):
     """Resolve discrepancies by using the median of all values."""
-    
+
     def __init__(self):
         """Initialize median values strategy."""
         super().__init__(ReconciliationStrategy.MEDIAN)
-        
+
     async def resolve(
         self,
         discrepancy: Discrepancy,
@@ -222,26 +222,26 @@ class MedianValuesStrategy(ResolutionStrategyBase):
     ) -> DiscrepancyResolution:
         """
         Resolve a discrepancy using the median of all values.
-        
+
         Args:
             discrepancy: The discrepancy to resolve
             sources: Dictionary mapping source IDs to DataSource objects
             **kwargs: Additional parameters for resolution
-            
+
         Returns:
             Resolution for the discrepancy
         """
         values = list(discrepancy.sources.values())
-        
+
         # Check if values are numeric
         if not all(isinstance(v, (int, float)) for v in values):
             logger.warning(f"Non-numeric values found for discrepancy {discrepancy.discrepancy_id}, falling back to SourcePriorityStrategy")
             fallback = SourcePriorityStrategy()
             return await fallback.resolve(discrepancy, sources)
-            
+
         # Calculate median
         resolved_value = np.median(values)
-        
+
         return DiscrepancyResolution(
             discrepancy=discrepancy,
             resolved_value=resolved_value,
@@ -252,20 +252,20 @@ class MedianValuesStrategy(ResolutionStrategyBase):
 
 class CustomResolutionStrategy(ResolutionStrategyBase):
     """Resolve discrepancies using a custom resolution function."""
-    
+
     def __init__(
         self,
         resolution_func: Callable[[Discrepancy, Dict[str, DataSource], Dict[str, Any]], Any]
     ):
         """
         Initialize custom resolution strategy.
-        
+
         Args:
             resolution_func: Custom function for resolving discrepancies
         """
         super().__init__(ReconciliationStrategy.CUSTOM)
         self.resolution_func = resolution_func
-        
+
     async def resolve(
         self,
         discrepancy: Discrepancy,
@@ -274,18 +274,18 @@ class CustomResolutionStrategy(ResolutionStrategyBase):
     ) -> DiscrepancyResolution:
         """
         Resolve a discrepancy using the custom resolution function.
-        
+
         Args:
             discrepancy: The discrepancy to resolve
             sources: Dictionary mapping source IDs to DataSource objects
             **kwargs: Additional parameters for resolution
-            
+
         Returns:
             Resolution for the discrepancy
         """
         try:
             resolved_value = self.resolution_func(discrepancy, sources, kwargs)
-            
+
             return DiscrepancyResolution(
                 discrepancy=discrepancy,
                 resolved_value=resolved_value,
@@ -301,11 +301,11 @@ class CustomResolutionStrategy(ResolutionStrategyBase):
 class ThresholdBasedStrategy(ResolutionStrategyBase):
     """
     Resolve discrepancies based on thresholds.
-    
+
     If the discrepancy is within the threshold, use one strategy;
     otherwise, use another strategy.
     """
-    
+
     def __init__(
         self,
         threshold: float,
@@ -314,7 +314,7 @@ class ThresholdBasedStrategy(ResolutionStrategyBase):
     ):
         """
         Initialize threshold-based strategy.
-        
+
         Args:
             threshold: Threshold for determining which strategy to use
             within_threshold_strategy: Strategy to use when within threshold
@@ -324,7 +324,7 @@ class ThresholdBasedStrategy(ResolutionStrategyBase):
         self.threshold = threshold
         self.within_threshold_strategy = within_threshold_strategy
         self.outside_threshold_strategy = outside_threshold_strategy
-        
+
     async def resolve(
         self,
         discrepancy: Discrepancy,
@@ -333,22 +333,22 @@ class ThresholdBasedStrategy(ResolutionStrategyBase):
     ) -> DiscrepancyResolution:
         """
         Resolve a discrepancy based on thresholds.
-        
+
         Args:
             discrepancy: The discrepancy to resolve
             sources: Dictionary mapping source IDs to DataSource objects
             **kwargs: Additional parameters for resolution
-            
+
         Returns:
             Resolution for the discrepancy
         """
         values = list(discrepancy.sources.values())
-        
+
         # Check if values are numeric
         if not all(isinstance(v, (int, float)) for v in values):
             logger.warning(f"Non-numeric values found for discrepancy {discrepancy.discrepancy_id}, using outside threshold strategy")
             return await self.outside_threshold_strategy.resolve(discrepancy, sources, **kwargs)
-            
+
         # Calculate range percentage
         if discrepancy.range_pct is not None and discrepancy.range_pct <= self.threshold:
             # Within threshold, use within_threshold_strategy
@@ -356,14 +356,14 @@ class ThresholdBasedStrategy(ResolutionStrategyBase):
         else:
             # Outside threshold, use outside_threshold_strategy
             resolution = await self.outside_threshold_strategy.resolve(discrepancy, sources, **kwargs)
-            
+
         # Update metadata to include threshold information
         resolution.metadata.update({
             "threshold": self.threshold,
             "range_pct": discrepancy.range_pct,
             "within_threshold": discrepancy.range_pct is not None and discrepancy.range_pct <= self.threshold
         })
-        
+
         return resolution
 
 
@@ -373,11 +373,11 @@ def create_resolution_strategy(
 ) -> ResolutionStrategyBase:
     """
     Create a resolution strategy instance.
-    
+
     Args:
         strategy_type: Type of resolution strategy to create
         **kwargs: Additional parameters for the strategy
-        
+
     Returns:
         Resolution strategy instance
     """
