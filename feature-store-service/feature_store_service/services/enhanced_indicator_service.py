@@ -1,7 +1,7 @@
 """
 Enhanced Indicator Service Module with caching support.
 
-This is an enhanced version of the indicator service that integrates with 
+This is an enhanced version of the indicator service that integrates with
 the multi-tiered caching system for improved performance.
 """
 from typing import Dict, List, Optional, Union, Any
@@ -473,7 +473,8 @@ class EnhancedIndicatorService:
                 {"name": "SMA", "params": {"window": 10}},
                 {"name": "Bollinger", "params": {"window": 10, "num_std": 2}},
                 {"name": "ATR", "params": {"window": 7}},
-                {"name": "Stochastic", "params": {"k_period": 5, "d_period": 3, "slowing": 3}}
+                {"name": "Stochastic", "params": {"k_period": 5, "d_period": 3, "slowing": 3}},
+                {"name": "HeikinAshiPatternRecognizer", "params": {"lookback_period": 20, "sensitivity": 0.8}}
             ])
         elif timeframe == 'medium':
             # Medium-term indicators (swing trading)
@@ -482,7 +483,9 @@ class EnhancedIndicatorService:
                 {"name": "Bollinger", "params": {"window": 20, "num_std": 2}},
                 {"name": "ATR", "params": {"window": 14}},
                 {"name": "ADX", "params": {"window": 14}},
-                {"name": "Ichimoku", "params": {}}
+                {"name": "Ichimoku", "params": {}},
+                {"name": "IchimokuPatternRecognizer", "params": {"lookback_period": 50, "sensitivity": 0.75}},
+                {"name": "RenkoPatternRecognizer", "params": {"lookback_period": 50, "sensitivity": 0.75}}
             ])
         elif timeframe == 'long':
             # Long-term indicators (position trading)
@@ -491,7 +494,9 @@ class EnhancedIndicatorService:
                 {"name": "SMA", "params": {"window": 200}},
                 {"name": "Bollinger", "params": {"window": 50, "num_std": 2}},
                 {"name": "ROC", "params": {"window": 100}},
-                {"name": "ADX", "params": {"window": 25}}
+                {"name": "ADX", "params": {"window": 25}},
+                {"name": "WyckoffPatternRecognizer", "params": {"lookback_period": 100, "sensitivity": 0.7}},
+                {"name": "VSAPatternRecognizer", "params": {"lookback_period": 100, "sensitivity": 0.7}}
             ])
         else:  # default
             # Default indicator set (balanced)
@@ -499,7 +504,8 @@ class EnhancedIndicatorService:
                 {"name": "SMA", "params": {"window": 50}},
                 {"name": "Bollinger", "params": {"window": 20, "num_std": 2}},
                 {"name": "ATR", "params": {"window": 14}},
-                {"name": "ADX", "params": {"window": 14}}
+                {"name": "ADX", "params": {"window": 14}},
+                {"name": "AdvancedPatternFacade", "params": {"lookback_period": 50, "sensitivity": 0.75}}
             ])
 
         # Calculate all the indicators using the consolidated method

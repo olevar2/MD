@@ -16,6 +16,15 @@ from portfolio_management_service.models.account import AccountBalance, BalanceC
 from portfolio_management_service.models.historical import PortfolioSnapshot, DrawdownAnalysis
 from portfolio_management_service.services.performance_metrics import PerformanceMetrics
 from portfolio_management_service.services.historical_tracking import HistoricalTracking
+from portfolio_management_service.error import (
+    async_with_exception_handling,
+    PortfolioManagementError,
+    PortfolioNotFoundError,
+    PositionNotFoundError,
+    InsufficientBalanceError,
+    PortfolioOperationError,
+    AccountReconciliationError
+)
 
 logger = get_logger("portfolio-service")
 
@@ -28,6 +37,7 @@ class PortfolioService:
         self.performance_metrics = PerformanceMetrics()
         self.historical_tracking = HistoricalTracking()
     
+    @async_with_exception_handling
     async def create_position(self, position_data: PositionCreate) -> Position:
         """
         Create a new trading position.
@@ -37,14 +47,46 @@ class PortfolioService:
             
         Returns:
             Created position
+            
+        Raises:
+            InsufficientBalanceError: If account has insufficient balance for the position
+            PortfolioOperationError: If position creation fails
         """
         async with get_db_session() as session:
+            # Check account balance
+            account_repo = AccountRepository(session)
+            account = await account_repo.get_by_id(position_data.account_id)
+            
+            if not account:
+                raise PortfolioNotFoundError(
+                    message=f"Account {position_data.account_id} not found",
+                    portfolio_id=position_data.account_id
+                )
+            
+            # Calculate required margin
+            required_margin = position_data.size * 0.05  # 5% margin requirement
+            
+            # Check if account has sufficient free margin
+            if account.free_margin < required_margin:
+                raise InsufficientBalanceError(
+                    message="Insufficient free margin for position",
+                    required_amount=required_margin,
+                    available_amount=account.free_margin,
+                    currency=account.currency
+                )
+            
             # Create position
             position_repo = PositionRepository(session)
-            position = await position_repo.create(position_data)
+            try:
+                position = await position_repo.create(position_data)
+            except Exception as e:
+                raise PortfolioOperationError(
+                    message=f"Failed to create position: {str(e)}",
+                    operation="create_position",
+                    details={"symbol": position_data.symbol, "error": str(e)}
+                )
             
             # Update margin usage
-            account_repo = AccountRepository(session)
             await self._update_account_margin(
                 account_repo, 
                 position_data.account_id, 
@@ -54,7 +96,8 @@ class PortfolioService:
             logger.info(f"Created position for {position_data.symbol} in account {position_data.account_id}")
             return position
             
-    async def get_position(self, position_id: str) -> Optional[Position]:
+    @async_with_exception_handling
+    async def get_position(self, position_id: str) -> Position:
         """
         Get a position by ID.
         
@@ -62,13 +105,25 @@ class PortfolioService:
             position_id: Position ID
             
         Returns:
-            Position if found, None otherwise
+            Position if found
+            
+        Raises:
+            PositionNotFoundError: If position is not found
         """
         async with get_db_session() as session:
             position_repo = PositionRepository(session)
-            return await position_repo.get_by_id(position_id)
+            position = await position_repo.get_by_id(position_id)
             
-    async def update_position(self, position_id: str, position_update: PositionUpdate) -> Optional[Position]:
+            if not position:
+                raise PositionNotFoundError(
+                    message=f"Position {position_id} not found",
+                    position_id=position_id
+                )
+                
+            return position
+            
+    @async_with_exception_handling
+    async def update_position(self, position_id: str, position_update: PositionUpdate) -> Position:
         """
         Update a position.
         
@@ -77,13 +132,23 @@ class PortfolioService:
             position_update: Data to update
             
         Returns:
-            Updated position if found, None otherwise
+            Updated position
+            
+        Raises:
+            PositionNotFoundError: If position is not found
+            PortfolioOperationError: If position update fails
         """
         async with get_db_session() as session:
             position_repo = PositionRepository(session)
             position = await position_repo.update(position_id, position_update)
             
-            if position and position_update.current_price is not None:
+            if not position:
+                raise PositionNotFoundError(
+                    message=f"Position {position_id} not found",
+                    position_id=position_id
+                )
+            
+            if position_update.current_price is not None:
                 # If price was updated, recalculate equity
                 account_repo = AccountRepository(session)
                 await self._update_account_equity(
@@ -93,7 +158,8 @@ class PortfolioService:
                 
             return position
             
-    async def close_position(self, position_id: str, exit_price: float) -> Optional[Position]:
+    @async_with_exception_handling
+    async def close_position(self, position_id: str, exit_price: float) -> Position:
         """
         Close an open position.
         
@@ -102,7 +168,11 @@ class PortfolioService:
             exit_price: Exit price for the position
             
         Returns:
-            Closed position if found, None otherwise
+            Closed position
+            
+        Raises:
+            PositionNotFoundError: If position is not found or already closed
+            PortfolioOperationError: If position closing fails
         """
         async with get_db_session() as session:
             # Close position
@@ -110,16 +180,25 @@ class PortfolioService:
             position = await position_repo.close_position(position_id, exit_price)
             
             if not position:
-                logger.warning(f"Failed to close position {position_id}: not found or already closed")
-                return None
+                raise PositionNotFoundError(
+                    message=f"Position {position_id} not found or already closed",
+                    position_id=position_id
+                )
             
             # Update account balance with realized PnL
             account_repo = AccountRepository(session)
-            await account_repo.update_balance(
-                position.account_id,
-                position.realized_pnl,
-                f"Position closed: {position.symbol} {position.direction}"
-            )
+            try:
+                await account_repo.update_balance(
+                    position.account_id,
+                    position.realized_pnl,
+                    f"Position closed: {position.symbol} {position.direction}"
+                )
+            except Exception as e:
+                raise PortfolioOperationError(
+                    message=f"Failed to update account balance: {str(e)}",
+                    operation="close_position",
+                    details={"position_id": position_id, "error": str(e)}
+                )
             
             # Update account margin
             await self._update_account_margin(
@@ -129,11 +208,16 @@ class PortfolioService:
             )
             
             # Create a daily snapshot to track the portfolio change
-            await self.historical_tracking.create_daily_snapshot(position.account_id)
+            try:
+                await self.historical_tracking.create_daily_snapshot(position.account_id)
+            except Exception as e:
+                logger.warning(f"Failed to create daily snapshot: {str(e)}")
+                # Don't fail the operation if snapshot creation fails
             
             logger.info(f"Closed position {position_id} with realized PnL: {position.realized_pnl}")
             return position
     
+    @async_with_exception_handling
     async def get_portfolio_summary(self, account_id: str) -> Dict[str, Any]:
         """
         Get a comprehensive summary of the portfolio for an account.
@@ -143,6 +227,9 @@ class PortfolioService:
             
         Returns:
             Dictionary with portfolio summary information
+            
+        Raises:
+            PortfolioNotFoundError: If account is not found
         """
         async with get_db_session() as session:
             # Get account details
@@ -150,11 +237,10 @@ class PortfolioService:
             account_details = await account_repo.get_account_details(account_id)
             
             if not account_details:
-                logger.warning(f"Account {account_id} not found")
-                return {
-                    "account_id": account_id,
-                    "status": "not_found"
-                }
+                raise PortfolioNotFoundError(
+                    message=f"Account {account_id} not found",
+                    portfolio_id=account_id
+                )
             
             # Get positions
             position_repo = PositionRepository(session)
@@ -199,6 +285,7 @@ class PortfolioService:
             
             return summary
     
+    @async_with_exception_handling
     async def get_historical_performance(self, account_id: str, period_days: int = 90) -> Dict[str, Any]:
         """
         Get historical performance data for an account.
@@ -209,25 +296,41 @@ class PortfolioService:
             
         Returns:
             Dictionary with historical performance data
+            
+        Raises:
+            PortfolioNotFoundError: If account is not found
+            PortfolioOperationError: If historical data retrieval fails
         """
+        # Check if account exists
+        async with get_db_session() as session:
+            account_repo = AccountRepository(session)
+            account = await account_repo.get_by_id(account_id)
+            
+            if not account:
+                raise PortfolioNotFoundError(
+                    message=f"Account {account_id} not found",
+                    portfolio_id=account_id
+                )
+        
         end_date = datetime.now(timezone.utc)
         start_date = end_date - timedelta(days=period_days)
         
-        # Get equity curve
-        equity_df = await self.historical_tracking.get_historical_equity(
-            account_id, start_date, end_date
-        )
-        
-        # Get performance metrics history
-        metrics_df = await self.historical_tracking.get_performance_metrics_history(
-            account_id, start_date, end_date
-        )
-        
-        # Get drawdown analysis
-        # Assuming analyze_drawdown_history method exists and is async
-        # drawdown_analysis = await self.historical_tracking.analyze_drawdown_history(
-        #    account_id, start_date, end_date
-        # )
+        try:
+            # Get equity curve
+            equity_df = await self.historical_tracking.get_historical_equity(
+                account_id, start_date, end_date
+            )
+            
+            # Get performance metrics history
+            metrics_df = await self.historical_tracking.get_performance_metrics_history(
+                account_id, start_date, end_date
+            )
+        except Exception as e:
+            raise PortfolioOperationError(
+                message=f"Failed to retrieve historical data: {str(e)}",
+                operation="get_historical_performance",
+                details={"account_id": account_id, "error": str(e)}
+            )
         
         # Calculate periodic returns
         async with get_db_session() as session:
@@ -268,6 +371,7 @@ class PortfolioService:
         
         return result
     
+    @async_with_exception_handling
     async def _update_account_margin(self, account_repo: AccountRepository, 
                                   account_id: str, calculate_margin: bool = False) -> float:
         """
@@ -280,6 +384,10 @@ class PortfolioService:
             
         Returns:
             Updated margin used value
+            
+        Raises:
+            PortfolioNotFoundError: If account is not found
+            PortfolioOperationError: If margin update fails
         """
         if calculate_margin:
             # Calculate current margin use from open positions
@@ -291,14 +399,32 @@ class PortfolioService:
                 # In a real system, this would be more complex based on leverage, position size, etc.
                 margin_used = sum(p.size * 0.05 for p in open_positions)  # 5% margin requirement
                 
-                # Update account margin
-                account = await account_repo.update_margin(account_id, margin_used)
-                return margin_used
+                try:
+                    # Update account margin
+                    account = await account_repo.update_margin(account_id, margin_used)
+                    if not account:
+                        raise PortfolioNotFoundError(
+                            message=f"Account {account_id} not found",
+                            portfolio_id=account_id
+                        )
+                    return margin_used
+                except Exception as e:
+                    raise PortfolioOperationError(
+                        message=f"Failed to update account margin: {str(e)}",
+                        operation="update_account_margin",
+                        details={"account_id": account_id, "error": str(e)}
+                    )
         else:
             # Get current margin from account
             account = await account_repo.get_by_id(account_id)
-            return account.margin_used if account else 0.0
+            if not account:
+                raise PortfolioNotFoundError(
+                    message=f"Account {account_id} not found",
+                    portfolio_id=account_id
+                )
+            return account.margin_used
             
+    @async_with_exception_handling
     async def _update_account_equity(self, account_repo: AccountRepository, account_id: str) -> float:
         """
         Update account equity based on unrealized PnL of open positions.
@@ -309,6 +435,10 @@ class PortfolioService:
             
         Returns:
             Updated equity value
+            
+        Raises:
+            PortfolioNotFoundError: If account is not found
+            PortfolioOperationError: If equity update fails
         """
         async with get_db_session() as session:
             position_repo = PositionRepository(session)
@@ -320,8 +450,10 @@ class PortfolioService:
             # Get account balance
             account = await account_repo.get_by_id(account_id)
             if not account:
-                logger.error(f"Account {account_id} not found for equity update")
-                return 0.0
+                raise PortfolioNotFoundError(
+                    message=f"Account {account_id} not found for equity update",
+                    portfolio_id=account_id
+                )
                 
             # Calculate equity
             equity = account.balance + unrealized_pnl

@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
+from prometheus_client import make_asgi_app
 
 from core_foundations.api.health_check import add_health_check_to_app
 from feature_store_service.logging.enhanced_logging import configure_logging, get_logger
@@ -43,6 +44,7 @@ from feature_store_service.api.feature_computation_api import feature_computatio
 from feature_store_service.api.indicator_api import indicator_router
 from feature_store_service.api.realtime_indicators_api import realtime_indicators_router
 from feature_store_service.api.incremental_indicators import router as incremental_indicators_router
+from feature_store_service.api.metrics_integration import setup_metrics
 from feature_store_service.caching.config import CacheConfig
 from feature_store_service.caching.cache_manager import CacheManager
 from feature_store_service.services.enhanced_indicator_service import EnhancedIndicatorService
@@ -102,6 +104,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Set up metrics
+setup_metrics(app, service_name="feature-store-service")
 
 # Initialize components
 indicator_registry = IndicatorRegistry()

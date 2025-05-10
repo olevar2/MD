@@ -8,6 +8,14 @@ const analysisRoutes = require('./api/routes/analysis');
 const monitoringRoutes = require('./api/routes/monitoring');
 const performanceRoutes = require('./api/routes/performance');
 
+// Import event bus and adapters
+const { EventBus } = require('common-js-lib/events');
+const { RiskManagerAdapter } = require('./adapters/risk_manager_adapter');
+
+// Initialize adapters
+const eventBus = new EventBus();
+const riskManager = new RiskManagerAdapter();
+
 // Import middleware from local auth module (which uses common-js-lib)
 const { apiKeyAuth } = require('./api/middleware/auth');
 
@@ -22,6 +30,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(morgan('dev'));
+
+// Make adapters available to routes
+app.locals.eventBus = eventBus;
+app.locals.riskManager = riskManager;
 
 // Apply security middleware to protected routes
 const protectedRoutes = express.Router();

@@ -33,18 +33,13 @@ from analysis_engine.adaptive_layer.event_consumers import (
 from analysis_engine.repositories.strategy_repository import StrategyRepositoryBase
 from analysis_engine.integration.event_bus import EventBusBase # Assuming this is the correct base
 
-# Import ML clients if available
-try:
-    from ml_integration_service.client import MLServiceClient
-    ML_CLIENT_AVAILABLE = True
-except ImportError:
-    ML_CLIENT_AVAILABLE = False
+# Import ML clients using adapter
+from analysis_engine.adapters import MLModelConnectorAdapter
+ML_CLIENT_AVAILABLE = True
 
-try:
-    from ml_workbench_service.feedback.model_training_feedback import ModelTrainingFeedbackIntegrator
-    ML_WORKBENCH_AVAILABLE = True
-except ImportError:
-    ML_WORKBENCH_AVAILABLE = False
+# Use adapter instead of direct import
+from analysis_engine.adapters import ModelTrainingFeedbackAdapter
+ML_WORKBENCH_AVAILABLE = True
 
 
 # --- Core Feedback Loop Components ---
@@ -118,10 +113,19 @@ class TradingFeedbackCollectorFactory(ServiceFactory):
         **kwargs
     ) -> TradingFeedbackCollector:
         config = config_manager.get_configuration("feedback_collector", {})
+
+        # Create model training feedback adapter
+        model_training_feedback = None
+        if ML_WORKBENCH_AVAILABLE:
+            ml_workbench_config = config_manager.get_configuration("ml_workbench", {})
+            if ml_workbench_config.get("enabled", False):
+                model_training_feedback = ModelTrainingFeedbackAdapter(config=ml_workbench_config)
+
         collector = TradingFeedbackCollector(
             feedback_loop=feedback_loop,
             event_publisher=event_publisher,
-            config=config
+            config=config,
+            model_training_feedback=model_training_feedback
         )
         # Assuming start is now handled by the integration service or main application flow
         # await collector.start()
@@ -231,13 +235,20 @@ class FeedbackIntegrationServiceFactory(ServiceFactory):
         # ml_client: Optional[MLServiceClient] = None,
         **kwargs
     ) -> FeedbackIntegrationService:
-        # Create ML client if available and configured
+        # Create ML client if configured
         ml_client = None
         if ML_CLIENT_AVAILABLE:
             ml_config = config_manager.get_configuration("ml_integration", {})
             if ml_config.get("enabled", False):
-                 # Assuming MLServiceClient takes config directly
-                 ml_client = MLServiceClient(config=ml_config)
+                 # Use the adapter
+                 ml_client = MLModelConnectorAdapter(config=ml_config)
+
+        # Create model training feedback adapter
+        model_training_feedback = None
+        if ML_WORKBENCH_AVAILABLE:
+            ml_workbench_config = config_manager.get_configuration("ml_workbench", {})
+            if ml_workbench_config.get("enabled", False):
+                model_training_feedback = ModelTrainingFeedbackAdapter(config=ml_workbench_config)
 
         service = FeedbackIntegrationService(
             config_manager=config_manager,
@@ -245,7 +256,8 @@ class FeedbackIntegrationServiceFactory(ServiceFactory):
             event_subscriber=event_subscriber,
             adaptation_engine=adaptation_engine,
             feedback_loop=feedback_loop,
-            ml_client=ml_client
+            ml_client=ml_client,
+            model_training_feedback=model_training_feedback
         )
         await service.start()
         return service

@@ -10,6 +10,70 @@ Its primary responsibilities include:
 
 ## Key Components
 
+### Caching System
+
+The ML Integration Service includes a comprehensive caching system to improve performance and reduce computational load:
+
+* **Model Inference Caching:** Results of model predictions are cached to avoid redundant computations for the same inputs.
+* **Feature Vector Caching:** Extracted feature vectors are cached to speed up repeated model inference requests.
+* **Cache Monitoring:** A dashboard is available to monitor cache performance and manage cached data.
+
+#### Cache Configuration
+
+The caching system can be configured through environment variables:
+
+```python
+# Default cache TTL (time-to-live) in seconds
+CACHE_TTL=1800  # 30 minutes
+
+# Enable/disable caching
+ENABLE_CACHING=true
+
+# Maximum cache size (number of entries)
+MAX_CACHE_SIZE=1000
+```
+
+#### Cache Monitoring Dashboard
+
+A web-based dashboard is available to monitor cache performance:
+
+```
+http://localhost:8080/api/dashboard/cache
+```
+
+The dashboard provides:
+* Real-time statistics on cache usage
+* Cache hit/miss rates
+* Cache entry distribution
+* Tools to clear specific parts of the cache
+
+#### Cache API Endpoints
+
+The following API endpoints are available for programmatic cache management:
+
+* `GET /api/v1/cache/stats` - Get cache statistics
+* `POST /api/v1/cache/clear` - Clear cache entries
+
+#### Caching Decorators
+
+The service provides decorators to easily add caching to any function:
+
+```python
+from ml_integration_service.caching import cache_model_inference, cache_feature_vector
+
+# Cache model inference results
+@cache_model_inference(ttl=1800)  # Cache for 30 minutes
+def predict(self, model_id: str, symbol: str, timeframe: str, features: pd.DataFrame):
+    # Model inference code here
+    pass
+
+# Cache feature vector generation
+@cache_feature_vector(ttl=1800)  # Cache for 30 minutes
+def extract_features(self, model_name: str, symbol: str, timeframe: str, data: pd.DataFrame):
+    # Feature extraction code here
+    pass
+```
+
 ### `AnalysisEngineFeatureClient`
 
 Located in `ml_integration_service/analysis_engine_client.py`.

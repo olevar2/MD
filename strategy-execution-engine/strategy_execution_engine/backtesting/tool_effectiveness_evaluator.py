@@ -13,24 +13,27 @@ import numpy as np
 import json
 import os
 
-# Import tool effectiveness tracking from analysis engine service
-# NOTE: In a real system, this would be imported from a shared package or accessed via API
-from analysis_engine.services.tool_effectiveness import (
-    ToolEffectivenessTracker, SignalEvent, TimeFrame, MarketRegime
+# Import tool effectiveness interfaces from common-lib
+from common_lib.effectiveness.interfaces import (
+    SignalEvent,
+    SignalOutcome,
+    MarketRegimeEnum as MarketRegime,
+    TimeFrameEnum as TimeFrame
 )
+from strategy_execution_engine.adapters.tool_effectiveness_adapter import ToolEffectivenessTrackerAdapter
 
 class BacktestToolEffectivenessEvaluator:
     """
     Evaluates and tracks the effectiveness of technical analysis tools during backtesting
-    
+
     This class integrates with both the backtesting engine and the tool effectiveness metrics
     framework to provide historical evaluation of technical tools.
     """
-    
+
     def __init__(self, backtest_id: str):
         """
         Initialize the tool effectiveness evaluator
-        
+
         Args:
             backtest_id: Unique identifier for the backtest run
         """
@@ -40,10 +43,10 @@ class BacktestToolEffectivenessEvaluator:
         self.pending_signals = {}  # Signals awaiting outcome evaluation
         self.logger = logging.getLogger(__name__)
         self.output_dir = os.path.join("output", "backtests", backtest_id, "effectiveness")
-        
+
         # Create output directory if it doesn't exist
         os.makedirs(self.output_dir, exist_ok=True)
-    
+
     def register_signal(
         self,
         tool_name: str,
@@ -60,7 +63,7 @@ class BacktestToolEffectivenessEvaluator:
     ) -> str:
         """
         Register a signal from a technical analysis tool during backtesting
-        
+
         Args:
             tool_name: Name of the tool generating the signal
             signal_type: Type of signal (entry, exit, alert, etc.)
@@ -73,7 +76,7 @@ class BacktestToolEffectivenessEvaluator:
             market_regime: Market regime at the time of the signal
             metadata: Additional tool-specific data
             internal_id: Optional internal ID used by the backtester
-            
+
         Returns:
             Signal ID from the effectiveness tracker
         """
@@ -102,7 +105,7 @@ class BacktestToolEffectivenessEvaluator:
                     timeframe = TimeFrame.W1
                 else:
                     timeframe = TimeFrame.H1  # Default to H1 if no match
-        
+
         # Convert market_regime to MarketRegime enum if it's a string
         if isinstance(market_regime, str):
             try:
@@ -110,13 +113,13 @@ class BacktestToolEffectivenessEvaluator:
             except ValueError:
                 self.logger.warning(f"Invalid market regime: {market_regime}, using UNKNOWN")
                 market_regime = MarketRegime.UNKNOWN
-        
+
         # Create market context with regime information
         market_context = {
             "regime": market_regime,
             "backtest_id": self.backtest_id
         }
-        
+
         # Create signal event
         signal = SignalEvent(
             tool_name=tool_name,
@@ -130,25 +133,25 @@ class BacktestToolEffectivenessEvaluator:
             metadata=metadata or {},
             market_context=market_context
         )
-        
+
         # Register signal with effectiveness tracker
         signal_id = self.tracker.register_signal(signal)
-        
+
         # Store in pending signals
         self.pending_signals[signal_id] = {
             "signal": signal,
             "registered_at": datetime.now(),
             "status": "pending"
         }
-        
+
         # Map internal ID to effectiveness signal ID if provided
         if internal_id:
             self.signals_map[internal_id] = signal_id
-            
+
         self.logger.info(f"Registered signal from {tool_name}: {signal_id} (direction: {direction})")
-        
+
         return signal_id
-    
+
     def register_outcome(
         self,
         signal_id: str,
@@ -163,7 +166,7 @@ class BacktestToolEffectivenessEvaluator:
     ) -> bool:
         """
         Register the outcome of a previously registered signal
-        
+
         Args:
             signal_id: ID from the effectiveness tracker, or internal ID if mapped
             outcome: "success", "failure", or "undetermined"
@@ -174,7 +177,7 @@ class BacktestToolEffectivenessEvaluator:
             profit_loss: P&L if the signal was traded
             notes: Additional notes on the outcome
             internal_id: Optional internal ID used by the backtester
-            
+
         Returns:
             True if outcome was registered successfully, False otherwise
         """
@@ -185,12 +188,12 @@ class BacktestToolEffectivenessEvaluator:
             else:
                 self.logger.warning(f"No mapped signal found for internal ID: {internal_id}")
                 return False
-        
+
         # Validate outcome value
         if outcome not in ["success", "failure", "undetermined"]:
             self.logger.warning(f"Invalid outcome: {outcome}, must be success, failure, or undetermined")
             outcome = "undetermined"
-        
+
         # Register outcome
         result = self.tracker.register_outcome(
             signal_id=signal_id,
@@ -202,7 +205,7 @@ class BacktestToolEffectivenessEvaluator:
             profit_loss=profit_loss,
             notes=notes
         )
-        
+
         # Update pending signals
         if signal_id in self.pending_signals:
             if result:
@@ -211,9 +214,9 @@ class BacktestToolEffectivenessEvaluator:
                 self.pending_signals[signal_id]["completed_at"] = datetime.now()
             else:
                 self.pending_signals[signal_id]["status"] = "error"
-                
+
         return result is not None
-    
+
     def bulk_evaluate_pending_signals(
         self,
         price_data: pd.DataFrame,
@@ -221,7 +224,7 @@ class BacktestToolEffectivenessEvaluator:
     ) -> int:
         """
         Bulk evaluate all pending signals against price data
-        
+
         Args:
             price_data: DataFrame with OHLCV data, must include timestamp column
             evaluation_params: Configuration for evaluation
@@ -229,7 +232,7 @@ class BacktestToolEffectivenessEvaluator:
                 success_threshold_pips: For buy signals, pips above entry to consider success
                 failure_threshold_pips: For buy signals, pips below entry to consider failure
                 pip_value: Value of 1 pip (e.g., 0.0001 for most pairs)
-                
+
         Returns:
             Number of signals evaluated
         """
@@ -237,54 +240,54 @@ class BacktestToolEffectivenessEvaluator:
         max_bars = params.get("max_bars_forward", 20)
         success_threshold = params.get("success_threshold_pips", 10) * params.get("pip_value", 0.0001)
         failure_threshold = params.get("failure_threshold_pips", 10) * params.get("pip_value", 0.0001)
-        
+
         # Ensure timestamp column exists and is datetime
         if "timestamp" not in price_data.columns:
             self.logger.error("Price data must include timestamp column")
             return 0
-        
+
         # Ensure price columns exist
         required_cols = ["open", "high", "low", "close"]
         missing_cols = [col for col in required_cols if col not in price_data.columns]
         if missing_cols:
             self.logger.error(f"Price data missing required columns: {missing_cols}")
             return 0
-        
+
         # Ensure timestamps are datetime
         if not pd.api.types.is_datetime64_dtype(price_data["timestamp"]):
             price_data["timestamp"] = pd.to_datetime(price_data["timestamp"])
-        
+
         # Sort by timestamp
         price_data = price_data.sort_values("timestamp")
-        
+
         evaluated_count = 0
         for signal_id, signal_data in list(self.pending_signals.items()):
             if signal_data["status"] != "pending":
                 continue
-                
+
             signal = signal_data["signal"]
             signal_ts = signal.timestamp
-            
+
             # Find index of signal timestamp
             idx = price_data[price_data["timestamp"] >= signal_ts].index
             if len(idx) == 0:
                 continue
-                
+
             start_idx = idx[0]
-            
+
             # Get forward data for evaluation
             end_idx = min(start_idx + max_bars, len(price_data) - 1)
             if end_idx <= start_idx:
                 continue
-                
+
             forward_data = price_data.iloc[start_idx:end_idx + 1]
-            
+
             # Evaluate based on direction
             if signal.direction == "buy":
                 entry_price = signal.price_at_signal
                 max_high = forward_data["high"].max()
                 max_low = forward_data["low"].min()
-                
+
                 # Determine outcome
                 if max_high >= entry_price + success_threshold:
                     outcome = "success"
@@ -301,7 +304,7 @@ class BacktestToolEffectivenessEvaluator:
                     else:
                         outcome = "undetermined"
                     exit_price = forward_data.iloc[-1]["close"]
-                
+
                 # Register outcome
                 self.register_outcome(
                     signal_id=signal_id,
@@ -313,12 +316,12 @@ class BacktestToolEffectivenessEvaluator:
                     profit_loss=(exit_price - entry_price) if outcome != "undetermined" else 0
                 )
                 evaluated_count += 1
-                
+
             elif signal.direction == "sell":
                 entry_price = signal.price_at_signal
                 max_high = forward_data["high"].max()
                 max_low = forward_data["low"].min()
-                
+
                 # Determine outcome
                 if max_low <= entry_price - success_threshold:
                     outcome = "success"
@@ -335,7 +338,7 @@ class BacktestToolEffectivenessEvaluator:
                     else:
                         outcome = "undetermined"
                     exit_price = forward_data.iloc[-1]["close"]
-                
+
                 # Register outcome
                 self.register_outcome(
                     signal_id=signal_id,
@@ -347,9 +350,9 @@ class BacktestToolEffectivenessEvaluator:
                     profit_loss=(entry_price - exit_price) if outcome != "undetermined" else 0
                 )
                 evaluated_count += 1
-        
+
         return evaluated_count
-    
+
     def calculate_tool_metrics(
         self,
         tool_name: Optional[str] = None,
@@ -362,7 +365,7 @@ class BacktestToolEffectivenessEvaluator:
     ) -> Dict[str, Any]:
         """
         Calculate effectiveness metrics for tools
-        
+
         Args:
             tool_name: Name of the tool to evaluate, or None to evaluate all
             metrics: List of metric names to calculate, or None for all
@@ -371,7 +374,7 @@ class BacktestToolEffectivenessEvaluator:
             symbol: Optional filter by symbol
             start_date: Optional filter by start date
             end_date: Optional filter by end date
-            
+
         Returns:
             Dictionary with calculated metrics
         """
@@ -400,56 +403,56 @@ class BacktestToolEffectivenessEvaluator:
                     end_date=end_date
                 )
             return results
-    
+
     def get_summary_report(self) -> Dict[str, Any]:
         """
         Get summary report of tool effectiveness across all tools
-        
+
         Returns:
             Dictionary with summary report
         """
         return self.tracker.get_summary_report()
-    
+
     def save_results(self, filename: Optional[str] = None) -> str:
         """
         Save effectiveness results to a JSON file
-        
+
         Args:
             filename: Optional custom filename, or None to use default
-            
+
         Returns:
             Path to the saved file
         """
         if filename is None:
             filename = f"effectiveness_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        
+
         file_path = os.path.join(self.output_dir, filename)
-        
+
         # Save to JSON
         self.tracker.save_to_json(file_path)
-        
+
         self.logger.info(f"Saved effectiveness results to {file_path}")
         return file_path
-    
+
     def load_results(self, file_path: str) -> bool:
         """
         Load effectiveness results from a JSON file
-        
+
         Args:
             file_path: Path to the JSON file
-            
+
         Returns:
             True if successful, False otherwise
         """
         return self.tracker.load_from_json(file_path)
-    
+
     def generate_effectiveness_report(self, output_format: str = "json") -> Union[Dict[str, Any], str]:
         """
         Generate a comprehensive effectiveness report
-        
+
         Args:
             output_format: "json" or "markdown"
-            
+
         Returns:
             Report in the specified format
         """
@@ -465,12 +468,12 @@ class BacktestToolEffectivenessEvaluator:
             },
             "tools": {}
         }
-        
+
         # Calculate metrics by tool
         for tool_name in tool_names:
             tool_metrics = self.tracker.calculate_metrics(tool_name)
             report_data["tools"][tool_name] = tool_metrics
-            
+
             # Calculate metrics by market regime for this tool
             regimes = {}
             for regime in MarketRegime:
@@ -480,10 +483,10 @@ class BacktestToolEffectivenessEvaluator:
                 )
                 if regime_metrics.get("sample_size", 0) > 0:
                     regimes[regime] = regime_metrics
-            
+
             if regimes:
                 report_data["tools"][tool_name]["by_regime"] = regimes
-        
+
         # Generate report in specified format
         if output_format == "markdown":
             md_report = [f"# Tool Effectiveness Report - Backtest {self.backtest_id}"]
@@ -491,15 +494,15 @@ class BacktestToolEffectivenessEvaluator:
             md_report.append(f"\nTotal Signals: {report_data['summary']['total_signals']}")
             md_report.append(f"Total Outcomes: {report_data['summary']['total_outcomes']}")
             md_report.append(f"Tools Evaluated: {report_data['summary']['tools_evaluated']}")
-            
+
             for tool_name, tool_data in report_data["tools"].items():
                 md_report.append(f"\n## {tool_name}")
                 md_report.append(f"Sample Size: {tool_data.get('sample_size', 0)}")
-                
+
                 # Add metrics
                 md_report.append("\n### Metrics")
                 metrics_table = ["| Metric | Value | Sample Size |", "|--------|-------|------------|"]
-                
+
                 for metric_name, metric_data in tool_data.get("metrics", {}).items():
                     value = metric_data.get("value")
                     if isinstance(value, float):
@@ -507,14 +510,14 @@ class BacktestToolEffectivenessEvaluator:
                     metrics_table.append(
                         f"| {metric_name} | {value} | {metric_data.get('sample_size', 0)} |"
                     )
-                
+
                 md_report.extend(metrics_table)
-                
+
                 # Add regime breakdown if available
                 if "by_regime" in tool_data:
                     md_report.append("\n### Performance by Market Regime")
                     regime_table = ["| Regime | Win Rate | Sample Size |", "|--------|----------|------------|"]
-                    
+
                     for regime, regime_data in tool_data["by_regime"].items():
                         win_rate = regime_data.get("metrics", {}).get("win_rate", {}).get("value", 0)
                         if win_rate:
@@ -522,45 +525,45 @@ class BacktestToolEffectivenessEvaluator:
                         regime_table.append(
                             f"| {regime} | {win_rate} | {regime_data.get('sample_size', 0)} |"
                         )
-                    
+
                     md_report.extend(regime_table)
-            
+
             return "\n".join(md_report)
         else:
             # Default to JSON
             return report_data
-    
+
     def export_report(self, output_format: str = "json", filename: Optional[str] = None) -> str:
         """
         Export effectiveness report to a file
-        
+
         Args:
             output_format: "json" or "markdown"
             filename: Optional filename, or None to use default
-            
+
         Returns:
             Path to the exported file
         """
         if filename is None:
             filename = f"effectiveness_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            
+
         # Add extension based on format
         if output_format == "markdown":
             filename = f"{filename}.md"
         else:
             filename = f"{filename}.json"
-        
+
         file_path = os.path.join(self.output_dir, filename)
-        
+
         # Generate report
         report = self.generate_effectiveness_report(output_format)
-        
+
         # Save to file
         with open(file_path, 'w') as f:
             if output_format == "markdown":
                 f.write(report)
             else:
                 json.dump(report, f, indent=2)
-        
+
         self.logger.info(f"Exported effectiveness report to {file_path}")
         return file_path

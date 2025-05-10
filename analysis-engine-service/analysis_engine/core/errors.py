@@ -126,6 +126,20 @@ async def forex_platform_exception_handler(request: Request, exc: ForexTradingPl
     This handler processes all exceptions that inherit from ForexTradingPlatformError,
     including both common-lib exceptions and service-specific exceptions.
     """
+    # Get correlation ID from request or exception, or generate a new one
+    correlation_id = None
+
+    # Try to get correlation ID from exception
+    if hasattr(exc, "correlation_id") and exc.correlation_id:
+        correlation_id = exc.correlation_id
+    else:
+        # Try to get correlation ID from request
+        correlation_id = get_correlation_id_from_request(request)
+
+        # Set correlation ID on exception if it has the attribute
+        if hasattr(exc, "correlation_id"):
+            exc.correlation_id = correlation_id
+
     # Log the error with context
     logger.error(
         f"ForexTradingPlatformError: {exc.message}",
@@ -134,16 +148,24 @@ async def forex_platform_exception_handler(request: Request, exc: ForexTradingPl
             "details": exc.details,
             "path": request.url.path,
             "method": request.method,
+            "correlation_id": correlation_id
         },
     )
 
     # Determine status code - use status_code attribute if available, otherwise use 500
     status_code = getattr(exc, "status_code", status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # Use the standardized to_dict() method for response content
+    # Get response content
+    content = exc.to_dict()
+
+    # Add correlation ID to response if not already present
+    if "correlation_id" not in content and correlation_id:
+        content["correlation_id"] = correlation_id
+
+    # Return JSON response
     return JSONResponse(
         status_code=status_code,
-        content=exc.to_dict(),
+        content=content,
     )
 
 async def analysis_engine_exception_handler(request: Request, exc: AnalysisEngineError) -> JSONResponse:
@@ -446,6 +468,9 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
 
     Wraps unhandled exceptions in an AnalysisEngineError for consistent error handling.
     """
+    # Get correlation ID from request or generate a new one
+    correlation_id = get_correlation_id_from_request(request)
+
     # Log the unhandled exception
     logger.error(
         f"Unhandled exception: {str(exc)}",
@@ -453,7 +478,8 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
             "path": request.url.path,
             "method": request.method,
             "traceback": traceback.format_exc(),
-            "exception_type": exc.__class__.__name__
+            "exception_type": exc.__class__.__name__,
+            "correlation_id": correlation_id
         },
     )
 
@@ -465,7 +491,13 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
             "exception_type": exc.__class__.__name__,
             "exception_message": str(exc),
             # Only include traceback in debug mode
-            "traceback": traceback.format_exc() if logger.level <= logging.DEBUG else None
+            "traceback": traceback.format_exc() if logger.level <= logging.DEBUG else None,
+            "correlation_id": correlation_id
         }
     )
+
+    # Set correlation ID on exception if it has the attribute
+    if hasattr(wrapped_exc, "correlation_id"):
+        wrapped_exc.correlation_id = correlation_id
+
     return forex_platform_exception_handler(request, wrapped_exc)

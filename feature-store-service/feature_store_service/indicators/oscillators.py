@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 from feature_store_service.indicators.base_indicator import BaseIndicator
 from feature_store_service.utils.profiling import log_and_time
+from feature_store_service.caching.indicator_cache import cache_indicator
 
 
 class RelativeStrengthIndex(BaseIndicator):
@@ -35,11 +36,14 @@ class RelativeStrengthIndex(BaseIndicator):
         self.name = f"rsi_{window}"
 
     @log_and_time
-    def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    @cache_indicator(ttl=3600)  # Cache for 1 hour
+    def calculate(self, symbol: str, timeframe: str, data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate RSI for the given data.
 
         Args:
+            symbol: Symbol for the data
+            timeframe: Timeframe for the data
             data: DataFrame with OHLCV data
 
         Returns:
@@ -107,11 +111,14 @@ class Stochastic(BaseIndicator):
         self.name_d = f"stoch_d_{k_window}_{d_window}"
 
     @log_and_time
-    def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    @cache_indicator(ttl=3600)  # Cache for 1 hour
+    def calculate(self, symbol: str, timeframe: str, data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate Stochastic Oscillator for the given data.
 
         Args:
+            symbol: Symbol for the data
+            timeframe: Timeframe for the data
             data: DataFrame with OHLCV data
 
         Returns:
@@ -180,11 +187,14 @@ class MACD(BaseIndicator):
         self.name_hist = f"macd_hist_{fast_period}_{slow_period}_{signal_period}"
 
     @log_and_time
-    def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    @cache_indicator(ttl=3600)  # Cache for 1 hour
+    def calculate(self, symbol: str, timeframe: str, data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate MACD for the given data.
 
         Args:
+            symbol: Symbol for the data
+            timeframe: Timeframe for the data
             data: DataFrame with OHLCV data
 
         Returns:
@@ -246,11 +256,14 @@ class CommodityChannelIndex(BaseIndicator):
         self.name = f"cci_{window}"
 
     @log_and_time
-    def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    @cache_indicator(ttl=3600)  # Cache for 1 hour
+    def calculate(self, symbol: str, timeframe: str, data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate CCI for the given data.
 
         Args:
+            symbol: Symbol for the data
+            timeframe: Timeframe for the data
             data: DataFrame with OHLCV data
 
         Returns:
@@ -330,11 +343,14 @@ class WilliamsR(BaseIndicator):
         self.name = f"williams_r_{window}"
 
     @log_and_time
-    def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    @cache_indicator(ttl=3600)  # Cache for 1 hour
+    def calculate(self, symbol: str, timeframe: str, data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate Williams %R for the given data.
 
         Args:
+            symbol: Symbol for the data
+            timeframe: Timeframe for the data
             data: DataFrame with OHLCV data
 
         Returns:
@@ -402,11 +418,14 @@ class RateOfChange(BaseIndicator):
         self.name = f"roc_{window}"
 
     @log_and_time
-    def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    @cache_indicator(ttl=3600)  # Cache for 1 hour
+    def calculate(self, symbol: str, timeframe: str, data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate ROC for the given data.
 
         Args:
+            symbol: Symbol for the data
+            timeframe: Timeframe for the data
             data: DataFrame with OHLCV data
 
         Returns:

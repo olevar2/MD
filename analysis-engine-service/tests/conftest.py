@@ -4,10 +4,20 @@ Test Configuration
 This module provides common test fixtures and configuration for the Analysis Engine Service tests.
 """
 
+import os
+import sys
 import pytest
 import asyncio
 from typing import AsyncGenerator, Generator
 from fastapi import FastAPI
+
+# Add the mocks directory to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'mocks')))
+
+# Mock common_lib
+sys.modules['common_lib'] = __import__('common_lib')
+sys.modules['common_lib.config'] = __import__('common_lib').config
+
 from analysis_engine.config.settings import AnalysisEngineSettings as Settings, get_settings
 from analysis_engine.core.service_container import ServiceContainer
 from analysis_engine.main import create_app
@@ -19,9 +29,16 @@ from analysis_engine.core.cache import CacheManager
 # Placeholder for AnalysisService import
 # from analysis_engine.services.analysis_service import AnalysisService
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
-    """Create an event loop for the test session."""
+    """Create an event loop for each test function.
+
+    This matches the asyncio_default_fixture_loop_scope=function setting in pytest.ini.
+    """
+    # Set explicit event loop policy for Windows
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
@@ -54,15 +71,15 @@ def app(test_settings: Settings) -> FastAPI:
     # Ensure the app uses the loaded test settings
     # The dependency injection mechanism in FastAPI should handle this via get_settings
     # We might need to override the dependency for testing if create_app doesn't use it directly
-    
+
     # Assuming create_app uses dependency injection for settings:
     app = create_app()
-    
+
     # Example of overriding dependency if needed:
     # def get_test_settings_override():
     #     return test_settings
     # app.dependency_overrides[get_settings] = get_test_settings_override
-    
+
     return app
 
 @pytest.fixture(scope="session")

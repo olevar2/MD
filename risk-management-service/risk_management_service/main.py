@@ -4,6 +4,7 @@ Risk Management Service Main Application.
 This service handles risk monitoring, limit enforcement, and risk analytics.
 """
 import os
+import uuid
 import logging
 import traceback
 from typing import Dict, Optional, Callable, List, Union
@@ -18,31 +19,25 @@ from prometheus_client import make_asgi_app
 
 from core_foundations.utils.logger import get_logger
 from core_foundations.api.health_check import add_health_check_to_app
-from core_foundations.events.kafka_event_bus import KafkaEventBus
+from core_foundations.events.event_bus import EventBus
 from core_foundations.events.event_schema import Event, EventType
 from core_foundations.models.schemas import HealthStatus
 
-# Import common-lib exceptions
-from common_lib.exceptions import (
-    ForexTradingPlatformError,
-    ConfigurationError,
-    DataError,
-    DataValidationError,
-    DataFetchError,
-    DataStorageError,
-    DataTransformationError,
-    ServiceError,
-    ServiceUnavailableError,
-    ServiceTimeoutError,
-    ModelError,
-    ModelTrainingError,
-    ModelPredictionError
+from risk_management_service.adapters.trading_gateway_adapter import TradingGatewayAdapter
+
+# Import error handling
+from risk_management_service.error import (
+    register_exception_handlers,
+    get_correlation_id
 )
 
 # Configuration
-KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 APP_NAME = "Risk Management Service"
 APP_VERSION = "0.1.0"
+
+# Initialize event bus and adapters
+event_bus = EventBus()
+trading_gateway = TradingGatewayAdapter()
 
 # CORS Configuration
 DEFAULT_CORS_ORIGINS = ["http://localhost:3000", "https://forex-trading-platform.example.com"]
@@ -124,130 +119,28 @@ add_health_check_to_app(
     dependencies=dependencies,
 )
 
-# Add exception handlers
+# Register standardized exception handlers
+register_exception_handlers(app)
 
-# Handle ForexTradingPlatformError (base exception for all platform errors)
-@app.exception_handler(ForexTradingPlatformError)
-async def forex_platform_exception_handler(request: Request, exc: ForexTradingPlatformError):
-    """Handle custom ForexTradingPlatformError exceptions."""
-    logger.error(
-        f"ForexTradingPlatformError: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
+# Add correlation ID middleware
+@app.middleware("http")
+async def add_correlation_id_middleware(request: Request, call_next):
+    """Add correlation ID to request and response."""
+    # Get or generate correlation ID
+    correlation_id = request.headers.get("X-Correlation-ID")
+    if not correlation_id:
+        correlation_id = str(uuid.uuid4())
 
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=exc.to_dict(),
-    )
+    # Store in request state for handlers to access
+    request.state.correlation_id = correlation_id
 
-# Handle DataValidationError
-@app.exception_handler(DataValidationError)
-async def data_validation_exception_handler(request: Request, exc: DataValidationError):
-    """Handle DataValidationError exceptions."""
-    logger.warning(
-        f"Data validation error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
+    # Process request
+    response = await call_next(request)
 
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content=exc.to_dict(),
-    )
+    # Add correlation ID to response headers
+    response.headers["X-Correlation-ID"] = correlation_id
 
-# Handle ModelError
-@app.exception_handler(ModelError)
-async def model_exception_handler(request: Request, exc: ModelError):
-    """Handle ModelError exceptions."""
-    logger.error(
-        f"Model error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=exc.to_dict(),
-    )
-
-# Handle ServiceError
-@app.exception_handler(ServiceError)
-async def service_exception_handler(request: Request, exc: ServiceError):
-    """Handle ServiceError exceptions."""
-    logger.error(
-        f"Service error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        content=exc.to_dict(),
-    )
-
-# Handle RequestValidationError and ValidationError
-@app.exception_handler(RequestValidationError)
-@app.exception_handler(ValidationError)
-async def validation_exception_handler(request: Request, exc: Union[RequestValidationError, ValidationError]):
-    """Handle validation errors from FastAPI and Pydantic."""
-    # Extract errors from the exception
-    errors = exc.errors() if hasattr(exc, 'errors') else [{"msg": str(exc)}]
-
-    logger.warning(
-        f"Validation error for {request.method} {request.url.path}",
-        extra={
-            "errors": errors,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={
-            "error_type": "ValidationError",
-            "message": "Request validation failed",
-            "details": errors,
-        },
-    )
-
-# Handle generic exceptions
-@app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
-    """Handle all other unhandled exceptions."""
-    logger.error(
-        f"Unhandled exception: {str(exc)}",
-        extra={
-            "path": request.url.path,
-            "method": request.method,
-            "traceback": traceback.format_exc(),
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error_type": "InternalServerError",
-            "message": "An unexpected error occurred",
-            # Only include exception details in debug mode
-            "details": str(exc) if logger.level <= logging.DEBUG else None,
-        },
-    )
+    return response
 
 # Add API routes
 from risk_management_service.api import dynamic_risk_routes

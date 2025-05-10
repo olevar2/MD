@@ -22,7 +22,7 @@ except ImportError:
     # Define base exception if common-lib is not available
     class ForexTradingPlatformError(Exception):
         """Base exception for all Forex Trading Platform errors."""
-        
+
         def __init__(
             self,
             message: str,
@@ -31,7 +31,7 @@ except ImportError:
         ):
             """
             Initialize the exception.
-            
+
             Args:
                 message: Human-readable error message
                 error_code: Error code for categorization
@@ -41,11 +41,11 @@ except ImportError:
             self.error_code = error_code
             self.details = details or {}
             super().__init__(self.message)
-        
+
         def to_dict(self) -> Dict[str, Any]:
             """
             Convert the exception to a dictionary.
-            
+
             Returns:
                 Dictionary representation of the exception
             """
@@ -59,7 +59,7 @@ except ImportError:
     # Define other exceptions if common-lib is not available
     class DataValidationError(ForexTradingPlatformError):
         """Error related to data validation."""
-        
+
         def __init__(
             self,
             message: str,
@@ -78,7 +78,7 @@ except ImportError:
 
     class DataFetchError(ForexTradingPlatformError):
         """Error related to data fetching."""
-        
+
         def __init__(
             self,
             message: str,
@@ -92,7 +92,7 @@ except ImportError:
 
     class DataStorageError(ForexTradingPlatformError):
         """Error related to data storage."""
-        
+
         def __init__(
             self,
             message: str,
@@ -106,7 +106,7 @@ except ImportError:
 
     class DataTransformationError(ForexTradingPlatformError):
         """Error related to data transformation."""
-        
+
         def __init__(
             self,
             message: str,
@@ -120,7 +120,7 @@ except ImportError:
 
     class ServiceError(ForexTradingPlatformError):
         """Error related to service operation."""
-        
+
         def __init__(
             self,
             message: str,
@@ -134,7 +134,7 @@ except ImportError:
 
     class ModelError(ForexTradingPlatformError):
         """Error related to model operation."""
-        
+
         def __init__(
             self,
             message: str,
@@ -150,7 +150,7 @@ except ImportError:
 # Strategy Execution Engine specific exceptions
 class StrategyExecutionError(ForexTradingPlatformError):
     """Error related to strategy execution."""
-    
+
     def __init__(
         self,
         message: str,
@@ -170,7 +170,7 @@ class StrategyExecutionError(ForexTradingPlatformError):
 
 class StrategyConfigurationError(ForexTradingPlatformError):
     """Error related to strategy configuration."""
-    
+
     def __init__(
         self,
         message: str,
@@ -194,7 +194,7 @@ class StrategyConfigurationError(ForexTradingPlatformError):
 
 class StrategyLoadError(ForexTradingPlatformError):
     """Error related to strategy loading."""
-    
+
     def __init__(
         self,
         message: str,
@@ -214,7 +214,7 @@ class StrategyLoadError(ForexTradingPlatformError):
 
 class SignalGenerationError(ForexTradingPlatformError):
     """Error related to signal generation."""
-    
+
     def __init__(
         self,
         message: str,
@@ -238,7 +238,7 @@ class SignalGenerationError(ForexTradingPlatformError):
 
 class OrderGenerationError(ForexTradingPlatformError):
     """Error related to order generation."""
-    
+
     def __init__(
         self,
         message: str,
@@ -261,28 +261,119 @@ class OrderGenerationError(ForexTradingPlatformError):
 
 
 class BacktestError(ForexTradingPlatformError):
-    """Error related to backtesting."""
-    
+    """Base error for backtesting-related issues."""
+
     def __init__(
         self,
         message: str,
         strategy_name: Optional[str] = None,
+        backtest_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name
+        if backtest_id:
+            details["backtest_id"] = backtest_id
         super().__init__(
             message=message,
             error_code="BACKTEST_ERROR",
             details=details
         )
         self.strategy_name = strategy_name
+        self.backtest_id = backtest_id
+
+
+class BacktestConfigError(BacktestError):
+    """Error related to backtest configuration."""
+
+    def __init__(
+        self,
+        message: str = "Invalid backtest configuration",
+        strategy_name: Optional[str] = None,
+        config_name: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        details = details or {}
+        if config_name:
+            details["config_name"] = config_name
+        super().__init__(
+            message=message,
+            strategy_name=strategy_name,
+            details=details
+        )
+        self.config_name = config_name
+        self.error_code = "BACKTEST_CONFIG_ERROR"
+
+
+class BacktestDataError(BacktestError):
+    """Error related to backtest data."""
+
+    def __init__(
+        self,
+        message: str = "Invalid or missing backtest data",
+        strategy_name: Optional[str] = None,
+        data_source: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        details = details or {}
+        if data_source:
+            details["data_source"] = data_source
+        super().__init__(
+            message=message,
+            strategy_name=strategy_name,
+            details=details
+        )
+        self.data_source = data_source
+        self.error_code = "BACKTEST_DATA_ERROR"
+
+
+class BacktestExecutionError(BacktestError):
+    """Error related to backtest execution."""
+
+    def __init__(
+        self,
+        message: str = "Backtest execution failed",
+        strategy_name: Optional[str] = None,
+        backtest_id: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(
+            message=message,
+            strategy_name=strategy_name,
+            backtest_id=backtest_id,
+            details=details
+        )
+        self.error_code = "BACKTEST_EXECUTION_ERROR"
+
+
+class BacktestReportError(BacktestError):
+    """Error related to backtest reporting."""
+
+    def __init__(
+        self,
+        message: str = "Failed to generate backtest report",
+        strategy_name: Optional[str] = None,
+        backtest_id: Optional[str] = None,
+        report_type: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        details = details or {}
+        if report_type:
+            details["report_type"] = report_type
+        super().__init__(
+            message=message,
+            strategy_name=strategy_name,
+            backtest_id=backtest_id,
+            details=details
+        )
+        self.report_type = report_type
+        self.error_code = "BACKTEST_REPORT_ERROR"
 
 
 class RiskManagementError(ForexTradingPlatformError):
     """Error related to risk management."""
-    
+
     def __init__(
         self,
         message: str,

@@ -16,6 +16,7 @@ from analysis_engine.api.v1.market_regime_analysis import router as market_regim
 # from analysis_engine.api.v1.tool_effectiveness_analytics import router as tool_effectiveness_router # Deprecated
 from analysis_engine.api.v1.adaptive_layer import router as adaptive_layer_router
 from analysis_engine.api.v1.signal_quality import router as signal_quality_router
+from analysis_engine.chat import setup_chat_routes
 # from analysis_engine.api.v1.enhanced_tool_effectiveness import router as enhanced_tool_router # Deprecated
 from analysis_engine.api.v1.nlp_analysis import router as nlp_analysis_router
 from analysis_engine.api.v1.correlation_analysis import router as correlation_analysis_router
@@ -24,6 +25,13 @@ from analysis_engine.api.v1.manipulation_detection import router as manipulation
 from analysis_engine.api.v1.effectiveness_analysis_api import router as effectiveness_analysis_router # Consolidated
 from analysis_engine.api.routes.feedback_endpoints import router as feedback_endpoints_router
 from analysis_engine.api.v1.monitoring import router as monitoring_router
+from analysis_engine.api.v1.health import router as health_router
+
+# Import standardized routes
+from analysis_engine.api.v1.standardized import setup_standardized_routes
+from analysis_engine.monitoring.structured_logging import get_structured_logger
+
+logger = get_structured_logger(__name__)
 
 # Create main router
 main_router = APIRouter()
@@ -75,3 +83,14 @@ def setup_routes(app: FastAPI) -> None:
     # app.include_router(enhanced_effectiveness_api_router, prefix="/api/v1/enhanced-effectiveness") # Deprecated
     app.include_router(feedback_endpoints_router, prefix="/api/v1/feedback")
     app.include_router(monitoring_router, prefix="/api/v1")
+
+    # Include standardized health API endpoints
+    app.include_router(health_router, prefix="/api")
+
+    # Set up chat routes
+    setup_chat_routes(app)
+
+    # Set up standardized routes
+    setup_standardized_routes(app)
+
+    logger.info("All API routes configured")

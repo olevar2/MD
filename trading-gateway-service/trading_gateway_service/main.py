@@ -15,6 +15,7 @@ import uvicorn
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from prometheus_client import make_asgi_app
 
 from core_foundations.utils.logger import get_logger
 from core_foundations.api.health_check import add_health_check_to_app
@@ -35,6 +36,7 @@ from trading_gateway_service.error.exception_handlers import register_exception_
 from trading_gateway_service.services.market_data_service import MarketDataService
 from trading_gateway_service.services.order_reconciliation_service import OrderReconciliationService
 from trading_gateway_service.monitoring.performance_monitoring import TradingGatewayMonitoring
+from trading_gateway_service.api.metrics_integration import setup_metrics
 from trading_gateway_service.resilience.degraded_mode import DegradedModeManager
 from trading_gateway_service.resilience.degraded_mode_strategies import configure_trading_gateway_degraded_mode
 
@@ -68,6 +70,9 @@ app.add_middleware(
 
 # Register exception handlers
 register_exception_handlers(app)
+
+# Set up metrics
+setup_metrics(app, service_name="trading-gateway-service")
 
 # Include API router
 app.include_router(api_router)

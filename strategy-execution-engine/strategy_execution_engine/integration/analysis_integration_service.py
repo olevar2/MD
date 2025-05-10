@@ -22,7 +22,7 @@ from strategy_execution_engine.adaptive_layer.adaptive_service import AdaptiveLa
 class AnalysisIntegrationService:
     """
     Integrates signals and analysis from all analysis components across the platform.
-    
+
     This service serves as the central integration point for:
     1. Technical Analysis signals
     2. Machine Learning predictions
@@ -33,7 +33,7 @@ class AnalysisIntegrationService:
     7. Economic calendar impacts
     8. Correlation analysis
     """
-    
+
     def __init__(
         self,
         signal_aggregator: SignalAggregator,
@@ -42,7 +42,7 @@ class AnalysisIntegrationService:
     ):
         """
         Initialize the Analysis Integration Service
-        
+
         Args:
             signal_aggregator: The signal aggregator to use
             adaptive_layer_service: Service for adaptive parameters
@@ -52,13 +52,13 @@ class AnalysisIntegrationService:
         self.adaptive_layer = adaptive_layer_service
         self.config = config or {}
         self.logger = logging.getLogger(__name__)
-        
+
         # Initialize component clients
         self._init_component_clients()
-        
+
         # Cache for recently fetched signals
         self.signal_cache = {}
-        
+
     def _init_component_clients(self):
         """Initialize clients for various analysis components"""
         # These will be populated when needed, using lazy initialization
@@ -73,17 +73,17 @@ class AnalysisIntegrationService:
     def _get_default_components(self) -> List[str]:
         """Get the default list of components to fetch signals from."""
         return [
-            "technical_analysis", 
-            "machine_learning", 
+            "technical_analysis",
+            "machine_learning",
             "market_regime",
             "sentiment",
             "pattern_recognition",
             "multi_asset",
-            "economic_calendar", 
+            "economic_calendar",
             "correlation"
         ]
-        
-    def _create_component_tasks(self, components: List[str], symbol: str, 
+
+    def _create_component_tasks(self, components: List[str], symbol: str,
                                tf_enum: SignalTimeframe, lookback_bars: int) -> List[Coroutine]:
         """Create a list of coroutines for fetching signals from components."""
         component_tasks = []
@@ -97,34 +97,34 @@ class AnalysisIntegrationService:
             "economic_calendar": lambda: self._get_economic_calendar_impacts(symbol),
             "correlation": lambda: self._get_correlation_signals()
         }
-        
+
         for component in components:
             if component in component_map:
                 component_tasks.append(component_map[component]())
             else:
                 self.logger.warning(f"Unknown component: {component}")
-                
+
         return component_tasks
-        
+
     def _process_component_results(self, components: List[str], results: List[Any]) -> Tuple[List[Dict], Dict[str, Any]]:
         """Process results from component calls, extracting signals and handling errors."""
         all_signals = []
         component_data = {}
-        
+
         for i, component in enumerate(components):
             result = results[i]
-            
+
             # Skip failed components but log the error
             if isinstance(result, Exception):
                 self.logger.error(f"Error getting signals for {component}: {str(result)}")
                 continue
-                
+
             if "signals" in result:
                 all_signals.extend(result["signals"])
-            
+
             # Store component data
             component_data[component] = result
-            
+
         return all_signals, component_data
 
     async def get_integrated_signals(
@@ -136,50 +136,50 @@ class AnalysisIntegrationService:
     ) -> Dict[str, Any]:
         """
         Get integrated signals from all analysis components
-        
+
         Args:
             symbol: The trading symbol
             timeframe: The timeframe to analyze
             lookback_bars: Number of bars to analyze
             include_components: List of components to include, or None for all
-            
+
         Returns:
             Dictionary with all integrated signals and metadata
         """
         # Convert timeframe to enum
         tf_enum = self._convert_timeframe(timeframe)
-        
+
         # Determine which components to include
         components_to_fetch = include_components or self._get_default_components()
-        
+
         # Create tasks for each component
         tasks = self._create_component_tasks(components_to_fetch, symbol, tf_enum, lookback_bars)
-        
+
         # Wait for all component signals
         component_results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Process results
         all_signals, component_data = self._process_component_results(components_to_fetch, component_results)
-        
+
         # Get current market regime (needed for aggregation)
         market_regime = "unknown"
         if "market_regime" in component_data:
             market_regime = component_data["market_regime"].get("regime", "unknown")
-        
+
         # Apply multi-asset adaptations if available
         if "multi_asset" in component_data:
             all_signals = self._apply_asset_adaptations(
-                all_signals, 
+                all_signals,
                 component_data["multi_asset"]
             )
-        
+
         # Get effectiveness data from adaptive layer
         tool_ids = [s.get("source_id", "unknown") for s in all_signals if isinstance(s, dict)]
         effectiveness_data = await self._get_tool_effectiveness(tool_ids, market_regime)
-        
+
         # Convert raw signals to Signal objects
         signal_objects = self._convert_to_signal_objects(all_signals)
-        
+
         # Aggregate signals
         aggregated_signal = await self.signal_aggregator.aggregate_signals(
             signals=signal_objects,
@@ -194,7 +194,7 @@ class AnalysisIntegrationService:
                 "timestamp": datetime.now().isoformat()
             }
         )
-        
+
         # Return complete result
         return {
             "symbol": symbol,
@@ -208,27 +208,28 @@ class AnalysisIntegrationService:
             "components": component_data,
             "explanation": self.signal_aggregator.generate_explanation(aggregated_signal) if aggregated_signal else "No signal generated"
         }
-    
+
     async def _get_technical_signals(
-        self, 
-        symbol: str, 
-        timeframe: SignalTimeframe, 
+        self,
+        symbol: str,
+        timeframe: SignalTimeframe,
         lookback_bars: int
     ) -> Dict[str, Any]:
         """Get technical analysis signals"""
-        # Lazily initialize client if needed
-        if not self._ta_client:
-            from analysis_engine.clients.technical_analysis_client import TechnicalAnalysisClient
-            self._ta_client = TechnicalAnalysisClient()
-        
+        # Use the analysis adapter instead of direct client
+        from strategy_execution_engine.adapters.analysis_adapter import AnalysisProviderAdapter
+
         try:
-            # Get analysis results from technical analysis service
-            analysis_results = await self._ta_client.get_full_analysis(
+            # Create adapter instance
+            analysis_provider = AnalysisProviderAdapter()
+
+            # Get analysis results using the adapter
+            analysis_results = await analysis_provider.get_technical_analysis(
                 symbol=symbol,
                 timeframe=timeframe.value,
                 lookback_bars=lookback_bars
             )
-            
+
             # Convert to signal format
             signals = []
             for indicator, result in analysis_results.get("indicators", {}).items():
@@ -246,7 +247,7 @@ class AnalysisIntegrationService:
                             "indicator_type": indicator
                         }
                     })
-            
+
             return {
                 "analysis_result": analysis_results,
                 "signals": signals
@@ -254,27 +255,28 @@ class AnalysisIntegrationService:
         except Exception as e:
             self.logger.error(f"Error getting technical signals: {str(e)}", exc_info=True)
             return {"signals": []}
-    
+
     async def _get_ml_predictions(
-        self, 
-        symbol: str, 
+        self,
+        symbol: str,
         timeframe: SignalTimeframe,
         lookback_bars: int
     ) -> Dict[str, Any]:
         """Get machine learning predictions"""
-        # Lazily initialize client if needed
-        if not self._ml_client:
-            from ml_integration_service.client import MLIntegrationClient
-            self._ml_client = MLIntegrationClient()
-        
+        # Use the adapter instead of direct client
+        from strategy_execution_engine.adapters.ml_prediction_adapter import MLSignalGeneratorAdapter
+
         try:
-            # Get predictions from ML service
-            predictions = await self._ml_client.get_predictions(
+            # Create adapter instance
+            ml_signal_generator = MLSignalGeneratorAdapter()
+
+            # Get predictions using the adapter
+            predictions = await ml_signal_generator.generate_trading_signals(
                 symbol=symbol,
                 timeframe=timeframe.value,
                 lookback_bars=lookback_bars
             )
-            
+
             # Convert to signal format
             signals = []
             for model_id, prediction in predictions.get("models", {}).items():
@@ -283,7 +285,7 @@ class AnalysisIntegrationService:
                     direction = "long"
                 elif prediction["prediction_value"] < prediction.get("lower_threshold", 0.4):
                     direction = "short"
-                
+
                 signals.append({
                     "source_id": f"ml_{model_id}",
                     "source_type": "machine_learning",
@@ -297,7 +299,7 @@ class AnalysisIntegrationService:
                         "model_type": prediction.get("model_type", "unknown"),
                         "model_version": prediction.get("model_version", "unknown")
                     }                })
-            
+
             return {
                 "predictions": predictions,
                 "signals": signals
@@ -305,31 +307,32 @@ class AnalysisIntegrationService:
         except Exception as e:
             self.logger.error(f"Error getting ML predictions: {str(e)}", exc_info=True)
             return {"signals": []}
-            
+
     async def _get_sentiment_signals(self) -> Dict[str, Any]:
         """Get sentiment analysis signals"""
         # Implementation will connect to sentiment analysis service
         # For now, return placeholder data
         return {"signals": []}
-    
+
     async def _get_market_regime(
-        self, 
-        symbol: str, 
+        self,
+        symbol: str,
         timeframe: SignalTimeframe
     ) -> Dict[str, Any]:
         """Get current market regime"""
-        # Lazily initialize client if needed
-        if not self._regime_client:
-            from analysis_engine.clients.market_regime_client import MarketRegimeClient
-            self._regime_client = MarketRegimeClient()
-        
+        # Use the analysis adapter instead of direct client
+        from strategy_execution_engine.adapters.analysis_adapter import AnalysisProviderAdapter
+
         try:
-            # Get market regime from the service
-            regime_info = await self._regime_client.get_current_regime(
+            # Create adapter instance
+            analysis_provider = AnalysisProviderAdapter()
+
+            # Get market regime using the adapter
+            regime_info = await analysis_provider.get_market_regime(
                 symbol=symbol,
                 timeframe=timeframe.value
             )
-            
+
             return {
                 "regime": regime_info.get("regime", "unknown"),
                 "confidence": regime_info.get("confidence", 0.5),
@@ -344,18 +347,21 @@ class AnalysisIntegrationService:
         # Implementation will connect to pattern recognition service
         # For now, return placeholder data
         return {"signals": []}
-    
+
     async def _get_multi_asset_adaptations(self, symbol: str) -> Dict[str, Any]:
         """Get multi-asset adaptations for the given symbol"""
-        # Lazily initialize client if needed
-        if not self._multi_asset_client:
-            from analysis_engine.clients.multi_asset_client import MultiAssetClient
-            self._multi_asset_client = MultiAssetClient()
-        
+        # Use the analysis adapter instead of direct client
+        from strategy_execution_engine.adapters.analysis_adapter import AnalysisProviderAdapter
+
         try:
-            # Get asset-specific adaptations
-            adaptations = await self._multi_asset_client.get_asset_adaptations(symbol)
-            
+            # Create adapter instance
+            analysis_provider = AnalysisProviderAdapter()
+
+            # Get multi-asset analysis using the adapter
+            adaptations = await analysis_provider.get_multi_asset_analysis(
+                symbol=symbol
+            )
+
             return {
                 "asset_class": adaptations.get("asset_class", "forex"),
                 "adaptations": adaptations.get("adaptations", {}),
@@ -363,19 +369,19 @@ class AnalysisIntegrationService:
         except Exception as e:
             self.logger.error(f"Error getting multi-asset adaptations: {str(e)}", exc_info=True)
             return {"asset_class": "unknown", "adaptations": {}}
-    
+
     async def _get_economic_calendar_impacts(self, symbol: str) -> Dict[str, Any]:
         """Get economic calendar impacts for the given symbol"""
         # Implementation will connect to economic calendar service
         # For now, return placeholder data
         return {"events": []}
-    
+
     async def _get_correlation_signals(self) -> Dict[str, Any]:
         """Get correlation signals"""
         # Implementation will connect to correlation analysis service
         # For now, return placeholder data
         return {"correlations": {}, "signals": []}
-    
+
     def _convert_timeframe(self, timeframe: str) -> SignalTimeframe:
         """Convert string timeframe to SignalTimeframe enum"""
         tf_map = {
@@ -389,11 +395,11 @@ class AnalysisIntegrationService:
             "1w": SignalTimeframe.W1
         }
         return tf_map.get(timeframe, SignalTimeframe.H1)  # Default to H1 if not found
-    
+
     def _convert_to_signal_objects(self, raw_signals: List[Dict[str, Any]]) -> List[Signal]:
         """Convert raw signal dictionaries to Signal objects"""
         signal_objects = []
-        
+
         for signal_dict in raw_signals:
             try:
                 # Map direction string to enum
@@ -403,7 +409,7 @@ class AnalysisIntegrationService:
                     direction = SignalDirection.LONG
                 elif direction_str == "short" or direction_str == "sell":
                     direction = SignalDirection.SHORT
-                
+
                 # Map source type string to enum
                 source_type_str = signal_dict.get("source_type", "").lower()
                 source_type = SignalSource.TECHNICAL_ANALYSIS  # Default
@@ -411,11 +417,11 @@ class AnalysisIntegrationService:
                     if enum_val.value.lower() == source_type_str:
                         source_type = enum_val
                         break
-                
+
                 # Map timeframe string to enum
                 timeframe_str = signal_dict.get("timeframe", "1h").lower()
                 timeframe = self._convert_timeframe(timeframe_str)
-                
+
                 # Create Signal object
                 signal = Signal(
                     source_id=signal_dict.get("source_id", "unknown"),
@@ -427,66 +433,69 @@ class AnalysisIntegrationService:
                     timestamp=signal_dict.get("timestamp", datetime.now()),
                     metadata=signal_dict.get("metadata", {})
                 )
-                
+
                 signal_objects.append(signal)
             except Exception as e:
                 self.logger.error(f"Error converting signal: {str(e)}", exc_info=True)
                 continue
-        
+
         return signal_objects
-    
+
     async def _get_tool_effectiveness(
-        self, 
-        tool_ids: List[str], 
+        self,
+        tool_ids: List[str],
         market_regime: str
     ) -> Dict[str, float]:
         """Get effectiveness scores for tools from adaptive layer"""
         try:
-            return await self.adaptive_layer.get_tool_effectiveness(
-                tool_ids=tool_ids,
-                market_regime=market_regime
+            # Use the adapter to get tool signal weights
+            return await self.adaptive_layer.get_tool_signal_weights(
+                market_regime=market_regime,
+                tools=tool_ids
             )
         except Exception as e:
             self.logger.error(f"Error getting tool effectiveness: {str(e)}", exc_info=True)
-            return {}
-    
+            # Fallback to equal weights if there's an error
+            weight = 1.0 / len(tool_ids) if tool_ids else 0.0
+            return {tool_id: weight for tool_id in tool_ids}
+
     def _apply_asset_adaptations(
-        self, 
-        signals: List[Dict[str, Any]], 
+        self,
+        signals: List[Dict[str, Any]],
         asset_info: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Apply asset-specific adaptations to signals"""
         asset_class = asset_info.get("asset_class", "forex")
         adaptations = asset_info.get("adaptations", {})
-        
+
         if not adaptations or asset_class == "unknown":
             return signals
-            
+
         # Apply asset-specific adjustments to signals
         adapted_signals = []
         for signal in signals:
             # Create a copy to avoid modifying the original
             adapted_signal = signal.copy()
-            
+
             # Apply strength adjustments based on asset class
             if "strength_adjustments" in adaptations:
                 source_type = signal.get("source_type", "")
                 if source_type in adaptations["strength_adjustments"]:
                     adjustment_factor = adaptations["strength_adjustments"][source_type]
                     adapted_signal["strength"] = min(1.0, signal.get("strength", 0.5) * adjustment_factor)
-            
+
             # Add asset-specific metadata
             if "metadata" not in adapted_signal:
                 adapted_signal["metadata"] = {}
-                
+
             adapted_signal["metadata"]["asset_class"] = asset_class
-            
+
             # Apply any other adaptations as needed
             if "signal_expiry_adjustment" in adaptations:
                 # Adjust signal expiry if provided
                 if "expiration" in signal:
                     adapted_signal["expiration"] = signal["expiration"] * adaptations["signal_expiry_adjustment"]
-            
+
             adapted_signals.append(adapted_signal)
-        
+
         return adapted_signals

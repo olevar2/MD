@@ -6,50 +6,37 @@ brokers, and managing the order lifecycle. It also provides advanced execution a
 for optimizing order execution.
 """
 
-import asyncio
 import logging
-import time
 from typing import Dict, List, Optional, Any, Callable, Union
 from datetime import datetime
-import uuid
-from enum import Enum
 
 from ..interfaces.broker_adapter_interface import (
     BrokerAdapterInterface,
     OrderRequest,
+    OrderType,
     ExecutionReport,
     OrderStatus,
 )
-from ..execution_algorithms import (
-    BaseExecutionAlgorithm,
-    SmartOrderRoutingAlgorithm,
-    TWAPAlgorithm,
-    VWAPAlgorithm,
-    ImplementationShortfallAlgorithm,
+from .execution import (
+    ExecutionMode,
+    ExecutionModeHandler,
+    BaseExecutionService,
+    MarketExecutionService,
+    LimitExecutionService,
+    StopExecutionService,
+    ConditionalExecutionService,
+    AlgorithmExecutionService,
+    ExecutionAlgorithm,
 )
-
-
-class ExecutionMode(Enum):
-    """Execution modes for the order execution service."""
-    LIVE = "live"  # Real trading with actual broker
-    PAPER = "paper"  # Paper trading with simulated fills
-    SIMULATED = "simulated"  # Full simulation with no broker connection
-    BACKTEST = "backtest"  # Historical backtest mode
-
-
-class ExecutionAlgorithm(Enum):
-    """Available execution algorithms."""
-    DIRECT = "direct"  # Direct execution with a single broker
-    SOR = "sor"  # Smart Order Routing across multiple brokers
-    TWAP = "twap"  # Time-Weighted Average Price
-    VWAP = "vwap"  # Volume-Weighted Average Price
-    IMPLEMENTATION_SHORTFALL = "implementation_shortfall"  # Implementation Shortfall
 
 
 class OrderExecutionService:
     """
     Service for executing orders through broker adapters.
     Handles order routing, execution, and state management.
+
+    This is a facade that delegates to specialized execution services
+    based on the order type and execution algorithm.
     """
 
     def __init__(self, mode: ExecutionMode = ExecutionMode.SIMULATED):
@@ -63,20 +50,16 @@ class OrderExecutionService:
         self.mode = mode
         self.broker_adapters: Dict[str, BrokerAdapterInterface] = {}
         self.default_broker = None
-        self.orders: Dict[str, Dict[str, Any]] = {}  # Track all orders by ID
-        self.active_algorithms: Dict[str, BaseExecutionAlgorithm] = {}  # Track active execution algorithms
-        self.callbacks: Dict[str, List[Callable]] = {
-            "order_placed": [],
-            "order_filled": [],
-            "order_cancelled": [],
-            "order_rejected": [],
-            "order_modified": [],
-            "execution_error": [],
-            "algorithm_started": [],
-            "algorithm_progress": [],
-            "algorithm_completed": [],
-            "algorithm_failed": [],
-        }
+
+        # Create the mode handler
+        self.mode_handler = ExecutionModeHandler(mode, self.logger)
+
+        # Create specialized execution services
+        self.market_execution_service = None
+        self.limit_execution_service = None
+        self.stop_execution_service = None
+        self.conditional_execution_service = None
+        self.algorithm_execution_service = None
 
         # Default algorithm configurations
         self.algorithm_configs: Dict[str, Dict[str, Any]] = {
@@ -97,28 +80,85 @@ class OrderExecutionService:
 
         self.logger.info(f"OrderExecutionService initialized in {mode.value} mode")
 
-    def register_broker_adapter(self, name: str, adapter: BrokerAdapterInterface, default: bool = False) -> bool:
+    def register_broker_adapter(self, name: str, adapter: BrokerAdapterInterface, default: bool = False) -> None:
         """
-        Register a broker adapter with the execution service.
+        Register a broker adapter with the service.
 
         Args:
-            name: Name identifier for the broker adapter
+            name: Name to register the adapter under
             adapter: The broker adapter instance
             default: Whether this should be the default broker
-
-        Returns:
-            True if registration was successful
         """
-        if name in self.broker_adapters:
-            self.logger.warning(f"Broker adapter '{name}' already registered. Overwriting.")
-
         self.broker_adapters[name] = adapter
+
         if default or self.default_broker is None:
             self.default_broker = name
-            self.logger.info(f"Set '{name}' as default broker")
 
-        self.logger.info(f"Registered broker adapter: {name}")
+        self.logger.info(f"Registered broker adapter '{name}'{' (default)' if default else ''}")
+
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
+    def set_default_broker(self, name: str) -> bool:
+        """
+        Set the default broker for order execution.
+
+        Args:
+            name: Name of the broker to set as default
+
+        Returns:
+            True if successful, False if broker not found
+        """
+        if name not in self.broker_adapters:
+            self.logger.error(f"Cannot set default broker: '{name}' not registered")
+            return False
+
+        self.default_broker = name
+
+        # Update default broker in all execution services
+        if self.market_execution_service:
+            self.market_execution_service.set_default_broker(name)
+        if self.limit_execution_service:
+            self.limit_execution_service.set_default_broker(name)
+        if self.stop_execution_service:
+            self.stop_execution_service.set_default_broker(name)
+        if self.conditional_execution_service:
+            self.conditional_execution_service.set_default_broker(name)
+        if self.algorithm_execution_service:
+            self.algorithm_execution_service.set_default_broker(name)
+
+        self.logger.info(f"Default broker set to '{name}'")
         return True
+
+    def register_callback(self, event_type: str, callback: Callable) -> bool:
+        """
+        Register a callback for a specific event type.
+
+        Args:
+            event_type: Type of event to register for
+            callback: Callback function to register
+
+        Returns:
+            True if registration successful, False otherwise
+        """
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
+        # Register the callback with all execution services
+        success = True
+
+        if self.market_execution_service:
+            success = success and self.market_execution_service.register_callback(event_type, callback)
+        if self.limit_execution_service:
+            success = success and self.limit_execution_service.register_callback(event_type, callback)
+        if self.stop_execution_service:
+            success = success and self.stop_execution_service.register_callback(event_type, callback)
+        if self.conditional_execution_service:
+            success = success and self.conditional_execution_service.register_callback(event_type, callback)
+        if self.algorithm_execution_service:
+            success = success and self.algorithm_execution_service.register_callback(event_type, callback)
+
+        return success
 
     def connect(self, broker_name: Optional[str] = None, credentials: Optional[Dict[str, str]] = None) -> bool:
         """
@@ -148,14 +188,20 @@ class OrderExecutionService:
 
         for name, adapter in adapters_to_connect.items():
             try:
-                broker_credentials = credentials.get(name, {}) if credentials else {}
-                if not adapter.connect(broker_credentials):
-                    self.logger.error(f"Failed to connect to broker: {name}")
-                    success = False
+                # Connect to the broker
+                if hasattr(adapter, 'connect') and callable(adapter.connect):
+                    if credentials:
+                        adapter_success = adapter.connect(credentials)
+                    else:
+                        adapter_success = adapter.connect()
+
+                    if not adapter_success:
+                        self.logger.error(f"Failed to connect to broker '{name}'")
+                        success = False
                 else:
-                    self.logger.info(f"Connected to broker: {name}")
+                    self.logger.warning(f"Broker '{name}' does not support connect method")
             except Exception as e:
-                self.logger.error(f"Error connecting to broker {name}: {str(e)}")
+                self.logger.error(f"Error connecting to broker '{name}': {str(e)}")
                 success = False
 
         return success
@@ -168,8 +214,14 @@ class OrderExecutionService:
             broker_name: Name of specific broker to disconnect from, or None for all
 
         Returns:
-            True if disconnection successful
+            True if disconnection successful, False if any disconnection failed
         """
+        if self.mode == ExecutionMode.BACKTEST:
+            self.logger.info("In backtest mode, no broker disconnection needed.")
+            return True
+
+        success = True
+
         if broker_name:
             if broker_name not in self.broker_adapters:
                 self.logger.error(f"Broker '{broker_name}' not registered")
@@ -179,23 +231,26 @@ class OrderExecutionService:
         else:
             adapters_to_disconnect = self.broker_adapters
 
-        success = True
         for name, adapter in adapters_to_disconnect.items():
             try:
-                if not adapter.disconnect():
-                    self.logger.error(f"Failed to disconnect from broker: {name}")
-                    success = False
+                # Disconnect from the broker
+                if hasattr(adapter, 'disconnect') and callable(adapter.disconnect):
+                    adapter_success = adapter.disconnect()
+
+                    if not adapter_success:
+                        self.logger.error(f"Failed to disconnect from broker '{name}'")
+                        success = False
                 else:
-                    self.logger.info(f"Disconnected from broker: {name}")
+                    self.logger.warning(f"Broker '{name}' does not support disconnect method")
             except Exception as e:
-                self.logger.error(f"Error disconnecting from broker {name}: {str(e)}")
+                self.logger.error(f"Error disconnecting from broker '{name}': {str(e)}")
                 success = False
 
         return success
 
     def place_order(self, order: OrderRequest, broker_name: Optional[str] = None,
                  algorithm: Optional[Union[str, ExecutionAlgorithm]] = None,
-                 algorithm_config: Optional[Dict[str, Any]] = None) -> ExecutionReport:
+                 algorithm_config: Optional[Dict[str, Any]] = None, **kwargs) -> ExecutionReport:
         """
         Place an order with a specified broker or using an execution algorithm.
 
@@ -204,10 +259,16 @@ class OrderExecutionService:
             broker_name: Name of the broker to use, or None for default
             algorithm: Execution algorithm to use (None for direct execution)
             algorithm_config: Configuration for the execution algorithm
+            **kwargs: Additional arguments specific to the order type
 
         Returns:
             Execution report of the order placement
         """
+        import asyncio
+
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
         # Convert string algorithm to enum if needed
         if isinstance(algorithm, str):
             try:
@@ -216,63 +277,80 @@ class OrderExecutionService:
                 self.logger.warning(f"Unknown algorithm: {algorithm}, using direct execution")
                 algorithm = None
 
-        # If using an algorithm other than direct execution, delegate to the algorithm
-        if algorithm and algorithm != ExecutionAlgorithm.DIRECT:
-            return asyncio.run(self._execute_with_algorithm(order, algorithm, algorithm_config))
-
-        # Direct execution with a single broker
+        # Check if broker is connected
         if broker_name is None:
             broker_name = self.default_broker
 
-        if broker_name not in self.broker_adapters:
-            error_msg = f"Broker '{broker_name}' not registered"
-            self.logger.error(error_msg)
-            return ExecutionReport(
-                order_id=str(uuid.uuid4()),
-                client_order_id=order.client_order_id,
-                instrument=order.instrument,
-                status=OrderStatus.REJECTED,
-                direction=order.direction,
-                order_type=order.order_type,
-                quantity=order.quantity,
-                filled_quantity=0.0,
-                price=order.price,
-                rejection_reason=error_msg,
+        if broker_name in self.broker_adapters:
+            broker = self.broker_adapters[broker_name]
+            if hasattr(broker, 'is_connected') and callable(broker.is_connected) and not broker.is_connected():
+                self.logger.warning(f"Broker '{broker_name}' not connected. Attempting to connect...")
+                if hasattr(broker, 'connect') and callable(broker.connect):
+                    try:
+                        broker.connect()
+                    except Exception as e:
+                        self.logger.error(f"Failed to connect to broker '{broker_name}': {str(e)}")
+
+        # If using an algorithm other than direct execution, delegate to the algorithm execution service
+        if algorithm and algorithm != ExecutionAlgorithm.DIRECT:
+            execution_report = self.algorithm_execution_service.place_order(
+                order=order,
+                broker_name=broker_name,
+                algorithm=algorithm,
+                algorithm_config=algorithm_config,
+                **kwargs
             )
+            # If the result is a coroutine, await it
+            if asyncio.iscoroutine(execution_report):
+                try:
+                    execution_report = asyncio.run(execution_report)
+                except Exception as e:
+                    self.logger.error(f"Error executing algorithm: {str(e)}")
+                    return ExecutionReport(
+                        order_id="error",
+                        client_order_id=order.client_order_id,
+                        instrument=order.instrument,
+                        status=OrderStatus.REJECTED,
+                        direction=order.direction,
+                        order_type=order.order_type,
+                        quantity=order.quantity,
+                        filled_quantity=0.0,
+                        price=order.price,
+                        rejection_reason=f"Error executing algorithm: {str(e)}",
+                    )
+            return execution_report
 
-        # Handle different execution modes
-        if self.mode == ExecutionMode.BACKTEST:
-            self.logger.warning("Placing order in backtest mode - this should be handled by the backtester")
-            # Return dummy execution report for backtesting
-            return self._create_dummy_execution_report(order, OrderStatus.FILLED)
-
-        elif self.mode == ExecutionMode.SIMULATED:
-            # In simulation mode, we create a simulated execution report
-            # This would normally be handled by a proper simulator component
-            self.logger.info(f"Simulating order placement: {order.instrument} {order.direction.value} {order.quantity}")
-            execution_report = self._create_dummy_execution_report(order, OrderStatus.PENDING)
-
-        elif self.mode == ExecutionMode.PAPER:
-            # Paper trading should use real market data but simulated execution
-            # This would be handled by a paper trading component
-            self.logger.info(f"Paper trading order: {order.instrument} {order.direction.value} {order.quantity}")
-            execution_report = self._create_dummy_execution_report(order, OrderStatus.PENDING)
-
-        else:  # LIVE mode
-            # Forward to the actual broker adapter
-            adapter = self.broker_adapters[broker_name]
-            try:
-                if not adapter.is_connected():
-                    self.logger.warning(f"Broker '{broker_name}' not connected. Attempting to connect...")
-                    adapter.connect({})  # Attempt reconnection with empty credentials
-
-                self.logger.info(f"Placing order with broker {broker_name}: {order.instrument} {order.direction.value} {order.quantity}")
-                execution_report = adapter.place_order(order)
-            except Exception as e:
-                error_msg = f"Error placing order with broker {broker_name}: {str(e)}"
+        # Direct execution with a single broker based on order type
+        try:
+            if order.order_type == OrderType.MARKET:
+                execution_report = self.market_execution_service.place_order(
+                    order=order,
+                    broker_name=broker_name,
+                    **kwargs
+                )
+            elif order.order_type == OrderType.LIMIT:
+                execution_report = self.limit_execution_service.place_order(
+                    order=order,
+                    broker_name=broker_name,
+                    **kwargs
+                )
+            elif order.order_type == OrderType.STOP:
+                execution_report = self.stop_execution_service.place_order(
+                    order=order,
+                    broker_name=broker_name,
+                    **kwargs
+                )
+            elif order.order_type == OrderType.CONDITIONAL:
+                execution_report = self.conditional_execution_service.place_order(
+                    order=order,
+                    broker_name=broker_name,
+                    **kwargs
+                )
+            else:
+                error_msg = f"Unsupported order type: {order.order_type}"
                 self.logger.error(error_msg)
-                execution_report = ExecutionReport(
-                    order_id=str(uuid.uuid4()),
+                return ExecutionReport(
+                    order_id="error",
                     client_order_id=order.client_order_id,
                     instrument=order.instrument,
                     status=OrderStatus.REJECTED,
@@ -283,20 +361,41 @@ class OrderExecutionService:
                     price=order.price,
                     rejection_reason=error_msg,
                 )
-                self._trigger_callbacks("execution_error", execution_report)
 
-        # Store the order for tracking
-        if execution_report.status != OrderStatus.REJECTED:
-            self.orders[execution_report.order_id] = {
-                "order": order,
-                "execution_report": execution_report,
-                "broker": broker_name,
-                "updates": [],
-                "created_at": datetime.utcnow(),
-            }
-            self._trigger_callbacks("order_placed", execution_report)
+            # If the result is a coroutine, await it
+            if hasattr(execution_report, "__await__"):
+                try:
+                    execution_report = asyncio.run(execution_report)
+                except Exception as e:
+                    self.logger.error(f"Error placing order: {str(e)}")
+                    return ExecutionReport(
+                        order_id="error",
+                        client_order_id=order.client_order_id,
+                        instrument=order.instrument,
+                        status=OrderStatus.REJECTED,
+                        direction=order.direction,
+                        order_type=order.order_type,
+                        quantity=order.quantity,
+                        filled_quantity=0.0,
+                        price=order.price,
+                        rejection_reason=f"Error placing order: {str(e)}",
+                    )
 
-        return execution_report
+            return execution_report
+        except Exception as e:
+            self.logger.error(f"Error placing order: {str(e)}")
+            return ExecutionReport(
+                order_id="error",
+                client_order_id=order.client_order_id,
+                instrument=order.instrument,
+                status=OrderStatus.REJECTED,
+                direction=order.direction,
+                order_type=order.order_type,
+                quantity=order.quantity,
+                filled_quantity=0.0,
+                price=order.price,
+                rejection_reason=f"Error placing order: {str(e)}",
+            )
 
     def cancel_order(self, order_id: str) -> ExecutionReport:
         """
@@ -308,9 +407,61 @@ class OrderExecutionService:
         Returns:
             Execution report of the cancellation
         """
-        if order_id not in self.orders:
-            error_msg = f"Order ID {order_id} not found"
-            self.logger.error(error_msg)
+        import asyncio
+
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
+        try:
+            # Find the order in all execution services
+            if self.market_execution_service and order_id in self.market_execution_service.orders:
+                execution_report = self.market_execution_service.cancel_order(order_id)
+            elif self.limit_execution_service and order_id in self.limit_execution_service.orders:
+                execution_report = self.limit_execution_service.cancel_order(order_id)
+            elif self.stop_execution_service and order_id in self.stop_execution_service.orders:
+                execution_report = self.stop_execution_service.cancel_order(order_id)
+            elif self.conditional_execution_service and order_id in self.conditional_execution_service.orders:
+                execution_report = self.conditional_execution_service.cancel_order(order_id)
+            elif self.algorithm_execution_service and order_id in self.algorithm_execution_service.orders:
+                execution_report = self.algorithm_execution_service.cancel_order(order_id)
+            else:
+                error_msg = f"Order ID {order_id} not found"
+                self.logger.error(error_msg)
+                return ExecutionReport(
+                    order_id=order_id,
+                    client_order_id="unknown",
+                    instrument="unknown",
+                    status=OrderStatus.REJECTED,
+                    direction=None,  # Type will be corrected by ExecutionReport.__post_init__
+                    order_type=None,  # Type will be corrected by ExecutionReport.__post_init__
+                    quantity=0.0,
+                    filled_quantity=0.0,
+                    price=None,
+                    rejection_reason=error_msg,
+                )
+
+            # If the result is a coroutine, await it
+            if hasattr(execution_report, "__await__"):
+                try:
+                    execution_report = asyncio.run(execution_report)
+                except Exception as e:
+                    self.logger.error(f"Error cancelling order: {str(e)}")
+                    return ExecutionReport(
+                        order_id=order_id,
+                        client_order_id="unknown",
+                        instrument="unknown",
+                        status=OrderStatus.REJECTED,
+                        direction=None,  # Type will be corrected by ExecutionReport.__post_init__
+                        order_type=None,  # Type will be corrected by ExecutionReport.__post_init__
+                        quantity=0.0,
+                        filled_quantity=0.0,
+                        price=None,
+                        rejection_reason=f"Error cancelling order: {str(e)}",
+                    )
+
+            return execution_report
+        except Exception as e:
+            self.logger.error(f"Error cancelling order: {str(e)}")
             return ExecutionReport(
                 order_id=order_id,
                 client_order_id="unknown",
@@ -321,62 +472,8 @@ class OrderExecutionService:
                 quantity=0.0,
                 filled_quantity=0.0,
                 price=None,
-                rejection_reason=error_msg,
+                rejection_reason=f"Error cancelling order: {str(e)}",
             )
-
-        order_info = self.orders[order_id]
-        broker_name = order_info["broker"]
-
-        if self.mode == ExecutionMode.BACKTEST:
-            self.logger.warning("Cancelling order in backtest mode - this should be handled by the backtester")
-            return self._create_dummy_execution_report(order_info["order"], OrderStatus.CANCELLED)
-
-        elif self.mode in [ExecutionMode.SIMULATED, ExecutionMode.PAPER]:
-            # Simulate cancellation
-            execution_report = ExecutionReport(
-                order_id=order_id,
-                client_order_id=order_info["execution_report"].client_order_id,
-                instrument=order_info["execution_report"].instrument,
-                status=OrderStatus.CANCELLED,
-                direction=order_info["execution_report"].direction,
-                order_type=order_info["execution_report"].order_type,
-                quantity=order_info["execution_report"].quantity,
-                filled_quantity=order_info["execution_report"].filled_quantity,
-                price=order_info["execution_report"].price,
-            )
-        else:  # LIVE mode
-            adapter = self.broker_adapters[broker_name]
-            try:
-                self.logger.info(f"Cancelling order {order_id} with broker {broker_name}")
-                execution_report = adapter.cancel_order(order_id)
-            except Exception as e:
-                error_msg = f"Error cancelling order with broker {broker_name}: {str(e)}"
-                self.logger.error(error_msg)
-                execution_report = ExecutionReport(
-                    order_id=order_id,
-                    client_order_id=order_info["execution_report"].client_order_id,
-                    instrument=order_info["execution_report"].instrument,
-                    status=OrderStatus.REJECTED,
-                    direction=order_info["execution_report"].direction,
-                    order_type=order_info["execution_report"].order_type,
-                    quantity=order_info["execution_report"].quantity,
-                    filled_quantity=order_info["execution_report"].filled_quantity,
-                    price=order_info["execution_report"].price,
-                    rejection_reason=error_msg,
-                )
-                self._trigger_callbacks("execution_error", execution_report)
-
-        # Update order info
-        if execution_report.status == OrderStatus.CANCELLED:
-            order_info["execution_report"] = execution_report
-            order_info["updates"].append({
-                "timestamp": datetime.utcnow(),
-                "status": execution_report.status,
-                "filled_quantity": execution_report.filled_quantity,
-            })
-            self._trigger_callbacks("order_cancelled", execution_report)
-
-        return execution_report
 
     def modify_order(self, order_id: str, modifications: Dict[str, Any]) -> ExecutionReport:
         """
@@ -389,9 +486,61 @@ class OrderExecutionService:
         Returns:
             Execution report of the modification
         """
-        if order_id not in self.orders:
-            error_msg = f"Order ID {order_id} not found"
-            self.logger.error(error_msg)
+        import asyncio
+
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
+        try:
+            # Find the order in all execution services
+            if self.market_execution_service and order_id in self.market_execution_service.orders:
+                execution_report = self.market_execution_service.modify_order(order_id, modifications)
+            elif self.limit_execution_service and order_id in self.limit_execution_service.orders:
+                execution_report = self.limit_execution_service.modify_order(order_id, modifications)
+            elif self.stop_execution_service and order_id in self.stop_execution_service.orders:
+                execution_report = self.stop_execution_service.modify_order(order_id, modifications)
+            elif self.conditional_execution_service and order_id in self.conditional_execution_service.orders:
+                execution_report = self.conditional_execution_service.modify_order(order_id, modifications)
+            elif self.algorithm_execution_service and order_id in self.algorithm_execution_service.orders:
+                execution_report = self.algorithm_execution_service.modify_order(order_id, modifications)
+            else:
+                error_msg = f"Order ID {order_id} not found"
+                self.logger.error(error_msg)
+                return ExecutionReport(
+                    order_id=order_id,
+                    client_order_id="unknown",
+                    instrument="unknown",
+                    status=OrderStatus.REJECTED,
+                    direction=None,  # Type will be corrected by ExecutionReport.__post_init__
+                    order_type=None,  # Type will be corrected by ExecutionReport.__post_init__
+                    quantity=0.0,
+                    filled_quantity=0.0,
+                    price=None,
+                    rejection_reason=error_msg,
+                )
+
+            # If the result is a coroutine, await it
+            if hasattr(execution_report, "__await__"):
+                try:
+                    execution_report = asyncio.run(execution_report)
+                except Exception as e:
+                    self.logger.error(f"Error modifying order: {str(e)}")
+                    return ExecutionReport(
+                        order_id=order_id,
+                        client_order_id="unknown",
+                        instrument="unknown",
+                        status=OrderStatus.REJECTED,
+                        direction=None,  # Type will be corrected by ExecutionReport.__post_init__
+                        order_type=None,  # Type will be corrected by ExecutionReport.__post_init__
+                        quantity=0.0,
+                        filled_quantity=0.0,
+                        price=None,
+                        rejection_reason=f"Error modifying order: {str(e)}",
+                    )
+
+            return execution_report
+        except Exception as e:
+            self.logger.error(f"Error modifying order: {str(e)}")
             return ExecutionReport(
                 order_id=order_id,
                 client_order_id="unknown",
@@ -402,87 +551,8 @@ class OrderExecutionService:
                 quantity=0.0,
                 filled_quantity=0.0,
                 price=None,
-                rejection_reason=error_msg,
+                rejection_reason=f"Error modifying order: {str(e)}",
             )
-
-        order_info = self.orders[order_id]
-        broker_name = order_info["broker"]
-
-        if self.mode == ExecutionMode.BACKTEST:
-            self.logger.warning("Modifying order in backtest mode - this should be handled by the backtester")
-            # Create dummy execution report with modifications applied
-            modified_order = order_info["order"]
-            # Apply modifications to a copy of the order
-            for key, value in modifications.items():
-                if hasattr(modified_order, key):
-                    setattr(modified_order, key, value)
-            return self._create_dummy_execution_report(modified_order, OrderStatus.OPEN)
-
-        elif self.mode in [ExecutionMode.SIMULATED, ExecutionMode.PAPER]:
-            # Simulate modification
-            prev_report = order_info["execution_report"]
-            execution_report = ExecutionReport(
-                order_id=order_id,
-                client_order_id=prev_report.client_order_id,
-                instrument=prev_report.instrument,
-                status=prev_report.status,
-                direction=prev_report.direction,
-                order_type=prev_report.order_type,
-                quantity=modifications.get("quantity", prev_report.quantity),
-                filled_quantity=prev_report.filled_quantity,
-                price=modifications.get("price", prev_report.price),
-                stop_loss=modifications.get("stop_loss", prev_report.stop_loss),
-                take_profit=modifications.get("take_profit", prev_report.take_profit),
-            )
-        else:  # LIVE mode
-            adapter = self.broker_adapters[broker_name]
-            try:
-                self.logger.info(f"Modifying order {order_id} with broker {broker_name}: {modifications}")
-                execution_report = adapter.modify_order(order_id, modifications)
-            except Exception as e:
-                error_msg = f"Error modifying order with broker {broker_name}: {str(e)}"
-                self.logger.error(error_msg)
-                execution_report = ExecutionReport(
-                    order_id=order_id,
-                    client_order_id=order_info["execution_report"].client_order_id,
-                    instrument=order_info["execution_report"].instrument,
-                    status=OrderStatus.REJECTED,
-                    direction=order_info["execution_report"].direction,
-                    order_type=order_info["execution_report"].order_type,
-                    quantity=order_info["execution_report"].quantity,
-                    filled_quantity=order_info["execution_report"].filled_quantity,
-                    price=order_info["execution_report"].price,
-                    rejection_reason=error_msg,
-                )
-                self._trigger_callbacks("execution_error", execution_report)
-
-        # Update order info
-        if execution_report.status != OrderStatus.REJECTED:
-            order_info["execution_report"] = execution_report
-            order_info["updates"].append({
-                "timestamp": datetime.utcnow(),
-                "status": execution_report.status,
-                "modifications": modifications,
-            })
-            self._trigger_callbacks("order_modified", execution_report)
-
-        return execution_report
-
-    def get_order(self, order_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Get details about a specific order.
-
-        Args:
-            order_id: ID of the order to retrieve
-
-        Returns:
-            Dictionary with order details or None if not found
-        """
-        if order_id not in self.orders:
-            self.logger.warning(f"Order ID {order_id} not found")
-            return None
-
-        return self.orders[order_id]
 
     def get_orders(self, instrument: Optional[str] = None, status: Optional[OrderStatus] = None) -> List[Dict[str, Any]]:
         """
@@ -495,20 +565,51 @@ class OrderExecutionService:
         Returns:
             List of order dictionaries
         """
-        filtered_orders = []
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
 
-        for order_info in self.orders.values():
-            execution_report = order_info["execution_report"]
+        # Collect orders from all execution services
+        orders = []
 
-            if instrument and execution_report.instrument != instrument:
-                continue
+        if self.market_execution_service:
+            orders.extend(self.market_execution_service.get_orders(instrument, status))
+        if self.limit_execution_service:
+            orders.extend(self.limit_execution_service.get_orders(instrument, status))
+        if self.stop_execution_service:
+            orders.extend(self.stop_execution_service.get_orders(instrument, status))
+        if self.conditional_execution_service:
+            orders.extend(self.conditional_execution_service.get_orders(instrument, status))
+        if self.algorithm_execution_service:
+            orders.extend(self.algorithm_execution_service.get_orders(instrument, status))
 
-            if status and execution_report.status != status:
-                continue
+        return orders
 
-            filtered_orders.append(order_info)
+    def get_order(self, order_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get information about a specific order.
 
-        return filtered_orders
+        Args:
+            order_id: ID of the order to retrieve
+
+        Returns:
+            Order information dictionary, or None if not found
+        """
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
+        # Find the order in all execution services
+        if self.market_execution_service and order_id in self.market_execution_service.orders:
+            return self.market_execution_service.get_order(order_id)
+        elif self.limit_execution_service and order_id in self.limit_execution_service.orders:
+            return self.limit_execution_service.get_order(order_id)
+        elif self.stop_execution_service and order_id in self.stop_execution_service.orders:
+            return self.stop_execution_service.get_order(order_id)
+        elif self.conditional_execution_service and order_id in self.conditional_execution_service.orders:
+            return self.conditional_execution_service.get_order(order_id)
+        elif self.algorithm_execution_service and order_id in self.algorithm_execution_service.orders:
+            return self.algorithm_execution_service.get_order(order_id)
+        else:
+            return None
 
     def update_execution_status(self, order_id: str, status_update: Dict[str, Any]) -> bool:
         """
@@ -521,298 +622,22 @@ class OrderExecutionService:
         Returns:
             True if update was successful
         """
-        if order_id not in self.orders:
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
+        # Find the order in all execution services
+        if self.market_execution_service and order_id in self.market_execution_service.orders:
+            return self.market_execution_service.update_execution_status(order_id, status_update)
+        elif self.limit_execution_service and order_id in self.limit_execution_service.orders:
+            return self.limit_execution_service.update_execution_status(order_id, status_update)
+        elif self.stop_execution_service and order_id in self.stop_execution_service.orders:
+            return self.stop_execution_service.update_execution_status(order_id, status_update)
+        elif self.conditional_execution_service and order_id in self.conditional_execution_service.orders:
+            return self.conditional_execution_service.update_execution_status(order_id, status_update)
+        elif self.algorithm_execution_service and order_id in self.algorithm_execution_service.orders:
+            return self.algorithm_execution_service.update_execution_status(order_id, status_update)
+        else:
             self.logger.warning(f"Cannot update status for unknown order ID: {order_id}")
-            return False
-
-        order_info = self.orders[order_id]
-        prev_report = order_info["execution_report"]
-
-        # Create updated execution report
-        new_status = status_update.get("status", prev_report.status)
-        filled_qty = status_update.get("filled_quantity", prev_report.filled_quantity)
-        executed_price = status_update.get("executed_price", prev_report.executed_price)
-
-        updated_report = ExecutionReport(
-            order_id=order_id,
-            client_order_id=prev_report.client_order_id,
-            instrument=prev_report.instrument,
-            status=new_status,
-            direction=prev_report.direction,
-            order_type=prev_report.order_type,
-            quantity=prev_report.quantity,
-            filled_quantity=filled_qty,
-            price=prev_report.price,
-            executed_price=executed_price,
-            stop_loss=prev_report.stop_loss,
-            take_profit=prev_report.take_profit,
-        )
-
-        # Update order info
-        order_info["execution_report"] = updated_report
-        order_info["updates"].append({
-            "timestamp": datetime.utcnow(),
-            "status": new_status,
-            "filled_quantity": filled_qty,
-            "executed_price": executed_price,
-        })
-
-        # Trigger appropriate callbacks
-        if new_status == OrderStatus.FILLED and prev_report.status != OrderStatus.FILLED:
-            self._trigger_callbacks("order_filled", updated_report)
-        elif new_status == OrderStatus.PARTIALLY_FILLED:
-            self._trigger_callbacks("order_partially_filled", updated_report)
-        elif new_status == OrderStatus.REJECTED and prev_report.status != OrderStatus.REJECTED:
-            self._trigger_callbacks("order_rejected", updated_report)
-        elif new_status == OrderStatus.CANCELLED and prev_report.status != OrderStatus.CANCELLED:
-            self._trigger_callbacks("order_cancelled", updated_report)
-
-        return True
-
-    def register_callback(self, event_type: str, callback: Callable) -> bool:
-        """
-        Register a callback for order events.
-
-        Args:
-            event_type: Type of event to register for (order_placed, order_filled, etc.)
-            callback: Function to call when event occurs
-
-        Returns:
-            True if registration was successful
-        """
-        if event_type not in self.callbacks:
-            self.logger.error(f"Unknown event type: {event_type}")
-            return False
-
-        self.callbacks[event_type].append(callback)
-        self.logger.debug(f"Registered callback for event: {event_type}")
-        return True
-
-    def _trigger_callbacks(self, event_type: str, data: Any) -> None:
-        """
-        Trigger all callbacks registered for an event type.
-
-        Args:
-            event_type: Type of event that occurred
-            data: Data to pass to callbacks
-        """
-        if event_type not in self.callbacks:
-            self.logger.error(f"Unknown event type: {event_type}")
-            return
-
-        for callback in self.callbacks[event_type]:
-            try:
-                callback(data)
-            except Exception as e:
-                self.logger.error(f"Error in callback for {event_type}: {str(e)}")
-
-    def _create_dummy_execution_report(self, order: OrderRequest, status: OrderStatus) -> ExecutionReport:
-        """
-        Create a dummy execution report for simulation/backtest modes.
-
-        Args:
-            order: Original order request
-            status: Status to assign to the execution report
-
-        Returns:
-            Execution report with dummy values
-        """
-        return ExecutionReport(
-            order_id=str(uuid.uuid4()),
-            client_order_id=order.client_order_id,
-            instrument=order.instrument,
-            status=status,
-            direction=order.direction,
-            order_type=order.order_type,
-            quantity=order.quantity,
-            filled_quantity=order.quantity if status == OrderStatus.FILLED else 0.0,
-            price=order.price,
-            executed_price=order.price if status == OrderStatus.FILLED else None,
-            stop_loss=order.stop_loss,
-            take_profit=order.take_profit,
-        )
-
-    async def _execute_with_algorithm(self,
-                                    order: OrderRequest,
-                                    algorithm: ExecutionAlgorithm,
-                                    algorithm_config: Optional[Dict[str, Any]] = None) -> ExecutionReport:
-        """
-        Execute an order using the specified algorithm.
-
-        Args:
-            order: Order to execute
-            algorithm: Algorithm to use
-            algorithm_config: Configuration for the algorithm
-
-        Returns:
-            Execution report for the order
-        """
-        # Merge default config with provided config
-        config = self.algorithm_configs.get(algorithm.value, {}).copy()
-        if algorithm_config:
-            config.update(algorithm_config)
-
-        # Create the appropriate algorithm instance
-        algo_instance = self._create_algorithm_instance(algorithm, config)
-
-        if not algo_instance:
-            self.logger.error(f"Failed to create algorithm instance for {algorithm.value}")
-            return ExecutionReport(
-                order_id=str(uuid.uuid4()),
-                client_order_id=order.client_order_id,
-                instrument=order.instrument,
-                status=OrderStatus.REJECTED,
-                direction=order.direction,
-                order_type=order.order_type,
-                quantity=order.quantity,
-                filled_quantity=0.0,
-                price=order.price,
-                rejection_reason=f"Failed to create algorithm instance for {algorithm.value}",
-            )
-
-        # Register callbacks
-        algo_instance.register_callback('started', lambda data: self._trigger_callbacks('algorithm_started', data))
-        algo_instance.register_callback('progress', lambda data: self._trigger_callbacks('algorithm_progress', data))
-        algo_instance.register_callback('completed', lambda data: self._trigger_callbacks('algorithm_completed', data))
-        algo_instance.register_callback('failed', lambda data: self._trigger_callbacks('algorithm_failed', data))
-
-        # Store the algorithm instance
-        self.active_algorithms[algo_instance.algorithm_id] = algo_instance
-
-        try:
-            # Execute the algorithm
-            self.logger.info(f"Executing order with {algorithm.value} algorithm: {order.instrument} {order.direction.value} {order.quantity}")
-            result = await algo_instance.execute(order)
-
-            # Create an execution report from the result
-            if result.status == 'COMPLETED':
-                status = OrderStatus.FILLED
-            elif result.status == 'PARTIAL':
-                status = OrderStatus.PARTIALLY_FILLED
-            elif result.status == 'CANCELLED':
-                status = OrderStatus.CANCELLED
-            else:
-                status = OrderStatus.REJECTED
-
-            # Create the execution report
-            execution_report = ExecutionReport(
-                order_id=result.algorithm_id,
-                client_order_id=order.client_order_id,
-                instrument=order.instrument,
-                status=status,
-                direction=order.direction,
-                order_type=order.order_type,
-                quantity=order.quantity,
-                filled_quantity=result.total_filled_quantity,
-                price=order.price,
-                executed_price=result.average_execution_price,
-                stop_loss=order.stop_loss,
-                take_profit=order.take_profit,
-            )
-
-            # Store the order for tracking
-            if status != OrderStatus.REJECTED:
-                self.orders[execution_report.order_id] = {
-                    "order": order,
-                    "execution_report": execution_report,
-                    "broker": "algorithm",
-                    "algorithm": algorithm.value,
-                    "algorithm_id": result.algorithm_id,
-                    "updates": [],
-                    "created_at": datetime.utcnow(),
-                    "metrics": result.metrics
-                }
-                self._trigger_callbacks("order_placed", execution_report)
-
-            return execution_report
-
-        except Exception as e:
-            self.logger.error(f"Error executing algorithm {algorithm.value}: {str(e)}")
-            return ExecutionReport(
-                order_id=str(uuid.uuid4()),
-                client_order_id=order.client_order_id,
-                instrument=order.instrument,
-                status=OrderStatus.REJECTED,
-                direction=order.direction,
-                order_type=order.order_type,
-                quantity=order.quantity,
-                filled_quantity=0.0,
-                price=order.price,
-                rejection_reason=f"Algorithm execution error: {str(e)}",
-            )
-        finally:
-            # Remove the algorithm instance
-            if algo_instance.algorithm_id in self.active_algorithms:
-                del self.active_algorithms[algo_instance.algorithm_id]
-
-    def _create_algorithm_instance(self,
-                                 algorithm: ExecutionAlgorithm,
-                                 config: Dict[str, Any]) -> Optional[BaseExecutionAlgorithm]:
-        """
-        Create an instance of the specified algorithm.
-
-        Args:
-            algorithm: Algorithm to create
-            config: Configuration for the algorithm
-
-        Returns:
-            Algorithm instance, or None if creation failed
-        """
-        try:
-            if algorithm == ExecutionAlgorithm.SOR:
-                return SmartOrderRoutingAlgorithm(
-                    broker_adapters=self.broker_adapters,
-                    logger=self.logger,
-                    config=config
-                )
-            elif algorithm == ExecutionAlgorithm.TWAP:
-                return TWAPAlgorithm(
-                    broker_adapters=self.broker_adapters,
-                    logger=self.logger,
-                    config=config
-                )
-            elif algorithm == ExecutionAlgorithm.VWAP:
-                return VWAPAlgorithm(
-                    broker_adapters=self.broker_adapters,
-                    logger=self.logger,
-                    config=config
-                )
-            elif algorithm == ExecutionAlgorithm.IMPLEMENTATION_SHORTFALL:
-                return ImplementationShortfallAlgorithm(
-                    broker_adapters=self.broker_adapters,
-                    logger=self.logger,
-                    config=config
-                )
-            else:
-                self.logger.error(f"Unknown algorithm: {algorithm}")
-                return None
-        except Exception as e:
-            self.logger.error(f"Error creating algorithm instance: {str(e)}")
-            return None
-
-    async def cancel_algorithm(self, algorithm_id: str) -> bool:
-        """
-        Cancel an active execution algorithm.
-
-        Args:
-            algorithm_id: ID of the algorithm to cancel
-
-        Returns:
-            True if cancellation was successful, False otherwise
-        """
-        if algorithm_id not in self.active_algorithms:
-            self.logger.warning(f"Algorithm {algorithm_id} not found or already completed")
-            return False
-
-        try:
-            # Get the algorithm instance
-            algo_instance = self.active_algorithms[algorithm_id]
-
-            # Cancel the algorithm
-            self.logger.info(f"Cancelling algorithm {algorithm_id}")
-            return await algo_instance.cancel()
-        except Exception as e:
-            self.logger.error(f"Error cancelling algorithm {algorithm_id}: {str(e)}")
             return False
 
     def get_algorithm_status(self, algorithm_id: str) -> Optional[Dict[str, Any]]:
@@ -825,17 +650,12 @@ class OrderExecutionService:
         Returns:
             Dictionary with algorithm status, or None if not found
         """
-        if algorithm_id not in self.active_algorithms:
-            return None
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
 
-        try:
-            # Get the algorithm instance
-            algo_instance = self.active_algorithms[algorithm_id]
-
-            # Get the status
-            return asyncio.run(algo_instance.get_status())
-        except Exception as e:
-            self.logger.error(f"Error getting algorithm status for {algorithm_id}: {str(e)}")
+        if self.algorithm_execution_service:
+            return self.algorithm_execution_service.get_algorithm_status(algorithm_id)
+        else:
             return None
 
     def get_active_algorithms(self) -> List[str]:
@@ -845,4 +665,53 @@ class OrderExecutionService:
         Returns:
             List of active algorithm IDs
         """
-        return list(self.active_algorithms.keys())
+        # Initialize execution services if they haven't been created yet
+        self._initialize_execution_services()
+
+        if self.algorithm_execution_service:
+            return self.algorithm_execution_service.get_active_algorithms()
+        else:
+            return []
+
+    def _initialize_execution_services(self) -> None:
+        """
+        Initialize the specialized execution services if they haven't been created yet.
+        """
+        if not self.market_execution_service:
+            self.market_execution_service = MarketExecutionService(
+                broker_adapters=self.broker_adapters,
+                mode_handler=self.mode_handler,
+                logger=self.logger
+            )
+
+        if not self.limit_execution_service:
+            self.limit_execution_service = LimitExecutionService(
+                broker_adapters=self.broker_adapters,
+                mode_handler=self.mode_handler,
+                logger=self.logger
+            )
+
+        if not self.stop_execution_service:
+            self.stop_execution_service = StopExecutionService(
+                broker_adapters=self.broker_adapters,
+                mode_handler=self.mode_handler,
+                logger=self.logger
+            )
+
+        if not self.conditional_execution_service:
+            self.conditional_execution_service = ConditionalExecutionService(
+                broker_adapters=self.broker_adapters,
+                mode_handler=self.mode_handler,
+                logger=self.logger
+            )
+
+        if not self.algorithm_execution_service:
+            self.algorithm_execution_service = AlgorithmExecutionService(
+                broker_adapters=self.broker_adapters,
+                mode_handler=self.mode_handler,
+                logger=self.logger
+            )
+
+            # Set algorithm configurations
+            for algorithm, config in self.algorithm_configs.items():
+                self.algorithm_execution_service.algorithm_configs[algorithm] = config

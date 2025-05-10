@@ -21,6 +21,13 @@ from core_foundations.exceptions.feedback_exceptions import FeedbackCollectionEr
 from core_foundations.resilience.circuit_breaker import CircuitBreaker, CircuitBreakerState
 from core_foundations.resilience.service_registry import ServiceRegistryClient
 
+from common_lib.ml.model_feedback_interfaces import (
+    ModelFeedback,
+    IModelFeedbackProcessor,
+    IModelTrainingFeedbackIntegrator
+)
+from analysis_engine.adapters.model_feedback_adapter import ModelTrainingFeedbackAdapter
+
 logger = get_logger(__name__)
 
 # Define constants for configuration keys to avoid magic strings
@@ -39,7 +46,7 @@ class TradingFeedbackCollector:
     """
     The TradingFeedbackCollector captures and processes trading execution results
     to feed into the feedback loop system.
-    
+
     Key capabilities:
     - Collect trade execution feedback
     - Store and retrieve historical feedback
@@ -48,18 +55,19 @@ class TradingFeedbackCollector:
     - Provide statistics and metrics on collected feedback
     - Integrate with the orchestration service for system-wide feedback processing
     """
-    
+
     def __init__(
         self,
         feedback_loop: Any = None,  # Will be a FeedbackLoop instance
         event_publisher: Optional[EventPublisher] = None,
         config: Dict[str, Any] = None,
         orchestration_service_url: Optional[str] = None, # Base URL like http://host:port
-        service_registry_client: Optional[ServiceRegistryClient] = None
+        service_registry_client: Optional[ServiceRegistryClient] = None,
+        model_training_feedback: Optional[ModelTrainingFeedbackAdapter] = None
     ):
         """
         Initialize the TradingFeedbackCollector.
-        
+
         Args:
             feedback_loop: The feedback loop to send processed feedback to
             event_publisher: Event publisher for broadcasting feedback events
@@ -72,14 +80,15 @@ class TradingFeedbackCollector:
         self.config = config or {}
         self.orchestration_service_url = orchestration_service_url
         self.service_registry_client = service_registry_client
+        self.model_training_feedback = model_training_feedback
         self.http_client = httpx.AsyncClient(timeout=self.config.get(CONFIG_HTTP_TIMEOUT, 10.0))
-        
+
         # Default configuration
         self._set_default_config()
-        
+
         # In-memory storage for recent feedback
         self.recent_feedback: Dict[str, TradeFeedback] = {}
-        
+
         # Statistics tracking
         self.stats = {
             "total_collected": 0,
@@ -89,11 +98,11 @@ class TradingFeedbackCollector:
             "by_strategy": {},
             "by_model": {}
         }
-        
+
         # Batch processing
         self._batch_task = None
         self._is_running = False
-        
+
         # Circuit breaker for orchestration service calls
         self.orchestration_circuit_breaker = CircuitBreaker(
             name="orchestration_service",
@@ -101,9 +110,9 @@ class TradingFeedbackCollector:
             recovery_timeout=self.config.get(CONFIG_CB_RECOVERY_TIMEOUT, 30),
             half_open_success_threshold=self.config.get(CONFIG_CB_SUCCESS_THRESHOLD, 3)
         )
-        
+
         logger.info("TradingFeedbackCollector initialized")
-    
+
     def _set_default_config(self):
         """Set default configuration parameters."""
         defaults = {
@@ -228,6 +237,98 @@ class TradingFeedbackCollector:
             "model_id": getattr(feedback, 'model_id', None),
          }
 
+    def _convert_to_model_feedback(self, feedback: TradeFeedback) -> Optional[ModelFeedback]:
+        """
+        Convert TradeFeedback to ModelFeedback for the model training feedback adapter.
+
+        Args:
+            feedback: TradeFeedback object
+
+        Returns:
+            ModelFeedback object or None if conversion fails
+        """
+        try:
+            # Map TradeFeedback source to ModelFeedback source
+            source_mapping = {
+                FeedbackSource.MODEL_PREDICTION: "MODEL_PREDICTION",
+                FeedbackSource.STRATEGY_EXECUTION: "TRADING",
+                FeedbackSource.MARKET_CONDITION: "MARKET_CONDITION",
+                FeedbackSource.TECHNICAL_ERROR: "SYSTEM",
+                FeedbackSource.USER_FEEDBACK: "MANUAL"
+            }
+
+            # Map TradeFeedback category to ModelFeedback category
+            category_mapping = {
+                FeedbackCategory.SUCCESS: "ACCURACY",
+                FeedbackCategory.PARTIAL_SUCCESS: "ACCURACY",
+                FeedbackCategory.FAILURE: "ACCURACY",
+                FeedbackCategory.MARKET_CONDITION: "REGIME_CHANGE",
+                FeedbackCategory.TECHNICAL_ERROR: "LATENCY"
+            }
+
+            # Map TradeFeedback category to ModelFeedback severity
+            severity_mapping = {
+                FeedbackCategory.SUCCESS: "LOW",
+                FeedbackCategory.PARTIAL_SUCCESS: "MEDIUM",
+                FeedbackCategory.FAILURE: "HIGH",
+                FeedbackCategory.MARKET_CONDITION: "MEDIUM",
+                FeedbackCategory.TECHNICAL_ERROR: "HIGH"
+            }
+
+            # Get source, category, and severity
+            source = source_mapping.get(feedback.source, "TRADING")
+            category = category_mapping.get(feedback.category, "ACCURACY")
+            severity = severity_mapping.get(feedback.category, "MEDIUM")
+
+            # Extract model_id
+            model_id = getattr(feedback, 'model_id', None)
+            if not model_id:
+                return None
+
+            # Extract metrics
+            metrics = {}
+            if hasattr(feedback, 'outcome_metrics') and feedback.outcome_metrics:
+                metrics = feedback.outcome_metrics
+
+            # Extract context
+            context = {
+                "feedback_id": feedback.id,
+                "source": feedback.source.value,
+                "category": feedback.category.value
+            }
+
+            # Add instrument, timeframe, and strategy_id if available
+            if hasattr(feedback, 'instrument') and feedback.instrument:
+                context["instrument"] = feedback.instrument
+            if hasattr(feedback, 'timeframe') and feedback.timeframe:
+                context["timeframe"] = feedback.timeframe
+            if hasattr(feedback, 'strategy_id') and feedback.strategy_id:
+                context["strategy_id"] = feedback.strategy_id
+
+            # Add metadata if available
+            if hasattr(feedback, 'metadata') and feedback.metadata:
+                context.update(feedback.metadata)
+
+            # Create ModelFeedback object
+            from common_lib.ml.model_feedback_interfaces import ModelFeedback
+            model_feedback = ModelFeedback(
+                model_id=model_id,
+                timestamp=datetime.now(),
+                source=source,
+                category=category,
+                severity=severity,
+                description=f"Feedback from trading: {feedback.category.value}",
+                metrics=metrics,
+                context=context,
+                feedback_id=feedback.id
+            )
+
+            return model_feedback
+
+        except Exception as e:
+            logger.error(f"Error converting TradeFeedback to ModelFeedback: {e}")
+            return None
+
     async def _route_or_queue_feedback(self, feedback: TradeFeedback):
         """Process feedback immediately or queue it for batch processing."""
         if not self.config[CONFIG_ENABLE_BATCH]:
@@ -240,6 +341,19 @@ class TradingFeedbackCollector:
         """Process feedback immediately (real-time)."""
         logger.debug(f"Real-time processing for feedback {feedback.id}")
         processed_locally = await self._try_send_to_local_loop(feedback)
+
+        # If this is model-related feedback and we have a model training feedback adapter, forward it
+        if hasattr(feedback, 'model_id') and feedback.model_id and self.model_training_feedback:
+            try:
+                # Convert TradeFeedback to ModelFeedback
+                model_feedback = self._convert_to_model_feedback(feedback)
+                if model_feedback:
+                    # Process the feedback
+                    await self.model_training_feedback.process_trading_feedback([model_feedback])
+                    logger.debug(f"Forwarded feedback {feedback.id} to model training feedback adapter")
+            except Exception as e:
+                logger.error(f"Error forwarding feedback {feedback.id} to model training: {e}")
+
         sent_to_orchestration = await self._try_send_to_orchestration(feedback)
         self._update_feedback_status_after_processing(feedback, processed_locally, sent_to_orchestration)
 
@@ -349,6 +463,25 @@ class TradingFeedbackCollector:
         # 1. Send to local loop first
         await self._send_batch_to_local_loop(items, failed_ids)
 
+        # 1.5. Forward model-related feedback to model training feedback adapter
+        if self.model_training_feedback:
+            # Collect model-related feedback
+            model_feedback_list = []
+            for fb in items:
+                if hasattr(fb, 'model_id') and fb.model_id and fb.id not in failed_ids:
+                    model_feedback = self._convert_to_model_feedback(fb)
+                    if model_feedback:
+                        model_feedback_list.append(model_feedback)
+
+            # Process model feedback in batch if there are any
+            if model_feedback_list:
+                try:
+                    await self.model_training_feedback.process_trading_feedback(model_feedback_list)
+                    logger.debug(f"Batch: Forwarded {len(model_feedback_list)} model feedback items to model training feedback adapter")
+                except Exception as e:
+                    logger.error(f"Batch: Error forwarding model feedback to model training: {e}")
+                    # Don't mark as failed, continue to orchestration
+
         # 2. Send remaining to orchestration
         if self.config[CONFIG_ENABLE_ORCHESTRATION]:
             items_for_orchestration = [fb for fb in items if fb.id not in failed_ids]
@@ -437,15 +570,15 @@ class TradingFeedbackCollector:
                      logger.warning("Orchestration service not found in registry, using configured URL.")
             except Exception as e:
                 logger.warning(f"Failed to discover orchestration service via registry: {e}. Using configured URL.")
-        
+
         if not base_url:
              logger.warning("Orchestration service base URL is not configured.")
              return None
-             
+
         # Ensure path starts with /
         if not path.startswith('/'):
             path = '/' + path
-            
+
         # Avoid double slashes if base_url ends with /
         if base_url.endswith('/'):
              base_url = base_url[:-1]
@@ -460,12 +593,12 @@ class TradingFeedbackCollector:
         if self.orchestration_circuit_breaker.state == CircuitBreakerState.OPEN:
             logger.warning(f"Circuit breaker for orchestration is OPEN. Skipping feedback {feedback.id}")
             return False
-        
+
         endpoint = await self._get_orchestration_endpoint("/api/v1/feedback")
         if not endpoint:
             logger.error("Cannot send feedback: Orchestration endpoint not available.")
             return False
-        
+
         retry_count = 0
         last_error = None
         feedback_payload = feedback.dict()
@@ -565,15 +698,15 @@ class TradingFeedbackCollector:
                 "supported_categories": list(FeedbackCategory.__members__.keys()),
                 "health_check_endpoint": "/health" # Example relative path for health check
             }
-            
+
             logger.debug(f"Registering feedback collector instance {instance_id} with orchestration at {endpoint}")
             response = await self.http_client.post(endpoint, json=registration_payload)
             response.raise_for_status()
-            
+
             logger.info(f"Successfully registered with orchestration service. Instance ID: {instance_id}")
             self.instance_id = instance_id # Store instance ID for unregistration
             return True
-            
+
         except (httpx.RequestError, httpx.HTTPStatusError) as e:
             logger.error(f"Failed to register with orchestration service: {e}")
             return False
@@ -596,11 +729,11 @@ class TradingFeedbackCollector:
             logger.debug(f"Unregistering feedback collector instance {self.instance_id} from orchestration at {endpoint}")
             response = await self.http_client.post(endpoint, json=payload)
             response.raise_for_status() # Check for errors
-            
+
             logger.info(f"Successfully unregistered instance {self.instance_id} from orchestration service.")
             del self.instance_id # Remove stored ID
             return True
-            
+
         except (httpx.RequestError, httpx.HTTPStatusError) as e:
             logger.warning(f"Failed to unregister from orchestration service (instance: {self.instance_id}): {e}")
             # Decide if this is critical. Maybe still return True if shutdown proceeds.
@@ -619,14 +752,14 @@ class TradingFeedbackCollector:
     ) -> Dict[str, Any]:
         """
         Get feedback collection statistics.
-        
+
         Args:
             strategy_id: Filter by strategy ID
             model_id: Filter by model ID
             instrument: Filter by instrument
             start_time: Start time for filtering
             end_time: End time for filtering
-            
+
         Returns:
             Dict[str, Any]: Feedback statistics
         """
@@ -636,56 +769,56 @@ class TradingFeedbackCollector:
             "by_source": dict(self.stats["by_source"]),
             "by_category": dict(self.stats["by_category"])
         }
-        
+
         # Filter recent feedback based on criteria
         filtered_feedback = self.recent_feedback.values()
-        
+
         # Apply filters
         if strategy_id:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if hasattr(fb, "strategy_id") and fb.strategy_id == strategy_id
             ]
             result["by_strategy"] = {strategy_id: self.stats["by_strategy"].get(strategy_id, 0)}
-            
+
         if model_id:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if hasattr(fb, "model_id") and fb.model_id == model_id
             ]
             result["by_model"] = {model_id: self.stats["by_model"].get(model_id, 0)}
-            
+
         if instrument:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if hasattr(fb, "instrument") and fb.instrument == instrument
             ]
             result["by_instrument"] = {instrument: self.stats["by_instrument"].get(instrument, 0)}
-            
+
         if start_time:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if datetime.fromisoformat(fb.timestamp) >= start_time
             ]
-            
+
         if end_time:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if datetime.fromisoformat(fb.timestamp) <= end_time
             ]
-        
+
         # Add recent feedback statistics
         result["recent_items"] = len(filtered_feedback)
         result["recent_by_category"] = {}
         result["recent_by_source"] = {}
-        
+
         for fb in filtered_feedback:
             source = fb.source.value
             category = fb.category.value
-            
+
             result["recent_by_source"][source] = result["recent_by_source"].get(source, 0) + 1
             result["recent_by_category"][category] = result["recent_by_category"].get(category, 0) + 1
-        
+
         # Add orchestration service status if applicable
         if self.config["enable_orchestration"]:
             result["orchestration_status"] = {
@@ -693,21 +826,21 @@ class TradingFeedbackCollector:
                 "failures": self.orchestration_circuit_breaker.failure_count,
                 "successes": self.orchestration_circuit_breaker.success_count
             }
-        
+
         return result
-    
+
     async def get_feedback_by_id(self, feedback_id: str) -> Optional[TradeFeedback]:
         """
         Get feedback by ID.
-        
+
         Args:
             feedback_id: ID of the feedback to retrieve
-            
+
         Returns:
             Optional[TradeFeedback]: The feedback object if found, None otherwise
         """
         return self.recent_feedback.get(feedback_id)
-    
+
     async def get_feedback_by_filter(
         self,
         source: Optional[FeedbackSource] = None,
@@ -721,7 +854,7 @@ class TradingFeedbackCollector:
     ) -> List[TradeFeedback]:
         """
         Get feedback by filter criteria.
-        
+
         Args:
             source: Filter by source
             category: Filter by category
@@ -731,64 +864,64 @@ class TradingFeedbackCollector:
             start_time: Start time for filtering
             end_time: End time for filtering
             limit: Maximum number of items to return
-            
+
         Returns:
             List[TradeFeedback]: Filtered feedback items
         """
         # Start with all feedback
         filtered_feedback = list(self.recent_feedback.values())
-        
+
         # Apply filters
         if source:
             filtered_feedback = [fb for fb in filtered_feedback if fb.source == source]
-            
+
         if category:
             filtered_feedback = [fb for fb in filtered_feedback if fb.category == category]
-            
+
         if strategy_id:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if hasattr(fb, "strategy_id") and fb.strategy_id == strategy_id
             ]
-            
+
         if model_id:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if hasattr(fb, "model_id") and fb.model_id == model_id
             ]
-            
+
         if instrument:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if hasattr(fb, "instrument") and fb.instrument == instrument
             ]
-            
+
         if start_time:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if datetime.fromisoformat(fb.timestamp) >= start_time
             ]
-            
+
         if end_time:
             filtered_feedback = [
-                fb for fb in filtered_feedback 
+                fb for fb in filtered_feedback
                 if datetime.fromisoformat(fb.timestamp) <= end_time
             ]
-        
+
         # Sort by timestamp (newest first) and apply limit
         sorted_feedback = sorted(
             filtered_feedback,
             key=lambda fb: fb.timestamp,
             reverse=True
         )[:limit]
-        
+
         return sorted_feedback
-        
+
     async def get_orchestration_health(self) -> Dict[str, Any]:
         """Get health status of the orchestration service integration."""
         if not self.config["enable_orchestration"]:
             return {"enabled": False, "message": "Orchestration integration is disabled"}
-        
+
         health_info = {
             "enabled": True,
             "circuit_breaker_state": self.orchestration_circuit_breaker.state.value,
@@ -815,9 +948,9 @@ class TradingFeedbackCollector:
             start_time = asyncio.get_event_loop().time()
             response = await self.http_client.get(health_endpoint, timeout=5.0) # Shorter timeout for health check
             end_time = asyncio.get_event_loop().time()
-            
+
             response.raise_for_status()
-            
+
             health_info["connectivity"] = "OK"
             health_info["latency_ms"] = round((end_time - start_time) * 1000, 2)
             # Optionally parse health response body
@@ -832,5 +965,5 @@ class TradingFeedbackCollector:
         except Exception as e:
             health_info["connectivity"] = "ERROR"
             health_info["error"] = f"Unexpected error during health check: {str(e)}"
-        
+
         return health_info

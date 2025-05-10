@@ -30,8 +30,10 @@ from common_lib.exceptions import (
 
 # Import local modules
 from data_pipeline_service.api.router import router as api_router
+from data_pipeline_service.api.metrics_integration import setup_metrics
 from data_pipeline_service.config.settings import get_settings
-from data_pipeline_service.db.engine import create_db_engine, dispose_db_engine
+from data_pipeline_service.db.engine import create_db_engine, dispose_db_engine, get_db_session
+from data_pipeline_service.optimization import get_index_manager, initialize_optimized_pool, close_optimized_pool
 # Import error handlers
 from data_pipeline_service.error_handlers import (
     forex_platform_exception_handler,
@@ -101,9 +103,8 @@ def create_application() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Add Prometheus metrics endpoint
-    metrics_app = make_asgi_app()
-    app.mount("/metrics", metrics_app)
+    # Set up metrics with standardized middleware
+    setup_metrics(app, service_name="data-pipeline-service")
 
     # Setup health check endpoints
     health_checks = [
@@ -144,7 +145,37 @@ def create_application() -> FastAPI:
         app.state.db_engine = await create_db_engine(settings)
 
         # Update health check function to use actual DB connection check
-        app.state.health.checks[0]["check_func"] = lambda: app.state.db_engine is not None        # Initialize Kafka event bus
+        app.state.health.checks[0]["check_func"] = lambda: app.state.db_engine is not None
+
+        # Initialize optimized connection pool
+        try:
+            await initialize_optimized_pool()
+            logger.info("Optimized connection pool initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize optimized connection pool: {e}")
+            # Don't fail startup, service can run in degraded mode
+
+        # Initialize database indexes
+        try:
+            # Get a database session
+            async with get_db_session() as session:
+                # Create index manager
+                index_manager = await get_index_manager(session)
+
+                # Ensure indexes for time series tables
+                for table_name in [
+                    "ohlcv", "ohlcv_1m", "ohlcv_5m", "ohlcv_15m", "ohlcv_30m",
+                    "ohlcv_1h", "ohlcv_4h", "ohlcv_1d", "ohlcv_1w", "tick_data"
+                ]:
+                    await index_manager.ensure_indexes(table_name)
+                    await index_manager.analyze_table(table_name)
+
+                logger.info("Database indexes initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize database indexes: {e}")
+            # Don't fail startup, service can run in degraded mode
+
+        # Initialize Kafka event bus
         try:
             app.state.event_bus = KafkaEventBus(
                 bootstrap_servers=settings.kafka_bootstrap_servers,
@@ -181,6 +212,13 @@ def create_application() -> FastAPI:
         # Close database connection
         if hasattr(app.state, "db_engine"):
             await dispose_db_engine(app.state.db_engine)
+
+        # Close optimized connection pool
+        try:
+            await close_optimized_pool()
+            logger.info("Optimized connection pool closed")
+        except Exception as e:
+            logger.error(f"Failed to close optimized connection pool: {e}")
 
         # Close event bus connection
         if hasattr(app.state, "event_bus"):

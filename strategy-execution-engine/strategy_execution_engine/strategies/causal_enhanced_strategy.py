@@ -16,9 +16,10 @@ from datetime import datetime, timedelta
 import json  # Added for JSON serialization
 
 # Assuming ConfigurationManager might be available
-# from core_foundations.config.configuration import ConfigurationManager 
+# from core_foundations.config.configuration import ConfigurationManager
 
 from strategy_execution_engine.strategies.base_strategy import BaseStrategy
+from strategy_execution_engine.adapters.causal_strategy_enhancer_adapter import CausalStrategyEnhancerAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -27,64 +28,64 @@ logger = logging.getLogger(__name__)
 def dataframe_to_json_list(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """
     Convert DataFrame to a JSON-serializable list of records.
-    
+
     Args:
         df: DataFrame to convert
-        
+
     Returns:
         List of dictionaries representing the DataFrame rows
     """
     if df.empty:
         return []
-    
+
     # Reset index to include it in the output
     df_reset = df.reset_index()
-    
+
     # Handle timestamps (convert to ISO format strings)
     for col in df_reset.columns:
         if pd.api.types.is_datetime64_any_dtype(df_reset[col]):
             df_reset[col] = df_reset[col].dt.strftime('%Y-%m-%dT%H:%M:%S')
-    
+
     # Replace NaN/inf values with None for JSON compatibility
     df_reset = df_reset.replace([np.inf, -np.inf], None)
     records = df_reset.to_dict(orient='records')
-    
+
     # Replace NaN with None
     for record in records:
         for key, value in record.items():
             if pd.isna(value):
                 record[key] = None
-    
+
     return records
 
 
 def json_to_networkx(graph_data: Dict[str, Any]) -> nx.DiGraph:
     """
     Convert a node-link JSON representation to a NetworkX DiGraph.
-    
+
     Args:
         graph_data: Node-link formatted graph data
-        
+
     Returns:
         NetworkX DiGraph
     """
     # Create empty directed graph
     graph = nx.DiGraph()
-    
+
     # Add nodes
     for node in graph_data.get('nodes', []):
         node_id = node.get('id')
         if node_id:
             graph.add_node(node_id, **{k: v for k, v in node.items() if k != 'id'})
-    
+
     # Add edges
     for edge in graph_data.get('links', []):
         source = edge.get('source')
         target = edge.get('target')
         if source and target:
-            graph.add_edge(source, target, **{k: v for k, v in edge.items() 
+            graph.add_edge(source, target, **{k: v for k, v in edge.items()
                                              if k not in ('source', 'target')})
-    
+
     return graph
 
 
@@ -127,12 +128,19 @@ class CausalEnhancedStrategy(BaseStrategy):
                 "effect_threshold": 0.15  # minimum effect size to consider actionable
             }
 
-        # Add HTTP client for analysis-engine API
-        resolved_base_url = None
+        # Initialize causal strategy enhancer adapter
+        config = {}
         if config_manager:
             # Attempt to get from config manager first
             resolved_base_url = config_manager.get("services.analysis_engine.base_url")
+            if resolved_base_url:
+                config["analysis_engine_base_url"] = resolved_base_url
 
+        logger.info(f"Initializing CausalStrategyEnhancerAdapter")
+        self.causal_enhancer = CausalStrategyEnhancerAdapter(config=config)
+
+        # Keep the HTTP client for backward compatibility
+        resolved_base_url = config.get("analysis_engine_base_url")
         if resolved_base_url is None:
             # Fallback to environment variable
             resolved_base_url = os.environ.get("ANALYSIS_ENGINE_BASE_URL", "http://analysis-engine-service:8000")
@@ -209,54 +217,114 @@ class CausalEnhancedStrategy(BaseStrategy):
         except Exception as e:
             logger.error(f"Error executing strategy {self.name}: {str(e)}")
 
-        return signals    async def _perform_causal_analysis(self, data: pd.DataFrame) -> None:
+        return signals
+
+    async def _perform_causal_analysis(self, data: pd.DataFrame = None) -> None:
         """
         Perform causal analysis on the provided market data by calling the analysis-engine API.
 
         Args:
             data: DataFrame containing historical market data with indicators.
         """
-        if data.empty:
+        if data is None or data.empty:
             logger.error("No data provided for causal analysis")
             return
 
-        # --- Causal Analysis Logic (via API) --- 
+        # --- Causal Analysis Logic (via Adapter) ---
         try:
-            # 1. Discover Causal Graph (using API)
-            self.causal_graph = await self._call_discover_causal_structure(data, method='granger')
-            
-            if not self.causal_graph:
-                logger.error("Failed to discover causal structure via API")
+            # Create a data period for the causal analysis
+            start_date = data.index[0].isoformat() if hasattr(data.index[0], 'isoformat') else str(data.index[0])
+            end_date = data.index[-1].isoformat() if hasattr(data.index[-1], 'isoformat') else str(data.index[-1])
+
+            data_period = {
+                "start_date": start_date,
+                "end_date": end_date
+            }
+
+            # 1. Generate causal graph using the adapter
+            graph_result = await self.causal_enhancer.generate_causal_graph(
+                strategy_id=self.name,
+                data_period=data_period
+            )
+
+            if "error" in graph_result:
+                logger.error(f"Failed to generate causal graph: {graph_result['error']}")
                 return
-                
-            logger.info(f"Causal graph updated via API with {self.causal_graph.number_of_edges()} edges")
-            
-            if self.causal_graph:
-                # Extract trading relationships from the graph
-                self._extract_trading_relationships(self.causal_graph, data)
-            
-            # 2. Estimate Causal Effects (via API)
-            if self.causal_graph and not self.causal_graph.edges():
-                logger.warning("Causal graph has no edges, skipping effect estimation")
-            else:
-                # Get effect estimates from API
-                effect_estimates = await self._call_estimate_effects(data, self.causal_graph)
-                if effect_estimates:
-                    self.effect_estimates = effect_estimates
-                    logger.info(f"Causal effects estimated via API: {len(effect_estimates)} effects")
-                else:
-                    logger.warning("Failed to get effect estimates via API")
-            
+
+            # Convert the graph result to a NetworkX graph
+            self.causal_graph = self._convert_graph_result_to_networkx(graph_result)
+
+            if not self.causal_graph or not self.causal_graph.edges():
+                logger.error("Failed to discover causal structure via adapter")
+                return
+
+            logger.info(f"Causal graph updated via adapter with {self.causal_graph.number_of_edges()} edges")
+
+            # Extract trading relationships from the graph
+            self._extract_trading_relationships(self.causal_graph, data)
+
+            # 2. Identify causal factors using the adapter
+            factors_result = await self.causal_enhancer.identify_causal_factors(
+                strategy_id=self.name,
+                data_period=data_period,
+                significance_threshold=self.parameters.get("effect_threshold", 0.15)
+            )
+
+            if "error" in factors_result:
+                logger.error(f"Failed to identify causal factors: {factors_result['error']}")
+            elif "causal_factors" in factors_result:
+                # Process causal factors
+                causal_factors = factors_result["causal_factors"]
+
+                # Convert to effect estimates format
+                self.effect_estimates = {}
+                for factor in causal_factors:
+                    source = factor.get("factor", "")
+                    target = "strategy_performance"  # Default target
+                    significance = factor.get("significance", 0)
+                    self.effect_estimates[(source, target)] = significance
+
+                logger.info(f"Causal factors identified via adapter: {len(causal_factors)} factors")
+
             self.last_analysis_time = datetime.now()
             self.metadata["last_causal_analysis"] = self.last_analysis_time
             logger.info(f"Causal analysis completed for {self.name}: found {len(self.discovered_relationships)} causal relationships")
-            
+
         except Exception as e:
-            logger.error(f"Error during causal analysis via API: {str(e)}", exc_info=True)
+            logger.error(f"Error during causal analysis via adapter: {str(e)}", exc_info=True)
             # Reset state on error
             self._reset_causal_state()
         # --- End Causal Analysis Logic ---
-            
+
+    def _convert_graph_result_to_networkx(self, graph_result: Dict[str, Any]) -> nx.DiGraph:
+        """
+        Convert a graph result from the adapter to a NetworkX DiGraph.
+
+        Args:
+            graph_result: Graph result from the adapter
+
+        Returns:
+            NetworkX DiGraph
+        """
+        graph = nx.DiGraph()
+
+        # Add nodes
+        for node in graph_result.get("nodes", []):
+            node_id = node.get("id")
+            if node_id:
+                node_type = node.get("type", "factor")
+                graph.add_node(node_id, type=node_type)
+
+        # Add edges
+        for edge in graph_result.get("edges", []):
+            source = edge.get("source")
+            target = edge.get("target")
+            weight = edge.get("weight", 0)
+            if source and target:
+                graph.add_edge(source, target, weight=weight)
+
+        return graph
+
     def _reset_causal_state(self):
         """Reset causal analysis state on error."""
         self.causal_graph = None
@@ -362,7 +430,9 @@ class CausalEnhancedStrategy(BaseStrategy):
 
         except Exception as e:
             logger.error(f"Error calculating causal confidence: {str(e)}")
-            return 0.0    async def _generate_signals(self, market_data: pd.DataFrame) -> List[Dict[str, Any]]:
+            return 0.0
+
+    async def _generate_signals(self, market_data: pd.DataFrame) -> List[Dict[str, Any]]:
         """
         Generate trading signals based on causal insights and counterfactual analysis.
 
@@ -423,7 +493,9 @@ class CausalEnhancedStrategy(BaseStrategy):
             # Log signal details
             logger.info(f"Generated {direction} signal for {symbol} with confidence {confidence:.2f}")
 
-        return signals    async def _identify_trading_opportunities(self, market_data: pd.DataFrame) -> List[Dict[str, Any]]:
+        return signals
+
+    async def _identify_trading_opportunities(self, market_data: pd.DataFrame) -> List[Dict[str, Any]]:
         """
         Identify trading opportunities based on causal relationships and counterfactuals.
 
@@ -497,9 +569,11 @@ class CausalEnhancedStrategy(BaseStrategy):
         # Sort opportunities by confidence (highest first)
         opportunities.sort(key=lambda x: x["confidence"], reverse=True)
 
-        return opportunities    async def _generate_counterfactual_scenarios(self, market_data: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+        return opportunities
+
+    async def _generate_counterfactual_scenarios(self, market_data: pd.DataFrame) -> Dict[str, pd.DataFrame]:
         """
-        Generate counterfactual scenarios for trading decisions via the analysis-engine API.
+        Generate counterfactual scenarios for trading decisions via the causal strategy enhancer adapter.
 
         Args:
             market_data: Current market data
@@ -512,6 +586,15 @@ class CausalEnhancedStrategy(BaseStrategy):
         if not self.causal_graph or market_data.empty:
             logger.warning("Cannot generate counterfactuals: missing causal graph or market data")
             return counterfactuals
+
+        # Create a data period for the causal analysis
+        start_date = market_data.index[0].isoformat() if hasattr(market_data.index[0], 'isoformat') else str(market_data.index[0])
+        end_date = market_data.index[-1].isoformat() if hasattr(market_data.index[-1], 'isoformat') else str(market_data.index[-1])
+
+        data_period = {
+            "start_date": start_date,
+            "end_date": end_date
+        }
 
         # Identify important currency pairs for counterfactual analysis
         symbols = self.parameters["symbols"]
@@ -548,31 +631,128 @@ class CausalEnhancedStrategy(BaseStrategy):
             for parent in top_parents:
                 if parent in market_data.columns:
                     # Set intervention to 90th percentile of the parent's value
-                    intervention[parent] = market_data[parent].quantile(0.9)
+                    intervention[parent] = float(market_data[parent].quantile(0.9))
 
             # Skip if no valid interventions
             if not intervention:
-                continue            # Generate counterfactual prediction via API
-            cf_result = await self._call_generate_counterfactuals(
-                data=market_data,
-                target_var=target_var,
-                interventions=intervention
-            )
-            
+                continue
+
+            # Create causal factors for the adapter
+            causal_factors = []
+            for parent, effect_size in sorted_parents:
+                if parent in top_parents:
+                    causal_factors.append({
+                        "factor": parent,
+                        "significance": float(effect_size),
+                        "direction": "positive" if effect_size > 0 else "negative"
+                    })
+
+            # Use the adapter to apply causal enhancement
+            try:
+                enhancement_result = await self.causal_enhancer.apply_causal_enhancement(
+                    strategy_id=self.name,
+                    causal_factors=causal_factors,
+                    enhancement_parameters={
+                        "target_variable": target_var,
+                        "interventions": intervention,
+                        "data_period": data_period
+                    }
+                )
+
+                if "error" in enhancement_result:
+                    logger.error(f"Error applying causal enhancement: {enhancement_result['error']}")
+                    # Fall back to the original method
+                    cf_result = await self._call_generate_counterfactuals(
+                        data=market_data,
+                        target_var=target_var,
+                        interventions=intervention
+                    )
+                else:
+                    # Create a synthetic counterfactual DataFrame based on the enhancement result
+                    cf_result = self._create_synthetic_counterfactual(market_data, target_var, intervention)
+            except Exception as e:
+                logger.error(f"Error using causal enhancer adapter: {str(e)}")
+                # Fall back to the original method
+                cf_result = await self._call_generate_counterfactuals(
+                    data=market_data,
+                    target_var=target_var,
+                    interventions=intervention
+                )
+
             if cf_result is not None and not cf_result.empty:
                 # Store the result
                 scenario_name = f"scenario_{symbol}"
                 counterfactuals[scenario_name] = cf_result
                 logger.info(f"Generated counterfactual scenario for {symbol} with {len(cf_result)} data points")
-                
+
                 # Add a column with the counterfactual target price for easier reference
                 if target_var in cf_result.columns:
                     counterfactual_col_name = f"counterfactual_{target_var}"
                     counterfactuals[scenario_name][counterfactual_col_name] = cf_result[target_var]
             else:
-                logger.warning(f"Failed to generate counterfactual scenario for {symbol} via API")
+                logger.warning(f"Failed to generate counterfactual scenario for {symbol}")
 
         return counterfactuals
+
+    def _create_synthetic_counterfactual(
+        self,
+        data: pd.DataFrame,
+        target_var: str,
+        interventions: Dict[str, float]
+    ) -> pd.DataFrame:
+        """
+        Create a synthetic counterfactual DataFrame based on interventions.
+
+        This is a fallback method when the API call fails.
+
+        Args:
+            data: Original data
+            target_var: Target variable to predict
+            interventions: Dictionary of interventions
+
+        Returns:
+            DataFrame with counterfactual predictions
+        """
+        try:
+            # Create a copy of the data
+            cf_data = data.copy()
+
+            # Apply interventions
+            for var, value in interventions.items():
+                if var in cf_data.columns:
+                    cf_data[var] = value
+
+            # Create a simple counterfactual prediction for the target variable
+            # In a real implementation, this would use a more sophisticated model
+            if target_var in cf_data.columns:
+                # Get the effect estimates for this target
+                effects = {}
+                for (source, target), effect_size in self.effect_estimates.items():
+                    if target == target_var and source in interventions:
+                        effects[source] = effect_size
+
+                # Apply a simple linear combination of effects
+                if effects:
+                    original_value = data[target_var].iloc[-1]
+                    cf_value = original_value
+
+                    for source, effect_size in effects.items():
+                        if source in data.columns and source in interventions:
+                            original_source_value = data[source].iloc[-1]
+                            new_source_value = interventions[source]
+                            percent_change = (new_source_value - original_source_value) / original_source_value
+                            cf_value += original_value * percent_change * effect_size
+
+                    cf_data[target_var] = cf_value
+
+                    # Add a counterfactual column
+                    cf_data[f"counterfactual_{target_var}"] = cf_value
+
+            return cf_data
+
+        except Exception as e:
+            logger.error(f"Error creating synthetic counterfactual: {str(e)}")
+            return None
 
     async def _fetch_enhanced_data(self,
                                     symbols: List[str],
@@ -634,7 +814,7 @@ class CausalEnhancedStrategy(BaseStrategy):
         logger.info("Updating causal analysis...")
         end_date = datetime.now()
         start_date = end_date - timedelta(days=self.parameters["window_size"])
-        
+
         # Fetch data using the new API method
         data = await self._fetch_enhanced_data(
             symbols=self.parameters["symbols"],
@@ -642,11 +822,11 @@ class CausalEnhancedStrategy(BaseStrategy):
             start_date=start_date,
             end_date=end_date
         )
-        
+
         if data.empty:
             logger.warning("No data available to update causal analysis.")
             return
-        
+
         # Perform analysis using the fetched data
         await self._perform_causal_analysis(data)
 
@@ -693,10 +873,10 @@ class CausalEnhancedStrategy(BaseStrategy):
         """Execute trades based on generated signals."""
         # This method would interact with the trading execution service/broker API
         # For now, it just logs the intended actions
-        
+
         account_balance = 100000 # Example balance
         risk_per_trade = self.parameters.get("position_size_pct", 2.0) / 100.0
-        
+
         for symbol, signal in signals.items():
             if symbol not in self.current_positions:
                 position_size = account_balance * risk_per_trade
@@ -706,16 +886,16 @@ class CausalEnhancedStrategy(BaseStrategy):
                 self.current_positions[symbol] = {"signal": signal, "size": position_size, "entry_time": datetime.now()}
             else:
                 logger.info(f"Already have a position for {symbol}, skipping new signal.")
-                
+
         # Example: Close positions not in signals (or implement stop-loss/take-profit)
         positions_to_close = []
         for symbol, position_data in self.current_positions.items():
-            if symbol not in signals: 
+            if symbol not in signals:
                 logger.info(f"Closing position for {symbol}")
                 # NOTE: Actual trade closing logic needs to be implemented here,
                 # potentially calling another service or library.
                 positions_to_close.append(symbol)
-                
+
         for symbol in positions_to_close:
             del self.current_positions[symbol]
 
@@ -741,27 +921,27 @@ class CausalEnhancedStrategy(BaseStrategy):
     async def _call_discover_causal_structure(self, data: pd.DataFrame, method: str = "granger") -> Optional[nx.DiGraph]:
         """
         Call the analysis-engine-service API to discover causal structure.
-        
+
         Args:
             data: DataFrame containing market data
             method: Causal discovery method (e.g., 'granger', 'pc', etc.)
-            
+
         Returns:
             NetworkX DiGraph representing causal structure, or None if API call fails
         """
         logger.info(f"Calling analysis-engine API to discover causal structure using {method} method")
-        
+
         try:
             # Convert DataFrame to JSON-serializable format
             data_list = dataframe_to_json_list(data)
-            
+
             # Prepare request payload
             payload = {
                 "data": data_list,
                 "method": method,
                 "alpha": 0.05  # Significance level - could be parameterized
             }
-            
+
             # Call the API
             response = await self.analysis_engine_client.post(
                 "/api/v1/causal/discover-structure",
@@ -769,17 +949,17 @@ class CausalEnhancedStrategy(BaseStrategy):
             )
             response.raise_for_status()
             result = response.json()
-            
+
             # Check if we got a valid graph
             if not result or "graph" not in result:
                 logger.warning("No valid graph returned from discovery API")
                 return None
-                
+
             # Convert JSON graph to NetworkX DiGraph
             graph = json_to_networkx(result["graph"])
             logger.info(f"Successfully received causal graph with {graph.number_of_edges()} edges")
             return graph
-            
+
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error during causal structure discovery: {e.response.status_code} - {e.response.text}")
             return None
@@ -789,33 +969,33 @@ class CausalEnhancedStrategy(BaseStrategy):
         except Exception as e:
             logger.error(f"Error processing causal structure API response: {str(e)}", exc_info=True)
             return None
-            
+
     async def _call_estimate_effects(self, data: pd.DataFrame, graph: nx.DiGraph) -> Dict[Tuple[str, str], float]:
         """
         Call the analysis-engine-service API to estimate causal effects.
-        
+
         Args:
             data: DataFrame containing market data
             graph: Causal graph structure
-            
+
         Returns:
             Dictionary mapping (cause, effect) tuples to effect strengths
         """
         logger.info("Calling analysis-engine API to estimate causal effects")
-        
+
         try:
             # Convert DataFrame to JSON-serializable format
             data_list = dataframe_to_json_list(data)
-            
+
             # Convert graph to node-link format for JSON
             graph_data = nx.node_link_data(graph)
-            
+
             # Prepare request payload
             payload = {
                 "data": data_list,
                 "graph": graph_data
             }
-            
+
             # Call the API
             response = await self.analysis_engine_client.post(
                 "/api/v1/causal/estimate-effects",
@@ -823,25 +1003,25 @@ class CausalEnhancedStrategy(BaseStrategy):
             )
             response.raise_for_status()
             result = response.json()
-            
+
             # Check if we got valid effects
             if not result or "effects" not in result:
                 logger.warning("No valid effects returned from API")
                 return {}
-                
+
             # Process effects data - convert to desired format
             effects_dict = {}
             for effect_data in result["effects"]:
                 cause = effect_data.get("cause")
                 effect = effect_data.get("effect")
                 strength = effect_data.get("strength", 0.0)
-                
+
                 if cause and effect:
                     effects_dict[(cause, effect)] = strength
-                    
+
             logger.info(f"Successfully received {len(effects_dict)} causal effect estimates")
             return effects_dict
-            
+
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error during causal effect estimation: {e.response.status_code} - {e.response.text}")
             return {}
@@ -851,32 +1031,33 @@ class CausalEnhancedStrategy(BaseStrategy):
         except Exception as e:
             logger.error(f"Error processing causal effects API response: {str(e)}", exc_info=True)
             return {}
-              async def _call_generate_counterfactuals(
-        self, 
-        data: pd.DataFrame, 
+
+    async def _call_generate_counterfactuals(
+        self,
+        data: pd.DataFrame,
         target_var: str,
         interventions: Dict[str, float]
     ) -> Optional[pd.DataFrame]:
         """
         Call the analysis-engine-service API to generate counterfactual scenarios.
-        
+
         Args:
             data: DataFrame containing market data
             target_var: The target variable to predict
             interventions: Dictionary mapping variable names to intervention values
-            
+
         Returns:
             DataFrame with counterfactual predictions, or None if API call fails
         """
         logger.info(f"Calling analysis-engine API to generate counterfactuals for {target_var}")
-        
+
         try:
             # Convert DataFrame to JSON-serializable format
             data_list = dataframe_to_json_list(data)
-            
+
             # Create a scenario name
             scenario_name = f"scenario_{target_var.split('_')[0]}"
-            
+
             # Format payload according to the CounterfactualRequest model in causal_analysis_api.py
             payload = {
                 "data": data_list,
@@ -886,7 +1067,7 @@ class CausalEnhancedStrategy(BaseStrategy):
                 },
                 "features": None  # Let the API determine features automatically
             }
-            
+
             # Call the API
             response = await self.analysis_engine_client.post(
                 "/api/v1/causal/generate-counterfactuals",
@@ -894,26 +1075,27 @@ class CausalEnhancedStrategy(BaseStrategy):
             )
             response.raise_for_status()
             result = response.json()
-            
+
             # Check if we got valid counterfactual data
             if not result or "counterfactuals" not in result or not result["counterfactuals"]:
                 logger.warning("No valid counterfactual data returned from API")
                 return None
-                
+
             # Extract counterfactual data for our scenario
             scenario_data = result["counterfactuals"].get(scenario_name)
             if not scenario_data:
                 logger.warning(f"No counterfactual data for scenario {scenario_name}")
                 return None
-                  # Convert JSON response to DataFrame
+
+            # Convert JSON response to DataFrame
             cf_data = pd.DataFrame(scenario_data)
             if "timestamp" in cf_data.columns:
                 cf_data["timestamp"] = pd.to_datetime(cf_data["timestamp"])
                 cf_data.set_index("timestamp", inplace=True)
-            
+
             logger.info(f"Successfully received counterfactual data with {len(cf_data)} rows")
             return cf_data
-            
+
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error during counterfactual generation: {e.response.status_code} - {e.response.text}")
             return None

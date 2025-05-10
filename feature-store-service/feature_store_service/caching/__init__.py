@@ -19,8 +19,8 @@ from .cache_key import CacheKey
 from .cache_metrics import CacheMetrics
 from .memory_cache import LRUCache
 from .disk_cache import DiskCache
-from .cache_manager import CacheManager
-from .cache_aware_indicator_service import CacheAwareIndicatorService
+from .enhanced_cache_manager import EnhancedCacheManager as CacheManager
+from .enhanced_cache_aware_indicator_service import EnhancedCacheAwareIndicatorService as CacheAwareIndicatorService
 from .config import CacheConfig
 
 __all__ = [

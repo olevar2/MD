@@ -19,10 +19,16 @@ from trading_gateway_service.simulation.market_simulator import (
     MarketDataSimulator,
     MarketRegime
 )
-from risk_management_service.risk_manager import RiskManager
-from risk_management_service.circuit_breaker import CircuitBreakerManager
-from risk_management_service.stress_testing import StressTestingEngine
-from risk_management_service.portfolio_risk import PortfolioRiskCalculator
+from trading_gateway_service.adapters.risk_adapters import RiskManagerAdapter
+from common_lib.simulation.interfaces import IRiskManager
+
+# Import for type hints only, not actual implementation
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from risk_management_service.risk_manager import RiskManager
+    from risk_management_service.circuit_breaker import CircuitBreakerManager
+    from risk_management_service.stress_testing import StressTestingEngine
+    from risk_management_service.portfolio_risk import PortfolioRiskCalculator
 from trading_gateway_service.monitoring.performance_monitoring import TradingGatewayMonitoring
 
 logger = logging.getLogger(__name__)
@@ -37,11 +43,11 @@ class TradingState(str, Enum):
 class PaperTradingSystem:
     """
     Integrated paper trading system with risk management.
-    
+
     Coordinates the interaction between the broker simulator,
     risk management service, and monitoring/alerting components.
     """
-    
+
     def __init__(
         self,
         initial_balance: float = 100000.0,
@@ -54,7 +60,7 @@ class PaperTradingSystem:
             base_dir=monitoring_config.get('base_dir', 'monitoring/trading_gateway')
             if monitoring_config else 'monitoring/trading_gateway'
         )
-        
+
         # Initialize risk parameters
         self.risk_params = risk_params or {
             'max_position_size': 10000.0,
@@ -62,29 +68,28 @@ class PaperTradingSystem:
             'max_drawdown': 0.20,
             'risk_per_trade': 0.02
         }
-        
+
         # Initialize components
         self.broker = SimulatedBroker(
             initial_balance=initial_balance,
             base_currency=base_currency
         )
-        
-        self.risk_manager = RiskManager(
-            initial_balance=initial_balance,
-            **self.risk_params
-        )
-        
-        self.circuit_breaker = CircuitBreakerManager()
+
+        # Use the adapter instead of direct dependency
+        self.risk_manager = RiskManagerAdapter()
+
+        # Circuit breaker functionality is now handled through the adapter
+        self.circuit_breaker = None
         self.market_simulator = MarketDataSimulator(
             symbols=["EUR/USD", "GBP/USD", "USD/JPY"]  # Add more as needed
         )
-        
+
         # Initialize monitoring
         self.monitoring_config = monitoring_config or {}
         self.state = TradingState.STOPPED
         self.last_health_check = datetime.utcnow()
         self.health_check_interval = timedelta(seconds=5)
-        
+
         # Statistics and metrics
         self.stats = {
             'orders_submitted': 0,
@@ -92,25 +97,25 @@ class PaperTradingSystem:
             'risk_checks_performed': 0,
             'circuit_breaker_triggers': 0
         }
-        
+
     async def start(self) -> None:
         """Start the paper trading system."""
         if self.state != TradingState.STOPPED:
             raise RuntimeError("System is already running")
-            
+
         self.state = TradingState.ACTIVE
-        
+
         # Start background tasks
         asyncio.create_task(self._market_data_loop())
         asyncio.create_task(self._health_check_loop())
-        
+
         logger.info("Paper trading system started")
-        
+
     async def stop(self) -> None:
         """Stop the paper trading system."""
         self.state = TradingState.STOPPED
         logger.info("Paper trading system stopped")
-        
+
     async def submit_order(
         self,
         symbol: str,
@@ -125,24 +130,25 @@ class PaperTradingSystem:
         @self.monitoring.track_order_submission
         async def _submit_order():
             self.stats['orders_submitted'] += 1
-            
+
             # Check system state
             if self.state != TradingState.ACTIVE:
                 return {
                     'success': False,
                     'error': f"System is in {self.state} state"
                 }
-                
-            # Check circuit breakers
-            active_breakers = self.circuit_breaker.get_active_circuit_breakers()
+
+            # Check risk limits (which include circuit breaker functionality)
+            risk_limits = self.risk_manager.check_risk_limits()
+            active_breakers = [limit for limit in risk_limits if limit.get('severity') == 'high']
             if active_breakers:
                 self.stats['orders_rejected'] += 1
                 return {
                     'success': False,
-                    'error': "Circuit breaker active",
+                    'error': "Risk limit breached",
                     'details': active_breakers
                 }
-            
+
             # Perform risk check with monitoring
             @self.monitoring.track_risk_check
             async def _check_risk():
@@ -153,7 +159,7 @@ class PaperTradingSystem:
                     size=size,
                     current_price=self.broker.get_current_price(symbol)
                 )
-            
+
             risk_result = await _check_risk()
             if not risk_result['approved']:
                 self.stats['orders_rejected'] += 1
@@ -162,7 +168,7 @@ class PaperTradingSystem:
                     'error': "Risk check failed",
                     'details': risk_result['reason']
                 }
-            
+
             # Submit to broker
             order_id = await self.broker.submit_order(
                 symbol=symbol,
@@ -173,12 +179,12 @@ class PaperTradingSystem:
                 stop_loss=stop_loss,
                 take_profit=take_profit
             )
-            
+
             return {
                 'success': True,
                 'order_id': order_id
             }
-            
+
         return await _submit_order()
 
     async def _market_data_loop(self):
@@ -196,7 +202,7 @@ class PaperTradingSystem:
                         volume=data['volume']
                     )
                 return market_data
-            
+
             await _process_market_data()
             await asyncio.sleep(0.1)  # Simulate 10Hz market data
 
@@ -206,20 +212,20 @@ class PaperTradingSystem:
             try:
                 # Get performance metrics
                 health_status = self.monitoring.get_health_status()
-                
+
                 # Log any issues
                 if not health_status['healthy']:
                     for issue in health_status['issues']:
                         logger.warning(f"Health check issue: {issue}")
-                        
+
                 # Update system state if necessary
                 if len(health_status['issues']) > 3:  # Multiple critical issues
                     self.state = TradingState.ERROR
                     logger.error("System entering ERROR state due to multiple health issues")
-                
+
                 self.last_health_check = datetime.utcnow()
                 await asyncio.sleep(5)  # Check every 5 seconds
-                
+
             except Exception as e:
                 logger.error(f"Health check error: {e}")
                 await asyncio.sleep(30)  # Back off on error
@@ -233,13 +239,13 @@ class PaperTradingSystem:
             for pos in self.broker.positions.values()
             if pos.symbol == symbol
         }
-        
+
         # Update unrealized P&L
         for position in self.broker.positions.values():
             if position.symbol in current_prices:
                 pnl = position.calculate_pnl(current_prices[position.symbol])
                 # Update risk manager with position P&L
-                
+
         # Calculate portfolio metrics
         metrics = {
             'equity': self.broker.equity,
@@ -249,34 +255,32 @@ class PaperTradingSystem:
                 for pos in self.broker.positions.values()
             )
         }
-        
+
         # Update drawdown
         peak_equity = max(
             self.risk_manager.peak_balance,
             metrics['equity']
         )
         metrics['drawdown'] = (peak_equity - metrics['equity']) / peak_equity
-        
+
         # Store metrics
         self.risk_manager.metrics_history.append(metrics)
-        
+
     def _check_circuit_breakers(self) -> None:
         """Check and update circuit breaker status."""
         if not self.risk_manager.metrics_history:
             return
-            
-        latest_metrics = self.risk_manager.metrics_history[-1]
-        
-        # Check circuit breakers
-        triggered = self.circuit_breaker.check_and_update(latest_metrics)
-        
-        if triggered:
+
+        # Check risk limits (which include circuit breaker functionality)
+        risk_limits = self.risk_manager.check_risk_limits()
+
+        if risk_limits:
             self.stats['circuit_breaker_triggers'] += 1
-            
-            if any(t['state'] == 'triggered' for t in triggered):
+
+            if any(limit.get('severity') == 'high' for limit in risk_limits):
                 self.state = TradingState.PAUSED
-                logger.warning("Circuit breaker triggered - Trading paused")
-                
+                logger.warning("Risk limit breached - Trading paused")
+
     def _check_system_health(self) -> None:
         """Perform system health checks."""
         # Check market data freshness
@@ -284,18 +288,18 @@ class PaperTradingSystem:
             data_age = datetime.utcnow() - self.market_simulator.last_update
             if data_age > timedelta(seconds=5):
                 logger.warning("Market data delay detected")
-                
+
         # Check broker simulator health
         account = self.broker.get_account_summary()
         if account['margin_level'] < 150:  # 150% margin level warning
             logger.warning("Low margin level detected")
-            
+
         # Check risk manager state
         if self.risk_manager.metrics_history:
             latest_metrics = self.risk_manager.metrics_history[-1]
             if latest_metrics['drawdown'] > self.risk_params['max_drawdown'] * 0.8:
                 logger.warning("Approaching max drawdown limit")
-                
+
     def _get_current_prices(self) -> Dict[str, Dict[str, float]]:
         """Get current market prices."""
         return {
@@ -305,7 +309,7 @@ class PaperTradingSystem:
             }
             for symbol, data in self.market_simulator.current_prices.items()
         }
-        
+
     def _update_risk_manager(self, order_result: Dict[str, Any]) -> None:
         """Update risk manager after order execution."""
         # Update position tracking
@@ -313,7 +317,7 @@ class PaperTradingSystem:
             for execution in order_result['executions']:
                 # Update risk manager position tracking
                 pass  # Implement based on risk manager API
-                
+
     def get_system_status(self) -> Dict[str, Any]:
         """Get current system status and statistics."""
         return {

@@ -11,7 +11,7 @@ import asyncio
 from datetime import datetime
 import pandas as pd
 
-from analysis_engine.services.multi_asset_service import MultiAssetService
+from analysis_engine.adapters.multi_asset_adapter import MultiAssetServiceAdapter
 from analysis_engine.analysis.basic_ta.technical_indicators import TechnicalIndicatorAnalyzer
 from analysis_engine.analysis.advanced_ta.pattern_recognition import PatternRecognitionAnalyzer
 from analysis_engine.analysis.advanced_ta.multi_timeframe import MultiTimeframeAnalyzer
@@ -47,8 +47,8 @@ class AnalysisIntegrationService:
     Central service for integrating signals from all analysis components
     across different asset classes
     """
-    
-    def __init__(self, multi_asset_service: Optional[MultiAssetService] = None):
+
+    def __init__(self, multi_asset_service: Optional[MultiAssetServiceAdapter] = None):
         """Initializes the AnalysisIntegrationService.
 
         Args:
@@ -57,13 +57,13 @@ class AnalysisIntegrationService:
         """
         """
         Initialize the integration service
-        
+
         Args:
             multi_asset_service: Service for asset-specific operations
         """
         self.logger = logging.getLogger(__name__)
-        self.multi_asset_service = multi_asset_service or MultiAssetService()
-        
+        self.multi_asset_service = multi_asset_service or MultiAssetServiceAdapter()
+
         # Initialize component analyzers
         self.technical_analyzer = TechnicalIndicatorAnalyzer()
         self.pattern_analyzer = PatternRecognitionAnalyzer()
@@ -71,9 +71,9 @@ class AnalysisIntegrationService:
         self.ml_integrator = MLPredictionIntegrator()
         self.sentiment_analyzer = SentimentAnalyzer()
         self.market_regime_analyzer = MarketRegimeAnalyzer()
-        
-    async def analyze_asset(self, 
-                     symbol: str, 
+
+    async def analyze_asset(self,
+                     symbol: str,
                      market_data: Dict[str, MarketData],
                      include_components: Optional[List[str]] = None) -> Dict[str, Any]:
         """Performs comprehensive analysis of an asset using relevant components.
@@ -97,12 +97,12 @@ class AnalysisIntegrationService:
         """
         """
         Perform comprehensive analysis of an asset using all relevant components
-        
+
         Args:
             symbol: Asset symbol to analyze
             market_data: Dictionary mapping timeframes to market data
             include_components: List of component names to include (None for all)
-            
+
         Returns:
             Dictionary with integrated analysis results
         """
@@ -111,13 +111,13 @@ class AnalysisIntegrationService:
         if not asset_info:
             self.logger.warning(f"Asset info not found for {symbol}")
             return {"error": f"Asset not found: {symbol}"}
-        
+
         asset_class = asset_info.get("asset_class", "forex")
         analysis_params = self.multi_asset_service.get_analysis_parameters(symbol)
-        
+
         # Determine which components to run based on asset class and include_components
         components_to_run = self._get_components_for_asset(asset_class, include_components)
-        
+
         # Run all analysis components in parallel for efficiency
         tasks = []
         for component in components_to_run:
@@ -133,21 +133,21 @@ class AnalysisIntegrationService:
                 tasks.append(self._run_sentiment_analysis(symbol, analysis_params))
             elif component == "market_regime":
                 tasks.append(self._run_market_regime_detection(symbol, market_data, analysis_params))
-        
+
         # Wait for all tasks to complete
         if tasks:
             results = await asyncio.gather(*tasks, return_exceptions=True)
         else:
             results = []
-        
+
         # Process and combine results
         integrated_results = self._integrate_results(symbol, results, asset_class)
-        
+
         # Add asset-specific adaptations
         integrated_results["asset_specific"] = self._apply_asset_specific_adjustments(
             integrated_results, asset_class, analysis_params
         )
-        
+
         # Add metadata
         integrated_results["metadata"] = {
             "timestamp": datetime.now().isoformat(),
@@ -155,11 +155,11 @@ class AnalysisIntegrationService:
             "asset_class": asset_class,
             "components_included": components_to_run
         }
-        
+
         return integrated_results
-    
-    def _get_components_for_asset(self, 
-                                 asset_class: str, 
+
+    def _get_components_for_asset(self,
+                                 asset_class: str,
                                  include_components: Optional[List[str]] = None) -> List[str]:
         """Determines which analysis components are suitable for a given asset class.
 
@@ -176,24 +176,24 @@ class AnalysisIntegrationService:
         """
         """
         Determine which analysis components to run based on asset class
-        
+
         Args:
             asset_class: The asset class (forex, crypto, stocks, etc)
             include_components: Explicitly requested components
-            
+
         Returns:
             List of component names to run
         """
         # All available components
         all_components = [
-            "technical", "pattern", "multi_timeframe", 
+            "technical", "pattern", "multi_timeframe",
             "ml_prediction", "sentiment", "market_regime"
         ]
-        
+
         # If specific components requested, use those
         if include_components:
             return [c for c in include_components if c in all_components]
-        
+
         # Otherwise, select based on asset class
         if asset_class == AssetClass.FOREX:
             # For forex, include all components
@@ -210,9 +210,9 @@ class AnalysisIntegrationService:
         else:
             # Default to basic components
             return ["technical", "pattern", "multi_timeframe"]
-    
-    async def _run_technical_analysis(self, 
-                               symbol: str, 
+
+    async def _run_technical_analysis(self,
+                               symbol: str,
                                market_data: Dict[str, MarketData],
                                params: Dict[str, Any]) -> Dict[str, Any]:
         """Runs the technical analysis component for the asset.
@@ -234,15 +234,15 @@ class AnalysisIntegrationService:
             primary_tf = params.get("primary_timeframe", "1h")
             if primary_tf not in market_data:
                 return {"error": f"Missing data for primary timeframe: {primary_tf}"}
-                
+
             df = market_data[primary_tf].to_dataframe()
-            
+
             # Normalize data for the asset type
             df = self.multi_asset_service.normalize_data(df, symbol)
-            
+
             # Run analysis with appropriate precision
             result = self.technical_analyzer.analyze(df, precision=params.get("pattern_precision", 5))
-            
+
             return {
                 "component": "technical",
                 "result": result.result_data if isinstance(result, AnalysisResult) else result,
@@ -255,9 +255,9 @@ class AnalysisIntegrationService:
                 "error": str(e),
                 "is_valid": False
             }
-    
-    async def _run_pattern_analysis(self, 
-                             symbol: str, 
+
+    async def _run_pattern_analysis(self,
+                             symbol: str,
                              market_data: Dict[str, MarketData],
                              params: Dict[str, Any]) -> Dict[str, Any]:
         """Runs the pattern recognition analysis component.
@@ -279,22 +279,22 @@ class AnalysisIntegrationService:
             primary_tf = params.get("primary_timeframe", "1h")
             if primary_tf not in market_data:
                 return {"error": f"Missing data for primary timeframe: {primary_tf}"}
-                
+
             df = market_data[primary_tf].to_dataframe()
-            
+
             # Normalize data for the asset type
             df = self.multi_asset_service.normalize_data(df, symbol)
-            
+
             # Run pattern analysis with asset-specific parameters
             confidence_threshold = params.get("pattern_confidence_threshold", 0.65)
             max_patterns = params.get("max_patterns_per_analysis", 5)
-            
+
             result = self.pattern_analyzer.analyze(
-                df, 
+                df,
                 confidence_threshold=confidence_threshold,
                 max_patterns=max_patterns
             )
-            
+
             return {
                 "component": "pattern",
                 "result": result.result_data if isinstance(result, AnalysisResult) else result,
@@ -307,9 +307,9 @@ class AnalysisIntegrationService:
                 "error": str(e),
                 "is_valid": False
             }
-    
-    async def _run_mtf_analysis(self, 
-                         symbol: str, 
+
+    async def _run_mtf_analysis(self,
+                         symbol: str,
                          market_data: Dict[str, MarketData],
                          params: Dict[str, Any]) -> Dict[str, Any]:
         """Runs multi-timeframe analysis for the given asset.
@@ -347,7 +347,7 @@ class AnalysisIntegrationService:
             # Configure MTF analyzer with asset-specific parameters
             timeframes = params.get("mtf_timeframes", ["5m", "15m", "1h", "4h", "1d"])
             primary_tf = params.get("primary_timeframe", "1h")
-            
+
             # Make sure we have all required timeframes
             missing_timeframes = [tf for tf in timeframes if tf not in market_data]
             if missing_timeframes:
@@ -356,7 +356,7 @@ class AnalysisIntegrationService:
                     "error": f"Missing data for timeframes: {missing_timeframes}",
                     "is_valid": False
                 }
-                
+
             # Run MTF analysis
             mtf_params = {
                 "timeframes": timeframes,
@@ -364,9 +364,9 @@ class AnalysisIntegrationService:
                 "indicators": params.get("mtf_indicators", ["rsi", "macd", "ma"]),
                 "ma_periods": params.get("ma_periods", [9, 21, 50, 200])
             }
-            
+
             result = self.multi_timeframe_analyzer.analyze_with_parameters(market_data, mtf_params)
-            
+
             return {
                 "component": "multi_timeframe",
                 "result": result.result_data if isinstance(result, AnalysisResult) else result,
@@ -375,13 +375,13 @@ class AnalysisIntegrationService:
         except Exception as e:
             self.logger.error(f"Error in multi-timeframe analysis for {symbol}: {str(e)}")
             return {
-                "component": "multi_timeframe", 
+                "component": "multi_timeframe",
                 "error": str(e),
                 "is_valid": False
             }
-    
-    async def _run_ml_prediction(self, 
-                          symbol: str, 
+
+    async def _run_ml_prediction(self,
+                          symbol: str,
                           market_data: Dict[str, MarketData],
                           params: Dict[str, Any]) -> Dict[str, Any]:
         """Runs machine learning predictions for the given asset.
@@ -415,17 +415,17 @@ class AnalysisIntegrationService:
         try:
             # Get prediction windows from parameters
             prediction_horizons = params.get(
-                "prediction_horizons", 
+                "prediction_horizons",
                 ["1h", "4h", "1d"]  # Default horizons
             )
-            
+
             # Run prediction with asset-specific configuration
             result = await self.ml_integrator.get_predictions(
-                symbol, 
+                symbol,
                 market_data,
                 prediction_horizons=prediction_horizons
             )
-            
+
             return {
                 "component": "ml_prediction",
                 "result": result,
@@ -438,9 +438,9 @@ class AnalysisIntegrationService:
                 "error": str(e),
                 "is_valid": False
             }
-    
-    async def _run_sentiment_analysis(self, 
-                               symbol: str, 
+
+    async def _run_sentiment_analysis(self,
+                               symbol: str,
                                params: Dict[str, Any]) -> Dict[str, Any]:
         """Runs sentiment analysis for the given asset.
 
@@ -472,14 +472,14 @@ class AnalysisIntegrationService:
             # Configure sentiment sources based on asset class
             sources = params.get("sentiment_sources", ["news", "social", "economic"])
             lookback_hours = params.get("sentiment_lookback_hours", 24)
-            
+
             # Run sentiment analysis
             sentiment_results = await self.sentiment_analyzer.get_sentiment(
-                symbol, 
+                symbol,
                 sources=sources,
                 lookback_hours=lookback_hours
             )
-            
+
             return {
                 "component": "sentiment",
                 "result": sentiment_results,
@@ -492,9 +492,9 @@ class AnalysisIntegrationService:
                 "error": str(e),
                 "is_valid": False
             }
-    
-    async def _run_market_regime_analysis(self, 
-                                    symbol: str, 
+
+    async def _run_market_regime_analysis(self,
+                                    symbol: str,
                                     market_data: Dict[str, MarketData],
                                     params: Dict[str, Any]) -> Dict[str, Any]:
         """Runs market regime detection for the given asset.
@@ -536,27 +536,51 @@ class AnalysisIntegrationService:
                     "error": f"Missing data for primary timeframe: {primary_tf}",
                     "is_valid": False
                 }
-                
+
             df = market_data[primary_tf].to_dataframe()
-            
+
             # Normalize data for the asset type
             df = self.multi_asset_service.normalize_data(df, symbol)
-            
+
             # Get asset-specific regime thresholds
             volatility_threshold = params.get("regime_volatility_threshold", 1.5)
             trend_strength_threshold = params.get("regime_trend_strength_threshold", 25)
-            
-            # Run regime detection with asset-specific parameters
-            result = self.market_regime_analyzer.detect_regime(
-                df,
-                volatility_threshold=volatility_threshold,
-                trend_strength_threshold=trend_strength_threshold
-            )
-            
+
+            # Configure the analyzer with asset-specific parameters
+            config = {
+                'detector': {
+                    'volatility_threshold': {
+                        'high': volatility_threshold
+                    }
+                },
+                'classifier': {
+                    'trend_threshold': trend_strength_threshold / 100.0  # Convert from percentage to 0-1 scale
+                }
+            }
+
+            # Create analyzer with custom configuration if needed
+            analyzer = self.market_regime_analyzer
+            if config:
+                analyzer = MarketRegimeAnalyzer(config)
+
+            # Run regime detection
+            classification = analyzer.analyze(df)
+
+            # Convert to the expected result format
+            result = {
+                "regime": {
+                    "trend": self._convert_regime_to_trend(classification.regime),
+                    "volatility": self._convert_volatility_level(classification.volatility)
+                },
+                "confidence": classification.confidence,
+                "direction": classification.direction.name.lower(),
+                "timestamp": classification.timestamp.isoformat()
+            }
+
             return {
                 "component": "market_regime",
                 "result": result,
-                "is_valid": True if result else False
+                "is_valid": True
             }
         except Exception as e:
             self.logger.error(f"Error in market regime analysis for {symbol}: {str(e)}")
@@ -565,19 +589,53 @@ class AnalysisIntegrationService:
                 "error": str(e),
                 "is_valid": False
             }
-    
-    def _integrate_results(self, 
-                          symbol: str, 
+
+    def _convert_regime_to_trend(self, regime_type):
+        """Convert RegimeType to trend string for backward compatibility."""
+        if regime_type.name.startswith('TRENDING_BULLISH'):
+            return "strong_uptrend"
+        elif regime_type.name.startswith('TRENDING_BEARISH'):
+            return "strong_downtrend"
+        elif regime_type.name.startswith('RANGING_BULLISH'):
+            return "uptrend"
+        elif regime_type.name.startswith('RANGING_BEARISH'):
+            return "downtrend"
+        elif regime_type.name.startswith('RANGING_NEUTRAL'):
+            return "ranging"
+        elif regime_type.name.startswith('VOLATILE_BULLISH'):
+            return "volatile_uptrend"
+        elif regime_type.name.startswith('VOLATILE_BEARISH'):
+            return "volatile_downtrend"
+        elif regime_type.name.startswith('VOLATILE_NEUTRAL'):
+            return "volatile_ranging"
+        else:
+            return "undefined"
+
+    def _convert_volatility_level(self, volatility_level):
+        """Convert VolatilityLevel to volatility string for backward compatibility."""
+        if volatility_level.name == 'LOW':
+            return "low"
+        elif volatility_level.name == 'MEDIUM':
+            return "medium"
+        elif volatility_level.name == 'HIGH':
+            return "high"
+        elif volatility_level.name == 'EXTREME':
+            return "very_high"
+        else:
+            return "medium"
+
+    def _integrate_results(self,
+                          symbol: str,
                           component_results: List[Dict[str, Any]],
                           asset_class: str) -> Dict[str, Any]:
         """
         Integrate results from different analysis components
-        
+
         Args:
             symbol: Asset symbol
             component_results: Results from individual components
             asset_class: Asset class for asset-specific integration
-            
+
         Returns:
             Dictionary with integrated analysis
         """
@@ -595,34 +653,34 @@ class AnalysisIntegrationService:
             "overall_signal": None,
             "overall_confidence": 0.0
         }
-        
+
         # Process each component result
         for result in component_results:
             if isinstance(result, Exception):
                 self.logger.warning(f"Exception in analysis component: {str(result)}")
                 continue
-                
+
             component_name = result.get("component")
             if not component_name:
                 continue
-                
+
             # Add component result to integrated results
             integrated["components"][component_name] = result.get("result", {})
-            
+
             # Extract signals from component
             self._extract_signals_from_component(integrated, component_name, result, asset_class)
-        
+
         # Calculate overall signal and confidence
         if integrated["signals"]["bullish"] or integrated["signals"]["bearish"]:
             integrated["overall_signal"], integrated["overall_confidence"] = self._calculate_overall_signal(integrated)
         else:
             integrated["overall_signal"] = "neutral"
             integrated["overall_confidence"] = 0.5
-            
+
         return integrated
-    
-    def _extract_signals_from_component(self, 
-                                       integrated: Dict[str, Any], 
+
+    def _extract_signals_from_component(self,
+                                       integrated: Dict[str, Any],
                                        component_name: str,
                                        result: Dict[str, Any],
                                        asset_class: str):
@@ -643,9 +701,9 @@ class AnalysisIntegrationService:
         """
         if "error" in result or not result.get("is_valid", False):
             return
-            
+
         component_result = result.get("result", {})
-        
+
         # Extract signals based on component type
         if component_name == "technical":
             self._extract_technical_signals(integrated, component_result, asset_class)
@@ -659,8 +717,8 @@ class AnalysisIntegrationService:
             self._extract_sentiment_signals(integrated, component_result, asset_class)
         elif component_name == "market_regime":
             self._extract_regime_signals(integrated, component_result, asset_class)
-    
-    def _extract_technical_signals(self, 
+
+    def _extract_technical_signals(self,
                                   integrated: Dict[str, Any],
                                   technical_result: Dict[str, Any],
                                   asset_class: str):
@@ -682,7 +740,7 @@ class AnalysisIntegrationService:
         if "rsi" in technical_result:
             rsi = technical_result["rsi"]
             confidence = min(abs(rsi - 50) / 30, 1.0)  # Scale confidence by distance from neutral
-            
+
             if rsi > 70:  # Overbought
                 integrated["signals"]["bearish"].append({
                     "source": "technical.rsi",
@@ -699,17 +757,17 @@ class AnalysisIntegrationService:
                     "confidence": confidence
                 })
                 integrated["confidence_scores"]["rsi_bullish"] = confidence
-        
+
         # Extract MACD signals
         if "macd" in technical_result:
             macd = technical_result["macd"]
             if "histogram" in macd and "histogram_direction" in macd:
                 hist = macd["histogram"]
                 direction = macd["histogram_direction"]
-                
+
                 # Scale confidence by histogram size
                 confidence = min(abs(hist) * 20, 1.0)
-                
+
                 if hist > 0 and direction > 0:  # Positive and increasing
                     integrated["signals"]["bullish"].append({
                         "source": "technical.macd",
@@ -726,10 +784,10 @@ class AnalysisIntegrationService:
                         "confidence": confidence
                     })
                     integrated["confidence_scores"]["macd_bearish"] = confidence
-        
+
         # More technical indicators can be added here
-    
-    def _extract_pattern_signals(self, 
+
+    def _extract_pattern_signals(self,
                                integrated: Dict[str, Any],
                                pattern_result: Dict[str, Any],
                                asset_class: str):
@@ -747,15 +805,15 @@ class AnalysisIntegrationService:
         """
         if "patterns" not in pattern_result:
             return
-            
+
         patterns = pattern_result["patterns"]
         for pattern in patterns:
             pattern_type = pattern.get("type")
             confidence = pattern.get("confidence", 0.5)
-            
+
             if not pattern_type:
                 continue
-                
+
             if pattern.get("direction") == "bullish":
                 integrated["signals"]["bullish"].append({
                     "source": f"pattern.{pattern_type}",
@@ -764,7 +822,7 @@ class AnalysisIntegrationService:
                     "confidence": confidence
                 })
                 integrated["confidence_scores"][f"pattern_{pattern_type}_bullish"] = confidence
-                
+
             elif pattern.get("direction") == "bearish":
                 integrated["signals"]["bearish"].append({
                     "source": f"pattern.{pattern_type}",
@@ -773,8 +831,8 @@ class AnalysisIntegrationService:
                     "confidence": confidence
                 })
                 integrated["confidence_scores"][f"pattern_{pattern_type}_bearish"] = confidence
-    
-    def _extract_mtf_signals(self, 
+
+    def _extract_mtf_signals(self,
                            integrated: Dict[str, Any],
                            mtf_result: Dict[str, Any],
                            asset_class: str):
@@ -823,7 +881,7 @@ class AnalysisIntegrationService:
                     "confidence": 0.7
                 })
                 integrated["confidence_scores"]["mtf_bearish"] = 0.7
-        
+
         # Check for confirmation scores
         if "signal_confirmations" in mtf_result:
             confirmations = mtf_result["signal_confirmations"]
@@ -841,8 +899,8 @@ class AnalysisIntegrationService:
                     "confidence": confirmations.get("bearish_confirmation")
                 })
                 integrated["confidence_scores"]["mtf_confirmation_bearish"] = confirmations.get("bearish_confirmation")
-    
-    def _extract_ml_signals(self, 
+
+    def _extract_ml_signals(self,
                           integrated: Dict[str, Any],
                           ml_result: Dict[str, Any],
                           asset_class: str):
@@ -862,25 +920,25 @@ class AnalysisIntegrationService:
         """
         # Get the right predictions based on asset class
         prediction_key = f"{asset_class}_predictions" if f"{asset_class}_predictions" in ml_result else "predictions"
-        
+
         if prediction_key not in ml_result:
             return
-            
+
         predictions = ml_result[prediction_key]
-        
+
         # Process direction predictions
         if "direction" in predictions:
             for horizon, pred in predictions["direction"].items():
                 if "probability" not in pred or "direction" not in pred:
                     continue
-                    
+
                 probability = pred["probability"]
                 direction = pred["direction"]
-                
+
                 # Only consider predictions with reasonable confidence
                 if probability < 0.55:
                     continue
-                
+
                 if direction == "up":
                     integrated["signals"]["bullish"].append({
                         "source": f"ml.direction.{horizon}",
@@ -897,13 +955,13 @@ class AnalysisIntegrationService:
                         "confidence": probability
                     })
                     integrated["confidence_scores"][f"ml_direction_{horizon}_bearish"] = probability
-        
+
         # Process volatility predictions
         if "volatility" in predictions:
             for horizon, pred in predictions["volatility"].items():
                 if "expected" not in pred:
                     continue
-                
+
                 expected_volatility = pred["expected"]
                 if "current" in pred:
                     current_volatility = pred["current"]
@@ -915,8 +973,8 @@ class AnalysisIntegrationService:
                             "factor": expected_volatility / current_volatility,
                             "confidence": min(expected_volatility / current_volatility - 1, 1.0)
                         })
-    
-    def _extract_sentiment_signals(self, 
+
+    def _extract_sentiment_signals(self,
                                  integrated: Dict[str, Any],
                                  sentiment_result: Dict[str, Any],
                                  asset_class: str):
@@ -939,12 +997,12 @@ class AnalysisIntegrationService:
             overall = sentiment_result["overall"]
             score = overall.get("score", 0)
             volume = overall.get("volume", 0)
-            
+
             # Calculate confidence based on volume and score extremity
             base_confidence = min(volume / 100, 1.0) if volume > 0 else 0.5
             score_confidence = abs(score) / 100  # Assume score is -100 to +100
             confidence = base_confidence * score_confidence
-            
+
             if score > 30 and confidence > 0.4:  # Positive sentiment
                 integrated["signals"]["bullish"].append({
                     "source": "sentiment.overall",
@@ -961,14 +1019,14 @@ class AnalysisIntegrationService:
                     "confidence": confidence
                 })
                 integrated["confidence_scores"]["sentiment_bearish"] = confidence
-        
+
         # Extract news sentiment if available
         if "news" in sentiment_result:
             news = sentiment_result["news"]
             if "impact_score" in news and "direction" in news:
                 impact = news["impact_score"]
                 direction = news["direction"]
-                
+
                 if impact > 7:  # High impact news
                     if direction == "bullish":
                         integrated["signals"]["bullish"].append({
@@ -986,8 +1044,8 @@ class AnalysisIntegrationService:
                             "confidence": impact / 10
                         })
                         integrated["confidence_scores"]["news_bearish"] = impact / 10
-    
-    def _extract_regime_signals(self, 
+
+    def _extract_regime_signals(self,
                               integrated: Dict[str, Any],
                               regime_result: Dict[str, Any],
                               asset_class: str):
@@ -1007,46 +1065,54 @@ class AnalysisIntegrationService:
         """
         if "regime" not in regime_result:
             return
-            
+
         regime = regime_result["regime"]
-        
+        confidence = regime_result.get("confidence", 0.7)  # Default confidence if not provided
+
         # Extract trend regime
         if "trend" in regime:
             trend_regime = regime["trend"]
-            
-            if trend_regime == "strong_uptrend":
+
+            if trend_regime == "strong_uptrend" or trend_regime == "volatile_uptrend":
                 integrated["signals"]["bullish"].append({
                     "source": "regime.trend",
                     "type": "strong_uptrend",
-                    "confidence": 0.8
+                    "confidence": min(0.8, confidence + 0.1)
                 })
-                integrated["confidence_scores"]["regime_strong_bullish"] = 0.8
+                integrated["confidence_scores"]["regime_strong_bullish"] = min(0.8, confidence + 0.1)
             elif trend_regime == "uptrend":
                 integrated["signals"]["bullish"].append({
                     "source": "regime.trend",
                     "type": "uptrend",
-                    "confidence": 0.6
+                    "confidence": min(0.6, confidence)
                 })
-                integrated["confidence_scores"]["regime_bullish"] = 0.6
-            elif trend_regime == "strong_downtrend":
+                integrated["confidence_scores"]["regime_bullish"] = min(0.6, confidence)
+            elif trend_regime == "strong_downtrend" or trend_regime == "volatile_downtrend":
                 integrated["signals"]["bearish"].append({
                     "source": "regime.trend",
                     "type": "strong_downtrend",
-                    "confidence": 0.8
+                    "confidence": min(0.8, confidence + 0.1)
                 })
-                integrated["confidence_scores"]["regime_strong_bearish"] = 0.8
+                integrated["confidence_scores"]["regime_strong_bearish"] = min(0.8, confidence + 0.1)
             elif trend_regime == "downtrend":
                 integrated["signals"]["bearish"].append({
                     "source": "regime.trend",
                     "type": "downtrend",
-                    "confidence": 0.6
+                    "confidence": min(0.6, confidence)
                 })
-                integrated["confidence_scores"]["regime_bearish"] = 0.6
-        
+                integrated["confidence_scores"]["regime_bearish"] = min(0.6, confidence)
+            elif trend_regime == "volatile_ranging" or trend_regime == "ranging":
+                # For ranging markets, add a neutral signal
+                integrated["signals"]["neutral"].append({
+                    "source": "regime.trend",
+                    "type": "ranging",
+                    "confidence": min(0.7, confidence)
+                })
+
         # Extract volatility regime
         if "volatility" in regime:
             vol_regime = regime["volatility"]
-            
+
             if vol_regime == "high":
                 integrated["signals"]["neutral"].append({
                     "source": "regime.volatility",
@@ -1059,12 +1125,12 @@ class AnalysisIntegrationService:
                     "type": "extreme_volatility",
                     "confidence": 0.9
                 })
-                
+
                 # In extremely volatile markets, reduce confidence of direction signals
                 for signal_list in [integrated["signals"]["bullish"], integrated["signals"]["bearish"]]:
                     for signal in signal_list:
                         signal["confidence"] *= 0.7
-    
+
     def _calculate_overall_signal(self, integrated: Dict[str, Any]) -> tuple:
         """Calculates an overall signal (bullish/bearish/neutral) and confidence score.
 
@@ -1086,20 +1152,20 @@ class AnalysisIntegrationService:
         """
         bullish_signals = integrated["signals"]["bullish"]
         bearish_signals = integrated["signals"]["bearish"]
-        
+
         if not bullish_signals and not bearish_signals:
             return "neutral", 0.5
-        
+
         # Calculate weighted confidence for each direction
         bullish_confidence = sum(s["confidence"] for s in bullish_signals) if bullish_signals else 0
         bearish_confidence = sum(s["confidence"] for s in bearish_signals) if bearish_signals else 0
-        
+
         # Normalize by number of signals to avoid bias towards more signals
         if bullish_signals:
             bullish_confidence /= len(bullish_signals)
         if bearish_signals:
             bearish_confidence /= len(bearish_signals)
-            
+
         # Determine overall direction and confidence
         if bullish_confidence > bearish_confidence:
             signal = "bullish"
@@ -1118,10 +1184,10 @@ class AnalysisIntegrationService:
         else:
             signal = "neutral"
             confidence = 0.5
-            
+
         return signal, min(confidence, 1.0)
-    
-    def _apply_asset_specific_adjustments(self, 
+
+    def _apply_asset_specific_adjustments(self,
                                         integrated: Dict[str, Any],
                                         asset_class: AssetClass,
                                         params: Dict[str, Any]) -> Dict[str, Any]:
@@ -1145,11 +1211,11 @@ class AnalysisIntegrationService:
             A dictionary containing the calculated asset-specific adjustments and context.
         """
         adjustments = {}
-        
+
         if asset_class == AssetClass.FOREX:
             # For forex, adjust based on session activity
             adjustments["session_activity"] = self._calculate_forex_session_activity()
-            
+
             # Apply spread considerations
             if "overall_confidence" in integrated and integrated["overall_confidence"] < 0.6:
                 # Low confidence signals may not be worth the spread cost
@@ -1157,27 +1223,27 @@ class AnalysisIntegrationService:
                 adjustments["spread_note"] = "Signal confidence below spread viability threshold"
             else:
                 adjustments["spread_viability"] = True
-            
+
         elif asset_class == AssetClass.CRYPTO:
             # For crypto, consider Bitcoin dominance
             adjustments["bitcoin_dominance_impact"] = self._calculate_btc_dominance_impact(
                 integrated["symbol"]
             )
-            
+
             # Consider 24/7 market volatility patterns
             adjustments["volatility_adjustment"] = self._calculate_crypto_volatility_adjustment()
-            
+
         elif asset_class == AssetClass.STOCKS:
             # For stocks, consider market hours and pre/post market
             adjustments["market_hours_context"] = self._calculate_stock_market_hours_context()
-            
+
             # Consider index correlation
             adjustments["index_correlation"] = self._calculate_stock_index_correlation(
                 integrated["symbol"]
             )
-        
+
         return adjustments
-    
+
     def _calculate_forex_session_activity(self) -> Dict[str, Any]:
         """Calculates information about current Forex trading sessions.
 
@@ -1197,7 +1263,7 @@ class AnalysisIntegrationService:
             "session_overlap": False,  # Whether we're in a session overlap period
             "liquidity_rating": "medium"  # Current liquidity assessment
         }
-    
+
     def _calculate_btc_dominance_impact(self, symbol: str) -> Dict[str, Any]:
         """Calculates the potential impact of Bitcoin's market dominance on an altcoin.
 
@@ -1221,7 +1287,7 @@ class AnalysisIntegrationService:
                 "independence_score": 0.3  # How independent this crypto is from BTC
             }
         return {}
-    
+
     def _calculate_crypto_volatility_adjustment(self) -> Dict[str, Any]:
         """Calculates volatility adjustments specific to the crypto market.
 
@@ -1237,7 +1303,7 @@ class AnalysisIntegrationService:
             "hour_of_day_factor": 1.2,  # Volatility factor based on hour of day
             "weekend_effect": 0.9  # Weekend trading typically has lower volume
         }
-    
+
     def _calculate_stock_market_hours_context(self) -> Dict[str, Any]:
         """Determines the current context related to stock market trading hours.
 
@@ -1256,7 +1322,7 @@ class AnalysisIntegrationService:
             "time_to_close": 180,  # Minutes until market close
             "liquidity_factor": 1.0  # Liquidity factor based on time of day
         }
-    
+
     def _calculate_stock_index_correlation(self, symbol: str) -> Dict[str, Any]:
         """Calculates the correlation of a stock to major market indices.
 

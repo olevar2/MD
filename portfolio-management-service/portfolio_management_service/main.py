@@ -23,20 +23,8 @@ from core_foundations.events.kafka_event_bus import KafkaEventBus
 from core_foundations.events.event_schema import Event, EventType
 from core_foundations.models.schemas import HealthStatus, HealthCheckResult
 
-# Import common-lib exceptions
-from common_lib.exceptions import (
-    ForexTradingPlatformError,
-    ConfigurationError,
-    DataError,
-    DataValidationError,
-    DataFetchError,
-    DataStorageError,
-    ServiceError,
-    ServiceUnavailableError,
-    ServiceTimeoutError,
-    TradingError,
-    OrderExecutionError
-)
+# Import error handling package
+from portfolio_management_service.error import register_exception_handlers
 
 # Service-specific imports - Updated
 from portfolio_management_service.api.router import api_router
@@ -114,6 +102,9 @@ async def check_db_connection_async() -> HealthCheckResult:
         error_detail = f"Database connection failed: {type(e).__name__}"
         return HealthCheckResult(status="ERROR", details=error_detail)
 
+# Import middleware
+from portfolio_management_service.api.middleware import CorrelationIdMiddleware
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -122,6 +113,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add correlation ID middleware
+app.add_middleware(CorrelationIdMiddleware)
 
 # Add Prometheus metrics endpoint
 metrics_app = make_asgi_app()
@@ -154,168 +148,8 @@ add_health_check_to_app(
     dependencies=dependencies,  # Pass dependencies if needed by health checks
 )
 
-# Add exception handlers
-
-# Handle ForexTradingPlatformError (base exception for all platform errors)
-@app.exception_handler(ForexTradingPlatformError)
-async def forex_platform_exception_handler(request: Request, exc: ForexTradingPlatformError):
-    """Handle custom ForexTradingPlatformError exceptions."""
-    logger.error(
-        f"ForexTradingPlatformError: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=exc.to_dict(),
-    )
-
-# Handle DataValidationError
-@app.exception_handler(DataValidationError)
-async def data_validation_exception_handler(request: Request, exc: DataValidationError):
-    """Handle DataValidationError exceptions."""
-    logger.warning(
-        f"Data validation error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content=exc.to_dict(),
-    )
-
-# Handle DataFetchError
-@app.exception_handler(DataFetchError)
-async def data_fetch_exception_handler(request: Request, exc: DataFetchError):
-    """Handle DataFetchError exceptions."""
-    logger.error(
-        f"Data fetch error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=exc.to_dict(),
-    )
-
-# Handle DataStorageError
-@app.exception_handler(DataStorageError)
-async def data_storage_exception_handler(request: Request, exc: DataStorageError):
-    """Handle DataStorageError exceptions."""
-    logger.error(
-        f"Data storage error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=exc.to_dict(),
-    )
-
-# Handle TradingError
-@app.exception_handler(TradingError)
-async def trading_exception_handler(request: Request, exc: TradingError):
-    """Handle TradingError exceptions."""
-    logger.error(
-        f"Trading error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content=exc.to_dict(),
-    )
-
-# Handle ServiceError
-@app.exception_handler(ServiceError)
-async def service_exception_handler(request: Request, exc: ServiceError):
-    """Handle ServiceError exceptions."""
-    logger.error(
-        f"Service error: {exc.message}",
-        extra={
-            "error_code": exc.error_code,
-            "details": exc.details,
-            "path": request.url.path,
-            "method": request.method,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-        content=exc.to_dict(),
-    )
-
-# Handle RequestValidationError and ValidationError
-@app.exception_handler(RequestValidationError)
-@app.exception_handler(ValidationError)
-async def validation_exception_handler(request: Request, exc: Union[RequestValidationError, ValidationError]):
-    """Handle validation errors from FastAPI and Pydantic."""
-    # Extract errors from the exception
-    errors = exc.errors() if hasattr(exc, 'errors') else [{"msg": str(exc)}]
-
-    logger.warning(
-        f"Validation error for {request.method} {request.url.path}",
-        extra={
-            "errors": errors,
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={
-            "error_type": "ValidationError",
-            "message": "Request validation failed",
-            "details": errors,
-        },
-    )
-
-# Handle generic exceptions
-@app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
-    """Handle all other unhandled exceptions."""
-    logger.error(
-        f"Unhandled exception: {str(exc)}",
-        extra={
-            "path": request.url.path,
-            "method": request.method,
-            "traceback": traceback.format_exc(),
-        },
-    )
-
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error_type": "InternalServerError",
-            "message": "An unexpected error occurred",
-            # Only include exception details in debug mode
-            "details": str(exc) if logger.level <= logging.DEBUG else None,
-        },
-    )
+# Register standardized exception handlers
+register_exception_handlers(app)
 
 # Include API routes
 app.include_router(api_router, prefix="/api/v1")
@@ -331,6 +165,3 @@ if __name__ == "__main__":
         reload=True,  # Enable reload for development
         log_level="info"
     )
-
-# Remove old event handling logic if it was synchronous or needs rework
-# def handle_event(event: Event) -> None: ... (ensure this is async if needed)

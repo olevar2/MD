@@ -1,145 +1,113 @@
-# Configuration Migration Tools
+# Forex Trading Platform Analysis Tools
 
-This directory contains tools to help with the migration from deprecated configuration modules to the new consolidated module.
+This directory contains a set of focused code analysis tools for the Forex Trading Platform. Each tool is designed to analyze a specific aspect of the codebase and generate reports in the `tools/reports` directory.
 
-## Overview
+## Available Tools
 
-The Analysis Engine Service has consolidated its configuration system into a single module. These tools help with the migration process:
+### 1. Code Statistics Tool
 
-1. **Deprecation Report Generator**: Generates reports on usage of deprecated modules
-2. **Migration Tool**: Helps automate the migration of imports
-3. **Scheduled Report Generator**: Generates and distributes reports on a schedule
+Analyzes the codebase and generates statistics about file counts, lines of code, and identifies the largest files.
 
-## Deprecation Report Generator
-
-This tool generates reports on usage of deprecated modules. It helps track migration progress and identify areas that need attention.
-
-### Usage
-
+**Usage:**
 ```bash
-python tools/deprecation_report.py [--format {text,json,html,csv}] [--output FILE]
+python tools/code_statistics.py [--root DIR] [--format {json,markdown,both}]
 ```
 
-### Options
+**Features:**
+- Counts files by type/language
+- Counts lines of code by language
+- Identifies largest files in the project
+- Generates service-level statistics
 
-- `--format FORMAT`: Output format (text, json, html, csv) [default: text]
-- `--output FILE`: Output file [default: stdout]
+### 2. Dependency Analyzer
 
-### Example
+Analyzes dependencies between services in the codebase and generates a dependency graph.
 
+**Usage:**
 ```bash
-# Generate HTML report
-python tools/deprecation_report.py --format html --output deprecation_report.html
-
-# Generate CSV report
-python tools/deprecation_report.py --format csv --output deprecation_report.csv
+python tools/dependency_analyzer.py [--root DIR] [--format {json,markdown,dot,all}]
 ```
 
-## Migration Tool
+**Features:**
+- Identifies imports between services
+- Generates a dependency graph (DOT format)
+- Detects potential circular dependencies
+- Provides detailed import information
 
-This tool helps automate the migration of imports from deprecated configuration modules to the new consolidated module.
+### 3. API Endpoint Detector
 
-### Usage
+Finds API endpoints in FastAPI, Flask, Express, and NestJS services and generates API documentation.
 
+**Usage:**
 ```bash
-python tools/migrate_config_imports.py [--path PATH] [--dry-run] [--verbose]
+python tools/api_endpoint_detector.py [--root DIR] [--format {json,markdown,both}]
 ```
 
-### Options
+**Features:**
+- Detects API endpoints across multiple frameworks
+- Identifies HTTP methods and routes
+- Analyzes endpoint patterns and naming conventions
+- Generates API documentation by service
 
-- `--path PATH`: Path to search for Python files [default: .]
-- `--dry-run`: Show changes without applying them
-- `--verbose`: Show detailed information
+### 4. Error Handler Analyzer
 
-### Example
+Checks for consistent error handling patterns and identifies services missing proper error handling.
 
+**Usage:**
 ```bash
-# Dry run to see what would be changed
-python tools/migrate_config_imports.py --dry-run --verbose
-
-# Apply changes to a specific directory
-python tools/migrate_config_imports.py --path analysis_engine/api
+python tools/error_handler_analyzer.py [--root DIR] [--format {json,markdown,both}]
 ```
 
-## Scheduled Report Generator
+**Features:**
+- Identifies error handling patterns
+- Detects custom error classes
+- Calculates error handling coverage
+- Finds files missing error handling
 
-This tool generates deprecation reports on a schedule and sends them to the team. It can be run as a cron job or scheduled task.
+## Common Parameters
 
-### Usage
+All tools support the following parameters:
 
-```bash
-python tools/scheduled_deprecation_report.py [--email] [--slack] [--jira]
-```
+- `--root`: Root directory of the project (default: D:/MD/forex_trading_platform)
+- `--format`: Output format for the report (varies by tool)
 
-### Options
+## Reports
 
-- `--email`: Send report via email
-- `--slack`: Send report to Slack
-- `--jira`: Create or update Jira ticket with report
+All reports are saved to the `tools/reports` directory with the following naming convention:
 
-### Environment Variables
+- `{tool_name}_{timestamp}.{format}` - Timestamped reports
+- `{tool_name}_latest.{format}` - Latest version of each report
 
-The following environment variables are used by the scheduled report generator:
+## Example Workflow
 
-#### Email
+1. Generate code statistics:
+   ```bash
+   python tools/code_statistics.py
+   ```
 
-- `SMTP_SERVER`: SMTP server hostname [default: smtp.example.com]
-- `SMTP_PORT`: SMTP server port [default: 587]
-- `SMTP_USERNAME`: SMTP username
-- `SMTP_PASSWORD`: SMTP password
-- `EMAIL_SENDER`: Sender email address [default: noreply@example.com]
-- `EMAIL_RECIPIENTS`: Comma-separated list of recipient email addresses
+2. Analyze dependencies between services:
+   ```bash
+   python tools/dependency_analyzer.py
+   ```
 
-#### Slack
+3. Detect API endpoints:
+   ```bash
+   python tools/api_endpoint_detector.py
+   ```
 
-- `SLACK_WEBHOOK_URL`: Slack webhook URL
+4. Analyze error handling:
+   ```bash
+   python tools/error_handler_analyzer.py
+   ```
 
-#### Jira
+5. Review all reports in the `tools/reports` directory
 
-- `JIRA_URL`: Jira URL
-- `JIRA_TOKEN`: Jira API token
-- `JIRA_PROJECT`: Jira project key
-- `JIRA_ISSUE_TYPE`: Jira issue type [default: Task]
-- `JIRA_TICKET`: Existing Jira ticket ID (if updating)
+## Integration with Improvement Plan
 
-### Example
+These tools can be used as part of the Forex Trading Platform Improvement Plan to:
 
-```bash
-# Send report via email
-export EMAIL_RECIPIENTS="team@example.com"
-python tools/scheduled_deprecation_report.py --email
+1. Establish a baseline of the current architecture
+2. Identify areas for improvement
+3. Measure progress after implementing changes
 
-# Send report to Slack
-export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."
-python tools/scheduled_deprecation_report.py --slack
-
-# Update Jira ticket
-export JIRA_URL="https://jira.example.com"
-export JIRA_TOKEN="your-token"
-export JIRA_PROJECT="PLATFORM"
-export JIRA_TICKET="PLATFORM-123"
-python tools/scheduled_deprecation_report.py --jira
-```
-
-### Scheduling
-
-To run the report generator on a schedule, you can use cron (Linux/macOS) or Task Scheduler (Windows).
-
-#### Cron Example (Linux/macOS)
-
-```bash
-# Run every Monday at 9:00 AM
-0 9 * * 1 cd /path/to/project && python tools/scheduled_deprecation_report.py --email --slack
-```
-
-#### Task Scheduler Example (Windows)
-
-Create a batch file (e.g., `generate_report.bat`):
-
-```batch
-@echo off
-cd /d D:\path\to\project
-python tools\scheduled_deprecation_report.py --email --slack
-```
-
-Then schedule this batch file to run weekly using Task Scheduler.
+After making improvements, run the tools again and compare the new reports with the initial ones to measure progress.

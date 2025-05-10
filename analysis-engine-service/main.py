@@ -20,7 +20,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError as PydanticValidationError
-from prometheus_client import make_asgi_app
 
 # Core imports
 from analysis_engine.config import AnalysisEngineSettings as Settings, get_settings
@@ -75,8 +74,9 @@ from analysis_engine.core.errors import (
 from analysis_engine.core.logging import configure_logging, get_logger
 from analysis_engine.core.container import ServiceContainer
 from analysis_engine.api.routes import setup_routes
-from analysis_engine.api.health import setup_health_routes
+from analysis_engine.api.v1.standardized.health import setup_health_routes
 from analysis_engine.api.middleware import setup_middleware
+from analysis_engine.api.metrics_integration import setup_metrics
 from analysis_engine.core.memory_monitor import get_memory_monitor
 from analysis_engine.core.monitoring.async_performance_monitor import get_async_monitor
 from analysis_engine.monitoring.structured_logging import configure_structured_logging
@@ -226,9 +226,8 @@ def create_app() -> FastAPI:
     # Add custom middleware for metrics, logging, and request tracking
     setup_middleware(app)
 
-    # Add Prometheus metrics
-    metrics_app = make_asgi_app()
-    app.mount("/metrics", metrics_app)
+    # Set up standardized metrics
+    setup_metrics(app, service_name="analysis-engine-service")
 
     # Register exception handlers
 
@@ -239,17 +238,50 @@ def create_app() -> FastAPI:
     app.add_exception_handler(PydanticValidationError, pydantic_validation_exception_handler)
     app.add_exception_handler(RequestValidationError, fastapi_validation_exception_handler)
 
+    # Register analysis-specific exception handlers
+    from analysis_engine.core.exceptions_bridge import (
+        AnalysisError,
+        AnalyzerNotFoundError,
+        InsufficientDataError,
+        InvalidAnalysisParametersError,
+        AnalysisTimeoutError,
+        MarketRegimeError,
+        SignalQualityError,
+        ToolEffectivenessError,
+        NLPAnalysisError,
+        CorrelationAnalysisError,
+        ManipulationDetectionError
+    )
+
+    # All of these will be handled by the forex_platform_exception_handler
+    # but we register them explicitly for clarity and potential future customization
+    app.add_exception_handler(AnalysisError, forex_platform_exception_handler)
+    app.add_exception_handler(AnalyzerNotFoundError, forex_platform_exception_handler)
+    app.add_exception_handler(InsufficientDataError, forex_platform_exception_handler)
+    app.add_exception_handler(InvalidAnalysisParametersError, forex_platform_exception_handler)
+    app.add_exception_handler(AnalysisTimeoutError, forex_platform_exception_handler)
+    app.add_exception_handler(MarketRegimeError, forex_platform_exception_handler)
+    app.add_exception_handler(SignalQualityError, forex_platform_exception_handler)
+    app.add_exception_handler(ToolEffectivenessError, forex_platform_exception_handler)
+    app.add_exception_handler(NLPAnalysisError, forex_platform_exception_handler)
+    app.add_exception_handler(CorrelationAnalysisError, forex_platform_exception_handler)
+    app.add_exception_handler(ManipulationDetectionError, forex_platform_exception_handler)
+
     # Register generic exception handler as fallback
     app.add_exception_handler(Exception, generic_exception_handler)
 
-    # Setup routes
+    logger.info("Enhanced exception handlers registered")
+
+    # Setup routes (includes standardized health API endpoints)
     setup_routes(app)
 
     # Create service container for health checks
     service_container = ServiceContainer()
 
     # Setup health check routes
-    setup_health_routes(app, service_container)
+    setup_health_routes(app)
+
+    logger.info("API routes and health checks configured")
 
     # Store service container in app state
     app.state.service_container = service_container

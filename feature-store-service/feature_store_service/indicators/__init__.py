@@ -38,6 +38,20 @@ from feature_store_service.indicators.statistical_regression_indicators import (
     LinearRegressionIndicator,
     LinearRegressionChannel,
 )
+from feature_store_service.indicators.advanced_patterns import (
+    # Advanced Pattern Recognition
+    AdvancedPatternFacade,
+    RenkoPatternRecognizer,
+    IchimokuPatternRecognizer,
+    WyckoffPatternRecognizer,
+    HeikinAshiPatternRecognizer,
+    VSAPatternRecognizer,
+    MarketProfileAnalyzer,
+    PointAndFigureAnalyzer,
+    WolfeWaveDetector,
+    PitchforkAnalyzer,
+    DivergenceDetector,
+)
 
 __all__ = [
     "BaseIndicator",
@@ -64,4 +78,16 @@ __all__ = [
     "StandardDeviationIndicator",
     "LinearRegressionIndicator",
     "LinearRegressionChannel",
+    # Advanced Pattern Recognition
+    "AdvancedPatternFacade",
+    "RenkoPatternRecognizer",
+    "IchimokuPatternRecognizer",
+    "WyckoffPatternRecognizer",
+    "HeikinAshiPatternRecognizer",
+    "VSAPatternRecognizer",
+    "MarketProfileAnalyzer",
+    "PointAndFigureAnalyzer",
+    "WolfeWaveDetector",
+    "PitchforkAnalyzer",
+    "DivergenceDetector",
 ]

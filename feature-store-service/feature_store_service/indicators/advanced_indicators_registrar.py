@@ -64,6 +64,20 @@ from feature_store_service.indicators.statistical_regression_indicators import (
     LinearRegressionChannel,
     RSquaredIndicator # Added R-Squared
 )
+# Advanced Pattern Recognition
+from feature_store_service.indicators.advanced_patterns import (
+    AdvancedPatternFacade,
+    RenkoPatternRecognizer,
+    IchimokuPatternRecognizer,
+    WyckoffPatternRecognizer,
+    HeikinAshiPatternRecognizer,
+    VSAPatternRecognizer,
+    MarketProfileAnalyzer,
+    PointAndFigureAnalyzer,
+    WolfeWaveDetector,
+    PitchforkAnalyzer,
+    DivergenceDetector
+)
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -72,7 +86,7 @@ logger = logging.getLogger(__name__)
 def register_advanced_indicators(registry: IndicatorRegistry) -> None:
     \"\"\"
     Register all advanced technical indicators with the indicator registry.
-    
+
     Args:
         registry: The indicator registry instance
     \"\"\"
@@ -92,7 +106,7 @@ def register_advanced_indicators(registry: IndicatorRegistry) -> None:
     registry.register_indicator(ZLEMA)
     registry.register_indicator(ALMA)
     registry.register_indicator(JMA)
-    
+
     # Register Advanced Oscillators
     # registry.register_indicator(AwesomeOscillator)
     # registry.register_indicator(AcceleratorOscillator)
@@ -116,7 +130,7 @@ def register_advanced_indicators(registry: IndicatorRegistry) -> None:
     registry.register_indicator(FisherTransform)
     registry.register_indicator(CoppockCurve)
     registry.register_indicator(CMO)
-    
+
     # Register Volume Analysis Indicators
     # registry.register_indicator(VolumeProfile) # Omitted
     # registry.register_indicator(VWAPBands)
@@ -138,13 +152,13 @@ def register_advanced_indicators(registry: IndicatorRegistry) -> None:
     registry.register_indicator(RelativeVolume)
     registry.register_indicator(MoneyFlowIndex) # Added MFI
     # registry.register_indicator(VolumeDelta) # Omitted
-    
+
     # Register Advanced Volatility Indicators
     registry.register_indicator(DonchianChannels)
     registry.register_indicator(PriceEnvelopes)
     registry.register_indicator(VIXFix)
     registry.register_indicator(HistoricalVolatility)
-    
+
     # Register Advanced Price Indicators
     # registry.register_indicator(IchimokuCloud)
     # registry.register_indicator(HeikinAshi)
@@ -154,7 +168,7 @@ def register_advanced_indicators(registry: IndicatorRegistry) -> None:
     registry.register_indicator(HeikinAshi)
     registry.register_indicator(RenkoCharts)
     registry.register_indicator(PointAndFigure)
-    
+
     # Register Statistical and Regression Indicators
     # registry.register_indicator(StandardDeviationIndicator)
     # registry.register_indicator(LinearRegressionIndicator)
@@ -164,7 +178,20 @@ def register_advanced_indicators(registry: IndicatorRegistry) -> None:
     registry.register_indicator(LinearRegressionIndicator)
     registry.register_indicator(LinearRegressionChannel)
     registry.register_indicator(RSquaredIndicator) # Added R-Squared
-    
+
+    # Register Advanced Pattern Recognition
+    registry.register_indicator(AdvancedPatternFacade)
+    registry.register_indicator(RenkoPatternRecognizer)
+    registry.register_indicator(IchimokuPatternRecognizer)
+    registry.register_indicator(WyckoffPatternRecognizer)
+    registry.register_indicator(HeikinAshiPatternRecognizer)
+    registry.register_indicator(VSAPatternRecognizer)
+    registry.register_indicator(MarketProfileAnalyzer)
+    registry.register_indicator(PointAndFigureAnalyzer)
+    registry.register_indicator(WolfeWaveDetector)
+    registry.register_indicator(PitchforkAnalyzer)
+    registry.register_indicator(DivergenceDetector)
+
     # Register Analysis Engine Adapted Indicators
     # This part remains active as it depends on external code via the adapter
     register_analysis_engine_indicators(registry)
@@ -173,10 +200,10 @@ def register_advanced_indicators(registry: IndicatorRegistry) -> None:
 def register_analysis_engine_indicators(registry: IndicatorRegistry) -> None:
     """
     Register indicators from the Analysis Engine Service using adapters.
-    
+
     This function discovers and registers advanced indicators from the Analysis Engine,
     making them available in the Feature Store Service through adapter classes.
-    
+
     Args:
         registry: The indicator registry instance
     """
@@ -187,9 +214,9 @@ def register_analysis_engine_indicators(registry: IndicatorRegistry) -> None:
         if not advanced_indicators:
             logger.warning("No indicators found in Analysis Engine Service")
             return
-            
+
         logger.info(f"Found {len(advanced_indicators)} indicators in Analysis Engine Service")
-        
+
         # Map of indicator types to adapter configuration
         adapter_configs = {
             # Fibonacci indicators
@@ -198,45 +225,45 @@ def register_analysis_engine_indicators(registry: IndicatorRegistry) -> None:
             'FibonacciArcs': {'name_prefix': 'fib'},
             'FibonacciFans': {'name_prefix': 'fib'}, # Added
             'FibonacciTimeZones': {'name_prefix': 'fib'}, # Added
-            
+
             # Gann indicators
             'GannFan': {'name_prefix': 'gann'},
             'GannGrid': {'name_prefix': 'gann'},
             'GannSquare': {'name_prefix': 'gann'},
-            
+
             # Harmonic patterns
             'HarmonicPatternFinder': {'name_prefix': 'harmonic'},
-            
+
             # Elliott Wave
             'ElliottWaveAnalyzer': {'name_prefix': 'elliott'}, # Added
-            
+
             # Fractal Geometry
             'FractalIndicator': {'name_prefix': 'fractal'}, # Added
-            
+
             # Pivot Points
             'PivotPointCalculator': {'name_prefix': 'pivot'}, # Added
-            
+
             # Volume/Volatility
             'VolatilityAnalysis': {'name_prefix': 'volvol'}, # Added
-            
+
             # Confluence
             'ConfluenceDetector': {'name_prefix': 'confluence'}, # Added
-            
+
             # Market Regime
             'MarketRegimeDetector': {'name_prefix': 'regime'}, # Added
-            
+
             # Multi-Timeframe
             'MultiTimeframeAnalysis': {'name_prefix': 'mta'}, # Added
-            
+
             # Time Cycle
             'TimeCycleAnalysis': {'name_prefix': 'cycle'}, # Added
-            
+
             # Currency Correlation
             'CurrencyCorrelation': {'name_prefix': 'corr'}, # Added
-            
+
             # Add more configurations as needed...
         }
-        
+
         for indicator_name, indicator_class in advanced_indicators.items():
             if indicator_name in adapter_configs:
                 config = adapter_configs[indicator_name]
@@ -273,9 +300,9 @@ def register_analysis_engine_indicators(registry: IndicatorRegistry) -> None:
                 else:
                     # Default guess - might need refinement
                     module_name = module_name_snake
-                    
+
                 module_path = f"analysis_engine.analysis.advanced_ta.{module_name}"
-                
+
                 try:
                     # Create adapter with specific config
                     # We pass the class directly now since load_advanced_indicators returns it

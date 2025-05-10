@@ -7,6 +7,8 @@ from different components of the service.
 from fastapi import APIRouter
 
 from ml_integration_service.api.enhanced_routes import router as enhanced_router
+from ml_integration_service.api.v1.cache_api import router as cache_router
+from ml_integration_service.api.v1.dashboard_api import router as dashboard_router
 from ml_integration_service.services.optimization_service import OptimizationService
 from ml_integration_service.services.model_selection_service import ModelSelectionService
 
@@ -15,6 +17,12 @@ api_router = APIRouter()
 
 # Include enhanced routes
 api_router.include_router(enhanced_router)
+
+# Include cache routes
+api_router.include_router(cache_router)
+
+# Include dashboard routes
+api_router.include_router(dashboard_router)
 
 # Dependencies
 def get_optimization_service():

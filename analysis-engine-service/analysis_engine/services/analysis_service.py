@@ -11,6 +11,7 @@ import inspect
 import pkgutil
 import time
 import asyncio
+import traceback
 from datetime import datetime
 
 from analysis_engine.models.analysis_result import AnalysisResult
@@ -22,8 +23,21 @@ from analysis_engine.analysis.advanced_ta.currency_correlation import CurrencyCo
 from analysis_engine.analysis.advanced_ta.time_cycle import TimeCycleAnalyzer
 from analysis_engine.analysis.confluence_analyzer import ConfluenceAnalyzer
 from analysis_engine.repositories.tool_effectiveness_repository import ToolEffectivenessRepository
+from analysis_engine.core.exceptions_bridge import (
+    AnalysisError,
+    AnalyzerNotFoundError,
+    InsufficientDataError,
+    InvalidAnalysisParametersError,
+    AnalysisTimeoutError,
+    MarketRegimeError,
+    generate_correlation_id,
+    async_with_exception_handling,
+    with_exception_handling
+)
+from analysis_engine.core.logging import get_logger
 
-logger = logging.getLogger(__name__)
+# Use enhanced logger
+logger = get_logger(__name__)
 
 class AnalysisService:
     """Service for managing and executing technical analysis components.
@@ -165,7 +179,7 @@ class AnalysisService:
 
         logger.info(f"Initialized {len(self.analyzers)} core analyzers")
 
-    async def get_analyzer(self, name: str, parameters: Optional[Dict[str, Any]] = None) -> Optional[BaseAnalyzer]:
+    async def get_analyzer(self, name: str, parameters: Optional[Dict[str, Any]] = None) -> BaseAnalyzer:
         """Retrieves or initializes an analyzer instance by name.
 
         If the analyzer is already initialized, returns the existing instance.
@@ -178,7 +192,10 @@ class AnalysisService:
                 if it needs to be initialized.
 
         Returns:
-            The analyzer instance or None if not found or initialization fails.
+            The analyzer instance.
+
+        Raises:
+            AnalyzerNotFoundError: If the analyzer is not found.
         """
         """
         Get an analyzer instance by name
@@ -188,28 +205,65 @@ class AnalysisService:
             parameters: Optional parameters for the analyzer
 
         Returns:
-            Analyzer instance or None if not found
+            Analyzer instance
+
+        Raises:
+            AnalyzerNotFoundError: If the analyzer is not found
         """
         if not self._initialized:
             await self.initialize()
 
+        # Generate a correlation ID for this operation
+        correlation_id = generate_correlation_id()
+
+        # Check if analyzer is already initialized
         if name in self.analyzers:
             return self.analyzers[name]
 
+        # Check if analyzer class is registered
         if name in self.analyzer_classes:
-            analyzer_class = self.analyzer_classes[name]
-            analyzer = analyzer_class(
-                tool_effectiveness_repository=self.tool_effectiveness_repository,
-                parameters=parameters
-            )
-            self.analyzers[name] = analyzer
-            return analyzer
+            try:
+                analyzer_class = self.analyzer_classes[name]
+                analyzer = analyzer_class(
+                    tool_effectiveness_repository=self.tool_effectiveness_repository,
+                    parameters=parameters
+                )
+                self.analyzers[name] = analyzer
+                return analyzer
+            except Exception as e:
+                logger.error(f"Error initializing analyzer {name}: {str(e)}", exc_info=True)
+                raise AnalysisError(
+                    message=f"Failed to initialize analyzer '{name}'",
+                    error_code="ANALYZER_INITIALIZATION_ERROR",
+                    details={
+                        "analyzer_name": name,
+                        "parameters": parameters,
+                        "error": str(e)
+                    },
+                    correlation_id=correlation_id
+                )
 
-        return None
+        # Analyzer not found
+        available_analyzers = list(self.analyzers.keys()) + [
+            name for name in self.analyzer_classes.keys()
+            if name not in self.analyzers
+        ]
 
+        logger.warning(
+            f"Analyzer '{name}' not found. Available analyzers: {available_analyzers}",
+            extra={"correlation_id": correlation_id}
+        )
+
+        raise AnalyzerNotFoundError(
+            analyzer_name=name,
+            available_analyzers=available_analyzers,
+            correlation_id=correlation_id
+        )
+
+    @async_with_exception_handling
     async def run_analysis(
         self, analyzer_name: str, data: Union[MarketData, Dict[str, MarketData]]
-    ) -> Union[AnalysisResult, Dict[str, Any]]:
+    ) -> AnalysisResult:
         """Runs analysis using a specified analyzer.
 
         Retrieves the analyzer by name and executes its analysis logic
@@ -221,29 +275,188 @@ class AnalysisService:
                 or a dictionary for multi-timeframe analysis.
 
         Returns:
-            An AnalysisResult object containing the analysis output, or a
-            dictionary with an error message if the analyzer is not found.
+            An AnalysisResult object containing the analysis output.
+
+        Raises:
+            AnalyzerNotFoundError: If the analyzer is not found.
+            InsufficientDataError: If there is insufficient data for analysis.
+            AnalysisError: If an error occurs during analysis.
+            AnalysisTimeoutError: If the analysis times out.
+            InvalidAnalysisParametersError: If the analysis parameters are invalid.
         """
-        """
-        Run analysis using the specified analyzer
+        # Generate a correlation ID for this operation
+        correlation_id = generate_correlation_id()
 
-        Args:
-            analyzer_name: Name of the analyzer
-            data: Data to analyze (MarketData or Dict for multi-timeframe)
+        # Validate inputs
+        if not analyzer_name:
+            raise InvalidAnalysisParametersError(
+                message="Analyzer name cannot be empty",
+                error_code="EMPTY_ANALYZER_NAME",
+                details={"analyzer_name": analyzer_name},
+                correlation_id=correlation_id
+            )
 
-        Returns:
-            Analysis result
-        """
-        analyzer = await self.get_analyzer(analyzer_name)
+        if data is None:
+            raise InvalidAnalysisParametersError(
+                message="Data cannot be null",
+                error_code="NULL_DATA",
+                details={"analyzer_name": analyzer_name},
+                correlation_id=correlation_id
+            )
 
-        if not analyzer:
-            return {
-                "error": f"Analyzer {analyzer_name} not found",
-                "available_analyzers": list(self.analyzers.keys())
-            }
+        try:
+            # Get the analyzer (this will raise AnalyzerNotFoundError if not found)
+            analyzer = await self.get_analyzer(analyzer_name)
 
-        # Run the analysis with performance monitoring
-        return await analyzer.execute(data)
+            # Check if data is sufficient for single MarketData
+            if isinstance(data, MarketData):
+                if not hasattr(data, 'is_valid') or not callable(data.is_valid):
+                    logger.warning(
+                        f"MarketData object does not have is_valid method, cannot validate data for {analyzer_name}",
+                        extra={
+                            "correlation_id": correlation_id,
+                            "analyzer_name": analyzer_name,
+                            "data_type": type(data).__name__
+                        }
+                    )
+                elif not data.is_valid():
+                    symbol = getattr(data, "symbol", "unknown")
+                    timeframe = getattr(data, "timeframe", "unknown")
+                    available_points = len(data.close) if hasattr(data, "close") else 0
+
+                    raise InsufficientDataError(
+                        message=f"Insufficient data for {analyzer_name} analysis",
+                        symbol=symbol,
+                        timeframe=timeframe,
+                        available_points=available_points,
+                        required_points=getattr(analyzer, "min_data_points", "unknown"),
+                        correlation_id=correlation_id
+                    )
+
+            # Check if data is sufficient for multi-timeframe analysis
+            elif isinstance(data, dict):
+                if not data:
+                    raise InvalidAnalysisParametersError(
+                        message="Empty timeframe dictionary provided for analysis",
+                        error_code="EMPTY_TIMEFRAME_DICT",
+                        details={"analyzer_name": analyzer_name},
+                        correlation_id=correlation_id
+                    )
+
+                # Check each timeframe's data
+                invalid_timeframes = []
+                for timeframe, market_data in data.items():
+                    if not hasattr(market_data, 'is_valid') or not callable(market_data.is_valid):
+                        logger.warning(
+                            f"MarketData object for timeframe {timeframe} does not have is_valid method",
+                            extra={
+                                "correlation_id": correlation_id,
+                                "analyzer_name": analyzer_name,
+                                "timeframe": timeframe
+                            }
+                        )
+                        continue
+
+                    if not market_data.is_valid():
+                        symbol = getattr(market_data, "symbol", "unknown")
+                        available_points = len(market_data.close) if hasattr(market_data, "close") else 0
+
+                        invalid_timeframes.append({
+                            "timeframe": timeframe,
+                            "symbol": symbol,
+                            "available_points": available_points
+                        })
+
+                if invalid_timeframes:
+                    raise InsufficientDataError(
+                        message=f"Insufficient data for {analyzer_name} analysis in {len(invalid_timeframes)} timeframes",
+                        timeframes=invalid_timeframes,
+                        correlation_id=correlation_id
+                    )
+
+            # Run the analysis with performance monitoring
+            start_time = time.time()
+
+            try:
+                # Execute the analysis
+                result = await analyzer.execute(data)
+                execution_time = time.time() - start_time
+
+                # Log performance metrics
+                logger.debug(
+                    f"Analysis completed: {analyzer_name}",
+                    extra={
+                        "correlation_id": correlation_id,
+                        "analyzer_name": analyzer_name,
+                        "execution_time": execution_time,
+                        "is_valid": result.is_valid if hasattr(result, "is_valid") else True
+                    }
+                )
+
+                # Add correlation ID to result metadata if not already present
+                if result and hasattr(result, 'metadata') and 'correlation_id' not in result.metadata:
+                    result.metadata['correlation_id'] = correlation_id
+
+                return result
+
+            except asyncio.TimeoutError:
+                # Handle timeout specifically
+                symbol = getattr(data, "symbol", "unknown") if isinstance(data, MarketData) else "multiple"
+                timeframe = getattr(data, "timeframe", "unknown") if isinstance(data, MarketData) else "multiple"
+
+                raise AnalysisTimeoutError(
+                    message=f"Analysis timed out for {analyzer_name}",
+                    analyzer_name=analyzer_name,
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    timeout_seconds=getattr(settings, 'ANALYSIS_TIMEOUT', 30),
+                    correlation_id=correlation_id
+                )
+
+        except (AnalyzerNotFoundError, InsufficientDataError, InvalidAnalysisParametersError, AnalysisTimeoutError):
+            # Re-raise these specific exceptions
+            raise
+
+        except Exception as e:
+            # Extract symbol and timeframe information for error context
+            symbol = "unknown"
+            timeframe = "unknown"
+
+            if isinstance(data, MarketData):
+                symbol = getattr(data, "symbol", "unknown")
+                timeframe = getattr(data, "timeframe", "unknown")
+            elif isinstance(data, dict) and data:
+                # For multi-timeframe, use the first timeframe's symbol
+                first_timeframe = next(iter(data))
+                first_data = data[first_timeframe]
+                symbol = getattr(first_data, "symbol", "unknown")
+                timeframe = "multiple"
+
+            # Wrap other exceptions in AnalysisError
+            logger.error(
+                f"Error during analysis with {analyzer_name}: {str(e)}",
+                extra={
+                    "correlation_id": correlation_id,
+                    "analyzer_name": analyzer_name,
+                    "symbol": symbol,
+                    "timeframe": timeframe
+                },
+                exc_info=True
+            )
+
+            raise AnalysisError(
+                message=f"Error during analysis with {analyzer_name}",
+                error_code="ANALYSIS_EXECUTION_ERROR",
+                details={
+                    "analyzer_name": analyzer_name,
+                    "error": str(e),
+                    "data_type": type(data).__name__,
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "traceback": traceback.format_exc()
+                },
+                correlation_id=correlation_id
+            )
 
     async def run_multi_timeframe_analysis(
         self,
@@ -258,8 +471,12 @@ class AnalysisService:
             parameters: Optional parameters to pass to the MultiTimeframeAnalyzer.
 
         Returns:
-            An AnalysisResult object containing the multi-timeframe analysis output,
-            or an error result if the analyzer cannot be retrieved.
+            An AnalysisResult object containing the multi-timeframe analysis output.
+
+        Raises:
+            AnalyzerNotFoundError: If the multi-timeframe analyzer is not found.
+            InsufficientDataError: If there is insufficient data for analysis.
+            AnalysisError: If an error occurs during analysis.
         """
         """
         Run multi-timeframe analysis
@@ -270,26 +487,99 @@ class AnalysisService:
 
         Returns:
             Analysis result
-        """
-        analyzer = await self.get_analyzer("multi_timeframe", parameters)
 
-        if not analyzer:
-            return AnalysisResult(
-                analyzer_name="multi_timeframe",
-                result_data={
-                    "error": "Multi-Timeframe Analyzer not available"
-                },
-                is_valid=False
+        Raises:
+            AnalyzerNotFoundError: If the multi-timeframe analyzer is not found
+            InsufficientDataError: If there is insufficient data for analysis
+            AnalysisError: If an error occurs during analysis
+        """
+        # Generate a correlation ID for this operation
+        correlation_id = generate_correlation_id()
+
+        try:
+            # Get the analyzer (this will raise AnalyzerNotFoundError if not found)
+            analyzer = await self.get_analyzer("multi_timeframe", parameters)
+
+            # Check if data is sufficient
+            if not market_data or len(market_data) == 0:
+                raise InsufficientDataError(
+                    message="No timeframes provided for multi-timeframe analysis",
+                    correlation_id=correlation_id
+                )
+
+            # Check each timeframe's data
+            for timeframe, data in market_data.items():
+                if not data.is_valid():
+                    raise InsufficientDataError(
+                        message=f"Insufficient data for timeframe {timeframe}",
+                        timeframe=timeframe,
+                        symbol=getattr(data, "symbol", None),
+                        available_points=len(data.close) if hasattr(data, "close") else 0,
+                        correlation_id=correlation_id
+                    )
+
+            # Run the analysis with performance monitoring
+            start_time = time.time()
+            result = await analyzer.execute(market_data)
+            execution_time = time.time() - start_time
+
+            # Log performance metrics
+            logger.debug(
+                "Multi-timeframe analysis completed",
+                extra={
+                    "correlation_id": correlation_id,
+                    "timeframes": list(market_data.keys()),
+                    "execution_time": execution_time,
+                    "is_valid": result.is_valid if hasattr(result, "is_valid") else True
+                }
             )
 
-        # Run the analysis with performance monitoring
-        return await analyzer.execute(market_data)
+            return result
+
+        except (AnalyzerNotFoundError, InsufficientDataError):
+            # Re-raise these specific exceptions
+            raise
+
+        except Exception as e:
+            # Wrap other exceptions in AnalysisError
+            logger.error(
+                f"Error during multi-timeframe analysis: {str(e)}",
+                extra={"correlation_id": correlation_id},
+                exc_info=True
+            )
+
+            raise AnalysisError(
+                message="Error during multi-timeframe analysis",
+                error_code="MULTI_TIMEFRAME_ANALYSIS_ERROR",
+                details={
+                    "error": str(e),
+                    "timeframes": list(market_data.keys()) if market_data else []
+                },
+                correlation_id=correlation_id
+            )
 
     async def run_confluence_analysis(
         self,
         market_data: Any,
         parameters: Optional[Dict[str, Any]] = None
     ) -> AnalysisResult:
+        """Run confluence analysis on market data.
+
+        Confluence analysis combines multiple technical indicators and patterns
+        to identify high-probability trading opportunities.
+
+        Args:
+            market_data: Market data to analyze
+            parameters: Optional parameters for the analyzer
+
+        Returns:
+            Analysis result with confluence zones and strength metrics
+
+        Raises:
+            AnalyzerNotFoundError: If the confluence analyzer is not found
+            InsufficientDataError: If there is insufficient data for analysis
+            AnalysisError: If an error occurs during analysis
+        """
         """
         Run confluence analysis
 
@@ -299,20 +589,73 @@ class AnalysisService:
 
         Returns:
             Analysis result
-        """
-        analyzer = await self.get_analyzer("confluence", parameters)
 
-        if not analyzer:
-            return AnalysisResult(
-                analyzer_name="confluence",
-                result={
-                    "error": "Confluence Analyzer not available"
-                },
-                is_valid=False
+        Raises:
+            AnalyzerNotFoundError: If the confluence analyzer is not found
+            InsufficientDataError: If there is insufficient data for analysis
+            AnalysisError: If an error occurs during analysis
+        """
+        # Generate a correlation ID for this operation
+        correlation_id = generate_correlation_id()
+
+        try:
+            # Get the analyzer (this will raise AnalyzerNotFoundError if not found)
+            analyzer = await self.get_analyzer("confluence", parameters)
+
+            # Check if data is sufficient
+            if isinstance(market_data, MarketData) and not market_data.is_valid():
+                raise InsufficientDataError(
+                    message="Insufficient data for confluence analysis",
+                    symbol=getattr(market_data, "symbol", None),
+                    timeframe=getattr(market_data, "timeframe", None),
+                    available_points=len(market_data.close) if hasattr(market_data, "close") else 0,
+                    correlation_id=correlation_id
+                )
+
+            # Run the analysis with performance monitoring
+            start_time = time.time()
+            result = await analyzer.execute(market_data)
+            execution_time = time.time() - start_time
+
+            # Log performance metrics
+            logger.debug(
+                "Confluence analysis completed",
+                extra={
+                    "correlation_id": correlation_id,
+                    "execution_time": execution_time,
+                    "is_valid": result.is_valid if hasattr(result, "is_valid") else True,
+                    "symbol": getattr(market_data, "symbol", "unknown") if isinstance(market_data, MarketData) else "multiple"
+                }
             )
 
-        # Run the analysis with performance monitoring
-        return await analyzer.execute(market_data)
+            return result
+
+        except (AnalyzerNotFoundError, InsufficientDataError):
+            # Re-raise these specific exceptions
+            raise
+
+        except Exception as e:
+            # Wrap other exceptions in AnalysisError
+            logger.error(
+                f"Error during confluence analysis: {str(e)}",
+                extra={"correlation_id": correlation_id},
+                exc_info=True
+            )
+
+            symbol = getattr(market_data, "symbol", None) if isinstance(market_data, MarketData) else None
+            timeframe = getattr(market_data, "timeframe", None) if isinstance(market_data, MarketData) else None
+
+            raise AnalysisError(
+                message="Error during confluence analysis",
+                error_code="CONFLUENCE_ANALYSIS_ERROR",
+                details={
+                    "error": str(e),
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "data_type": type(market_data).__name__
+                },
+                correlation_id=correlation_id
+            )
 
     async def list_available_analyzers(self) -> List[Dict[str, Any]]:
         """

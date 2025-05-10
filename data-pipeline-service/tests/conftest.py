@@ -4,6 +4,8 @@ Configuration file for pytest to setup proper import paths and environment.
 import os
 import sys
 import pytest
+import asyncio
+from typing import Generator, Any
 
 # Add the project root to the path to allow importing common-lib
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -15,6 +17,17 @@ Test configuration for data-pipeline-service tests.
 """
 import logging
 from pathlib import Path
+
+# Set explicit event loop policy for Windows
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+@pytest.fixture(scope="function")
+def event_loop() -> Generator[asyncio.AbstractEventLoop, Any, None]:
+    """Create an instance of the default event loop for each test function."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 # Configure logging for tests
 logging.basicConfig(

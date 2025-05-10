@@ -17,7 +17,9 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
+from prometheus_client import make_asgi_app
 
 # Import common-lib exceptions
 from common_lib.exceptions import (
@@ -34,6 +36,7 @@ from common_lib.exceptions import (
 from ml_integration_service.api.router import api_router
 from ml_integration_service.api.enhanced_routes import router as enhanced_router
 from ml_integration_service.api.security import api_key_middleware
+from ml_integration_service.api.metrics_integration import setup_metrics
 from ml_integration_service.config.settings import settings
 from ml_integration_service.visualization.model_performance_viz import ModelPerformanceVisualizer
 from ml_integration_service.optimization.advanced_optimization import (
@@ -77,9 +80,17 @@ app.add_middleware(
 # Add API key authentication middleware using common-lib security
 app.middleware("http")(api_key_middleware)
 
+# Set up metrics
+setup_metrics(app, service_name="ml-integration-service")
+
 # Include API routers
 app.include_router(api_router, prefix="/api")
 app.include_router(enhanced_router)
+
+# Mount static files
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Import error handlers
 from ml_integration_service.error_handlers import (

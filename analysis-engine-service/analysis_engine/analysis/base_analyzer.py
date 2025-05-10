@@ -135,39 +135,137 @@ class BaseAnalyzer(ABC):
         Returns:
             AnalysisResult containing analysis results
         """
+        from analysis_engine.core.exceptions_bridge import (
+            AnalysisError,
+            InsufficientDataError,
+            AnalysisTimeoutError,
+            generate_correlation_id
+        )
+
         execution_id = str(uuid.uuid4())
+        correlation_id = generate_correlation_id()
         start_time = self._start_performance_timer()
 
+        # Validate input data
+        if data is None:
+            self.performance_metrics["error_count"] += 1
+            logger.error(
+                f"Null data provided to analyzer {self.name} (ID: {execution_id})",
+                extra={"correlation_id": correlation_id}
+            )
+
+            # Create error result for null data
+            return AnalysisResult(
+                analyzer_name=self.name,
+                result_data={
+                    "error": "Null data provided for analysis",
+                    "execution_id": execution_id
+                },
+                is_valid=False,
+                metadata={
+                    "execution_id": execution_id,
+                    "correlation_id": correlation_id,
+                    "error": "Null data provided for analysis",
+                    "timestamp": datetime.now().isoformat()
+                }
+            )
+
         try:
-            logger.info(f"Starting analysis: {self.name} (ID: {execution_id})")
-            result = await self.analyze(data)
+            logger.info(
+                f"Starting analysis: {self.name} (ID: {execution_id})",
+                extra={
+                    "correlation_id": correlation_id,
+                    "analyzer_name": self.name,
+                    "execution_id": execution_id
+                }
+            )
+
+            # Check for data validity if it has a validation method
+            if hasattr(data, 'is_valid') and callable(data.is_valid) and not data.is_valid():
+                symbol = getattr(data, 'symbol', 'unknown') if hasattr(data, 'symbol') else 'unknown'
+                timeframe = getattr(data, 'timeframe', 'unknown') if hasattr(data, 'timeframe') else 'unknown'
+                available_points = len(data.close) if hasattr(data, 'close') else 0
+
+                raise InsufficientDataError(
+                    message=f"Insufficient data for {self.name} analysis",
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    available_points=available_points,
+                    correlation_id=correlation_id
+                )
+
+            # Execute the analysis with timeout protection
+            try:
+                # Get timeout from settings or use default
+                timeout = getattr(settings, 'ANALYSIS_TIMEOUT', 30)
+
+                # Create a task for the analysis
+                analysis_task = asyncio.create_task(self.analyze(data))
+
+                # Wait for the task to complete with timeout
+                result = await asyncio.wait_for(analysis_task, timeout=timeout)
+
+            except asyncio.TimeoutError:
+                # Handle timeout
+                symbol = getattr(data, 'symbol', 'unknown') if hasattr(data, 'symbol') else 'unknown'
+                timeframe = getattr(data, 'timeframe', 'unknown') if hasattr(data, 'timeframe') else 'unknown'
+
+                raise AnalysisTimeoutError(
+                    message=f"Analysis timed out after {timeout} seconds",
+                    analyzer_name=self.name,
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    timeout_seconds=timeout,
+                    correlation_id=correlation_id
+                )
+
+            # Record performance metrics
             execution_time = self._stop_performance_timer(start_time)
+
             logger.info(
                 f"Analysis complete: {self.name} (ID: {execution_id}), "
-                f"execution time: {execution_time:.4f}s"
+                f"execution time: {execution_time:.4f}s",
+                extra={
+                    "correlation_id": correlation_id,
+                    "analyzer_name": self.name,
+                    "execution_id": execution_id,
+                    "execution_time": execution_time
+                }
             )
 
             # --- Publish Analysis Completion Event (Success) ---
             if event_publisher and result:
                 try:
+                    # Extract symbol and timeframe from result metadata or data
+                    symbol = result.metadata.get("symbol", "unknown") if hasattr(result, "metadata") else getattr(data, 'symbol', 'unknown')
+                    timeframe = result.metadata.get("timeframe", "unknown") if hasattr(result, "metadata") else getattr(data, 'timeframe', 'unknown')
+
+                    # Create summary if get_summary method exists, otherwise use result_data
+                    results_summary = result.get_summary() if hasattr(result, "get_summary") and callable(result.get_summary) else result.result_data
+
                     payload = AnalysisCompletionPayload(
                         analysis_id=execution_id,
-                        symbol=result.metadata.get("symbol", "unknown"), # Assuming symbol is in metadata
-                        timeframe=result.metadata.get("timeframe", "unknown"), # Assuming timeframe is in metadata
+                        symbol=symbol,
+                        timeframe=timeframe,
                         status="completed",
-                        results_summary=result.get_summary(), # Assuming AnalysisResult has a summary method
+                        results_summary=results_summary,
                         error_message=None
                     )
                     event = AnalysisCompletionEvent(payload=payload)
                     event_publisher.publish(topic=settings.KAFKA_ANALYSIS_TOPIC, event=event)
                 except Exception as pub_exc:
-                    logger.error(f"Failed to publish AnalysisCompletionEvent (Success) for {execution_id}: {pub_exc}", exc_info=True)
+                    logger.error(
+                        f"Failed to publish AnalysisCompletionEvent (Success) for {execution_id}: {pub_exc}",
+                        extra={"correlation_id": correlation_id},
+                        exc_info=True
+                    )
             # --- End Publish Event ---
 
             # Add performance metadata to result
             if result and hasattr(result, 'metadata'):
                 result.metadata.update({
                     "execution_id": execution_id,
+                    "correlation_id": correlation_id,
                     "execution_time": execution_time,
                     "analyzer_name": self.name,
                     "timestamp": datetime.now().isoformat()
@@ -176,49 +274,86 @@ class BaseAnalyzer(ABC):
             return result
 
         except Exception as e:
+            # Record performance metrics for error case
             execution_time = self._stop_performance_timer(start_time)
             self.performance_metrics["error_count"] += 1
 
+            # Extract symbol and timeframe if available
+            symbol = getattr(data, 'symbol', 'unknown') if hasattr(data, 'symbol') else 'unknown'
+            timeframe = getattr(data, 'timeframe', 'unknown') if hasattr(data, 'timeframe') else 'unknown'
+
+            # Determine error type and details
+            if isinstance(e, (AnalysisError, InsufficientDataError, AnalysisTimeoutError)):
+                # Use the existing error details
+                error_code = getattr(e, 'error_code', 'ANALYSIS_ERROR')
+                error_message = str(e)
+                error_details = getattr(e, 'details', {})
+            else:
+                # Wrap generic exceptions
+                error_code = "UNEXPECTED_ANALYSIS_ERROR"
+                error_message = f"Error in analyzer {self.name}: {str(e)}"
+                error_details = {
+                    "analyzer_name": self.name,
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "error": str(e),
+                    "traceback": traceback.format_exc()
+                }
+
+            # Log the error with correlation ID
             logger.error(
                 f"Error in analyzer {self.name} (ID: {execution_id}), "
-                f"execution time: {execution_time:.4f}s: {str(e)}"
+                f"execution time: {execution_time:.4f}s: {error_message}",
+                extra={
+                    "correlation_id": correlation_id,
+                    "analyzer_name": self.name,
+                    "execution_id": execution_id,
+                    "error_code": error_code,
+                    "error_details": error_details
+                },
+                exc_info=True
             )
-            logger.debug(f"Error details: {traceback.format_exc()}")
 
             # --- Publish Analysis Completion Event (Error) ---
             if event_publisher:
                 try:
-                    # Attempt to get symbol/timeframe if available in input data or context
-                    # This part might need adjustment based on how 'data' is structured
-                    symbol = getattr(data, 'symbol', 'unknown') if hasattr(data, 'symbol') else 'unknown'
-                    timeframe = getattr(data, 'timeframe', 'unknown') if hasattr(data, 'timeframe') else 'unknown'
-
                     payload = AnalysisCompletionPayload(
                         analysis_id=execution_id,
                         symbol=symbol,
                         timeframe=timeframe,
                         status="failed",
-                        results_summary={"error": str(e)},
-                        error_message=str(e)
+                        results_summary={"error": error_message, "error_code": error_code},
+                        error_message=error_message
                     )
                     event = AnalysisCompletionEvent(payload=payload)
                     event_publisher.publish(topic=settings.KAFKA_ANALYSIS_TOPIC, event=event)
                 except Exception as pub_exc:
-                    logger.error(f"Failed to publish AnalysisCompletionEvent (Error) for {execution_id}: {pub_exc}", exc_info=True)
+                    logger.error(
+                        f"Failed to publish AnalysisCompletionEvent (Error) for {execution_id}: {pub_exc}",
+                        extra={"correlation_id": correlation_id},
+                        exc_info=True
+                    )
             # --- End Publish Event ---
 
-            # Create error result
+            # Create error result with detailed metadata
             return AnalysisResult(
                 analyzer_name=self.name,
                 result_data={
-                    "error": f"Error in analysis: {str(e)}",
+                    "error": error_message,
+                    "error_code": error_code,
                     "execution_id": execution_id
                 },
                 is_valid=False,
                 metadata={
                     "execution_id": execution_id,
+                    "correlation_id": correlation_id,
                     "execution_time": execution_time,
-                    "error": str(e),
+                    "error": error_message,
+                    "error_code": error_code,
+                    "error_details": error_details,
+                    "analyzer_name": self.name,
+                    "symbol": symbol,
+                    "timeframe": timeframe,
                     "timestamp": datetime.now().isoformat()
                 }
             )

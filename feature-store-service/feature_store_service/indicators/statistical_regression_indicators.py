@@ -17,11 +17,11 @@ from feature_store_service.indicators.moving_averages import (
 class StandardDeviationIndicator(BaseIndicator):
     """
     Standard Deviation Indicator with probability distributions.
-    
+
     This indicator measures the dispersion of price values relative to their average,
     providing insights into market volatility and probability-based analysis.
     """
-    
+
     category = "statistical"
     default_params = {
         'window': 20, 'column': 'close', 'bands': [1.0, 2.0, 3.0],
@@ -53,7 +53,7 @@ class StandardDeviationIndicator(BaseIndicator):
         super().__init__(**kwargs)
 
     def _get_moving_average(self, series: pd.Series) -> pd.Series:
-        \"\"\"Helper to calculate the specified moving average.\"\"\"
+        """Helper to calculate the specified moving average."""
         if self.moving_average_type == 'sma':
             ma_indicator = SimpleMovingAverage(window=self.window, column=series.name)
             return ma_indicator.calculate(pd.DataFrame({series.name: series}))[ma_indicator.name]
@@ -69,15 +69,15 @@ class StandardDeviationIndicator(BaseIndicator):
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
         self.validate_input(data, [self.column])
         result = data.copy()
-        
+
         # Calculate the rolling standard deviation
         std_dev = result[self.column].rolling(window=self.window).std()
         result[self.std_dev_name] = std_dev.fillna(method='bfill')
-        
+
         # Calculate the central moving average
         moving_avg = self._get_moving_average(result[self.column])
         result[self.ma_name] = moving_avg.fillna(method='bfill')
-        
+
         # Calculate standard deviation bands
         for band_multiplier in self.bands:
             band_multiplier_str = str(band_multiplier).replace('.', '_')
@@ -85,26 +85,26 @@ class StandardDeviationIndicator(BaseIndicator):
             lower_band_name = f"{self.name_base}_lower_{band_multiplier_str}"
             result[upper_band_name] = result[self.ma_name] + (band_multiplier * result[self.std_dev_name])
             result[lower_band_name] = result[self.ma_name] - (band_multiplier * result[self.std_dev_name])
-            
+
         # Placeholder for probability calculations if include_probability is True
         # This would involve using scipy.stats distributions (e.g., norm, t)
         # based on the calculated mean (moving_avg) and std_dev.
         # Example: result[f'{self.name_base}_prob_within_1std'] = stats.norm.cdf(1) - stats.norm.cdf(-1)
-        
+
         return result
 
 
 class LinearRegressionIndicator(BaseIndicator):
-    \"\"\"
+    """
     Linear Regression Indicator.
-    
+
     Calculates the slope, intercept, and predicted value of a linear regression
     line fitted to the data over a rolling window.
-    \"\"\"
-    
+    """
+
     category = "statistical"
     default_params = {'window': 14, 'column': 'close'}
-    
+
     def __init__(self, window: int = 14, column: str = "close", **kwargs):
         self.window = window
         self.column = column
@@ -113,7 +113,7 @@ class LinearRegressionIndicator(BaseIndicator):
         self.intercept_name = f"{self.name_base}_intercept"
         self.predicted_name = f"{self.name_base}_predicted" # Value on the regression line at the end of the window
         super().__init__(**kwargs)
-        
+
     def _calculate_rolling_regression(self, y_values):
         # x values are simply the sequence 0, 1, ..., window-1
         x_values = np.arange(self.window)
@@ -126,13 +126,13 @@ class LinearRegressionIndicator(BaseIndicator):
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
         self.validate_input(data, [self.column])
         result = data.copy()
-        
+
         # Apply the rolling regression calculation
         regression_results = result[self.column].rolling(window=self.window).apply(
-            self._calculate_rolling_regression, 
+            self._calculate_rolling_regression,
             raw=True # Pass numpy arrays for speed
         )
-        
+
         # Unpack the results
         # Check if results are tuples before unpacking
         valid_results = regression_results.dropna()
@@ -149,21 +149,21 @@ class LinearRegressionIndicator(BaseIndicator):
         result[self.slope_name] = result[self.slope_name].fillna(method='bfill')
         result[self.intercept_name] = result[self.intercept_name].fillna(method='bfill')
         result[self.predicted_name] = result[self.predicted_name].fillna(method='bfill')
-        
+
         return result
 
 
 class LinearRegressionChannel(BaseIndicator):
-    \"\"\"
+    """
     Linear Regression Channel.
-    
+
     Draws parallel lines above and below a linear regression trendline,
     based on the maximum deviation of the price from the trendline within the window.
-    \"\"\"
-    
+    """
+
     category = "statistical"
     default_params = {'window': 14, 'column': 'close'}
-    
+
     def __init__(self, window: int = 14, column: str = "close", **kwargs):
         self.window = window
         self.column = column
@@ -172,37 +172,37 @@ class LinearRegressionChannel(BaseIndicator):
         self.lower_name = f"{self.name_base}_lower"
         self.center_name = f"{self.name_base}_center" # Same as linreg predicted
         super().__init__(**kwargs)
-        
+
     def _calculate_rolling_channel(self, y_values):
         x_values = np.arange(self.window)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x_values, y_values)
-        
+
         # Calculate predicted values along the regression line within the window
         predicted_values_in_window = intercept + slope * x_values
-        
+
         # Calculate deviations from the regression line
         deviations = y_values - predicted_values_in_window
-        
+
         # Find the maximum absolute deviation
         max_deviation = np.max(np.abs(deviations))
-        
+
         # Calculate channel lines at the *end* of the window (x = window - 1)
         center_value = intercept + slope * (self.window - 1)
         upper_value = center_value + max_deviation
         lower_value = center_value - max_deviation
-        
+
         return upper_value, lower_value, center_value
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
         self.validate_input(data, [self.column])
         result = data.copy()
-        
+
         # Apply the rolling channel calculation
         channel_results = result[self.column].rolling(window=self.window).apply(
-            self._calculate_rolling_channel, 
+            self._calculate_rolling_channel,
             raw=True
         )
-        
+
         # Unpack the results
         valid_results = channel_results.dropna()
         if not valid_results.empty and isinstance(valid_results.iloc[0], tuple):
@@ -218,27 +218,27 @@ class LinearRegressionChannel(BaseIndicator):
         result[self.upper_name] = result[self.upper_name].fillna(method='bfill')
         result[self.lower_name] = result[self.lower_name].fillna(method='bfill')
         result[self.center_name] = result[self.center_name].fillna(method='bfill')
-        
+
         return result
 
 
 class RSquaredIndicator(BaseIndicator):
-    \"\"\"
+    """
     R-Squared Indicator.
-    
+
     Measures the goodness of fit of a linear regression line to the data
     over a rolling window. Values range from 0 to 1.
-    \"\"\"
-    
+    """
+
     category = "statistical"
     default_params = {'window': 14, 'column': 'close'}
-    
+
     def __init__(self, window: int = 14, column: str = "close", **kwargs):
         self.window = window
         self.column = column
         self.name = f"rsquared_{column}_{window}"
         super().__init__(**kwargs)
-        
+
     def _calculate_rolling_r_squared(self, y_values):
         x_values = np.arange(self.window)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x_values, y_values)
@@ -247,13 +247,13 @@ class RSquaredIndicator(BaseIndicator):
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
         self.validate_input(data, [self.column])
         result = data.copy()
-        
+
         # Apply the rolling R-squared calculation
         r_squared_results = result[self.column].rolling(window=self.window).apply(
-            self._calculate_rolling_r_squared, 
+            self._calculate_rolling_r_squared,
             raw=True
         )
-        
+
         result[self.name] = r_squared_results.fillna(method='bfill')
-        
+
         return result

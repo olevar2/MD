@@ -11,7 +11,8 @@ from analysis_engine.monitoring.performance_monitoring import AnalysisEngineMoni
 from analysis_engine.services.market_regime_analysis import MarketRegimeAnalyzer
 from analysis_engine.services.signal_quality_evaluator import SignalQualityEvaluator
 from analysis_engine.services.tool_effectiveness_service import ToolEffectivenessService
-from analysis_engine.services.multi_asset_service import MultiAssetAnalyzer
+from analysis_engine.adapters.multi_asset_adapter import MultiAssetServiceAdapter
+from analysis_engine.adapters.feature_store_client import FeatureStoreClient
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class AnalysisEngine:
     Core Analysis Engine service coordinating market analysis operations.
     Integrates performance monitoring for critical operations.
     """
-    
+
     def __init__(
         self,
         config: Optional[Dict[str, Any]] = None,
@@ -49,25 +50,22 @@ class AnalysisEngine:
             config: Optional dictionary containing configuration settings.
             monitoring_dir: Directory path for storing monitoring data.
         """
-        self,
-        config: Optional[Dict[str, Any]] = None,
-        monitoring_dir: str = "monitoring/analysis_engine"
-    ):
         self.config = config or {}
-        
+
         # Initialize monitoring first
         self.monitoring = AnalysisEngineMonitoring(base_dir=monitoring_dir)
-        
+
         # Initialize analysis components
         self.market_regime_analyzer = MarketRegimeAnalyzer()
         self.signal_evaluator = SignalQualityEvaluator()
         self.tool_effectiveness = ToolEffectivenessService()
-        self.multi_asset_analyzer = MultiAssetAnalyzer()
-        
+        self.multi_asset_analyzer = MultiAssetServiceAdapter() # Keep for other multi-asset tasks
+        self.feature_store_client = FeatureStoreClient() # Add Feature Store client
+
         # Service state
         self.is_running = False
         self._health_check_task = None
-        
+
     async def start(self) -> None:
         """Starts the Analysis Engine service and its background tasks.
 
@@ -76,11 +74,11 @@ class AnalysisEngine:
         """Start the analysis engine service."""
         if self.is_running:
             return
-            
+
         self.is_running = True
         self._health_check_task = asyncio.create_task(self._health_check_loop())
         logger.info("Analysis Engine service started")
-        
+
     async def stop(self) -> None:
         """Stops the Analysis Engine service and cancels background tasks.
 
@@ -91,7 +89,7 @@ class AnalysisEngine:
         if self._health_check_task:
             self._health_check_task.cancel()
         logger.info("Analysis Engine service stopped")
-        
+
     async def analyze_market(
         self,
         symbol: str,
@@ -100,12 +98,12 @@ class AnalysisEngine:
     ) -> Dict[str, Any]:
         """
         Perform comprehensive market analysis with performance tracking.
-        
+
         Args:
             symbol: The market symbol to analyze
             timeframe: The timeframe for analysis
             data: Market data for analysis
-            
+
         Returns:
             Analysis results including patterns, regime, and signals
         """
@@ -114,13 +112,13 @@ class AnalysisEngine:
             """Internal helper function to perform analysis with monitoring."""
             # Analyze market regime
             regime_result = await self.analyze_regime(symbol, timeframe, data)
-            
+
             # Detect patterns
             patterns = await self.detect_patterns(symbol, data)
-            
+
             # Calculate indicators
             indicators = await self.calculate_indicators(symbol, data)
-            
+
             # Evaluate signals
             signals = await self.signal_evaluator.evaluate_signals(
                 symbol=symbol,
@@ -128,7 +126,7 @@ class AnalysisEngine:
                 regime=regime_result,
                 indicators=indicators
             )
-            
+
             return {
                 'regime': regime_result,
                 'patterns': patterns,
@@ -136,9 +134,9 @@ class AnalysisEngine:
                 'signals': signals,
                 'timestamp': datetime.utcnow().isoformat()
             }
-            
+
         return await _analyze()
-        
+
     async def analyze_regime(
         self,
         symbol: str,
@@ -154,9 +152,9 @@ class AnalysisEngine:
                 timeframe=timeframe,
                 data=data
             )
-            
+
         return await _analyze_regime()
-        
+
     async def detect_patterns(
         self,
         symbol: str,
@@ -170,9 +168,9 @@ class AnalysisEngine:
                 symbol=symbol,
                 data=data
             )
-            
+
         return await _detect_patterns()
-        
+
     async def calculate_indicators(
         self,
         symbol: str,
@@ -182,13 +180,35 @@ class AnalysisEngine:
         @self.monitoring.track_indicator_calculation
         async def _calculate_indicators():
             """Internal helper function for indicator calculation with monitoring."""
-            return await self.multi_asset_analyzer.calculate_indicators(
+            # TODO: Define or retrieve the actual indicator configurations needed
+            indicator_configs = [
+                {'type': 'sma', 'name': 'sma_14', 'window': 14},
+                {'type': 'ema', 'name': 'ema_50', 'window': 50},
+                {'type': 'rsi', 'name': 'rsi_14', 'window': 14},
+                # Add other required indicator configurations here
+            ]
+            # Convert input data if necessary (assuming client expects DataFrame)
+            # This depends on how 'data' is structured
+            if isinstance(data, dict) and 'close' in data: # Basic check
+                df_data = pd.DataFrame(data)
+                # Ensure timestamp is datetime if present
+                if 'timestamp' in df_data.columns:
+                    df_data['timestamp'] = pd.to_datetime(df_data['timestamp'])
+            else:
+                # Handle cases where data is not in expected dict format or lacks key fields
+                # For now, log a warning and return empty dict
+                # A more robust solution would be needed based on actual data flow
+                logger.warning(f"Cannot process data for indicator calculation for {symbol}. Unexpected format: {type(data)}")
+                return {}
+
+            return await self.feature_store_client.calculate_indicators(
                 symbol=symbol,
-                data=data
+                data=df_data, # Pass DataFrame
+                indicator_configs=indicator_configs
             )
-            
+
         return await _calculate_indicators()
-        
+
     async def _health_check_loop(self) -> None:
         """Periodically monitors service health and performance metrics.
 
@@ -200,18 +220,18 @@ class AnalysisEngine:
             try:
                 # Get current health status
                 health_status = self.monitoring.get_health_status()
-                
+
                 # Log any issues
                 if not health_status['healthy']:
                     for issue in health_status['issues']:
                         logger.warning(f"Health check issue: {issue}")
-                        
+
                 # Get performance metrics for monitoring
                 metrics = self.monitoring.get_metrics()
                 logger.info(f"Performance metrics: {metrics}")
-                
+
                 await asyncio.sleep(30)  # Check every 30 seconds
-                
+
             except Exception as e:
                 logger.error(f"Health check error: {e}")
                 await asyncio.sleep(60)  # Back off on error

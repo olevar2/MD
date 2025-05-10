@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core_foundations.utils.logger import get_logger
 from data_pipeline_service.models.schemas import TickData
 from data_pipeline_service.repositories.database_models import tick_data_table
+from data_pipeline_service.optimization import optimize_query
+from data_pipeline_service.monitoring import track_query_performance
 
 # Initialize logger
 logger = get_logger("tick-data-repository")
@@ -16,16 +18,17 @@ logger = get_logger("tick-data-repository")
 
 class TickDataRepository:
     """Repository for handling Tick data database operations."""
-    
+
     def __init__(self, session: AsyncSession):
         """
         Initialize the repository with a database session.
-        
+
         Args:
             session: SQLAlchemy async session
         """
         self.session = session
-    
+
+    @track_query_performance(query_type="select", table="tick_data")
     async def get_tick_data(
         self,
         symbol: str,
@@ -37,7 +40,7 @@ class TickDataRepository:
     ) -> Tuple[List[TickData], int]:
         """
         Retrieve tick data from database.
-        
+
         Args:
             symbol: Instrument symbol
             from_time: Start time
@@ -45,7 +48,7 @@ class TickDataRepository:
             limit: Maximum number of records to return
             offset: Offset for pagination
             page_size: Number of records per page
-            
+
         Returns:
             Tuple of (list of tick data objects, total count of records)
         """
@@ -57,20 +60,34 @@ class TickDataRepository:
         ).order_by(
             tick_data_table.c.timestamp
         ).limit(min(limit, page_size)).offset(offset)
-        
-        # Execute query
-        result = await self.session.execute(query)
+
+        # Convert SQLAlchemy query to string for optimization
+        query_str = str(query.compile(compile_kwargs={"literal_binds": True}))
+
+        # Optimize the query
+        optimized_query_str, _ = optimize_query(query_str)
+
+        # Execute optimized query
+        result = await self.session.execute(sa.text(optimized_query_str))
         rows = result.all()
-        
-        # Get total count
+
+        # Get total count - also optimize this query
         count_query = sa.select(sa.func.count()).select_from(tick_data_table).where(
             tick_data_table.c.symbol == symbol,
             tick_data_table.c.timestamp >= from_time,
             tick_data_table.c.timestamp <= to_time,
         )
-        count_result = await self.session.execute(count_query)
+
+        # Convert count query to string for optimization
+        count_query_str = str(count_query.compile(compile_kwargs={"literal_binds": True}))
+
+        # Optimize the count query
+        optimized_count_query_str, _ = optimize_query(count_query_str)
+
+        # Execute optimized count query
+        count_result = await self.session.execute(sa.text(optimized_count_query_str))
         total_count = count_result.scalar() or 0
-        
+
         # Convert to model objects
         tick_data = [
             TickData(
@@ -83,22 +100,23 @@ class TickDataRepository:
             )
             for row in rows
         ]
-        
+
         return tick_data, min(total_count, limit)
-    
+
+    @track_query_performance(query_type="insert", table="tick_data")
     async def insert_tick_data(self, data: List[TickData]) -> int:
         """
         Insert tick data into database.
-        
+
         Args:
             data: List of tick data objects
-            
+
         Returns:
             Number of records inserted
         """
         if not data:
             return 0
-        
+
         # Convert model objects to dictionaries
         values = [
             {
@@ -111,7 +129,7 @@ class TickDataRepository:
             }
             for item in data
         ]
-        
+
         # Use on conflict do nothing to handle duplicates
         query = (
             tick_data_table.insert()
@@ -120,14 +138,14 @@ class TickDataRepository:
                 index_elements=["symbol", "timestamp"]
             )
         )
-        
+
         try:
             result = await self.session.execute(query)
             await self.session.commit()
-            
+
             # Return number of rows inserted
             return result.rowcount
-            
+
         except Exception as e:
             await self.session.rollback()
             logger.error(f"Error inserting tick data: {str(e)}")
