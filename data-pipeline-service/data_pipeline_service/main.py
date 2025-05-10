@@ -5,6 +5,7 @@ import os
 from typing import Dict
 
 import uvicorn
+from common_lib.correlation import FastAPICorrelationIdMiddleware
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -102,6 +103,9 @@ def create_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# Add correlation ID middleware
+app.add_middleware(FastAPICorrelationIdMiddleware)
 
     # Set up metrics with standardized middleware
     setup_metrics(app, service_name="data-pipeline-service")

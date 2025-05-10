@@ -12,6 +12,7 @@ import asyncio
 from typing import Dict, List, Any, Optional, Callable
 
 import uvicorn
+from common_lib.correlation import FastAPICorrelationIdMiddleware
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -67,6 +68,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+# Add correlation ID middleware
+app.add_middleware(FastAPICorrelationIdMiddleware)
 
 # Register exception handlers
 register_exception_handlers(app)

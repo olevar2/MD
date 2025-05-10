@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analysis-engine
+  labels:
+    app: analysis-engine
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: analysis-engine
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: analysis-engine
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: analysis-engine
+        image: olevar2/forex-platform:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "2"
+            memory: "2Gi"
+        env:
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: ENABLE_GPU
+          value: "false"
+        - name: CACHE_TTL_MINUTES
+          value: "60"
+        - name: MAX_WORKERS
+          value: "4"
+        - name: ENABLE_TRACING
+          value: "true"
+        - name: OTLP_ENDPOINT
+          value: "http://jaeger-collector:4317"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: analysis-engine-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analysis-engine
+  labels:
+    app: analysis-engine
+spec:
+  selector:
+    app: analysis-engine
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: analysis-engine-config
+data:
+  config.yaml: |
+    service:
+      name: analysis-engine
+      version: 1.0.0
+    
+    cache:
+      default_ttl_seconds: 3600
+      max_size: 10000
+      cleanup_interval_seconds: 300
+      adaptive_ttl: true
+    
+    parallel_processing:
+      min_workers: 2
+      max_workers: 8
+    
+    tracing:
+      enable_tracing: true
+      sampling_rate: 0.1
+      otlp_endpoint: http://jaeger-collector:4317
+    
+    gpu:
+      enable_gpu: false
+      memory_limit_mb: 1024
+      batch_size: 1000
+    
+    predictive_cache:
+      prediction_threshold: 0.7
+      max_precompute_workers: 2
+      precomputation_interval_seconds: 10
+      pattern_history_size: 1000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: analysis-engine
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: analysis-engine
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 4
+        periodSeconds: 60
+      selectPolicy: Max

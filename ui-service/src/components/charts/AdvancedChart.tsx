@@ -1,8 +1,9 @@
 /**
  * Advanced Chart component with pattern visualization
  * Provides multi-timeframe analysis and confluence highlighting
+ * Optimized version with WebGL acceleration and memory management
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -19,15 +20,15 @@ import {
 } from '@mui/material';
 import { createChart, IChartApi, ISeriesApi, LineStyle, Time } from 'lightweight-charts';
 import { TimeFrame } from '@/types/strategy';
-
-interface OHLCData {
-  time: Time;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume?: number;
-}
+import { useChartData, OHLCData } from '@/context/ChartDataContext';
+import {
+  useWebGLRenderer,
+  useChartMemoryManagement,
+  useChartResize,
+  useChartVisibility,
+  PatternMarker,
+  useOptimizedPatternRendering
+} from '@/hooks/useChartOptimization';
 
 interface PatternMarker {
   id: string;
@@ -112,7 +113,6 @@ export default function AdvancedChart({
 
   const [loading, setLoading] = useState<boolean>(true);
   const [timeframe, setTimeframe] = useState<TimeFrame>(initialTimeframe);
-  const [priceData, setPriceData] = useState<OHLCData[]>([]);
   const [patternMarkers, setPatternMarkers] = useState<PatternMarker[]>([]);
   const [indicators, setIndicators] = useState<IndicatorData[]>([]);
   const [supportResistanceLevels, setSupportResistanceLevels] = useState<SupportResistanceLevel[]>([]);
@@ -121,21 +121,36 @@ export default function AdvancedChart({
   const [selectedPatternTypes, setSelectedPatternTypes] = useState<string[]>(['all']);
   const [showAnnotations, setShowAnnotations] = useState<boolean>(true);
   const [legendValues, setLegendValues] = useState({ price: 0, time: '' });
-  
+
   // Selected comparative timeframes for multi-timeframe analysis
   const [compareTimeframes, setCompareTimeframes] = useState<TimeFrame[]>([]);
-  
+
+  // Use chart data context
+  const { loadData, dataByTimeframe } = useChartData();
+
+  // Check WebGL support
+  const isWebGLSupported = useWebGLRenderer();
+
+  // Check if chart is visible in viewport
+  const isVisible = useChartVisibility(chartContainerRef);
+
+  // Memory management
+  const { releaseMemory, restoreChart } = useChartMemoryManagement(chartRef);
+
+  // Handle resize
+  useChartResize(chartRef, chartContainerRef);
+
   // Mock price data for demonstration
   const generateMockPriceData = (count: number): OHLCData[] => {
     const data: OHLCData[] = [];
     const basePrice = 1.2000;
     let lastClose = basePrice;
-    
+
     const now = new Date();
-    
+
     for (let i = count - 1; i >= 0; i--) {
       const time = new Date(now);
-      
+
       // Adjust time based on timeframe
       switch (timeframe) {
         case TimeFrame.M1:
@@ -163,7 +178,7 @@ export default function AdvancedChart({
           time.setDate(now.getDate() - i * 7);
           break;
       }
-      
+
       // Generate random price action
       const change = (Math.random() - 0.5) * 0.005; // Random price change
       const open = lastClose;
@@ -171,7 +186,7 @@ export default function AdvancedChart({
       const high = Math.max(open, close) + Math.random() * 0.002;
       const low = Math.min(open, close) - Math.random() * 0.002;
       const volume = Math.floor(Math.random() * 1000) + 500;
-      
+
       data.push({
         time: Math.floor(time.getTime() / 1000) as Time,
         open,
@@ -180,56 +195,50 @@ export default function AdvancedChart({
         close,
         volume
       });
-      
+
       lastClose = close;
     }
-    
+
     return data;
   };
-  
+
   // Load data when component mounts or timeframe changes
   useEffect(() => {
+    if (!isVisible) return;
+
     const loadChartData = async () => {
       setLoading(true);
-      
+
       try {
-        // In a real implementation, fetch data from API
-        // const response = await fetch(`/api/price-data/${symbol}?timeframe=${timeframe}`);
-        // const data = await response.json();
-        
-        // For demonstration, generate mock data
-        const mockData = generateMockPriceData(100);
-        setPriceData(mockData);
-        
-        // Simulate loading pattern data
-        setTimeout(() => {
-          if (enablePatternDetection) {
-            setPatternMarkers(generateMockPatternMarkers(mockData));
-          }
-          
-          if (enableConfluenceHighlighting) {
-            setConfluenceZones(generateMockConfluenceZones(mockData));
-          }
-          
-          setSupportResistanceLevels(generateMockSupportResistance(mockData));
-          setIndicators(generateMockIndicators(mockData));
-          setLoading(false);
-        }, 500);
-        
+        // Use shared data context to load data
+        const data = await loadData(symbol, timeframe);
+
+        // Generate pattern data
+        if (enablePatternDetection) {
+          setPatternMarkers(generateMockPatternMarkers(data));
+        }
+
+        if (enableConfluenceHighlighting) {
+          setConfluenceZones(generateMockConfluenceZones(data));
+        }
+
+        setSupportResistanceLevels(generateMockSupportResistance(data));
+        setIndicators(generateMockIndicators(data));
       } catch (error) {
         console.error('Failed to load chart data:', error);
+      } finally {
         setLoading(false);
       }
     };
-    
+
     loadChartData();
-  }, [symbol, timeframe, enablePatternDetection, enableConfluenceHighlighting]);
+  }, [symbol, timeframe, enablePatternDetection, enableConfluenceHighlighting, isVisible, loadData]);
 
   // Initialize chart when component mounts
   useEffect(() => {
-    if (!chartContainerRef.current) return;
-    
-    // Create chart
+    if (!chartContainerRef.current || !isVisible) return;
+
+    // Create chart with WebGL acceleration if supported
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: height,
@@ -255,8 +264,10 @@ export default function AdvancedChart({
       rightPriceScale: {
         borderColor: '#2B2B43',
       },
+      // Use WebGL for rendering if supported
+      renderer: isWebGLSupported ? 'webgl' : 'canvas',
     });
-    
+
     // Add candlestick series
     const candlestickSeries = chart.addCandlestickSeries({
       upColor: '#26a69a',
@@ -265,7 +276,7 @@ export default function AdvancedChart({
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
     });
-    
+
     // Add volume series if enabled
     let volumeSeries = null;
     if (showVolume) {
@@ -283,7 +294,7 @@ export default function AdvancedChart({
       });
       volumeSeriesRef.current = volumeSeries;
     }
-    
+
     // Setup crosshair move handler for legend
     chart.subscribeCrosshairMove((param) => {
       if (param.time && param.point) {
@@ -297,85 +308,78 @@ export default function AdvancedChart({
         }
       }
     });
-    
-    // Handle resize
-    const handleResize = () => {
-      if (chartContainerRef.current && chart) {
-        chart.applyOptions({ 
-          width: chartContainerRef.current.clientWidth 
-        });
-      }
-    };
 
-    window.addEventListener('resize', handleResize);
-    
     // Store refs for later use
     chartRef.current = chart;
     candlestickSeriesRef.current = candlestickSeries;
-    
+
     // Cleanup function
     return () => {
-      window.removeEventListener('resize', handleResize);
       chart.remove();
       chartRef.current = null;
       candlestickSeriesRef.current = null;
       volumeSeriesRef.current = null;
       indicatorSeriesRef.current.clear();
     };
-  }, [height, showVolume]);
+  }, [height, showVolume, isVisible, isWebGLSupported]);
 
-  // Update chart when price data changes
+  // Update chart when data changes in the context
   useEffect(() => {
-    if (!candlestickSeriesRef.current || priceData.length === 0) return;
-    
+    if (!candlestickSeriesRef.current || !isVisible) return;
+
+    const data = dataByTimeframe[timeframe];
+    if (!data || data.length === 0) return;
+
     // Update candlesticks
-    candlestickSeriesRef.current.setData(priceData);
-    
+    candlestickSeriesRef.current.setData(data);
+
     // Update volume if available
     if (volumeSeriesRef.current) {
-      const volumeData = priceData.map(d => ({
+      const volumeData = data.map(d => ({
         time: d.time,
         value: d.volume || 0,
         color: d.close >= d.open ? 'rgba(38, 166, 154, 0.5)' : 'rgba(239, 83, 80, 0.5)',
       }));
       volumeSeriesRef.current.setData(volumeData);
     }
-    
+
     // Fit chart content
     if (chartRef.current) {
       chartRef.current.timeScale().fitContent();
     }
-  }, [priceData]);
-  
-  // Update pattern markers
-  useEffect(() => {
-    if (!chartRef.current || !candlestickSeriesRef.current) return;
-    
-    // Clear existing markers
-    patternMarkersRef.current.forEach(marker => {
-      if (marker.remove) {
-        marker.remove();
-      }
+  }, [dataByTimeframe, timeframe, isVisible]);
+
+  // Helper function to draw pattern on chart
+  const drawPatternOnChart = useCallback((chart: IChartApi, pattern: PatternMarker) => {
+    // Create a simple line
+    const lineSeries = chart.addLineSeries({
+      color: pattern.color,
+      lineWidth: 2,
+      lineStyle: LineStyle.Dashed,
     });
-    patternMarkersRef.current.clear();
-    
-    // Add new pattern markers
-    const visiblePatterns = selectedPatternTypes.includes('all') 
-      ? patternMarkers 
-      : patternMarkers.filter(p => selectedPatternTypes.includes(p.type));
-    
-    visiblePatterns.forEach(pattern => {
-      const marker = drawPatternOnChart(pattern);
-      if (marker) {
-        patternMarkersRef.current.set(pattern.id, marker);
-      }
-    });
-  }, [patternMarkers, selectedPatternTypes]);
-  
-  // Update support/resistance levels
+
+    lineSeries.setData([
+      { time: pattern.startTime, value: pattern.startPrice },
+      { time: pattern.endTime, value: pattern.endPrice }
+    ]);
+
+    return lineSeries;
+  }, []);
+
+  // Use optimized pattern rendering
+  const renderedPatterns = useOptimizedPatternRendering(
+    chartRef,
+    selectedPatternTypes.includes('all')
+      ? patternMarkers
+      : patternMarkers.filter(p => selectedPatternTypes.includes(p.type)),
+    isVisible,
+    drawPatternOnChart
+  );
+
+  // Update support/resistance levels with optimization
   useEffect(() => {
-    if (!chartRef.current || !candlestickSeriesRef.current) return;
-    
+    if (!chartRef.current || !isVisible) return;
+
     // Clear existing levels
     supportResistanceRef.current.forEach(level => {
       if (level.remove) {
@@ -383,7 +387,7 @@ export default function AdvancedChart({
       }
     });
     supportResistanceRef.current.clear();
-    
+
     // Add support/resistance levels
     supportResistanceLevels.forEach(level => {
       const srLine = drawSupportResistanceLine(level);
@@ -391,18 +395,26 @@ export default function AdvancedChart({
         supportResistanceRef.current.set(level.id, srLine);
       }
     });
-  }, [supportResistanceLevels]);
-  
-  // Update indicators
+
+    return () => {
+      supportResistanceRef.current.forEach(level => {
+        if (level.remove) {
+          level.remove();
+        }
+      });
+    };
+  }, [supportResistanceLevels, isVisible, drawSupportResistanceLine]);
+
+  // Update indicators with optimization
   useEffect(() => {
-    if (!chartRef.current) return;
-    
+    if (!chartRef.current || !isVisible) return;
+
     // Remove old indicators
     indicatorSeriesRef.current.forEach((series) => {
       chartRef.current?.removeSeries(series);
     });
     indicatorSeriesRef.current.clear();
-    
+
     // Add new indicators
     indicators.forEach(indicator => {
       const series = chartRef.current?.addLineSeries({
@@ -410,49 +422,36 @@ export default function AdvancedChart({
         lineWidth: 1,
         priceLineVisible: false,
       });
-      
+
       if (series) {
         series.setData(indicator.data);
         indicatorSeriesRef.current.set(indicator.id, series);
       }
     });
-  }, [indicators]);
-  
-  // Update confluence zones
+
+    return () => {
+      indicatorSeriesRef.current.forEach((series) => {
+        chartRef.current?.removeSeries(series);
+      });
+    };
+  }, [indicators, isVisible]);
+
+  // Update confluence zones with optimization
   useEffect(() => {
-    if (!chartRef.current || !candlestickSeriesRef.current) return;
-    
+    if (!chartRef.current || !isVisible || confluenceZones.length === 0) return;
+
     // Render confluence zones
     // In a real implementation, would use advanced rendering
     // For this demo, just log the zones
     console.log('Rendering confluence zones:', confluenceZones);
-  }, [confluenceZones]);
-  
-  // Helper function to draw pattern on chart
-  const drawPatternOnChart = (pattern: PatternMarker) => {
-    if (!chartRef.current || !candlestickSeriesRef.current) return null;
-    
-    // This would be implemented using chart's marker API or custom shapes
-    // For demonstration, we'll create a simple line
-    
-    const lineSeries = chartRef.current.addLineSeries({
-      color: pattern.color,
-      lineWidth: 2,
-      lineStyle: LineStyle.Dashed,
-    });
-    
-    lineSeries.setData([
-      { time: pattern.startTime, value: pattern.startPrice },
-      { time: pattern.endTime, value: pattern.endPrice }
-    ]);
-    
-    return lineSeries;
-  };
-  
+  }, [confluenceZones, isVisible]);
+
+
+
   // Helper function to draw support/resistance
-  const drawSupportResistanceLine = (level: SupportResistanceLevel) => {
-    if (!chartRef.current) return null;
-    
+  const drawSupportResistanceLine = useCallback((level: SupportResistanceLevel) => {
+    if (!chartRef.current || !isVisible) return null;
+
     // Create horizontal line for S/R level
     const lineSeries = chartRef.current.addLineSeries({
       color: level.strength > 0.7 ? '#f48fb1' : '#81c784',
@@ -461,38 +460,38 @@ export default function AdvancedChart({
       lastValueVisible: false,
       priceLineVisible: false,
     });
-    
+
     // Create data for horizontal line
     const data = [];
-    
+
     // Add points from start to end time
     data.push({ time: level.startTime, value: level.price });
     data.push({ time: level.endTime, value: level.price });
-    
+
     lineSeries.setData(data);
-    
+
     return lineSeries;
-  };
-  
+  }, [chartRef, isVisible]);
+
   // Generate mock pattern markers
   const generateMockPatternMarkers = (data: OHLCData[]): PatternMarker[] => {
     if (data.length < 20) return [];
-    
+
     const patterns = [];
     const patternTypes = ['Head and Shoulders', 'Double Top', 'Triangle', 'Flag', 'Elliott Wave'];
     const colors = ['#f48fb1', '#81c784', '#64b5f6', '#ffb74d', '#ba68c8'];
-    
+
     // Generate 3-5 random patterns
     const patternCount = 3 + Math.floor(Math.random() * 3);
-    
+
     for (let i = 0; i < patternCount; i++) {
       const startIndex = 10 + Math.floor(Math.random() * (data.length - 30));
       const endIndex = startIndex + 5 + Math.floor(Math.random() * 10);
-      
+
       if (endIndex >= data.length) continue;
-      
+
       const patternTypeIndex = Math.floor(Math.random() * patternTypes.length);
-      
+
       patterns.push({
         id: `pattern-${i}`,
         type: patternTypes[patternTypeIndex],
@@ -505,26 +504,26 @@ export default function AdvancedChart({
         color: colors[patternTypeIndex],
       });
     }
-    
+
     return patterns;
   };
-  
+
   // Generate mock support/resistance levels
   const generateMockSupportResistance = (data: OHLCData[]): SupportResistanceLevel[] => {
     if (data.length < 10) return [];
-    
+
     const levels = [];
     const minPrice = Math.min(...data.map(d => d.low));
     const maxPrice = Math.max(...data.map(d => d.high));
     const priceRange = maxPrice - minPrice;
-    
+
     // Generate 2-4 S/R levels
     const levelCount = 2 + Math.floor(Math.random() * 3);
-    
+
     for (let i = 0; i < levelCount; i++) {
       const levelPrice = minPrice + Math.random() * priceRange;
       const strength = 0.5 + Math.random() * 0.5;
-      
+
       levels.push({
         id: `sr-${i}`,
         price: levelPrice,
@@ -534,73 +533,73 @@ export default function AdvancedChart({
         endTime: data[data.length - 1].time,
       });
     }
-    
+
     return levels;
   };
-  
+
   // Generate mock indicators
   const generateMockIndicators = (data: OHLCData[]): IndicatorData[] => {
     if (data.length === 0) return [];
-    
+
     const indicators = [];
-    
+
     // Generate MA indicator
     const ma1Data = calculateMovingAverage(data, 20);
     const ma2Data = calculateMovingAverage(data, 50);
-    
+
     indicators.push({
       id: 'ma-20',
       name: 'MA (20)',
       data: ma1Data,
       color: '#64b5f6',
     });
-    
+
     indicators.push({
       id: 'ma-50',
       name: 'MA (50)',
       data: ma2Data,
       color: '#ff8a65',
     });
-    
+
     return indicators;
   };
-  
+
   // Helper function to calculate moving average
   const calculateMovingAverage = (data: OHLCData[], period: number) => {
     const result = [];
-    
+
     for (let i = period - 1; i < data.length; i++) {
       let sum = 0;
       for (let j = 0; j < period; j++) {
         sum += data[i - j].close;
       }
-      
+
       result.push({
         time: data[i].time,
         value: sum / period,
       });
     }
-    
+
     return result;
   };
-  
+
   // Generate mock confluence zones
   const generateMockConfluenceZones = (data: OHLCData[]): ConfluenceZone[] => {
     if (data.length < 20) return [];
-    
+
     const zones = [];
     const minPrice = Math.min(...data.map(d => d.low));
     const maxPrice = Math.max(...data.map(d => d.high));
     const priceRange = maxPrice - minPrice;
-    
+
     // Generate 2-3 confluence zones
     const zoneCount = 2 + Math.floor(Math.random() * 2);
-    
+
     for (let i = 0; i < zoneCount; i++) {
       const timeIndex = 20 + Math.floor(Math.random() * (data.length - 40));
       const zoneWidth = priceRange * (0.01 + Math.random() * 0.02);
       const centerPrice = minPrice + Math.random() * priceRange;
-      
+
       zones.push({
         id: `zone-${i}`,
         startPrice: centerPrice - zoneWidth/2,
@@ -611,17 +610,17 @@ export default function AdvancedChart({
         tags: ['Fibonacci', 'Support/Resistance', 'Pattern'],
       });
     }
-    
+
     return zones;
   };
-  
+
   const handleTimeframeChange = (newTimeframe: TimeFrame) => {
     setTimeframe(newTimeframe);
     if (onTimeframeChange) {
       onTimeframeChange(newTimeframe);
     }
   };
-  
+
   const handlePatternFilterChange = (_event: React.MouseEvent<HTMLElement>, newPatternTypes: string[]) => {
     // Prevent deselecting all patterns
     if (newPatternTypes.length === 0) {
@@ -629,7 +628,7 @@ export default function AdvancedChart({
     }
     setSelectedPatternTypes(newPatternTypes);
   };
-  
+
   const handleCompareTimeframeChange = (_event: React.MouseEvent<HTMLElement>, newTimeframes: TimeFrame[]) => {
     setCompareTimeframes(newTimeframes);
     // In a real implementation, would fetch data for these timeframes
@@ -643,7 +642,7 @@ export default function AdvancedChart({
         <Typography variant="h6" component="h2">
           {symbol} - {timeframe}
         </Typography>
-        
+
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {/* Legend values */}
           <Box sx={{ mr: 2, fontSize: '0.875rem' }}>
@@ -654,11 +653,11 @@ export default function AdvancedChart({
               Time: <strong>{legendValues.time}</strong>
             </Typography>
           </Box>
-          
+
           {/* Timeframe selector */}
           <ButtonGroup size="small" aria-label="timeframe selector">
             {Object.values(TimeFrame).map((tf) => (
-              <Button 
+              <Button
                 key={tf}
                 variant={timeframe === tf ? 'contained' : 'outlined'}
                 onClick={() => handleTimeframeChange(tf)}
@@ -669,11 +668,11 @@ export default function AdvancedChart({
           </ButtonGroup>
         </Box>
       </Box>
-      
+
       {/* Chart Container */}
       <Box sx={{ position: 'relative' }}>
         <Box ref={chartContainerRef} style={{ height: `${height}px` }} />
-        
+
         {/* Loading indicator */}
         {loading && (
           <Box sx={{
@@ -691,7 +690,7 @@ export default function AdvancedChart({
           </Box>
         )}
       </Box>
-      
+
       {/* Bottom controls */}
       <Box sx={{ p: 1, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <Grid container spacing={2}>
@@ -716,7 +715,7 @@ export default function AdvancedChart({
               </ToggleButtonGroup>
             </Grid>
           )}
-          
+
           {/* Multi-timeframe comparison */}
           {enableMultiTimeframe && (
             <Grid item xs={12} md={6}>
@@ -736,7 +735,7 @@ export default function AdvancedChart({
               </ToggleButtonGroup>
             </Grid>
           )}
-          
+
           {/* Other controls */}
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -752,7 +751,7 @@ export default function AdvancedChart({
                   label="Show Annotations"
                 />
               </Box>
-              
+
               {enableElliottWaveOverlays && (
                 <Tooltip title="Enable Elliott Wave Overlays">
                   <Button size="small" variant="outlined">

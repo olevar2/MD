@@ -1,0 +1,36 @@
+{
+  "server": {
+    "name": "forex-trading-mcp",
+    "version": "0.1.0",
+    "host": "localhost",
+    "port": 5000
+  },
+  "capabilities": {
+    "tools": true,
+    "prompts": true,
+    "resources": true,
+    "notifications": true
+  },
+  "filesystem": {
+    "allowedDirectories": [
+      "d:/MD/forex_trading_platform"
+    ],
+    "blockedPatterns": [
+      ".git",
+      "node_modules",
+      "__pycache__",
+      ".env"
+    ]
+  },
+  "security": {
+    "blockedCommands": [
+      "rm -rf",
+      "del /s",
+      "format"
+    ]
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "mcp-server.log"
+  }
+}

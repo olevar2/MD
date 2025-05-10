@@ -6,7 +6,16 @@ and components of the data pipeline service.
 """
 from fastapi import APIRouter
 
-from data_pipeline_service.api.v1 import adapters, cleaning, instruments, ohlcv, tick_data, data_access, monitoring
+from data_pipeline_service.api.v1 import (
+    adapters,
+    cleaning,
+    instruments,
+    ohlcv,
+    tick_data,
+    data_access,
+    monitoring,
+    market_data_quality
+)
 
 # Create main API router
 api_router = APIRouter()
@@ -19,3 +28,4 @@ api_router.include_router(ohlcv.router, prefix="/v1/ohlcv", tags=["ohlcv"])
 api_router.include_router(tick_data.router, prefix="/v1/tick-data", tags=["tick-data"])
 api_router.include_router(data_access.router, prefix="/v1/data-access", tags=["data-access"])
 api_router.include_router(monitoring.router, prefix="/v1/monitoring", tags=["monitoring"])
+api_router.include_router(market_data_quality.router, tags=["market-data-quality"])

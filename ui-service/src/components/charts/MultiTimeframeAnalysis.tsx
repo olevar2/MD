@@ -1,7 +1,8 @@
 /**
  * MultiTimeframeAnalysis component for comparing chart patterns across timeframes
+ * Optimized version with virtualization and shared data context
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -38,8 +39,9 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import InfoIcon from '@mui/icons-material/Info';
-import AdvancedChart from './AdvancedChart';
 import { TimeFrame } from '@/types/strategy';
+import { ChartDataProvider } from '@/context/ChartDataContext';
+import VirtualizedChart from './VirtualizedChart';
 
 // Extended interfaces with more comprehensive data
 interface IndicatorValues {
@@ -128,56 +130,114 @@ export default function MultiTimeframeAnalysis({
   const [chartMode, setChartMode] = useState<'comparison' | 'detailed'>('comparison');
   const [correlationData, setCorrelationData] = useState<any>(null);
 
+  // Track which charts are visible
+  const [visibleCharts, setVisibleCharts] = useState<Record<TimeFrame, boolean>>({
+    [primaryTimeframe]: true,
+    ...Object.fromEntries(comparisonTimeframes.map(tf => [tf, true]))
+  });
+
+  // Use intersection observer to track visible charts
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // Track legend values
+  const [legendValues, setLegendValues] = useState({ price: 0, time: '' });
+
+  // Handle crosshair move to update legend
+  const handleCrosshairMove = useCallback((param: any) => {
+    if (param.time && param.point && param.seriesData) {
+      const data = param.seriesData.get(param.seriesData.keys().next().value);
+      if (data) {
+        const dateStr = new Date((data.time as number) * 1000).toLocaleString();
+        setLegendValues({
+          price: data.close,
+          time: dateStr,
+        });
+      }
+    }
+  }, []);
+
+  // Setup intersection observer to track which charts are visible
+  useEffect(() => {
+    // Create intersection observer to track which charts are visible
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          const timeframe = entry.target.getAttribute('data-timeframe') as TimeFrame;
+          if (timeframe) {
+            setVisibleCharts(prev => ({
+              ...prev,
+              [timeframe]: entry.isIntersecting
+            }));
+          }
+        });
+      },
+      { threshold: 0.1 } // Consider visible when 10% is in view
+    );
+
+    // Cleanup
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, []);
+
+  // Function to attach observer to chart containers
+  const observeChartRef = useCallback((node: HTMLElement | null, timeframe: TimeFrame) => {
+    if (node && observerRef.current) {
+      node.setAttribute('data-timeframe', timeframe);
+      observerRef.current.observe(node);
+    }
+  }, []);
+
   // Load data whenever symbol or timeframes change
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      
+
       try {
         // In a real implementation, this would fetch data from an API
         await simulateDataLoading();
-        
+
         // Generate mock indicator data
         const mockData = generateMockIndicatorData();
         setIndicatorData(mockData);
-        
+
         // Generate MTF analysis summary
         const mockSummary = generateMockMTFSummary(mockData);
         setMtfSummary(mockSummary);
-        
+
         // Generate mock correlation data
         setCorrelationData(generateMockCorrelationData(mockData));
-        
+
       } catch (error) {
         console.error('Error loading MTF data:', error);
       } finally {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, [symbol, primaryTimeframe, comparisonTimeframes]);
-  
+
   // Simulate API data loading
   const simulateDataLoading = async () => {
     return new Promise(resolve => setTimeout(resolve, 1000));
   };
-  
+
   // Generate mock correlation data
   const generateMockCorrelationData = (data: Record<TimeFrame, IndicatorValues>) => {
     const timeframes = Object.keys(data);
     const correlationMatrix: Record<string, Record<string, number>> = {};
-    
+
     timeframes.forEach(tf1 => {
       correlationMatrix[tf1] = {};
       timeframes.forEach(tf2 => {
         // Generate correlation coefficient (1 for same timeframe, random for others)
-        correlationMatrix[tf1][tf2] = tf1 === tf2 ? 
-          1 : 
+        correlationMatrix[tf1][tf2] = tf1 === tf2 ?
+          1 :
           0.3 + Math.random() * 0.7; // Random correlation between 0.3 and 1.0
       });
     });
-    
+
     return {
       matrix: correlationMatrix,
       insights: [
@@ -187,28 +247,28 @@ export default function MultiTimeframeAnalysis({
       ]
     };
   };
-  
+
   // Generate mock indicator data for demonstration
   const generateMockIndicatorData = (): Record<TimeFrame, IndicatorValues> => {
     const result: Record<string, IndicatorValues> = {};
-    
+
     // Base trend bias for this symbol (random)
     const baseBias = Math.random() > 0.5;
     const allTimeframes = [primaryTimeframe, ...comparisonTimeframes];
-    
+
     allTimeframes.forEach(timeframe => {
       // Add some randomization while keeping consistent bias across timeframes
-      const isBullish = baseBias 
+      const isBullish = baseBias
         ? Math.random() > 0.3  // 70% chance to follow base bias if bullish
         : Math.random() > 0.7; // 30% chance to be bullish if base bias is bearish
-      
+
       // Adjust values based on timeframe (higher timeframes are more stable)
-      const tfIndex = [TimeFrame.M1, TimeFrame.M5, TimeFrame.M15, TimeFrame.M30, 
+      const tfIndex = [TimeFrame.M1, TimeFrame.M5, TimeFrame.M15, TimeFrame.M30,
                         TimeFrame.H1, TimeFrame.H4, TimeFrame.D1, TimeFrame.W1]
                         .indexOf(timeframe);
-      
+
       const stability = tfIndex / 7; // 0 to 1, higher for higher timeframes
-      
+
       // Create random adjustments
       const adj = {
         rsi: (Math.random() - 0.5) * 20,
@@ -216,27 +276,27 @@ export default function MultiTimeframeAnalysis({
         ma: (Math.random() - 0.5) * 10,
         atr: Math.random() * 0.3
       };
-      
+
       // Random pattern count (more patterns on higher timeframes)
       const patternCount = 1 + Math.floor(Math.random() * 4);
       const patternTypes = [
-        'Double Top', 'Double Bottom', 'Head & Shoulders', 
-        'Triangle', 'Flag', 'Channel', 'Elliott Wave', 
+        'Double Top', 'Double Bottom', 'Head & Shoulders',
+        'Triangle', 'Flag', 'Channel', 'Elliott Wave',
         'Fibonacci Retracement', 'ABCD Pattern'
       ];
-      
+
       const patterns = Array(patternCount).fill(0).map(() => ({
         type: patternTypes[Math.floor(Math.random() * patternTypes.length)],
         confidence: 0.5 + Math.random() * 0.4
       }));
-      
+
       // Generate support/resistance levels
       const srLevels = Array(2 + Math.floor(Math.random() * 3)).fill(0).map(() => ({
         price: 1.1000 + Math.random() * 0.1000,
         strength: 0.5 + Math.random() * 0.5,
         type: Math.random() > 0.5 ? 'support' : 'resistance' as ('support' | 'resistance')
       }));
-      
+
       // Generate divergences
       const divergences = Math.random() > 0.7 ? [
         {
@@ -245,15 +305,15 @@ export default function MultiTimeframeAnalysis({
           significance: 0.6 + Math.random() * 0.4
         }
       ] : [];
-      
+
       data[timeframe] = {
         timeframe,
-        rsi: isBullish ? 
-          60 + Math.random() * 15 - adj.rsi : 
+        rsi: isBullish ?
+          60 + Math.random() * 15 - adj.rsi :
           40 - Math.random() * 15 - adj.rsi,
         macd: {
-          histogram: isBullish ? 
-            0.05 + Math.random() * 0.3 - adj.macd : 
+          histogram: isBullish ?
+            0.05 + Math.random() * 0.3 - adj.macd :
             -0.05 - Math.random() * 0.3 - adj.macd,
           signal: isBullish ? -0.1 + Math.random() * 0.2 : 0.1 + Math.random() * 0.2,
           value: isBullish ? 0.1 + Math.random() * 0.3 : -0.1 - Math.random() * 0.3
@@ -275,38 +335,38 @@ export default function MultiTimeframeAnalysis({
         divergences
       };
     });
-    
+
     return result;
   };
-  
+
   // Generate mock MTF summary
   const generateMockMTFSummary = (data: Record<TimeFrame, IndicatorValues>): MTFSummary => {
     // Count bullish vs bearish trends across timeframes
     const trends = Object.values(data).map(tf => tf.trend);
     const bullishCount = trends.filter(t => t === 'bullish').length;
     const bearishCount = trends.filter(t => t === 'bearish').length;
-    
+
     // Determine overall bias
     const overallBias = bullishCount > bearishCount ? 'bullish' :
                         bearishCount > bullishCount ? 'bearish' : 'neutral';
-                        
+
     // Calculate confidence based on agreement between timeframes
     const totalTimeframes = trends.length;
     const dominantCount = Math.max(bullishCount, bearishCount);
     const confidence = dominantCount / totalTimeframes;
-    
+
     // Determine conflict level
     const conflictLevel = confidence > 0.8 ? 'low' :
                           confidence > 0.6 ? 'medium' : 'high';
-                          
+
     // Find recommended timeframe (simple logic - could be more sophisticated)
     const timeframeOptions = Object.keys(data) as TimeFrame[];
-    const recommendedTimeframe = conflictLevel === 'high' 
+    const recommendedTimeframe = conflictLevel === 'high'
       ? TimeFrame.D1  // Use higher timeframe when conflict is high
       : timeframeOptions[Math.floor(timeframeOptions.length / 2)]; // Middle timeframe
-    
+
     // Collect key levels from all timeframes
-    const allLevels = Object.entries(data).flatMap(([tf, tfData]) => 
+    const allLevels = Object.entries(data).flatMap(([tf, tfData]) =>
       tfData.support_resistance.map(level => ({
         price: level.price,
         type: level.type,
@@ -314,16 +374,16 @@ export default function MultiTimeframeAnalysis({
         timeframes: [tf as TimeFrame]
       }))
     );
-    
+
     // Merge similar levels (simplified algorithm)
     const keyLevels = [];
     const priceTolerance = 0.0010; // Consider levels within 10 pips as the same
-    
+
     for (const level of allLevels) {
       const existingLevel = keyLevels.find(
         l => Math.abs(l.price - level.price) < priceTolerance && l.type === level.type
       );
-      
+
       if (existingLevel) {
         // Merge into existing level
         existingLevel.strength = Math.max(existingLevel.strength, level.strength);
@@ -335,10 +395,10 @@ export default function MultiTimeframeAnalysis({
         keyLevels.push(level);
       }
     }
-    
+
     // Sort by strength
     keyLevels.sort((a, b) => b.strength - a.strength);
-    
+
     // Generate confluence zones (areas where multiple indicators/levels align)
     const confluenceZones = Array(2 + Math.floor(Math.random() * 3)).fill(0).map(() => ({
       price: 1.1000 + Math.random() * 0.1000,
@@ -351,14 +411,14 @@ export default function MultiTimeframeAnalysis({
         'Volume profile'
       ].slice(0, 2 + Math.floor(Math.random() * 3))
     }));
-    
+
     // Generate pattern analysis
     const patterns = {
       aligned: Math.random() > 0.3,
       dominant: ['Triangle', 'Channel', 'Double Top', 'Elliott Wave'][Math.floor(Math.random() * 4)],
       conflicting: Math.random() > 0.7
     };
-    
+
     // Generate trend analysis for different timeframes
     const timeframeWeights = {
       [TimeFrame.M1]: 'shortTerm',
@@ -370,19 +430,19 @@ export default function MultiTimeframeAnalysis({
       [TimeFrame.D1]: 'longTerm',
       [TimeFrame.W1]: 'longTerm'
     };
-    
+
     const trendCounts = {
       shortTerm: { bullish: 0, bearish: 0, neutral: 0 },
       mediumTerm: { bullish: 0, bearish: 0, neutral: 0 },
       longTerm: { bullish: 0, bearish: 0, neutral: 0 }
     };
-    
+
     // Count trends by timeframe category
     Object.entries(data).forEach(([tf, tfData]) => {
       const category = timeframeWeights[tf as TimeFrame] || 'shortTerm';
       trendCounts[category][tfData.trend]++;
     });
-    
+
     // Determine dominant trend for each category
     const trends = {
       shortTerm: trendCounts.shortTerm.bullish > trendCounts.shortTerm.bearish ? 'bullish' :
@@ -392,7 +452,7 @@ export default function MultiTimeframeAnalysis({
       longTerm: trendCounts.longTerm.bullish > trendCounts.longTerm.bearish ? 'bullish' :
                 trendCounts.longTerm.bearish > trendCounts.longTerm.bullish ? 'bearish' : 'neutral'
     };
-    
+
     return {
       overallBias,
       confidence,
@@ -404,19 +464,19 @@ export default function MultiTimeframeAnalysis({
       trends
     };
   };
-  
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
-  
+
   const handleTimeframeSelect = (timeframe: TimeFrame) => {
     setSelectedTimeframe(timeframe);
   };
-  
+
   const toggleChartMode = () => {
     setChartMode(chartMode === 'comparison' ? 'detailed' : 'comparison');
   };
-  
+
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'bullish':
@@ -427,7 +487,7 @@ export default function MultiTimeframeAnalysis({
         return <SwapHorizIcon fontSize="small" color="disabled" />;
     }
   };
-  
+
   const getTrendColor = (trend: string) => {
     switch (trend) {
       case 'bullish':
@@ -441,19 +501,33 @@ export default function MultiTimeframeAnalysis({
 
   return (
     <Paper sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom display="flex" alignItems="center">
-        Multi-Timeframe Analysis - {symbol}
-        <Button 
-          variant="outlined" 
-          size="small" 
-          startIcon={chartMode === 'comparison' ? <ZoomInIcon /> : <CompareArrowsIcon />}
-          onClick={toggleChartMode}
-          sx={{ ml: 2 }}
-        >
-          {chartMode === 'comparison' ? 'Detailed View' : 'Comparison View'}
-        </Button>
-      </Typography>
-      
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" display="flex" alignItems="center">
+          Multi-Timeframe Analysis - {symbol}
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={chartMode === 'comparison' ? <ZoomInIcon /> : <CompareArrowsIcon />}
+            onClick={toggleChartMode}
+            sx={{ ml: 2 }}
+          >
+            {chartMode === 'comparison' ? 'Detailed View' : 'Comparison View'}
+          </Button>
+        </Typography>
+
+        {/* Legend values */}
+        {legendValues.price > 0 && (
+          <Box sx={{ fontSize: '0.875rem' }}>
+            <Typography component="span" variant="body2" mr={1}>
+              Price: <strong>{legendValues.price.toFixed(4)}</strong>
+            </Typography>
+            <Typography component="span" variant="body2">
+              Time: <strong>{legendValues.time}</strong>
+            </Typography>
+          </Box>
+        )}
+      </Box>
+
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
           <CircularProgress />
@@ -466,37 +540,50 @@ export default function MultiTimeframeAnalysis({
             <Tab label="Analysis Summary" />
             <Tab label="Correlation Analysis" />
           </Tabs>
-          
+
           {/* Chart Comparison Tab */}
           {activeTab === 0 && (
-            <>
+            <ChartDataProvider>
               {chartMode === 'comparison' ? (
                 <Grid container spacing={2}>
                   {/* Primary Chart (larger) */}
-                  <Grid item xs={12}>
+                  <Grid
+                    item
+                    xs={12}
+                    ref={node => observeChartRef(node, primaryTimeframe)}
+                  >
                     <Typography variant="subtitle1" gutterBottom>
                       Primary Timeframe: {primaryTimeframe}
                     </Typography>
-                    <AdvancedChart 
+                    <VirtualizedChart
                       symbol={symbol}
-                      initialTimeframe={primaryTimeframe as TimeFrame}
+                      timeframe={primaryTimeframe}
                       height={height}
+                      isVisible={visibleCharts[primaryTimeframe]}
                       showVolume={true}
                       enablePatternDetection={true}
                       enableConfluenceHighlighting={true}
+                      onCrosshairMove={handleCrosshairMove}
                     />
                   </Grid>
-                  
+
                   {/* Comparison charts (smaller) */}
                   {comparisonTimeframes.map((tf) => (
-                    <Grid item xs={12} md={6} key={tf}>
+                    <Grid
+                      item
+                      xs={12}
+                      md={6}
+                      key={tf}
+                      ref={node => observeChartRef(node, tf)}
+                    >
                       <Typography variant="subtitle2" gutterBottom>
                         {tf}
                       </Typography>
-                      <AdvancedChart 
+                      <VirtualizedChart
                         symbol={symbol}
-                        initialTimeframe={tf as TimeFrame}
+                        timeframe={tf}
                         height={height / 2}
+                        isVisible={visibleCharts[tf]}
                         showVolume={false}
                         enablePatternDetection={true}
                         enableConfluenceHighlighting={true}
@@ -519,22 +606,23 @@ export default function MultiTimeframeAnalysis({
                       ))}
                     </Select>
                   </FormControl>
-                  
-                  <AdvancedChart 
+
+                  <VirtualizedChart
                     symbol={symbol}
-                    initialTimeframe={selectedTimeframe}
+                    timeframe={selectedTimeframe}
                     height={height * 1.5}
                     showVolume={true}
                     enablePatternDetection={true}
                     enableConfluenceHighlighting={true}
                     enableMultiTimeframe={true}
                     enableElliottWaveOverlays={true}
+                    onCrosshairMove={handleCrosshairMove}
                   />
                 </Box>
               )}
-            </>
+            </ChartDataProvider>
           )}
-          
+
           {/* Indicator Table Tab */}
           {activeTab === 1 && (
             <TableContainer>
@@ -556,7 +644,7 @@ export default function MultiTimeframeAnalysis({
                     <TableRow key={timeframe} hover>
                       <TableCell>{timeframe}</TableCell>
                       <TableCell>
-                        <Chip 
+                        <Chip
                           size="small"
                           label={data.trend.toUpperCase()}
                           color={getTrendColor(data.trend) as any}
@@ -564,7 +652,7 @@ export default function MultiTimeframeAnalysis({
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography 
+                        <Typography
                           color={data.rsi > 70 ? 'error' : data.rsi < 30 ? 'success' : 'inherit'}
                           fontWeight={data.rsi > 70 || data.rsi < 30 ? 'bold' : 'normal'}
                         >
@@ -572,7 +660,7 @@ export default function MultiTimeframeAnalysis({
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography 
+                        <Typography
                           color={data.macd.histogram > 0 ? 'success.main' : 'error.main'}
                           fontWeight="medium"
                         >
@@ -580,16 +668,16 @@ export default function MultiTimeframeAnalysis({
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Chip 
+                        <Chip
                           size="small"
                           label={data.ma.crossover}
-                          color={data.ma.crossover === 'bullish' ? 'success' : 
+                          color={data.ma.crossover === 'bullish' ? 'success' :
                                 data.ma.crossover === 'bearish' ? 'error' : 'default'}
                         />
                       </TableCell>
                       <TableCell>{data.atr.toFixed(4)}</TableCell>
                       <TableCell>
-                        <Typography 
+                        <Typography
                           color={data.volume.anomalies ? 'warning.main' : 'inherit'}
                           sx={{ display: 'flex', alignItems: 'center' }}
                         >
@@ -601,7 +689,7 @@ export default function MultiTimeframeAnalysis({
                       <TableCell>
                         {data.patterns.length ? (
                           data.patterns.map((pattern, i) => (
-                            <Chip 
+                            <Chip
                               key={i}
                               size="small"
                               label={pattern.type}
@@ -618,16 +706,16 @@ export default function MultiTimeframeAnalysis({
               </Table>
             </TableContainer>
           )}
-          
+
           {/* Analysis Summary Tab */}
           {activeTab === 2 && mtfSummary && (
             <Grid container spacing={3}>
               {/* Overall analysis card */}
               <Grid item xs={12} md={6}>
                 <Card>
-                  <CardHeader 
-                    title="Market Overview" 
-                    titleTypographyProps={{ variant: 'h6' }} 
+                  <CardHeader
+                    title="Market Overview"
+                    titleTypographyProps={{ variant: 'h6' }}
                   />
                   <CardContent>
                     <Grid container spacing={2}>
@@ -635,53 +723,53 @@ export default function MultiTimeframeAnalysis({
                         <Typography variant="body2" color="text.secondary" gutterBottom>
                           Overall Bias:
                         </Typography>
-                        <Chip 
+                        <Chip
                           label={mtfSummary.overallBias.toUpperCase()}
                           color={getTrendColor(mtfSummary.overallBias) as any}
                           icon={getTrendIcon(mtfSummary.overallBias)}
                         />
                       </Grid>
-                      
+
                       <Grid item xs={6}>
                         <Typography variant="body2" color="text.secondary" gutterBottom>
                           Confidence:
                         </Typography>
                         <Typography variant="body1">
-                          {(mtfSummary.confidence * 100).toFixed(0)}% 
+                          {(mtfSummary.confidence * 100).toFixed(0)}%
                           ({mtfSummary.conflictLevel} conflict)
                         </Typography>
                       </Grid>
-                      
+
                       <Grid item xs={12}>
                         <Typography variant="body2" color="text.secondary" gutterBottom>
                           Timeframe Trends:
                         </Typography>
                         <Box sx={{ display: 'flex', gap: 1 }}>
-                          <Chip 
+                          <Chip
                             size="small"
                             label={`Short: ${mtfSummary.trends.shortTerm}`}
                             color={getTrendColor(mtfSummary.trends.shortTerm) as any}
                           />
-                          <Chip 
+                          <Chip
                             size="small"
                             label={`Medium: ${mtfSummary.trends.mediumTerm}`}
                             color={getTrendColor(mtfSummary.trends.mediumTerm) as any}
                           />
-                          <Chip 
+                          <Chip
                             size="small"
                             label={`Long: ${mtfSummary.trends.longTerm}`}
                             color={getTrendColor(mtfSummary.trends.longTerm) as any}
                           />
                         </Box>
                       </Grid>
-                      
+
                       <Grid item xs={12}>
                         <Typography variant="body2" color="text.secondary" gutterBottom>
                           Recommended Timeframe:
                         </Typography>
                         <Chip label={mtfSummary.recommendedTimeframe} />
                       </Grid>
-                      
+
                       {mtfSummary.patterns.conflicting && (
                         <Grid item xs={12}>
                           <Alert severity="warning" sx={{ mt: 1 }}>
@@ -693,13 +781,13 @@ export default function MultiTimeframeAnalysis({
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               {/* Key levels card */}
               <Grid item xs={12} md={6}>
                 <Card>
-                  <CardHeader 
-                    title="Key Price Levels" 
-                    titleTypographyProps={{ variant: 'h6' }} 
+                  <CardHeader
+                    title="Key Price Levels"
+                    titleTypographyProps={{ variant: 'h6' }}
                   />
                   <CardContent>
                     <TableContainer>
@@ -717,7 +805,7 @@ export default function MultiTimeframeAnalysis({
                             <TableRow key={index} hover>
                               <TableCell>{level.price.toFixed(4)}</TableCell>
                               <TableCell>
-                                <Chip 
+                                <Chip
                                   size="small"
                                   label={level.type}
                                   color={level.type === 'resistance' ? 'error' : 'success'}
@@ -737,13 +825,13 @@ export default function MultiTimeframeAnalysis({
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               {/* Confluence zones card */}
               <Grid item xs={12}>
                 <Card>
-                  <CardHeader 
-                    title="Confluence Zones" 
-                    titleTypographyProps={{ variant: 'h6' }} 
+                  <CardHeader
+                    title="Confluence Zones"
+                    titleTypographyProps={{ variant: 'h6' }}
                   />
                   <CardContent>
                     <Grid container spacing={2}>
@@ -754,24 +842,24 @@ export default function MultiTimeframeAnalysis({
                               <Typography variant="h6" gutterBottom>
                                 {zone.price.toFixed(4)}
                               </Typography>
-                              
+
                               <Typography variant="body2" gutterBottom>
                                 {zone.description}
                               </Typography>
-                              
+
                               <Typography variant="body2" color="text.secondary" gutterBottom>
                                 Strength: {(zone.strength * 100).toFixed(0)}%
                               </Typography>
-                              
+
                               <Divider sx={{ my: 1 }} />
-                              
+
                               <Typography variant="caption" color="text.secondary" gutterBottom>
                                 Supporting Evidence:
                               </Typography>
-                              
+
                               <Box sx={{ mt: 1 }}>
                                 {zone.sources.map((source, i) => (
-                                  <Chip 
+                                  <Chip
                                     key={i}
                                     size="small"
                                     label={source}
@@ -789,15 +877,15 @@ export default function MultiTimeframeAnalysis({
               </Grid>
             </Grid>
           )}
-          
+
           {/* Correlation Analysis Tab */}
           {activeTab === 3 && correlationData && (
             <Grid container spacing={3}>
               <Grid item xs={12} md={7}>
                 <Card>
-                  <CardHeader 
-                    title="Timeframe Correlation Matrix" 
-                    titleTypographyProps={{ variant: 'h6' }} 
+                  <CardHeader
+                    title="Timeframe Correlation Matrix"
+                    titleTypographyProps={{ variant: 'h6' }}
                   />
                   <CardContent>
                     <TableContainer>
@@ -815,7 +903,7 @@ export default function MultiTimeframeAnalysis({
                             <TableRow key={tf} hover>
                               <TableCell><strong>{tf}</strong></TableCell>
                               {Object.entries(correlations as Record<string, number>).map(([targetTf, value]) => (
-                                <TableCell key={targetTf} 
+                                <TableCell key={targetTf}
                                   sx={{
                                     backgroundColor: `rgba(25, 118, 210, ${value.toFixed(2)})`,
                                     color: value > 0.7 ? 'white' : 'inherit'
@@ -832,12 +920,12 @@ export default function MultiTimeframeAnalysis({
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={5}>
                 <Card sx={{ height: '100%' }}>
-                  <CardHeader 
-                    title="Correlation Insights" 
-                    titleTypographyProps={{ variant: 'h6' }} 
+                  <CardHeader
+                    title="Correlation Insights"
+                    titleTypographyProps={{ variant: 'h6' }}
                   />
                   <CardContent>
                     <List>

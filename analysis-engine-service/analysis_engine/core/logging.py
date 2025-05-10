@@ -5,9 +5,22 @@ This module provides logging functionality for the Analysis Engine Service.
 """
 
 import logging
+from common_lib.correlation import get_correlation_id
+
 import sys
 from typing import Optional
 from analysis_engine.config import get_settings
+
+
+
+class CorrelationFilter(logging.Filter):
+    """Logging filter that adds correlation ID to log records."""
+    
+    def filter(self, record):
+        correlation_id = get_correlation_id()
+        record.correlation_id = correlation_id or "no-correlation-id"
+        return True
+
 
 def configure_logging() -> None:
     """Configure logging for the application."""

@@ -1,0 +1,126 @@
+{
+  "OptimizedConfluenceDetector": {
+    "detect_confluence_optimized": {
+      "cold_time": 0.085,
+      "warm_time": 0.015,
+      "memory_usage": 18.5,
+      "confirmation_count": 2,
+      "contradiction_count": 1,
+      "confluence_score": 0.65
+    }
+  },
+  "MLConfluenceDetector": {
+    "detect_confluence_ml": {
+      "cold_time": 0.125,
+      "warm_time": 0.025,
+      "memory_usage": 24.8,
+      "confirmation_count": 2,
+      "contradiction_count": 1,
+      "confluence_score": 0.68,
+      "pattern_score": 0.72,
+      "prediction_score": 0.65
+    }
+  },
+  "OptimizedDivergenceAnalyzer": {
+    "analyze_divergence_optimized": {
+      "cold_time": 0.065,
+      "warm_time": 0.012,
+      "memory_usage": 15.2,
+      "divergences_found": 2,
+      "divergence_score": 0.7
+    }
+  },
+  "MLDivergenceAnalyzer": {
+    "analyze_divergence_ml": {
+      "cold_time": 0.095,
+      "warm_time": 0.018,
+      "memory_usage": 22.5,
+      "divergences_found": 2,
+      "divergence_score": 0.72
+    }
+  },
+  "PatternRecognitionModel": {
+    "predict": {
+      "cold_time": 0.055,
+      "warm_time": 0.01,
+      "memory_usage": 12.8
+    }
+  },
+  "PricePredictionModel": {
+    "predict": {
+      "cold_time": 0.075,
+      "warm_time": 0.015,
+      "memory_usage": 18.2
+    }
+  },
+  "AdaptiveCacheManager": {
+    "get": {
+      "hit_time": 0.0001,
+      "miss_time": 0.0002
+    },
+    "set": {
+      "time": 0.0003
+    }
+  },
+  "PredictiveCacheManager": {
+    "get": {
+      "hit_time": 0.0001,
+      "miss_time": 0.0002
+    },
+    "set": {
+      "time": 0.0004
+    }
+  },
+  "OptimizedParallelProcessor": {
+    "process": {
+      "time_per_task": 0.005,
+      "memory_per_task": 0.5
+    }
+  },
+  "MemoryOptimizedDataFrame": {
+    "optimize_dtypes": {
+      "time": 0.01,
+      "memory_reduction": 0.4
+    },
+    "get_view": {
+      "time": 0.0005
+    }
+  },
+  "GPUAccelerator": {
+    "calculate_technical_indicators": {
+      "cpu_time": 0.05,
+      "gpu_time": 0.01,
+      "speedup": 5.0
+    }
+  },
+  "DistributedTracer": {
+    "start_span": {
+      "time": 0.0002
+    },
+    "add_span_event": {
+      "time": 0.0001
+    }
+  },
+  "API": {
+    "confluence": {
+      "response_time": 0.15,
+      "throughput": 10.0
+    },
+    "divergence": {
+      "response_time": 0.12,
+      "throughput": 12.0
+    },
+    "patterns": {
+      "response_time": 0.08,
+      "throughput": 15.0
+    },
+    "currency_strength": {
+      "response_time": 0.05,
+      "throughput": 20.0
+    },
+    "related_pairs": {
+      "response_time": 0.03,
+      "throughput": 30.0
+    }
+  }
+}

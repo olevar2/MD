@@ -1,0 +1,27 @@
+{
+    "servers": {
+        "sequential-thinking": {
+            "type": "http",
+            "url": "http://localhost:8000"
+        },
+        "desktop-commander": {
+            "type": "http",
+            "url": "http://localhost:8001"
+        }
+    },
+    "capabilities": {
+        "sequential-thinking": {
+            "experimental": {
+                "thinking": true,
+                "branching": true,
+                "revision": true
+            }
+        },
+        "desktop-commander": {
+            "experimental": {
+                "fileSystem": true,
+                "shellCommands": true
+            }
+        }
+    }
+}

@@ -10,6 +10,7 @@ from typing import Dict, Optional, Union
 import asyncio  # Add asyncio import if needed for health check
 
 import uvicorn
+from common_lib.correlation import FastAPICorrelationIdMiddleware
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -113,6 +114,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add correlation ID middleware
+app.add_middleware(FastAPICorrelationIdMiddleware)
 
 # Add correlation ID middleware
 app.add_middleware(CorrelationIdMiddleware)

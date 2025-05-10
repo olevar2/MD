@@ -15,8 +15,9 @@ from fastapi import FastAPI
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'mocks')))
 
 # Mock common_lib
-sys.modules['common_lib'] = __import__('common_lib')
-sys.modules['common_lib.config'] = __import__('common_lib').config
+from mocks import common_lib
+sys.modules['common_lib'] = common_lib
+sys.modules['common_lib.config'] = common_lib.config
 
 from analysis_engine.config.settings import AnalysisEngineSettings as Settings, get_settings
 from analysis_engine.core.service_container import ServiceContainer

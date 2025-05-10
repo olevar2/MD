@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 
 class DataValidationError(Exception):
     """Exception raised for data validation errors."""
-    
+
     def __init__(self, message: str, data: Any = None):
         self.message = message
         self.data = data
@@ -128,6 +128,17 @@ class DataTransformationError(DataError):
         if transformation:
             kwargs['transformation'] = transformation
         super().__init__(message, "DATA_TRANSFORMATION_ERROR", *args, **kwargs)
+
+
+class DataQualityError(DataError):
+    """Exception raised for data quality issues."""
+
+    def __init__(self, message: str = None, quality_check: str = None, *args, **kwargs):
+        message = message or f"Data quality check failed: {quality_check or 'unknown'}"
+        # Pass quality_check to details via kwargs
+        if quality_check:
+            kwargs['quality_check'] = quality_check
+        super().__init__(message, "DATA_QUALITY_ERROR", *args, **kwargs)
 
 
 class ServiceError(ForexTradingPlatformError):

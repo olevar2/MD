@@ -3,14 +3,14 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "forex-trading-platform"
+name = "common-lib"
 version = "0.1.0"
 description = "Forex Trading Platform"
 authors = ["Forex Team <team@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.8,<3.14"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.3.1"

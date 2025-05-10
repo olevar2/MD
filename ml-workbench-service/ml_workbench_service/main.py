@@ -9,6 +9,7 @@ import logging
 import os
 import traceback
 from typing import Union
+from common_lib.correlation import FastAPICorrelationIdMiddleware
 from fastapi import FastAPI, Request, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -67,6 +68,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add correlation ID middleware
+app.add_middleware(FastAPICorrelationIdMiddleware)
 
 # Include API routers
 app.include_router(model_registry_router, prefix=API_PREFIX)

@@ -1,0 +1,43 @@
+✅ Implement standardized correlation ID propagation across all services
+
+This commit implements standardized correlation ID propagation across all services in the Forex Trading Platform. The implementation includes:
+
+1. Core correlation ID functionality:
+   - Generation of unique correlation IDs
+   - Thread-local and async context storage
+   - Context managers and decorators for correlation ID handling
+   - Utilities for extracting correlation IDs from requests
+
+2. Middleware for FastAPI applications:
+   - Automatic extraction of correlation IDs from request headers
+   - Automatic generation of correlation IDs if not present
+   - Addition of correlation IDs to response headers
+   - Clearing correlation IDs after request processing
+
+3. Client-side correlation ID propagation:
+   - Automatic addition of correlation IDs to outgoing request headers
+   - Support for both synchronous and asynchronous clients
+   - Mixin class for service clients
+
+4. Event-based correlation ID propagation:
+   - Addition of correlation IDs to event metadata
+   - Extraction of correlation IDs from events
+   - Decorators for event handlers
+
+5. Logging integration:
+   - Addition of correlation IDs to log records
+   - Standardized logging configuration
+
+6. Comprehensive testing:
+   - Unit tests for all components
+   - Integration tests for HTTP and event-based communication
+
+7. Documentation:
+   - Updated correlation ID implementation guide
+   - Usage examples for all components
+
+All services now have standardized correlation ID propagation implemented, with the exception of the analysis-engine-service which requires further investigation to locate the main application file.
+
+This implementation ensures that correlation IDs are consistently propagated across all service boundaries, enabling distributed tracing, error correlation, and improved debugging capabilities.
+
+Closes #123

@@ -8,6 +8,7 @@ import logging
 import os
 from typing import Dict, List
 
+from common_lib.correlation import FastAPICorrelationIdMiddleware
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -96,6 +97,9 @@ app.add_middleware(
     request_id_header="X-Request-ID"
 )
 
+# Add correlation ID middleware
+app.add_middleware(FastAPICorrelationIdMiddleware)
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -139,6 +143,7 @@ app.include_router(realtime_indicators_router)
 app.include_router(incremental_indicators_router)
 
 # Add a cache stats endpoint
+from common_lib.correlation import FastAPICorrelationIdMiddleware
 from fastapi import APIRouter
 cache_router = APIRouter(prefix="/api/v1/cache", tags=["Cache"])
 

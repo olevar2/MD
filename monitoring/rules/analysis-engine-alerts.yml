@@ -1,0 +1,74 @@
+groups:
+  - name: analysis-engine-alerts
+    rules:
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="analysis-engine"}[5m])) by (le, endpoint)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request latency on {{ $labels.endpoint }}"
+          description: "{{ $labels.endpoint }} has a 95th percentile latency of {{ $value }} seconds"
+
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{job="analysis-engine", status_code=~"5.."}[5m])) / sum(rate(http_requests_total{job="analysis-engine"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate"
+          description: "Error rate is {{ $value | humanizePercentage }}"
+
+      - alert: InstanceDown
+        expr: up{job="analysis-engine"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes{job="analysis-engine"} > 1.5e9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "{{ $labels.instance }} is using {{ $value | humanize1024 }} of memory"
+
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="analysis-engine"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "{{ $labels.instance }} is using {{ $value | humanizePercentage }} of CPU"
+
+      - alert: LowCacheHitRate
+        expr: sum(cache_hit_rate{job="analysis-engine", cache_type="adaptive"}) < 0.5
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }}"
+
+      - alert: HighConfluenceDetectionLatency
+        expr: histogram_quantile(0.95, sum(rate(confluence_detection_duration_seconds_bucket{job="analysis-engine", cache_state="cold"}[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High confluence detection latency"
+          description: "Confluence detection has a 95th percentile latency of {{ $value }} seconds"
+
+      - alert: HighDivergenceAnalysisLatency
+        expr: histogram_quantile(0.95, sum(rate(divergence_analysis_duration_seconds_bucket{job="analysis-engine", cache_state="cold"}[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High divergence analysis latency"
+          description: "Divergence analysis has a 95th percentile latency of {{ $value }} seconds"

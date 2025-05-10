@@ -11,7 +11,8 @@ from data_pipeline_service.api.v1 import (
     ohlcv,
     tick_data,
     data_access,
-    monitoring
+    monitoring,
+    market_data_quality
 )
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     'ohlcv',
     'tick_data',
     'data_access',
-    'monitoring'
+    'monitoring',
+    'market_data_quality'
 ]
