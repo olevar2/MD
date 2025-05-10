@@ -26,6 +26,20 @@
         "--profile",
         "sick-harrier-8F2ypE"
       ]
+    },
+    "desktop-commander-mcp": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "set PORT=8001 && set USE_HTTP=true && python mcp-server/desktop_commander.py"
+      ]
+    },
+    "sequential-thinking-mcp": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "set PORT=8000 && set USE_HTTP=true && python mcp-server/sequential_thinking.py"
+      ]
     }
   }
 }
