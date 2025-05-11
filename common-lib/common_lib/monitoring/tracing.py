@@ -1,263 +1,296 @@
 """
-Distributed Tracing Module for Forex Trading Platform.
+Tracing Module
 
-This module provides distributed tracing capabilities using OpenTelemetry,
-allowing for detailed request tracing across services.
+This module provides distributed tracing functionality for the platform.
 """
 
-import os
 import logging
 import functools
-from typing import Dict, Any, Optional, Callable, List, Union, TypeVar, cast
-import asyncio
 import inspect
-from contextlib import contextmanager
+import asyncio
+from typing import Dict, Any, Optional, List, Callable, ClassVar, Union, TypeVar, cast
 
-# OpenTelemetry imports
-from opentelemetry import trace
+import opentelemetry.trace as trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.sdk.resources import Resource
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
-from opentelemetry.trace.status import Status, StatusCode
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.aiohttp import AioHttpClientInstrumentor
-from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
-from opentelemetry.instrumentation.redis import RedisInstrumentor
+from opentelemetry.context import Context, get_current
 
-# Configure logging
-logger = logging.getLogger(__name__)
+from common_lib.config.config_manager import ConfigManager
 
-# Type variables for function decorators
-F = TypeVar('F', bound=Callable[..., Any])
-AsyncF = TypeVar('AsyncF', bound=Callable[..., Any])
 
-# Default configuration
-DEFAULT_OTLP_ENDPOINT = "http://jaeger:4317"
-DEFAULT_SERVICE_NAME = "forex-trading-service"
-DEFAULT_SERVICE_VERSION = "1.0.0"
-DEFAULT_ENVIRONMENT = "development"
+T = TypeVar('T')
 
-# Global variables
-_tracer_provider = None
-_tracer = None
 
-def setup_tracing(
-    service_name: str = None,
-    service_version: str = None,
-    otlp_endpoint: str = None,
-    environment: str = None,
-    sampling_rate: float = 1.0
-) -> None:
+class TracingManager:
     """
-    Set up OpenTelemetry tracing.
+    Tracing manager for the platform.
     
-    This function initializes the OpenTelemetry tracer provider and configures
-    exporters and instrumentors.
+    This class provides a singleton manager for distributed tracing.
+    """
+    
+    _instance: ClassVar[Optional["TracingManager"]] = None
+    
+    def __new__(cls, *args, **kwargs):
+        """
+        Create a new instance of the tracing manager.
+        
+        Returns:
+            Singleton instance of the tracing manager
+        """
+        if cls._instance is None:
+            cls._instance = super(TracingManager, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
+    def __init__(
+        self,
+        service_name: str,
+        exporter_type: str = "jaeger",
+        exporter_endpoint: Optional[str] = None,
+        logger: Optional[logging.Logger] = None
+    ):
+        """
+        Initialize the tracing manager.
+        
+        Args:
+            service_name: Name of the service
+            exporter_type: Type of the exporter (jaeger or otlp)
+            exporter_endpoint: Endpoint of the exporter
+            logger: Logger to use (if None, creates a new logger)
+        """
+        # Skip initialization if already initialized
+        if getattr(self, "_initialized", False):
+            return
+        
+        self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.service_name = service_name
+        self.exporter_type = exporter_type
+        self.exporter_endpoint = exporter_endpoint
+        
+        # Initialize tracing
+        self._initialize_tracing()
+        
+        # Get tracer
+        self.tracer = trace.get_tracer(service_name)
+        
+        # Create propagator
+        self.propagator = TraceContextTextMapPropagator()
+        
+        self._initialized = True
+    
+    def _initialize_tracing(self):
+        """
+        Initialize tracing.
+        """
+        # Create resource
+        resource = Resource(attributes={
+            SERVICE_NAME: self.service_name
+        })
+        
+        # Create tracer provider
+        provider = TracerProvider(resource=resource)
+        
+        # Create exporter
+        if self.exporter_type.lower() == "jaeger":
+            # Create Jaeger exporter
+            exporter = JaegerExporter(
+                agent_host_name=self.exporter_endpoint.split(":")[0] if self.exporter_endpoint else "localhost",
+                agent_port=int(self.exporter_endpoint.split(":")[1]) if self.exporter_endpoint and ":" in self.exporter_endpoint else 6831
+            )
+        elif self.exporter_type.lower() == "otlp":
+            # Create OTLP exporter
+            exporter = OTLPSpanExporter(
+                endpoint=self.exporter_endpoint or "localhost:4317"
+            )
+        else:
+            raise ValueError(f"Invalid exporter type: {self.exporter_type}")
+        
+        # Create span processor
+        processor = BatchSpanProcessor(exporter)
+        
+        # Add span processor to tracer provider
+        provider.add_span_processor(processor)
+        
+        # Set tracer provider
+        trace.set_tracer_provider(provider)
+    
+    def start_span(
+        self,
+        name: str,
+        context: Optional[Context] = None,
+        kind: Optional[trace.SpanKind] = None,
+        attributes: Optional[Dict[str, Any]] = None
+    ) -> trace.Span:
+        """
+        Start a span.
+        
+        Args:
+            name: Name of the span
+            context: Context for the span
+            kind: Kind of the span
+            attributes: Attributes for the span
+            
+        Returns:
+            Span
+        """
+        return self.tracer.start_span(
+            name,
+            context=context,
+            kind=kind,
+            attributes=attributes
+        )
+    
+    def inject_context(
+        self,
+        context: Optional[Context] = None,
+        carrier: Optional[Dict[str, str]] = None
+    ) -> Dict[str, str]:
+        """
+        Inject context into a carrier.
+        
+        Args:
+            context: Context to inject
+            carrier: Carrier to inject into
+            
+        Returns:
+            Carrier with injected context
+        """
+        carrier = carrier or {}
+        self.propagator.inject(carrier, context=context)
+        return carrier
+    
+    def extract_context(
+        self,
+        carrier: Dict[str, str],
+        context: Optional[Context] = None
+    ) -> Context:
+        """
+        Extract context from a carrier.
+        
+        Args:
+            carrier: Carrier to extract from
+            context: Context to extract into
+            
+        Returns:
+            Extracted context
+        """
+        return self.propagator.extract(carrier, context=context)
+    
+    def get_current_span(self) -> trace.Span:
+        """
+        Get the current span.
+        
+        Returns:
+            Current span
+        """
+        return trace.get_current_span()
+    
+    def get_current_context(self) -> Context:
+        """
+        Get the current context.
+        
+        Returns:
+            Current context
+        """
+        return get_current()
+
+
+def trace_function(
+    name: Optional[str] = None,
+    kind: Optional[trace.SpanKind] = None,
+    attributes: Optional[Dict[str, Any]] = None
+):
+    """
+    Decorator for tracing function execution.
     
     Args:
-        service_name: Name of the service
-        service_version: Version of the service
-        otlp_endpoint: Endpoint for the OpenTelemetry collector
-        environment: Deployment environment
-        sampling_rate: Sampling rate for traces (0.0-1.0)
-    """
-    global _tracer_provider, _tracer
-    
-    # Get configuration from parameters or environment variables
-    service_name = service_name or os.environ.get("SERVICE_NAME", DEFAULT_SERVICE_NAME)
-    service_version = service_version or os.environ.get("SERVICE_VERSION", DEFAULT_SERVICE_VERSION)
-    otlp_endpoint = otlp_endpoint or os.environ.get("OTLP_ENDPOINT", DEFAULT_OTLP_ENDPOINT)
-    environment = environment or os.environ.get("ENVIRONMENT", DEFAULT_ENVIRONMENT)
-    
-    # Create a resource with service information
-    resource = Resource.create({
-        "service.name": service_name,
-        "service.version": service_version,
-        "deployment.environment": environment
-    })
-    
-    # Create a tracer provider with the resource
-    _tracer_provider = TracerProvider(resource=resource)
-    
-    # Configure the OTLP exporter
-    otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
-    
-    # Add the exporter to the tracer provider
-    _tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-    
-    # Set the tracer provider
-    trace.set_tracer_provider(_tracer_provider)
-    
-    # Get the tracer
-    _tracer = trace.get_tracer(service_name, service_version)
-    
-    logger.info(
-        f"OpenTelemetry tracing initialized for {service_name} ({service_version}) "
-        f"with exporter at {otlp_endpoint}"
-    )
-
-def get_tracer():
-    """
-    Get the OpenTelemetry tracer.
-    
-    Returns:
-        OpenTelemetry tracer
-    """
-    global _tracer
-    if _tracer is None:
-        setup_tracing()
-    return _tracer
-
-def instrument_fastapi(app):
-    """
-    Instrument a FastAPI application for distributed tracing.
-    
-    Args:
-        app: FastAPI application
-    """
-    FastAPIInstrumentor.instrument_app(app, tracer_provider=trace.get_tracer_provider())
-    logger.info("FastAPI instrumented for distributed tracing")
-
-def instrument_aiohttp_client():
-    """Instrument aiohttp client for distributed tracing."""
-    AioHttpClientInstrumentor().instrument(tracer_provider=trace.get_tracer_provider())
-    logger.info("aiohttp client instrumented for distributed tracing")
-
-def instrument_asyncpg():
-    """Instrument asyncpg for distributed tracing."""
-    AsyncPGInstrumentor().instrument(tracer_provider=trace.get_tracer_provider())
-    logger.info("asyncpg instrumented for distributed tracing")
-
-def instrument_redis():
-    """Instrument Redis for distributed tracing."""
-    RedisInstrumentor().instrument(tracer_provider=trace.get_tracer_provider())
-    logger.info("Redis instrumented for distributed tracing")
-
-def trace_function(name: str = None) -> Callable[[F], F]:
-    """
-    Decorator for tracing synchronous functions.
-    
-    Args:
-        name: Name of the span (defaults to function name)
+        name: Name of the span (if None, uses the function name)
+        kind: Kind of the span
+        attributes: Attributes for the span
         
     Returns:
         Decorated function
     """
-    def decorator(func: F) -> F:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            # Get the tracer
-            tracer = get_tracer()
-            
-            # Get the span name
-            span_name = name or func.__name__
-            
-            # Start a new span
-            with tracer.start_as_current_span(span_name) as span:
-                # Add function arguments as span attributes
-                span.set_attribute("function.name", func.__name__)
-                span.set_attribute("function.module", func.__module__)
-                
-                try:
-                    # Call the function
-                    result = func(*args, **kwargs)
-                    return result
-                except Exception as e:
-                    # Record the exception
-                    span.record_exception(e)
-                    span.set_status(Status(StatusCode.ERROR, str(e)))
-                    raise
+    def decorator(func):
+        # Get function name
+        func_name = name or func.__name__
         
-        return cast(F, wrapper)
+        # Check if function is async
+        is_async = asyncio.iscoroutinefunction(func)
+        
+        if is_async:
+            @functools.wraps(func)
+            async def async_wrapper(*args, **kwargs):
+                # Get tracing manager
+                tracing_manager = TracingManager()
+                
+                # Start span
+                with tracing_manager.start_span(
+                    func_name,
+                    kind=kind,
+                    attributes=attributes
+                ) as span:
+                    # Add function arguments to span
+                    if args:
+                        span.set_attribute("args", str(args))
+                    if kwargs:
+                        span.set_attribute("kwargs", str(kwargs))
+                    
+                    try:
+                        # Execute function
+                        result = await func(*args, **kwargs)
+                        
+                        # Add result to span
+                        span.set_attribute("result", str(result))
+                        
+                        return result
+                    except Exception as e:
+                        # Record exception
+                        span.record_exception(e)
+                        span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
+                        
+                        # Re-raise exception
+                        raise
+            
+            return async_wrapper
+        else:
+            @functools.wraps(func)
+            def sync_wrapper(*args, **kwargs):
+                # Get tracing manager
+                tracing_manager = TracingManager()
+                
+                # Start span
+                with tracing_manager.start_span(
+                    func_name,
+                    kind=kind,
+                    attributes=attributes
+                ) as span:
+                    # Add function arguments to span
+                    if args:
+                        span.set_attribute("args", str(args))
+                    if kwargs:
+                        span.set_attribute("kwargs", str(kwargs))
+                    
+                    try:
+                        # Execute function
+                        result = func(*args, **kwargs)
+                        
+                        # Add result to span
+                        span.set_attribute("result", str(result))
+                        
+                        return result
+                    except Exception as e:
+                        # Record exception
+                        span.record_exception(e)
+                        span.set_status(trace.Status(trace.StatusCode.ERROR, str(e)))
+                        
+                        # Re-raise exception
+                        raise
+            
+            return sync_wrapper
     
     return decorator
-
-def trace_async_function(name: str = None) -> Callable[[AsyncF], AsyncF]:
-    """
-    Decorator for tracing asynchronous functions.
-    
-    Args:
-        name: Name of the span (defaults to function name)
-        
-    Returns:
-        Decorated function
-    """
-    def decorator(func: AsyncF) -> AsyncF:
-        @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
-            # Get the tracer
-            tracer = get_tracer()
-            
-            # Get the span name
-            span_name = name or func.__name__
-            
-            # Start a new span
-            with tracer.start_as_current_span(span_name) as span:
-                # Add function arguments as span attributes
-                span.set_attribute("function.name", func.__name__)
-                span.set_attribute("function.module", func.__module__)
-                
-                try:
-                    # Call the function
-                    result = await func(*args, **kwargs)
-                    return result
-                except Exception as e:
-                    # Record the exception
-                    span.record_exception(e)
-                    span.set_status(Status(StatusCode.ERROR, str(e)))
-                    raise
-        
-        return cast(AsyncF, wrapper)
-    
-    return decorator
-
-def inject_trace_context(carrier: Dict[str, str]) -> Dict[str, str]:
-    """
-    Inject trace context into a carrier for propagation.
-    
-    Args:
-        carrier: Dictionary to inject context into
-        
-    Returns:
-        Carrier with injected context
-    """
-    propagator = TraceContextTextMapPropagator()
-    propagator.inject(carrier)
-    return carrier
-
-def extract_trace_context(carrier: Dict[str, str]) -> None:
-    """
-    Extract trace context from a carrier.
-    
-    Args:
-        carrier: Dictionary containing trace context
-    """
-    propagator = TraceContextTextMapPropagator()
-    context = propagator.extract(carrier)
-    return context
-
-@contextmanager
-def trace_span(name: str, attributes: Dict[str, Any] = None):
-    """
-    Context manager for creating a trace span.
-    
-    Args:
-        name: Name of the span
-        attributes: Span attributes
-        
-    Yields:
-        The created span
-    """
-    tracer = get_tracer()
-    with tracer.start_as_current_span(name) as span:
-        if attributes:
-            for key, value in attributes.items():
-                span.set_attribute(key, value)
-        try:
-            yield span
-        except Exception as e:
-            span.record_exception(e)
-            span.set_status(Status(StatusCode.ERROR, str(e)))
-            raise

@@ -128,4 +128,4 @@ def get_all_advanced_indicators() -> Dict[str, Type[BaseIndicator]]:
         Dictionary mapping indicator names to their classes
     """
     return AdvancedIndicatorRegistry._indicators.copy()
-"""
+""""""

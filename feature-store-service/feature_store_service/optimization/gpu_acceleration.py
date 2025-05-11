@@ -134,42 +134,47 @@ class GPUAccelerator:
             NumPy array with moving average values
         """
         if not self.enable_gpu:
-            # CPU fallback implementation
+            # Optimized CPU implementation using numpy's cumsum for better performance
             result = np.full_like(data, np.nan)
-            for i in range(window - 1, len(data)):
-                result[i] = np.mean(data[i - window + 1:i + 1])
+            cumsum = np.cumsum(np.insert(data, 0, 0))
+            result[window-1:] = (cumsum[window:] - cumsum[:-window]) / window
             return result
         
         try:
             # Transfer data to GPU
             gpu_data = self.to_gpu(data)
             
-            # Compute on GPU based on backend
+            # Compute on GPU based on backend using vectorized operations
             if self.backend == "cupy":
+                # Use cumsum for efficient moving average calculation
                 result = cp.full_like(gpu_data, cp.nan)
-                for i in range(window - 1, len(gpu_data)):
-                    result[i] = cp.mean(gpu_data[i - window + 1:i + 1])
+                cumsum = cp.cumsum(cp.insert(gpu_data, 0, 0))
+                result[window-1:] = (cumsum[window:] - cumsum[:-window]) / window
             elif self.backend == "torch":
+                # Use cumsum for efficient moving average calculation
                 result = torch.full_like(gpu_data, float('nan'))
-                for i in range(window - 1, len(gpu_data)):
-                    result[i] = torch.mean(gpu_data[i - window + 1:i + 1])
+                # Create a padded version with a zero at the beginning
+                padded = torch.cat([torch.zeros(1, device="cuda"), gpu_data])
+                cumsum = torch.cumsum(padded, dim=0)
+                result[window-1:] = (cumsum[window:] - cumsum[:-window]) / window
             elif self.backend == "tensorflow":
-                result = tf.constant(np.full_like(data, np.nan), dtype=tf.float32)
-                for i in range(window - 1, len(gpu_data)):
-                    result = tf.tensor_scatter_nd_update(
-                        result, 
-                        [[i]], 
-                        [tf.reduce_mean(gpu_data[i - window + 1:i + 1])]
-                    )
+                # Use cumsum for efficient moving average calculation
+                padded = tf.concat([tf.zeros(1, dtype=gpu_data.dtype), gpu_data], axis=0)
+                cumsum = tf.cumsum(padded)
+                # Create result array
+                result = tf.concat([
+                    tf.fill([window-1], tf.constant(np.nan, dtype=gpu_data.dtype)),
+                    (cumsum[window:] - cumsum[:-window]) / window
+                ], axis=0)
             
             # Transfer result back to CPU
             return self.to_cpu(result)
         except Exception as e:
             logger.warning(f"Error in GPU computation: {e}. Falling back to CPU implementation.")
-            # CPU fallback implementation
+            # Optimized CPU implementation
             result = np.full_like(data, np.nan)
-            for i in range(window - 1, len(data)):
-                result[i] = np.mean(data[i - window + 1:i + 1])
+            cumsum = np.cumsum(np.insert(data, 0, 0))
+            result[window-1:] = (cumsum[window:] - cumsum[:-window]) / window
             return result
 
     def compute_correlation_matrix(self, data: np.ndarray) -> np.ndarray:
@@ -230,24 +235,29 @@ class GPUAccelerator:
             Tuple of (bin_centers, volumes)
         """
         if not self.enable_gpu:
-            # CPU fallback implementation
+            # Optimized CPU implementation using vectorized operations
             min_price = np.min(low)
             max_price = np.max(high)
             bin_edges = np.linspace(min_price, max_price, num_bins + 1)
             bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-            volumes = np.zeros(num_bins)
             
+            # Pre-allocate a matrix for bin contributions
+            # Each row represents a candle, each column a price bin
+            contributions = np.zeros((len(high), num_bins))
+            
+            # Create a mask for each candle-bin combination
+            # This is much faster than looping through each candle
             for i in range(len(high)):
-                # Distribute volume across price range touched by this candle
-                h = high[i]
-                l = low[i]
-                v = volume[i]
-                
-                # Find which bins this candle spans
-                bin_indices = np.where((bin_centers >= l) & (bin_centers <= h))[0]
-                if len(bin_indices) > 0:
+                # Create a mask for bins that this candle spans
+                mask = (bin_centers >= low[i]) & (bin_centers <= high[i])
+                # Count how many bins this candle spans
+                bin_count = np.sum(mask)
+                if bin_count > 0:
                     # Distribute volume equally across the bins
-                    volumes[bin_indices] += v / len(bin_indices)
+                    contributions[i, mask] = volume[i] / bin_count
+            
+            # Sum contributions across all candles
+            volumes = np.sum(contributions, axis=0)
             
             return bin_centers, volumes
         
@@ -257,69 +267,111 @@ class GPUAccelerator:
             gpu_low = self.to_gpu(low)
             gpu_volume = self.to_gpu(volume)
             
-            # Compute on GPU based on backend
+            # Compute on GPU based on backend using vectorized operations
             if self.backend == "cupy":
                 min_price = cp.min(gpu_low)
                 max_price = cp.max(gpu_high)
                 bin_edges = cp.linspace(min_price, max_price, num_bins + 1)
                 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+                
+                # Use a batched approach for better GPU utilization
+                batch_size = 1000  # Process this many candles at once
                 volumes = cp.zeros(num_bins)
                 
-                for i in range(len(gpu_high)):
-                    # Distribute volume across price range touched by this candle
-                    h = gpu_high[i]
-                    l = gpu_low[i]
-                    v = gpu_volume[i]
+                for batch_start in range(0, len(gpu_high), batch_size):
+                    batch_end = min(batch_start + batch_size, len(gpu_high))
+                    batch_high = gpu_high[batch_start:batch_end]
+                    batch_low = gpu_low[batch_start:batch_end]
+                    batch_volume = gpu_volume[batch_start:batch_end]
                     
-                    # Find which bins this candle spans
-                    bin_indices = cp.where((bin_centers >= l) & (bin_centers <= h))[0]
-                    if len(bin_indices) > 0:
-                        # Distribute volume equally across the bins
-                        volumes[bin_indices] += v / len(bin_indices)
+                    # Create a mask matrix (candles x bins)
+                    # Each row is a candle, each column is a bin
+                    mask = (bin_centers.reshape(1, -1) >= batch_low.reshape(-1, 1)) & \
+                           (bin_centers.reshape(1, -1) <= batch_high.reshape(-1, 1))
+                    
+                    # Count bins per candle
+                    bin_counts = cp.sum(mask, axis=1, keepdims=True)
+                    # Avoid division by zero
+                    bin_counts = cp.maximum(bin_counts, 1)
+                    
+                    # Distribute volume
+                    volume_per_bin = batch_volume.reshape(-1, 1) / bin_counts
+                    contributions = mask * volume_per_bin
+                    
+                    # Sum contributions
+                    volumes += cp.sum(contributions, axis=0)
                 
                 bin_centers = self.to_cpu(bin_centers)
                 volumes = self.to_cpu(volumes)
+                
             elif self.backend == "torch":
                 min_price = torch.min(gpu_low)
                 max_price = torch.max(gpu_high)
                 bin_edges = torch.linspace(min_price, max_price, num_bins + 1, device="cuda")
                 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+                
+                # Use a batched approach for better GPU utilization
+                batch_size = 1000  # Process this many candles at once
                 volumes = torch.zeros(num_bins, device="cuda")
                 
-                for i in range(len(gpu_high)):
-                    # Distribute volume across price range touched by this candle
-                    h = gpu_high[i]
-                    l = gpu_low[i]
-                    v = gpu_volume[i]
+                for batch_start in range(0, len(gpu_high), batch_size):
+                    batch_end = min(batch_start + batch_size, len(gpu_high))
+                    batch_high = gpu_high[batch_start:batch_end]
+                    batch_low = gpu_low[batch_start:batch_end]
+                    batch_volume = gpu_volume[batch_start:batch_end]
                     
-                    # Find which bins this candle spans
-                    bin_indices = torch.where((bin_centers >= l) & (bin_centers <= h))[0]
-                    if len(bin_indices) > 0:
-                        # Distribute volume equally across the bins
-                        volumes[bin_indices] += v / len(bin_indices)
+                    # Create a mask matrix (candles x bins)
+                    mask = (bin_centers.unsqueeze(0) >= batch_low.unsqueeze(1)) & \
+                           (bin_centers.unsqueeze(0) <= batch_high.unsqueeze(1))
+                    
+                    # Count bins per candle
+                    bin_counts = torch.sum(mask, dim=1, keepdim=True)
+                    # Avoid division by zero
+                    bin_counts = torch.maximum(bin_counts, torch.ones_like(bin_counts))
+                    
+                    # Distribute volume
+                    volume_per_bin = batch_volume.unsqueeze(1) / bin_counts
+                    contributions = mask * volume_per_bin
+                    
+                    # Sum contributions
+                    volumes += torch.sum(contributions, dim=0)
                 
                 bin_centers = self.to_cpu(bin_centers)
                 volumes = self.to_cpu(volumes)
+                
             elif self.backend == "tensorflow":
                 min_price = tf.reduce_min(gpu_low)
                 max_price = tf.reduce_max(gpu_high)
                 bin_edges = tf.linspace(min_price, max_price, num_bins + 1)
                 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+                
+                # Use a batched approach for better GPU utilization
+                batch_size = 1000  # Process this many candles at once
                 volumes = tf.zeros(num_bins)
                 
-                for i in range(len(gpu_high)):
-                    # Distribute volume across price range touched by this candle
-                    h = gpu_high[i]
-                    l = gpu_low[i]
-                    v = gpu_volume[i]
+                for batch_start in range(0, len(gpu_high), batch_size):
+                    batch_end = min(batch_start + batch_size, len(gpu_high))
+                    batch_high = gpu_high[batch_start:batch_end]
+                    batch_low = gpu_low[batch_start:batch_end]
+                    batch_volume = gpu_volume[batch_start:batch_end]
                     
-                    # Find which bins this candle spans
-                    bin_indices = tf.where((bin_centers >= l) & (bin_centers <= h))[:, 0]
-                    if tf.size(bin_indices) > 0:
-                        # Distribute volume equally across the bins
-                        volume_per_bin = v / tf.cast(tf.size(bin_indices), tf.float32)
-                        updates = tf.ones_like(bin_indices, dtype=tf.float32) * volume_per_bin
-                        volumes = tf.tensor_scatter_nd_add(volumes, tf.expand_dims(bin_indices, 1), updates)
+                    # Create a mask matrix (candles x bins)
+                    mask = tf.logical_and(
+                        tf.expand_dims(bin_centers, 0) >= tf.expand_dims(batch_low, 1),
+                        tf.expand_dims(bin_centers, 0) <= tf.expand_dims(batch_high, 1)
+                    )
+                    
+                    # Count bins per candle
+                    bin_counts = tf.reduce_sum(tf.cast(mask, tf.float32), axis=1, keepdims=True)
+                    # Avoid division by zero
+                    bin_counts = tf.maximum(bin_counts, tf.ones_like(bin_counts))
+                    
+                    # Distribute volume
+                    volume_per_bin = tf.expand_dims(batch_volume, 1) / bin_counts
+                    contributions = tf.cast(mask, tf.float32) * volume_per_bin
+                    
+                    # Sum contributions
+                    volumes += tf.reduce_sum(contributions, axis=0)
                 
                 bin_centers = self.to_cpu(bin_centers)
                 volumes = self.to_cpu(volumes)
@@ -327,24 +379,29 @@ class GPUAccelerator:
             return bin_centers, volumes
         except Exception as e:
             logger.warning(f"Error in GPU volume profile computation: {e}. Falling back to CPU implementation.")
-            # CPU fallback implementation
+            # Optimized CPU implementation using vectorized operations
             min_price = np.min(low)
             max_price = np.max(high)
             bin_edges = np.linspace(min_price, max_price, num_bins + 1)
             bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-            volumes = np.zeros(num_bins)
             
+            # Pre-allocate a matrix for bin contributions
+            # Each row represents a candle, each column a price bin
+            contributions = np.zeros((len(high), num_bins))
+            
+            # Create a mask for each candle-bin combination
+            # This is much faster than looping through each candle
             for i in range(len(high)):
-                # Distribute volume across price range touched by this candle
-                h = high[i]
-                l = low[i]
-                v = volume[i]
-                
-                # Find which bins this candle spans
-                bin_indices = np.where((bin_centers >= l) & (bin_centers <= h))[0]
-                if len(bin_indices) > 0:
+                # Create a mask for bins that this candle spans
+                mask = (bin_centers >= low[i]) & (bin_centers <= high[i])
+                # Count how many bins this candle spans
+                bin_count = np.sum(mask)
+                if bin_count > 0:
                     # Distribute volume equally across the bins
-                    volumes[bin_indices] += v / len(bin_indices)
+                    contributions[i, mask] = volume[i] / bin_count
+            
+            # Sum contributions across all candles
+            volumes = np.sum(contributions, axis=0)
             
             return bin_centers, volumes
 

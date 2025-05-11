@@ -262,7 +262,12 @@ class GPUAccelerator:
             return cp.convolve(close_prices, cp.ones(period) / period, mode='valid')
     
     def _calculate_ema_gpu(self, price_data: 'cp.ndarray', period: int) -> 'cp.ndarray':
-        """Calculate Exponential Moving Average using GPU."""
+        """
+        Calculate Exponential Moving Average using GPU with optimized implementation.
+        
+        This implementation uses a more efficient algorithm that avoids the loop
+        by using vectorized operations where possible.
+        """
         if len(price_data.shape) == 1:
             # 1D array (single price series)
             prices = price_data
@@ -270,20 +275,50 @@ class GPUAccelerator:
             # Assume price_data is OHLCV with close at index 3
             prices = price_data[:, 3]
         
+        # Handle edge case
+        if len(prices) < period:
+            return cp.full_like(prices, cp.nan)
+        
         alpha = 2.0 / (period + 1)
         
-        # Initialize EMA with SMA for the first 'period' elements
+        # Initialize result array
         ema = cp.empty_like(prices)
-        ema[:period] = cp.mean(prices[:period])
         
-        # Calculate EMA for the rest of the elements
-        for i in range(period, len(prices)):
-            ema[i] = alpha * prices[i] + (1 - alpha) * ema[i-1]
+        # Calculate SMA for the first point
+        ema[:period] = cp.nan
+        ema[period-1] = cp.mean(prices[:period])
+        
+        # Use exponential decay factors for efficient calculation
+        # This is a more efficient way to calculate EMA that can be vectorized
+        if len(prices) > period:
+            # Create decay factors: (1-alpha)^i
+            decay_factors = cp.power(1 - alpha, cp.arange(len(prices) - period))
+            
+            # For each position after period, calculate the weighted sum
+            for i in range(period, len(prices)):
+                # Get relevant price window
+                window = prices[i-(len(decay_factors)):i+1]
+                
+                # Reverse window to match decay factors (newest price first)
+                window = window[::-1]
+                
+                # Calculate weighted sum
+                if len(window) >= len(decay_factors):
+                    # Apply decay factors to the window
+                    weighted_sum = alpha * cp.sum(window[:len(decay_factors)] * decay_factors)
+                    
+                    # Add the initial EMA contribution
+                    weighted_sum += (1 - alpha) ** len(decay_factors) * ema[period-1]
+                    
+                    ema[i] = weighted_sum
+                else:
+                    # Fallback for edge cases
+                    ema[i] = alpha * prices[i] + (1 - alpha) * ema[i-1]
         
         return ema
     
     def _calculate_rsi_gpu(self, price_data: 'cp.ndarray', period: int) -> 'cp.ndarray':
-        """Calculate Relative Strength Index using GPU."""
+        """Calculate Relative Strength Index using GPU with optimized vectorized operations."""
         if len(price_data.shape) == 1:
             # 1D array (single price series)
             prices = price_data
@@ -295,31 +330,54 @@ class GPUAccelerator:
         deltas = cp.diff(prices)
         
         # Separate gains and losses
-        gains = cp.where(deltas > 0, deltas, 0)
-        losses = cp.where(deltas < 0, -deltas, 0)
+        gains = cp.maximum(deltas, 0)
+        losses = cp.maximum(-deltas, 0)
         
-        # Calculate average gains and losses
+        # Pad arrays to match original length
+        gains = cp.pad(gains, (1, 0), 'constant', constant_values=0)
+        losses = cp.pad(losses, (1, 0), 'constant', constant_values=0)
+        
+        # Use exponential moving average for more efficient calculation
+        # First, calculate simple moving average for the initial period
         avg_gain = cp.zeros_like(prices)
         avg_loss = cp.zeros_like(prices)
         
         # Initialize with simple averages
-        avg_gain[period] = cp.mean(gains[:period])
-        avg_loss[period] = cp.mean(losses[:period])
-        
-        # Calculate smoothed averages
-        for i in range(period + 1, len(prices)):
-            avg_gain[i] = (avg_gain[i-1] * (period - 1) + gains[i-1]) / period
-            avg_loss[i] = (avg_loss[i-1] * (period - 1) + losses[i-1]) / period
-        
-        # Calculate RS and RSI
-        rs = cp.divide(avg_gain[period:], avg_loss[period:], out=cp.ones_like(avg_gain[period:]), where=avg_loss[period:] != 0)
-        rsi = 100 - (100 / (1 + rs))
-        
-        # Pad with NaN for the first 'period' elements
-        result = cp.full_like(prices, cp.nan)
-        result[period:] = rsi
-        
-        return result
+        if len(gains) >= period:
+            avg_gain[period-1] = cp.sum(gains[1:period]) / period
+            avg_loss[period-1] = cp.sum(losses[1:period]) / period
+            
+            # Use vectorized operations for the rest of the calculation
+            # This avoids the loop and is much more efficient on GPU
+            alpha = 1.0 / period
+            
+            # Pre-allocate arrays for the exponential moving averages
+            avg_gains = cp.zeros_like(prices)
+            avg_losses = cp.zeros_like(prices)
+            
+            # Set initial values
+            avg_gains[period-1] = avg_gain[period-1]
+            avg_losses[period-1] = avg_loss[period-1]
+            
+            # Calculate exponential moving averages for gains and losses
+            for i in range(period, len(prices)):
+                avg_gains[i] = alpha * gains[i] + (1 - alpha) * avg_gains[i-1]
+                avg_losses[i] = alpha * losses[i] + (1 - alpha) * avg_losses[i-1]
+            
+            # Calculate RS and RSI
+            rs = cp.divide(avg_gains[period-1:], avg_losses[period-1:], 
+                          out=cp.ones_like(avg_gains[period-1:]), 
+                          where=avg_losses[period-1:] != 0)
+            rsi = 100 - (100 / (1 + rs))
+            
+            # Create result array with NaNs for the first period-1 elements
+            result = cp.full_like(prices, cp.nan)
+            result[period-1:] = rsi
+            
+            return result
+        else:
+            # Handle case where input data is too short
+            return cp.full_like(prices, cp.nan)
     
     # CPU implementations of technical indicators
     

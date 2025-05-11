@@ -16,14 +16,13 @@ from prometheus_client.exposition import start_http_server
 
 from core_foundations.utils.logger import get_logger
 from core_foundations.config.configuration import ConfigurationManager
-from ml_integration_service.services.job_tracking import JobTrackingService
-from ml_integration_service.services.model_registry import ModelRegistryService
+from monitoring_alerting_service.adapters.ml_integration_adapter import MLIntegrationMonitoringAdapter
 
 logger = get_logger(__name__)
 
 # Define Prometheus metrics
 ML_JOBS_ACTIVE = Gauge(
-    'forex_ml_jobs_active_count', 
+    'forex_ml_jobs_active_count',
     'Number of currently active ML retraining jobs',
     ['job_type']
 )
@@ -64,43 +63,40 @@ class MLMetricsExporter:
     """
     Exports metrics from the ML Integration Service to the monitoring system.
     """
-    
+
     def __init__(
-        self, 
-        job_tracking_service: JobTrackingService,
-        model_registry_service: ModelRegistryService,
+        self,
+        ml_integration_adapter: MLIntegrationMonitoringAdapter,
         config_manager: Optional[ConfigurationManager] = None
     ):
         """
         Initialize the ML metrics exporter.
-        
+
         Args:
-            job_tracking_service: Service for tracking ML jobs
-            model_registry_service: Service for accessing model registry
+            ml_integration_adapter: Adapter for ML Integration Service
             config_manager: Configuration manager
         """
-        self.job_tracking_service = job_tracking_service
-        self.model_registry_service = model_registry_service
+        self.ml_integration_adapter = ml_integration_adapter
         self.config_manager = config_manager
-        
+
         # Load configuration
         self.config = self._load_config()
-        
+
         # Metrics export settings
         self.export_interval = self.config.get("export_interval_seconds", 60)
         self.exporter_port = self.config.get("exporter_port", 9101)
-        
+
         # Track whether the exporter is running
         self.is_running = False
         self.exporter_task = None
-        
+
         logger.info(f"ML Metrics Exporter initialized with port {self.exporter_port} "
                    f"and interval {self.export_interval}s")
-    
+
     def _load_config(self) -> Dict[str, Any]:
         """
         Load configuration from the configuration manager or use defaults.
-        
+
         Returns:
             Dict[str, Any]: Configuration dictionary
         """
@@ -109,7 +105,7 @@ class MLMetricsExporter:
             "exporter_port": 9101,
             "metrics_enabled": True
         }
-        
+
         if self.config_manager:
             try:
                 metrics_config = self.config_manager.get_config("metrics_exporter")
@@ -117,52 +113,52 @@ class MLMetricsExporter:
                     return {**default_config, **metrics_config}
             except Exception as e:
                 logger.warning(f"Failed to load metrics exporter config: {e}")
-                
+
         return default_config
-    
+
     def start(self, port: Optional[int] = None) -> None:
         """
         Start the metrics exporter HTTP server and metrics collection task.
-        
+
         Args:
             port: Optional override for the exporter port
         """
         if self.is_running:
             logger.warning("Metrics exporter is already running")
             return
-            
+
         # Use provided port or default from config
         exporter_port = port or self.exporter_port
-        
+
         try:
             # Start Prometheus HTTP server
             start_http_server(exporter_port)
             logger.info(f"Started metrics HTTP server on port {exporter_port}")
-            
+
             # Start metrics collection task
             self.exporter_task = asyncio.create_task(self._collect_metrics_periodically())
             self.is_running = True
-            
+
             logger.info("ML metrics exporter started successfully")
         except Exception as e:
             logger.error(f"Failed to start metrics exporter: {e}")
             raise
-    
+
     async def stop(self) -> None:
         """Stop the metrics collection task."""
         if not self.is_running:
             return
-            
+
         if self.exporter_task and not self.exporter_task.done():
             self.exporter_task.cancel()
             try:
                 await self.exporter_task
             except asyncio.CancelledError:
                 pass
-                
+
         self.is_running = False
         logger.info("ML metrics exporter stopped")
-    
+
     async def _collect_metrics_periodically(self) -> None:
         """Collect metrics at regular intervals."""
         try:
@@ -175,68 +171,77 @@ class MLMetricsExporter:
         except Exception as e:
             logger.error(f"Error in metrics collection: {e}")
             raise
-    
+
     async def _collect_and_export_metrics(self) -> None:
         """Collect current metrics and update exporters."""
         try:
-            # Get active jobs
-            active_jobs = await self.job_tracking_service.get_active_jobs()
-            
+            # Get job status metrics
+            job_metrics = await self.ml_integration_adapter.get_job_status_metrics()
+
             # Reset active job gauges
             ML_JOBS_ACTIVE.labels(job_type="retraining").set(0)
             ML_JOBS_ACTIVE.labels(job_type="evaluation").set(0)
             ML_JOBS_ACTIVE.labels(job_type="deployment").set(0)
-            
-            # Count active jobs by type
-            job_counts = {"retraining": 0, "evaluation": 0, "deployment": 0}
-            for job in active_jobs:
-                job_type = job.get("job_type", "retraining")
-                if job_type in job_counts:
-                    job_counts[job_type] += 1
-            
-            # Update active job metrics
-            for job_type, count in job_counts.items():
-                ML_JOBS_ACTIVE.labels(job_type=job_type).set(count)
-            
-            # Get recently completed jobs (in the last reporting period)
-            completed_jobs = await self.job_tracking_service.get_recently_completed_jobs(
-                seconds=self.export_interval * 2  # Look back a bit further than the interval
-            )
-            
-            # Update completed and failed job metrics
-            for job in completed_jobs:
-                job_type = job.get("job_type", "retraining")
-                model_id = job.get("model_id", "unknown")
-                
-                # Track execution time
-                start_time = job.get("start_time")
-                end_time = job.get("end_time")
-                if start_time and end_time:
-                    try:
-                        # Convert to datetime objects if they're strings
-                        if isinstance(start_time, str):
-                            start_time = datetime.fromisoformat(start_time)
-                        if isinstance(end_time, str):
-                            end_time = datetime.fromisoformat(end_time)
-                        
-                        execution_time = (end_time - start_time).total_seconds()
-                        ML_JOB_EXECUTION_TIME.labels(
-                            model_id=model_id, 
-                            job_type=job_type
-                        ).observe(execution_time)
-                    except Exception as e:
-                        logger.warning(f"Could not calculate execution time for job {job.get('job_id')}: {e}")
-                
-                # Track success/failure
-                status = job.get("status", "").lower()
+
+            # Update active job metrics from status counts
+            status_counts = job_metrics.get("status_counts", {})
+            for job_type, count in job_metrics.get("type_counts", {}).items():
+                if job_type in ["retraining", "evaluation", "deployment"]:
+                    ML_JOBS_ACTIVE.labels(job_type=job_type).set(count)
+
+            # Get model status metrics
+            model_metrics = await self.ml_integration_adapter.get_model_status_metrics()
+
+            # Get model performance metrics
+            for model in model_metrics.get("models", []):
+                model_id = model.get("model_id", "unknown")
+
+                # Get model-specific metrics
+                try:
+                    model_performance = await self.ml_integration_adapter.get_model_metrics(model_id=model_id)
+
+                    # Export model performance metrics
+                    metrics = model_performance.get("metrics", {})
+                    for metric_name, value in metrics.items():
+                        if isinstance(value, (int, float)):
+                            MODEL_PERFORMANCE.labels(
+                                model_id=model_id,
+                                metric_name=metric_name
+                            ).set(value)
+
+                    # Calculate and set success rate
+                    if "success_rate" in metrics:
+                        ML_JOB_SUCCESS_RATE.labels(model_id=model_id).set(metrics["success_rate"])
+                except Exception as e:
+                    logger.warning(f"Error getting metrics for model {model_id}: {e}")
+
+            # Get service-level metrics
+            service_metrics = await self.ml_integration_adapter.get_model_metrics()
+
+            # Process job execution metrics
+            job_execution_metrics = service_metrics.get("job_execution", {})
+            for job_id, job_data in job_execution_metrics.items():
+                model_id = job_data.get("model_id", "unknown")
+                job_type = job_data.get("job_type", "retraining")
+                execution_time = job_data.get("execution_time")
+                status = job_data.get("status", "").lower()
+
+                # Record execution time
+                if execution_time and isinstance(execution_time, (int, float)):
+                    ML_JOB_EXECUTION_TIME.labels(
+                        model_id=model_id,
+                        job_type=job_type
+                    ).observe(execution_time)
+
+                # Record job completion
                 if status in ["completed", "succeeded", "success"]:
                     ML_JOBS_COMPLETED.labels(
                         model_id=model_id,
                         job_type=job_type,
                         result="success"
                     ).inc()
-                else:
-                    failure_reason = job.get("failure_reason", "unknown")
+                elif status in ["failed", "failure", "error"]:
+                    failure_reason = job_data.get("failure_reason", "unknown")
                     ML_JOBS_FAILED.labels(
                         model_id=model_id,
                         job_type=job_type,
@@ -247,54 +252,31 @@ class MLMetricsExporter:
                         job_type=job_type,
                         result="failure"
                     ).inc()
-            
-            # Update model success rates and performance metrics
-            models = await self.model_registry_service.list_models()
-            for model in models:
-                model_id = model.get("model_id")
-                if not model_id:
-                    continue
-                
-                # Calculate success rate
-                model_jobs = await self.job_tracking_service.get_jobs_for_model(model_id, limit=20)
-                if model_jobs:
-                    success_count = sum(1 for j in model_jobs 
-                                       if j.get("status", "").lower() in ["completed", "succeeded", "success"])
-                    success_rate = success_count / len(model_jobs)
-                    ML_JOB_SUCCESS_RATE.labels(model_id=model_id).set(success_rate)
-                
-                # Export model performance metrics
-                metrics = model.get("performance_metrics", {})
-                for metric_name, value in metrics.items():
-                    if isinstance(value, (int, float)):
-                        MODEL_PERFORMANCE.labels(
-                            model_id=model_id,
-                            metric_name=metric_name
-                        ).set(value)
-        
+
         except Exception as e:
             logger.error(f"Error collecting ML metrics: {e}", exc_info=True)
 
 
 def create_metrics_exporter(
-    job_tracking_service: JobTrackingService,
-    model_registry_service: ModelRegistryService,
+    config: Optional[Dict[str, Any]] = None,
     config_manager: Optional[ConfigurationManager] = None
 ) -> MLMetricsExporter:
     """
     Create and initialize the ML metrics exporter.
-    
+
     Args:
-        job_tracking_service: Service for tracking ML jobs
-        model_registry_service: Service for accessing model registry
+        config: Optional configuration dictionary
         config_manager: Configuration manager
-        
+
     Returns:
         MLMetricsExporter: Initialized metrics exporter
     """
+    # Create ML Integration adapter
+    ml_integration_adapter = MLIntegrationMonitoringAdapter(config=config)
+
+    # Create metrics exporter
     exporter = MLMetricsExporter(
-        job_tracking_service=job_tracking_service,
-        model_registry_service=model_registry_service,
+        ml_integration_adapter=ml_integration_adapter,
         config_manager=config_manager
     )
     return exporter

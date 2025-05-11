@@ -1,5 +1,8 @@
-\"\"\"
-Manages isolated test environments for E2E testing.
+\
+\
+\
+
+Manages isolated test environments for E2E testing.::
 
 This module defines the TestEnvironment class responsible for setting up,
 managing, and tearing down the necessary infrastructure (services, databases, etc.)

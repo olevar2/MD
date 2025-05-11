@@ -792,4 +792,4 @@ if __name__ == "__main__":
                         
                         slippage = simulator.calculate_slippage_impact(pair, 2.0, 0.2)
                         print(f"    Slippage for 2 lot order: {slippage:.1f} pips")
-"""
+""""""

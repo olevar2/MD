@@ -23,7 +23,7 @@ class RiskManagementClient:
     This client allows the Portfolio Management Service to check risk limits
     and perform risk calculations before executing trades.
     """
-      def __init__(self, base_url: str = None):
+    def __init__(self, base_url: str = None):
         """
         Initialize the Risk Management Service client.
         
@@ -45,7 +45,7 @@ class RiskManagementClient:
         """Close the aiohttp session."""
         if self.session and not self.session.closed:
             await self.session.close()
-              @retry_with_policy(
+            @retry_with_policy(
         max_attempts=3,
         base_delay=1.0,
         max_delay=10.0,

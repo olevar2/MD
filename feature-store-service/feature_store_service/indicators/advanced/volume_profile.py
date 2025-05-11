@@ -435,4 +435,4 @@ class VolumeProfileIndicator(BaseIndicator):
             'position': position,
             'support_resistance': support_resistance
         }
-"""
+""""""

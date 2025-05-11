@@ -84,7 +84,7 @@ async def get_dead_letter_queue_metrics(request: Request) -> Dict[str, Any]:
     # 1. Query the DLQ topic for statistics
     # 2. Analyze error patterns
     # 3. Return actionable metrics
-      return {
+    return {
         "status": "implemented",
         "message": "DLQ metrics tracking active",
         "metrics": {
@@ -93,4 +93,4 @@ async def get_dead_letter_queue_metrics(request: Request) -> Dict[str, Any]:
             "retry_eligible_count": 0
         }
     }
-"""
+""""""

@@ -24,17 +24,17 @@ logger = logging.getLogger(__name__)
 class TimeCycleAnalyzer(BaseAnalyzer):
     """
     Analyzer for time cycles and seasonality in market data
-    
+
     This analyzer detects cycles of various frequencies in price data
     and projects future turning points based on identified cycles.
     It combines spectral analysis with pattern recognition to identify
     reliable cycles and seasonality patterns.
     """
-    
+
     def __init__(self, parameters: Dict[str, Any] = None):
         """
         Initialize the Time Cycle Analyzer
-        
+
         Args:
             parameters: Configuration parameters for the analyzer
         """
@@ -57,7 +57,7 @@ class TimeCycleAnalyzer(BaseAnalyzer):
         logger.info(f"Initialized TimeCycleAnalyzer with params: {resolved_params}")
 
     def analyze(self, market_data: MarketData) -> AnalysisResult:
-        \"\"\"
+        """
         Perform time cycle analysis on the provided market data.
 
         Args:
@@ -65,7 +65,7 @@ class TimeCycleAnalyzer(BaseAnalyzer):
 
         Returns:
             AnalysisResult containing identified cycles and projected turning points.
-        \"\"\"
+        """
         df = market_data.data
         params = self.parameters
         price_col = params["price_column"]
@@ -109,7 +109,7 @@ class TimeCycleAnalyzer(BaseAnalyzer):
         return AnalysisResult(analyzer_name=self.name, result=analysis_data)
 
     def _detrend_data(self, series: pd.Series, method: str, degree: int = 2) -> Optional[pd.Series]:
-        \"\"\"Detrend the price series using the specified method.\"\"\"
+        """Detrend the price series using the specified method."""
         series = series.dropna()
         if series.empty:
             return None
@@ -136,7 +136,7 @@ class TimeCycleAnalyzer(BaseAnalyzer):
             return series - trend
 
     def _perform_fft(self, series: pd.Series) -> Tuple[np.ndarray, np.ndarray]:
-        \"\"\"Perform Fast Fourier Transform on the detrended series.\"\"\"
+        """Perform Fast Fourier Transform on the detrended series."""
         n = len(series)
         if n == 0:
             return np.array([]), np.array([])
@@ -156,7 +156,7 @@ class TimeCycleAnalyzer(BaseAnalyzer):
 
     def _identify_dominant_cycles(self, frequencies: np.ndarray, spectrum: np.ndarray,
                                   n_points: int, min_len: int, max_len: int, min_strength: float) -> List[Dict]:
-        \"\"\"Identify dominant cycles from the spectrum.\"\"\"
+        """Identify dominant cycles from the spectrum."""
         if len(frequencies) == 0 or len(spectrum) == 0:
             return []
 
@@ -203,11 +203,11 @@ class TimeCycleAnalyzer(BaseAnalyzer):
         return dominant_cycles
 
     def _project_turning_points(self, last_date: datetime, cycles: List[Dict], projection_bars: int) -> Dict[float, List[datetime]]:
-        \"\"\"
+        """
         Project future cycle turning points based on dominant cycles.
         Assumes cycles continue with the same length and phase.
         This is a simplified projection.
-        \"\"\"
+        """
         projections = {}
         if not isinstance(last_date, pd.Timestamp):
              last_date = pd.Timestamp(last_date)
@@ -241,7 +241,7 @@ class TimeCycleAnalyzer(BaseAnalyzer):
         return projections
 
     def calculate(self, df: pd.DataFrame) -> pd.DataFrame:
-        \"\"\"
+        """
         Calculate cycle information and add columns to the DataFrame.
         This is more complex as cycles are properties of the whole series.
         We can add the *current* dominant cycle length and strength.
@@ -251,7 +251,7 @@ class TimeCycleAnalyzer(BaseAnalyzer):
 
         Returns:
             DataFrame with added cycle information columns.
-        \"\"\"
+        """
         params = self.parameters
         price_col = params["price_column"]
         result_df = df.copy()

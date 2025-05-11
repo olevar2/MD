@@ -1,4 +1,4 @@
-\"""
+"""
 Client/Adapter for interacting with the Feature Store Service.
 """
 

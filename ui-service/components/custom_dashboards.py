@@ -677,4 +677,4 @@ class DashboardComponentFactory:
             metrics=metrics,
             title=title
         )
-"""
+""""""

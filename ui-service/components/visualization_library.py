@@ -316,4 +316,4 @@ class SynchronizedDisplayManager:
             
         group = self.indicator_groups[group_id]
         # Implementation would update selected region on all charts
-"""
+""""""

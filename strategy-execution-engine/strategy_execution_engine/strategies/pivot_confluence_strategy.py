@@ -433,4 +433,4 @@ class PivotConfluenceStrategy(AdvancedTAStrategy):
         
         signals.append(signal)
         return signals
-"""
+""""""

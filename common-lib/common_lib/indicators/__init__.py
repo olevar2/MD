@@ -1,49 +1,18 @@
 """
-Indicators package for common-lib.
+Indicators package for the forex trading platform.
 
-This package provides interfaces and utilities for technical indicators
-and advanced analysis components, helping to break circular dependencies
-between services.
+This package provides standardized implementations of technical indicators
+for use across all services in the platform.
 """
 
-from .indicator_interfaces import (
-    IndicatorCategory,
-    IBaseIndicator,
-    IAdvancedIndicator,
-    IPatternRecognizer,
-    IFibonacciAnalyzer,
-    IIndicatorRegistry,
-    IIndicatorAdapter
-)
-
-from .fibonacci_interfaces import (
-    TrendDirectionType,
-    IFibonacciBase,
-    IFibonacciRetracement,
-    IFibonacciExtension,
-    IFibonacciFan,
-    IFibonacciTimeZones,
-    IFibonacciCircles,
-    IFibonacciClusters,
-    IFibonacciUtils
-)
+from common_lib.indicators.base_indicator import BaseIndicator
+from common_lib.indicators.oscillators.rsi import RSI
+from common_lib.indicators.oscillators.macd import MACD
+from common_lib.indicators.volatility.bollinger_bands import BollingerBands
 
 __all__ = [
-    'IndicatorCategory',
-    'IBaseIndicator',
-    'IAdvancedIndicator',
-    'IPatternRecognizer',
-    'IFibonacciAnalyzer',
-    'IIndicatorRegistry',
-    'IIndicatorAdapter',
-    # Fibonacci interfaces
-    'TrendDirectionType',
-    'IFibonacciBase',
-    'IFibonacciRetracement',
-    'IFibonacciExtension',
-    'IFibonacciFan',
-    'IFibonacciTimeZones',
-    'IFibonacciCircles',
-    'IFibonacciClusters',
-    'IFibonacciUtils'
+    'BaseIndicator',
+    'RSI',
+    'MACD',
+    'BollingerBands'
 ]

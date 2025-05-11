@@ -871,4 +871,4 @@ class ChartPatternRecognition(BaseIndicator):
             data: DataFrame with detected patterns
         """
         pass
-"""
+""""""

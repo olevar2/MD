@@ -57,7 +57,7 @@ def sample_ohlcv_data_integration():
 
 @pytest.fixture
 def feature_definitions_integration():
-    \"\"\"Provides a list of FeatureDefinition objects for tests.\"\"\"
+    """Provides a list of FeatureDefinition objects for tests."""
     # Use FeatureDefinition from ml_integration_service
     return [
         FeatureDefinition(
@@ -128,7 +128,7 @@ def setup_analysis_engine_indicators():
 
 @pytest.mark.skipif(not LEGACY_COMPONENTS_AVAILABLE, reason="Legacy components not available")
 def test_legacy_extractor_direct(sample_ohlcv_data_integration, feature_definitions_integration):
-    \"\"\"Test the legacy feature extractor directly.\"\"\"
+    """Test the legacy feature extractor directly."""
     legacy_extractor = LegacyFeatureExtractor()
     features = legacy_extractor.extract_features(
         data=sample_ohlcv_data_integration,

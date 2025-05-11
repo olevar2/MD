@@ -23,8 +23,11 @@ def extract_features_for_model(
     data: pd.DataFrame,
     task_type: str = "direction",
 ) -> pd.DataFrame:
-    \"\"\"
-    Extract features for a machine learning model using the legacy framework
+    \
+\
+\
+
+    Extract features for a machine learning model using the legacy framework::
 
     Args:
         data: DataFrame with market data and indicators

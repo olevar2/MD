@@ -66,21 +66,24 @@ class OptimizedParallelProcessor:
         """
         # Determine optimal worker count based on task count
         task_count = len(tasks)
+        
+        # Use a local results dictionary to avoid race conditions
+        local_results = {}
+        
         with self.lock:
             self.current_workers = max(self.min_workers, min(self.max_workers, task_count))
-            
-        # Initialize results dictionary
-        self.results = {}
-        self.active_tasks = task_count
-        self.completed_tasks = 0
+            self.active_tasks = task_count
+            self.completed_tasks = 0
+            self.results = {}
         
         # Early termination for empty task list
         if task_count == 0:
-            return self.results
+            return local_results
         
         # Create thread pool
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.current_workers) as executor:
-            self.executor = executor
+            with self.lock:
+                self.executor = executor
             
             # Submit all tasks
             future_to_id = {}
@@ -102,18 +105,22 @@ class OptimizedParallelProcessor:
                     task_id = future_to_id[future]
                     try:
                         result = future.result()
-                        self.results[task_id] = result
+                        local_results[task_id] = result
                     except Exception as exc:
                         logger.error(f"Task {task_id} generated an exception: {exc}", exc_info=True)
-                        self.results[task_id] = None
+                        local_results[task_id] = None
                     
                     with self.lock:
                         self.active_tasks -= 1
                         self.completed_tasks += 1
+                        self.results[task_id] = local_results[task_id]
             except concurrent.futures.TimeoutError:
                 logger.warning(f"Timeout occurred after {timeout} seconds with {self.active_tasks} tasks remaining")
         
-        return self.results
+        # Update the shared results dictionary with all local results
+        with self.lock:
+            self.results.update(local_results)
+            return dict(self.results)  # Return a copy to avoid race conditions
     
     def _execute_task(self, task_id: int, func: Callable, args: Tuple) -> Any:
         """

@@ -1,4 +1,4 @@
-\"""
+"""
 Consolidated Effectiveness Analysis API
 
 This module provides unified API endpoints for analyzing trading tool effectiveness,
@@ -111,7 +111,7 @@ async def analyze_regime_performance(
             # Placeholder logic:
             logger.warning("Advanced regime analysis requires fetching raw data - implementation pending.")
             # tool_results = repo.get_results_for_tool(tool_id=request.tool_id, ...)
-            # market_regimes = repo.get_regimes(...) 
+            # market_regimes = repo.get_regimes(...)
             # result = analyzer.calculate_regime_specific_performance(tool_results, market_regimes)
             # For now, return basic as placeholder
             result = service.get_regime_performance_matrix(

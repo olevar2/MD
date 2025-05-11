@@ -170,7 +170,7 @@ class MultiTimeframeFeedbackService:
                 self.recent_data[instrument] = {tf: pd.DataFrame(columns=['timestamp', 'error']).set_index('timestamp') for tf in SUPPORTED_TIMEFRAMES}
 
             new_data = pd.DataFrame([{'timestamp': timestamp, 'error': error}]).set_index('timestamp')
-            
+
             # Append and manage size
             self.recent_data[instrument][timeframe] = pd.concat([self.recent_data[instrument][timeframe], new_data])
             df = self.recent_data[instrument][timeframe]
@@ -220,7 +220,7 @@ class MultiTimeframeFeedbackService:
                     # Resample to a common frequency (e.g., 1 minute) for alignment? Or align based on nearest?
                     # Simple approach: Use as is, align later.
                     error_series[tf] = df['error']
-                    
+
                     current_min = df.index.min()
                     current_max = df.index.max()
                     if min_common_timestamp is None or current_min > min_common_timestamp:
@@ -330,10 +330,10 @@ class MultiTimeframeFeedbackService:
                     for lag in range(1, max_shift + 1):
                         # Shift the potential leading series *forward* in time (its past values align with target's current)
                         shifted_lead = lead_series.shift(lag)
-                        
+
                         # Combine and calculate correlation for this lag
                         combined = pd.DataFrame({'target': target_series, 'shifted_lead': shifted_lead}).dropna()
-                        
+
                         if len(combined) >= self.config["correlation_min_periods"]:
                             corr = combined['target'].corr(combined['shifted_lead'])
                             if corr > max_corr:
@@ -459,7 +459,7 @@ class MultiTimeframeFeedbackService:
         instrument: str,
         prediction_scores: Dict[str, float] # {timeframe: score}
     ) -> Optional[float]:
-        \"\"\"
+        """
         Calculate a single weighted prediction score across multiple timeframes.
 
         Args:
@@ -469,7 +469,7 @@ class MultiTimeframeFeedbackService:
 
         Returns:
             The calculated weighted score, or None if calculation is not possible.
-        \"\"\"
+        """
         logger.debug(f"Calculating weighted score for {instrument} with scores: {prediction_scores}")
         weighted_score = 0.0
         total_weight_used = 0.0
@@ -505,7 +505,7 @@ class MultiTimeframeFeedbackService:
 
 
     async def _publish_analysis_event(self, instrument: str, event_subtype: str, data: Dict[str, Any]):
-        \"\"\"Helper to publish analysis-related events.\"\"\"
+        """Helper to publish analysis-related events."""
         if not self.event_publisher:
             return
 

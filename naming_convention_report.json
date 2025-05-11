@@ -1,0 +1,3693 @@
+{
+  "stats": {
+    "files_checked": 2847,
+    "directories_checked": 733,
+    "violations_found": 614
+  },
+  "violations": [
+    {
+      "path": "D:\\MD\\forex_trading_platform\\.augment.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".augment.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\.eslintrc.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".eslintrc.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\.prettierrc.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".prettierrc.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "analysis-engine-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\analyzers\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\collectors\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\processors\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\utils\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\advanced_ta\\elliott_wave\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\advanced_ta\\fibonacci\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\advanced_ta\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\confluence\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\indicators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\market_regime\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\nlp\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\sentiment\\analyzers\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\sentiment\\models\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\sentiment\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\middleware\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\v1\\standardized\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\v1\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\caching\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\data\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\detection\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\feedback\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\graph\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\inference\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\integration\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\prediction\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\testing\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\visualization\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\chat\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\clients\\standardized\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\config\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\core\\base\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\db\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\events\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\IAdvancedIndicator.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "IAdvancedIndicator.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\IPatternRecognizer.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "IPatternRecognizer.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\learning_from_mistakes\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\multi_asset\\asset_config.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "asset_config.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\repositories\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\resilience\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\services\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\tools\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\api_standardization_report.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "api_standardization_report.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\client_migration_report.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "client_migration_report.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\common_lib\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\deprecation_config.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "deprecation_config.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\api\\api_documentation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "api_documentation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\api_router_migration_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "api_router_migration_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\async_patterns.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "async_patterns.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\benchmarks\\industry_comparison.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "industry_comparison.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\chat_interface.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "chat_interface.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\compliance\\compliance_documentation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "compliance_documentation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\deprecated_module_removal_process.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "deprecated_module_removal_process.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\developer\\confluence_divergence_optimization.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "confluence_divergence_optimization.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\error_handling.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "error_handling.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\error_handling_refactoring_plan.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "error_handling_refactoring_plan.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\monitoring_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "monitoring_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\operations\\runbook.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "runbook.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\security\\security_assessment.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "security_assessment.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\testing.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "testing.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\docs\\user\\optimized_components_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "optimized_components_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\test-requirements.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "test-requirements.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\config\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\mocks\\common_lib\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\unit\\db\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\unit\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\api\\apiClient.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "apiClient.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\AnalysisDashboard.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AnalysisDashboard.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\ConfluenceDetectionWidget.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ConfluenceDetectionWidget.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\DivergenceAnalysisWidget.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "DivergenceAnalysisWidget.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\advanced_ta\\base\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\advanced_ta\\elliott_wave\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\advanced_ta\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\market_regime\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\config\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\architecture\\architecture_summary.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "architecture_summary.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\architecture\\complete_architecture.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "complete_architecture.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\architecture\\current_architecture_report.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "current_architecture_report.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\architecture\\directory_structure.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "directory_structure.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\architecture\\directory_structure.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "directory_structure.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\architecture\\module_dependencies.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "module_dependencies.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\architecture\\project_summary.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "project_summary.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\caching_optimization_summary.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "caching_optimization_summary.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\chat_interface_template\\ChatBackendService.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "ChatBackendService.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\chat_interface_template\\ChatInterface.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChatInterface.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\chat_interface_template\\ChatService.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChatService.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\chat_interface_template\\integration_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "integration_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\code_quality_report\\full_report.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "full_report.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\code_quality_report\\summary_report.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "summary_report.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\commit_message.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "commit_message.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\.eslintrc.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".eslintrc.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\.prettierrc.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".prettierrc.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\apiClient.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "apiClient.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\docs\\error_handling.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "error_handling.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\errorBridge.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "errorBridge.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\errorHandler.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "errorHandler.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\templates\\ServiceClientTemplate.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ServiceClientTemplate.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\test\\security.test.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "security.test.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "common-lib"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\adaptive\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\analysis\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\api\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\caching\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\clients\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\config\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\correlation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\data_reconciliation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\dependency_injection\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\effectiveness\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\errors\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\events\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\indicators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\interfaces\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\ml\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\monitoring\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\resilience\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\service_client\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\utils\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\common_lib\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\docs\\correlation_id.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "correlation_id.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\docs\\resilience_implementation_summary.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "resilience_implementation_summary.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\docs\\resilience_patterns.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "resilience_patterns.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\docs\\service_communication.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "service_communication.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\docs\\standardized_service_communication.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "standardized_service_communication.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\docs\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\tests\\config\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\tests\\correlation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\tests\\errors\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\tests\\indicators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\tests\\integration\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\tests\\service_client\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\usage_demos\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\common-lib\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "core-foundations"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\core_foundations\\resilience\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\core_foundations\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\core_foundations.egg-info",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "core_foundations.egg-info"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\core_foundations.egg-info\\dependency_links.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "dependency_links.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\core_foundations.egg-info\\requires.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "requires.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\core_foundations.egg-info\\top_level.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "top_level.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\core-foundations\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\corrupted_backups\\analysis-engine-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "analysis-engine-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\corrupted_backups\\analysis-engine-service\\analysis_engine\\api\\v1\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\corrupted_backups\\analysis-engine-service\\analysis_engine\\api\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\corrupted_backups\\analysis-engine-service\\analysis_engine\\db\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\corrupted_backups\\analysis-engine-service\\analysis_engine\\repositories\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\corrupted_backups\\feature-store-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "feature-store-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\corrupted_backups\\feature-store-service\\feature_store_service\\computation\\incremental\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "data-management-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\correlation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\feature_extraction\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\trading\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\historical\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-management-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "data-pipeline-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\api\\v1\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\monitoring\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\optimization\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\parallel\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\reconciliation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\services\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\transformers\\asset_specific\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\transformers\\operations\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\transformers\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\validation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\tests\\mocks\\common_lib\\monitoring\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\tests\\mocks\\common_lib\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data-pipeline-service\\tests\\services\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\data_reconciliation_commit_message.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "data_reconciliation_commit_message.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\adr\\0001-service-communication-patterns.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "0001-service-communication-patterns.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\adr\\0002-model-registry-service.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "0002-model-registry-service.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\adr\\0003-signal-flow-architecture.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "0003-signal-flow-architecture.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\adr\\0004-service-isolation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "0004-service-isolation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\analysis_engine\\market_regime\\api_reference.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "api_reference.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\analysis_engine\\market_regime\\architecture.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "architecture.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\analysis_engine\\market_regime\\usage_examples.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "usage_examples.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\api\\indicators_api_docs.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "indicators_api_docs.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\api\\infrastructure_api.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "infrastructure_api.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\api\\standards.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "standards.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\architecture\\review_process.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "review_process.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\architecture\\service_communication.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "service_communication.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\async_standardization_implementation_report.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "async_standardization_implementation_report.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\async_standardization_plan.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "async_standardization_plan.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\configuration.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "configuration.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\configuration_enhancements.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "configuration_enhancements.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\configuration_migration_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "configuration_migration_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\correlation_id_implementation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "correlation_id_implementation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\data_reconciliation_framework.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "data_reconciliation_framework.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\data_reconciliation_integration_report.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "data_reconciliation_integration_report.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\developer\\indicator_internals.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "indicator_internals.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\developer\\performance_optimization.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "performance_optimization.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\developer\\resilience_guidelines.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "resilience_guidelines.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\cross_language_error_handling.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "cross_language_error_handling.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\error_handling_guidelines.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "error_handling_guidelines.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\error_scenarios.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "error_scenarios.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\guidelines.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "guidelines.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\implementation_plan.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "implementation_plan.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\patterns\\bulkhead.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "bulkhead.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\patterns\\circuit_breaker.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "circuit_breaker.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\patterns\\retry.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "retry.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\patterns\\timeout.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "timeout.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\training\\exercises\\exercise1.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "exercise1.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\training\\feedback_form.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "feedback_form.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling\\training\\session1_introduction.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "session1_introduction.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling_implementation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "error_handling_implementation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\error_handling_implementation_report.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "error_handling_implementation_report.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\naming_conventions.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "naming_conventions.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\naming_convention_implementation_plan.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "naming_convention_implementation_plan.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\naming_convention_standardization.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "naming_convention_standardization.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\refactoring\\causal_api_integration.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "causal_api_integration.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\coding_standards.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "coding_standards.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\cross_language_error_handling_examples.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "cross_language_error_handling_examples.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\cross_language_error_handling_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "cross_language_error_handling_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\cross_language_error_mapping.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "cross_language_error_mapping.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\service_client_implementation_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "service_client_implementation_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\service_structure_implementation_guide.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "service_structure_implementation_guide.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\updated\\api_design_patterns.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "api_design_patterns.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\updated\\code_review_checklist.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "code_review_checklist.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\updated\\code_review_guidelines.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "code_review_guidelines.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\updated\\coding_examples.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "coding_examples.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\updated\\comprehensive_coding_standards.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "comprehensive_coding_standards.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\updated\\domain_terminology_glossary.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "domain_terminology_glossary.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\standards\\updated\\file_structure_standards.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "file_structure_standards.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\docs\\user_guides\\indicator_tutorial.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "indicator_tutorial.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\e2e\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\e2e\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\examples\\service_client_examples\\clientFactory.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "clientFactory.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\examples\\service_client_examples\\MarketDataClient.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MarketDataClient.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\examples\\service_client_examples\\usageExample.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "usageExample.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "feature-store-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\config\\cache_config.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "cache_config.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\docs\\advanced_indicators_integration.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "advanced_indicators_integration.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\caching\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\computation\\incremental\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\db\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\heikin_ashi\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\ichimoku\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\renko\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\vsa\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\wyckoff\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\candlestick\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\classic\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\harmonic\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\degraded\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\fibonacci\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\gann\\performance_report.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "performance_report.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\gann\\squares\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\gann\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\harmonic_patterns\\detectors\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\harmonic_patterns\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\volatility\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\interfaces\\IIndicator.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "IIndicator.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\reconciliation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\reliability\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\utils\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\tests\\indicators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\tests\\recovery\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\tests\\verification\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature_store_service\\indicators\\harmonic_patterns\\detectors\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature_store_service\\indicators\\harmonic_patterns\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature_store_service\\indicators\\volatility\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature_store_service\\indicators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\feature_store_service\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\backup\\config\\backup_config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "backup_config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\grafana\\dashboards\\analysis_engine_service.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "analysis_engine_service.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\grafana\\dashboards\\forex_platform_overview.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "forex_platform_overview.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\grafana\\dashboards\\infrastructure_monitoring_dashboard.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "infrastructure_monitoring_dashboard.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\grafana\\dashboards\\slo_dashboard.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "slo_dashboard.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\grafana\\provisioning\\dashboards\\forex_platform_dashboards.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "forex_platform_dashboards.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\prometheus\\alerts\\business_metrics.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "business_metrics.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\prometheus\\alerts\\error_rates.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "error_rates.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\infrastructure\\docker\\prometheus\\alerts\\service_availability.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "service_availability.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "ml-integration-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\caching\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\parallel\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\reconciliation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\tracing\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-integration-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "ml-workbench-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\hardware_optimization_output\\sample_model_cpu_optimization_results.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "sample_model_cpu_optimization_results.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\v1\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\multitask\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\model-registry-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "model-registry-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\model-registry-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "monitoring-alerting-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\backtest_performance_degradation_alert.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "backtest_performance_degradation_alert.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\error_alerts\\critical_errors.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "critical_errors.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\error_alerts\\high_error_rate.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "high_error_rate.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\error_alerts\\security_errors.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "security_errors.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\error_alerts\\trading_errors.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "trading_errors.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\log_alerts.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "log_alerts.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\ml_retraining_failure_alert.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ml_retraining_failure_alert.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\ml_retraining_latency_alert.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ml_retraining_latency_alert.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\resource_alerts.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "resource_alerts.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\rolling_sharpe_ratio_alert.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "rolling_sharpe_ratio_alert.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\standard_alerts.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "standard_alerts.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\tracing_alerts.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "tracing_alerts.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\alerts\\trading_alerts.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "trading_alerts.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\config\\monitoring_config.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "monitoring_config.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\config\\performance_alert_rules.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "performance_alert_rules.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\config\\regular_performance_testing.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "regular_performance_testing.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\config\\slo_alerting_rules.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "slo_alerting_rules.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\config\\slo_recording_rules.yml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "slo_recording_rules.yml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\adaptation_metrics.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "adaptation_metrics.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\error_monitoring\\error_dashboard.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "error_dashboard.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\ml_retraining_monitoring.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ml_retraining_monitoring.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\model_adaptation_metrics.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "model_adaptation_metrics.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\performance_health_dashboard.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "performance_health_dashboard.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\performance_optimization_dashboard.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "performance_optimization_dashboard.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\resource_cost.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "resource_cost.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\strategy_backtest_performance.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "strategy_backtest_performance.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\system_health.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "system_health.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\tool_effectiveness_dashboard.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "tool_effectiveness_dashboard.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\dashboards\\trading_performance.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "trading_performance.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\docs\\metrics_naming_convention.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "metrics_naming_convention.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\docs\\monitoring_alerting_infrastructure.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "monitoring_alerting_infrastructure.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\docs\\performance_baselines.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "performance_baselines.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\docs\\performance_baselines.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "performance_baselines.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\docs\\service_level_objectives.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "service_level_objectives.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\docs\\service_level_objectives.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "service_level_objectives.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\docs\\slo_sli_implementation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "slo_sli_implementation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\api\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\error\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\metrics\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\notifications\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\monitoring-alerting-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\optimization\\error\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\optimization\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\controllers\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\metrics\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\policies\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\utils\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\optimization\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\performance_optimization_summary.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "performance_optimization_summary.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "portfolio-management-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\error\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\services\\account_reconciliation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\services\\reconciliation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\tax_reporting\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\tests\\services\\account_reconciliation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\portfolio-management-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\reference-servers",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "reference-servers"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\reference-servers\\src\\aws-kb-retrieval-server",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "aws-kb-retrieval-server"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\reference-servers\\src\\brave-search",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "brave-search"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\reference-servers\\src\\google-maps",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "google-maps"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\reports\\naming_convention_analysis.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "naming_convention_analysis.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\reports\\naming_convention_analysis.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "naming_convention_analysis.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "risk-management-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\calculators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\clients\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\error\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\managers\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\pipelines\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\tests\\fixtures\\market_data.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "market_data.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\tests\\fixtures\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\tests\\integration\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\tests\\unit\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\risk-management-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\security\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\security\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "strategy-execution-engine"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\docs\\api_documentation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "api_documentation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\docs\\migration_guides\\trading_gateway_client_migration.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "trading_gateway_client_migration.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\docs\\service_documentation.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "service_documentation.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\requirements-dev.txt",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "requirements-dev.txt"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\adapters\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\analysis\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\api\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\backtesting\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\clients\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\core\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\error\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\risk\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\signal\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\strategies\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\tests\\unit\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\strategy-execution-engine\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\testing\\benchmark_results\\benchmark_results_20250507_182912.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "benchmark_results_20250507_182912.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\testing\\feedback_system\\test_config.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "test_config.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\testing\\phase9_config.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "phase9_config.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\testing\\stress_testing\\config\\stress_test_config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "stress_test_config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\testing\\stress_testing\\config\\stress_test_scenarios.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "stress_test_scenarios.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\testing\\stress_testing\\config\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\testing\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\analysis_engine\\analysis\\market_regime\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\config\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\analysis\\advanced_ta\\elliott_wave\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\analysis\\advanced_ta\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\analysis\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\indicators\\harmonic_patterns\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\indicators\\volatility\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\indicators\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\unit\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\fixing\\forex_platform_optimization.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "forex_platform_optimization.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\fixing\\progress_tracking.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "progress_tracking.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\linting\\.eslintrc.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".eslintrc.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\linting\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\linting\\.prettierrc.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".prettierrc.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\architecture_analysis.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "architecture_analysis.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\code_quality.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "code_quality.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\data_integrity_analysis.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "data_integrity_analysis.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\deployment_status.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "deployment_status.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\documentation_completeness_analysis.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "documentation_completeness_analysis.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\performance_metrics.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "performance_metrics.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\project_structure.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "project_structure.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\runtime_health.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "runtime_health.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\scalability_assessment_analysis.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "scalability_assessment_analysis.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\security_status_analysis.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "security_status_analysis.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\test_coverage.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "test_coverage.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\tools\\output\\user_experience_metrics_analysis.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "user_experience_metrics_analysis.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service",
+      "type": "directory",
+      "expected": "snake_case",
+      "actual": "trading-gateway-service"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\.eslintrc.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".eslintrc.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\.prettierrc.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".prettierrc.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\docs\\refactoring_reports\\order_execution_service_refactoring.md",
+      "type": "file",
+      "expected": "Title_Case",
+      "actual": "order_execution_service_refactoring.md"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\src\\middleware\\errorHandler.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "errorHandler.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\src\\utils\\errorBridge.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "errorBridge.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\tests\\test_error_bridge.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "test_error_bridge.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\tests\\test_error_handler_middleware.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "test_error_handler_middleware.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\api\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\error\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\execution_algorithms\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\incidents\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\interfaces\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\monitoring\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\resilience\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\services\\execution\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\simulation\\reinforcement_learning\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\simulation\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\.eslintrc.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".eslintrc.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\.pre-commit-config.yaml",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".pre-commit-config.yaml"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\.prettierrc.json",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": ".prettierrc.json"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\next.config.js",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "next.config.js"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\api\\apiClient.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "apiClient.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ABTestMonitor.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ABTestMonitor.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\analysis\\AnalysisCharting.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AnalysisCharting.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\analysis\\ConfluenceHighlighting.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ConfluenceHighlighting.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\analysis\\InteractiveAnalysisTools.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "InteractiveAnalysisTools.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset-detail\\CryptoDetails.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "CryptoDetails.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset-detail\\ForexDetails.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ForexDetails.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset-detail\\StockDetails.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "StockDetails.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\AssetDetailView.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AssetDetailView.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\CausalDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "CausalDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chart\\Chart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Chart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chart\\ChartControlPanel.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChartControlPanel.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chart\\ConfluenceChartContainer.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ConfluenceChartContainer.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chart\\ConfluenceHighlighter.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ConfluenceHighlighter.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chart\\PatternVisualization.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PatternVisualization.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chart\\TradingChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "TradingChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\charts\\AdvancedChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AdvancedChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\charts\\AdvancedTAChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AdvancedTAChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\charts\\CandlestickChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "CandlestickChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\charts\\MultiTimeframeAnalysis.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MultiTimeframeAnalysis.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\charts\\PatternVisualization.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PatternVisualization.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\charts\\VirtualizedChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "VirtualizedChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chat\\ChatInput.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChatInput.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chat\\ChatInterface.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChatInterface.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chat\\ChatMessage.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChatMessage.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chat\\ChatService.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChatService.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chat\\ChatWindow.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChatWindow.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\common\\ErrorBoundary.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ErrorBoundary.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\common\\ErrorMonitor.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ErrorMonitor.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\common\\ErrorStates.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ErrorStates.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\common\\GlobalErrorBoundary.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "GlobalErrorBoundary.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\AdvancedTradingDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AdvancedTradingDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\RegimeAwareDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RegimeAwareDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\RegimeIndicator.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RegimeIndicator.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\TradingDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "TradingDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\__tests__",
+      "type": "directory",
+      "expected": "kebab-case",
+      "actual": "__tests__"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\__tests__\\RegimeAwareDashboard.test.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RegimeAwareDashboard.test.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\documentation\\PhaseDocumentation.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PhaseDocumentation.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\FeedbackLoopDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "FeedbackLoopDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\HistoricalTrendAnalysis.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "HistoricalTrendAnalysis.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\ParameterCrossRegimeAnalysis.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ParameterCrossRegimeAnalysis.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\ParameterEffectivenessCard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ParameterEffectivenessCard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\ParameterInsightsPanel.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ParameterInsightsPanel.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\FeedbackDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "FeedbackDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\health\\HealthSummary.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "HealthSummary.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\health\\MetricChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MetricChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\health\\StatusIndicator.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "StatusIndicator.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\integration\\StrategyMLIntegration.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "StrategyMLIntegration.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\layout\\AppLayout.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AppLayout.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\layout\\CustomizableLayout.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "CustomizableLayout.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\layout\\DashboardLayout.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "DashboardLayout.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\MLConfirmationFilter.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MLConfirmationFilter.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\ModelExplainabilityVisualization.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ModelExplainabilityVisualization.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\RLEnvironmentConfigurator.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RLEnvironmentConfigurator.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\RLTrainingDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RLTrainingDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml-workbench\\RLTrainingVisualization.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RLTrainingVisualization.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ModelExplainabilityVisualization.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ModelExplainabilityVisualization.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\monitoring\\RealTimeMonitoringDisplays.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RealTimeMonitoringDisplays.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\MultiAssetPortfolioDashboard.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MultiAssetPortfolioDashboard.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\navigation\\MainNavigation.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MainNavigation.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\navigation\\MobileNavigation.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MobileNavigation.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\NetworkGraph.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "NetworkGraph.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ParameterTuningInterface.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ParameterTuningInterface.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\portfolio\\PortfolioManagement.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PortfolioManagement.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\PortfolioBreakdown.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PortfolioBreakdown.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\PositionMonitoringDashboard.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PositionMonitoringDashboard.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\RegimeAwareDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RegimeAwareDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\reinforcement\\RLTrainingDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RLTrainingDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\RLEnvironmentConfig.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RLEnvironmentConfig.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\RLTrainingDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RLTrainingDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\settings\\ApiKeyDialog.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ApiKeyDialog.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\settings\\IndicatorSelector.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "IndicatorSelector.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\settings\\Setup2FADialog.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Setup2FADialog.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\SignalVisualization.jsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "SignalVisualization.jsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\SignalVisualizer.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "SignalVisualizer.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\strategy\\AdaptiveStrategySettings.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AdaptiveStrategySettings.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\strategy\\ParameterConfigurator.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ParameterConfigurator.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\strategy\\StrategyForm.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "StrategyForm.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\ActiveTradesPanel.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ActiveTradesPanel.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\Chart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Chart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\MarketRegimeIndicator.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "MarketRegimeIndicator.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\OrderEntry.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "OrderEntry.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\OrdersList.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "OrdersList.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\PositionsMonitor.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PositionsMonitor.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\SignalVisualizer.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "SignalVisualizer.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\TouchControls.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "TouchControls.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\TradingDashboard.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "TradingDashboard.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\TradingSignals.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "TradingSignals.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\Watchlist.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Watchlist.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\Button.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Button.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\Card.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Card.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\Chart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Chart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\DataTable.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "DataTable.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\StatusIndicator.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "StatusIndicator.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\ThemeProvider.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ThemeProvider.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\visualization\\CandlestickChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "CandlestickChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\visualization\\PerformanceVisualizationTools.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PerformanceVisualizationTools.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\visualization\\RiskMetricsViz.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "RiskMetricsViz.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\visualization\\SignalConfidenceChart.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "SignalConfidenceChart.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\visualization\\SignalConfidenceIndicator.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "SignalConfidenceIndicator.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\visualization\\__tests__",
+      "type": "directory",
+      "expected": "kebab-case",
+      "actual": "__tests__"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\visualization\\__tests__\\SignalConfidenceChart.test.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "SignalConfidenceChart.test.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\context\\ChartDataContext.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "ChartDataContext.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\contexts\\OfflineContext.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "OfflineContext.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\hooks\\useApi.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "useApi.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\hooks\\useApiClient.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "useApiClient.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\hooks\\useChartOptimization.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "useChartOptimization.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\hooks\\useResponsiveLayout.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "useResponsiveLayout.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\hooks\\useSettings.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "useSettings.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\hooks\\useTheme.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "useTheme.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\hooks\\useWebSocket.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "useWebSocket.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\pages\\PositionsMonitor.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "PositionsMonitor.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\pages\\Settings.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "Settings.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\pages\\SystemHealth.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "SystemHealth.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\pages\\_app.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "_app.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\routes\\AppRoutes.tsx",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "AppRoutes.tsx"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\services\\analysisService.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "analysisService.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\services\\DataSyncService.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "DataSyncService.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\services\\monitoringService.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "monitoringService.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\services\\performanceService.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "performanceService.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\services\\tradingService.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "tradingService.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\utils\\errorHandler.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "errorHandler.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\tests\\unit\\tradingService.test.ts",
+      "type": "file",
+      "expected": "kebab-case",
+      "actual": "tradingService.test.ts"
+    },
+    {
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\tests\\__init__.py",
+      "type": "file",
+      "expected": "snake_case",
+      "actual": "__init__.py"
+    }
+  ]
+}

@@ -400,7 +400,7 @@ class GannTradingStrategy(AdvancedTAStrategy):
 
     def _analyze_seasonal_cycles(self, price_data: Dict[str, pd.DataFrame], symbol: str) -> Dict[str, Any]:
         """
-        Analyze seasonal cycles using Gann's methods.
+        Analyze seasonal cycles using Gann's methods.'
 
         Args:
             price_data: Price data dictionary by timeframe
@@ -533,7 +533,7 @@ class GannTradingStrategy(AdvancedTAStrategy):
 
     def _analyze_currency_strength(self, symbol: str, price_data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
         """
-        Analyze currency strength for the symbol's currencies.
+        Analyze currency strength for the symbol's currencies.'
 
         Args:
             symbol: Trading symbol
@@ -740,7 +740,7 @@ class GannTradingStrategy(AdvancedTAStrategy):
             signal: Trading signal to enhance
             strategy_analysis: Strategy analysis results
             symbol: Trading symbol
-        """
+        """"""
         # Add currency strength information if available
         currency_strength = strategy_analysis.get("currency_strength", {})
         if currency_strength:

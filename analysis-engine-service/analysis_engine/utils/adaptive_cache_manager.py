@@ -221,3 +221,13 @@ class AdaptiveCacheManager:
         with self.lock:
             self.cache.clear()
             logger.debug("Cache cleared")
+            
+    def shutdown(self) -> None:
+        """Shutdown the cache manager and release resources."""
+        with self.lock:
+            self.cache.clear()
+            # Reset statistics
+            self.hits = 0
+            self.misses = 0
+            self.evictions = 0
+            logger.debug("Cache manager shutdown")

@@ -1,4 +1,3 @@
-import logging
 """
 Health Check API for Analysis Engine Service.
 
@@ -7,6 +6,7 @@ This module provides API endpoints for health checks, including:
 - Readiness probe
 - Detailed health check
 """
+import logging
 
 from fastapi import APIRouter, Response, Depends, status
 from typing import Dict, Any, Optional
@@ -23,10 +23,10 @@ router = APIRouter(tags=["Health"])
 def get_health_check(service_container: ServiceContainer) -> HealthCheck:
     """
     Get the health check instance.
-    
+
     Args:
         service_container: Service container
-        
+
     Returns:
         HealthCheck instance
     """
@@ -38,7 +38,7 @@ async def health_check(
 ) -> ServiceHealth:
     """
     Get detailed health status of the service.
-    
+
     Returns:
         ServiceHealth object
     """
@@ -48,10 +48,10 @@ async def health_check(
 async def liveness_probe() -> Dict[str, str]:
     """
     Liveness probe endpoint.
-    
+
     This endpoint is used by Kubernetes to determine if the service is alive.
     It should return a 200 OK response if the service is running.
-    
+
     Returns:
         Simple status response
     """
@@ -64,21 +64,21 @@ async def readiness_probe(
 ) -> Dict[str, Any]:
     """
     Readiness probe endpoint.
-    
+
     This endpoint is used by Kubernetes to determine if the service is ready
     to receive traffic. It should return a 200 OK response if the service is
     ready, or a 503 Service Unavailable response if the service is not ready.
-    
+
     Args:
         response: FastAPI response
         health_check: Health check instance
-        
+
     Returns:
         Status response
     """
     # Check health
     health_status = await health_check.check_health()
-    
+
     # If service is unhealthy, return 503
     if health_status.status == HealthStatus.UNHEALTHY:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -106,34 +106,96 @@ async def readiness_probe(
                 ]
             }
         }
-    
+
     # Service is ready
     return {"status": "ready"}
 
 def setup_health_routes(app, service_container: ServiceContainer) -> None:
     """
     Set up health check routes.
-    
+
     Args:
         app: FastAPI application
         service_container: Service container
     """
     # Include router
     app.include_router(router, prefix="/api")
-    
+
     # Add dependency override
     app.dependency_overrides[get_health_check] = lambda: service_container.health_check
 
 
 # Standardized endpoints
 @router.get("/v1/analysis-engine/healths", response_model=ServiceHealth)
-async 
+async def health_check_v1(
+    health_check: HealthCheck = Depends(get_health_check)
+) -> ServiceHealth:
+    """
+    Get detailed health status of the service (v1 endpoint).
+
+    Returns:
+        ServiceHealth object
+    """
+    return await health_check.check_health()
 
 @router.get("/v1/analysis-engine/healths/live")
-async 
+async def liveness_probe_v1() -> Dict[str, str]:
+    """
+    Liveness probe endpoint (v1 endpoint).
+
+    Returns:
+        Simple status response
+    """
+    return {"status": "alive"}
 
 @router.get("/v1/analysis-engine/healths/ready")
-async 
+async def readiness_probe_v1(
+    response: Response,
+    health_check: HealthCheck = Depends(get_health_check)
+) -> Dict[str, Any]:
+    """
+    Readiness probe endpoint (v1 endpoint).
+
+    Args:
+        response: FastAPI response
+        health_check: Health check instance
+
+    Returns:
+        Status response
+    """
+    # Check health
+    health_status = await health_check.check_health()
+
+    # If service is unhealthy, return 503
+    if health_status.status == HealthStatus.UNHEALTHY:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {
+            "status": "not ready",
+            "reason": "Service is unhealthy",
+            "details": {
+                "components": [
+                    {
+                        "name": component.name,
+                        "status": component.status,
+                        "message": component.message
+                    }
+                    for component in health_status.components
+                    if component.status == HealthStatus.UNHEALTHY
+                ],
+                "dependencies": [
+                    {
+                        "name": dependency.name,
+                        "status": dependency.status,
+                        "message": dependency.message
+                    }
+                    for dependency in health_status.dependencies
+                    if dependency.status == HealthStatus.UNHEALTHY
+                ]
+            }
+        }
+
+    # Service is ready
+    return {"status": "ready"}
 
 # Backward compatibility
 

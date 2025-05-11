@@ -204,85 +204,138 @@ class ComputationScheduler:
             job_id: ID of the job to execute
             job_info: Information about the job
         """
-        # Mark job as running
-        await self._update_job_status(job_id, "running")
+        # Use a semaphore to limit concurrent executions of the same job
+        semaphore_key = f"job_semaphore_{job_id}"
+        if not hasattr(self, semaphore_key):
+            setattr(self, semaphore_key, asyncio.Semaphore(1))
         
-        # Create a history record
-        history_id = await self._create_history_record(job_id)
+        job_semaphore = getattr(self, semaphore_key)
         
-        try:
-            # Extract job parameters
-            config = job_info["config"]
-            symbols = config.get("symbols", [])
-            timeframes = config.get("timeframes", [])
-            indicators = config.get("indicators", [])
-            lookback_days = config.get("lookback_days", 30)
-            
-            # Calculate dates
-            end_date = datetime.utcnow()
-            start_date = end_date - timedelta(days=lookback_days)
-            
-            # Process indicators and params
-            indicator_ids = []
-            params_map = {}
-            
-            for indicator in indicators:
-                if isinstance(indicator, dict):
-                    indicator_id = indicator.get("id")
-                    if not indicator_id:
-                        continue
-                        
-                    indicator_ids.append(indicator_id)
-                    if "params" in indicator:
-                        params_map[indicator_id] = indicator["params"]
-                else:
-                    indicator_ids.append(indicator)
-            
-            # Create symbol-timeframe pairs
-            pairs = []
-            for symbol in symbols:
-                for timeframe in timeframes:
-                    pairs.append((symbol, timeframe))
-            
-            # Compute features
-            if pairs and indicator_ids:
-                logger.info(f"Running job {job_id} ({job_info['name']}) for {len(pairs)} pairs and {len(indicator_ids)} indicators")
+        # Acquire the semaphore to ensure only one instance of this job runs at a time
+        if not job_semaphore.locked():
+            async with job_semaphore:
+                # Mark job as running
+                await self._update_job_status(job_id, "running")
                 
-                # Compute features for each pair
-                for symbol, timeframe in pairs:
-                    try:
-                        await self.computation_engine.compute_features_for_symbol(
-                            symbol=symbol,
-                            timeframe=timeframe,
-                            start_date=start_date,
-                            end_date=end_date,
-                            indicators=indicator_ids,
-                            params_map=params_map
-                        )
-                        logger.info(f"Computed features for {symbol} {timeframe}")
-                    except Exception as e:
-                        logger.error(f"Error computing features for {symbol} {timeframe}: {str(e)}")
-                        # Continue with other pairs
+                # Create a history record
+                history_id = await self._create_history_record(job_id)
+                
+                try:
+                    # Extract job parameters
+                    config = job_info["config"]
+                    symbols = config.get("symbols", [])
+                    timeframes = config.get("timeframes", [])
+                    indicators = config.get("indicators", [])
+                    lookback_days = config.get("lookback_days", 30)
+                    
+                    # Calculate dates
+                    end_date = datetime.utcnow()
+                    start_date = end_date - timedelta(days=lookback_days)
+                    
+                    # Process indicators and params
+                    indicator_ids = []
+                    params_map = {}
+                    
+                    for indicator in indicators:
+                        if isinstance(indicator, dict):
+                            indicator_id = indicator.get("id")
+                            if not indicator_id:
+                                continue
+                                
+                            indicator_ids.append(indicator_id)
+                            if "params" in indicator:
+                                params_map[indicator_id] = indicator["params"]
+                        else:
+                            indicator_ids.append(indicator)
+                    
+                    # Create symbol-timeframe pairs
+                    pairs = []
+                    for symbol in symbols:
+                        for timeframe in timeframes:
+                            pairs.append((symbol, timeframe))
+                    
+                    # Compute features
+                    if pairs and indicator_ids:
+                        logger.info(f"Running job {job_id} ({job_info['name']}) for {len(pairs)} pairs and {len(indicator_ids)} indicators")
+                        
+                        # Use a semaphore to limit concurrent computations
+                        compute_semaphore = asyncio.Semaphore(5)  # Limit to 5 concurrent computations
+                        
+                        # Create tasks for all pairs
+                        tasks = []
+                        for symbol, timeframe in pairs:
+                            task = self._compute_features_for_pair(
+                                compute_semaphore,
+                                symbol,
+                                timeframe,
+                                start_date,
+                                end_date,
+                                indicator_ids,
+                                params_map
+                            )
+                            tasks.append(task)
+                        
+                        # Wait for all tasks to complete
+                        await asyncio.gather(*tasks)
+                    
+                    # Calculate next run time
+                    next_run = datetime.utcnow() + timedelta(seconds=job_info["interval_seconds"])
+                    
+                    # Update job status
+                    await self._update_job_after_run(job_id, next_run)
+                    
+                    # Update history record
+                    await self._update_history_record(history_id, True, "completed", "Job completed successfully")
+                    
+                    logger.info(f"Job {job_id} ({job_info['name']}) completed successfully")
+                except Exception as e:
+                    error_message = f"Error executing job: {str(e)}"
+                    logger.error(error_message)
+                    
+                    # Update job status to error
+                    await self._update_job_status(job_id, "error")
+                    
+                    # Update history record
+                    await self._update_history_record(history_id, False, "failed", error_message)
+        else:
+            logger.warning(f"Job {job_id} is already running, skipping this execution")
             
-            # Calculate next run time
-            next_run = datetime.utcnow() + timedelta(seconds=job_info["interval_seconds"])
-            
-            # Update job status
-            await self._update_job_after_run(job_id, next_run)
-            
-            # Update history record
-            await self._update_history_record(history_id, True, "completed", "Job completed successfully")
-            
-            logger.info(f"Job {job_id} ({job_info['name']}) completed successfully")
-        except Exception as e:
-            error_message = f"Error executing job: {str(e)}"
-            logger.error(error_message)
-            
-            # Update job status to error
-            await self._update_job_status(job_id, "error")
-            
-            # Update history record
-            await self._update_history_record(history_id, False, "failed", error_message)
+    async def _compute_features_for_pair(
+        self,
+        semaphore: asyncio.Semaphore,
+        symbol: str,
+        timeframe: str,
+        start_date: datetime,
+        end_date: datetime,
+        indicators: List[str],
+        params_map: Dict[str, Any]
+    ) -> None:
+        """
+        Compute features for a symbol-timeframe pair with semaphore control.
+        
+        Args:
+            semaphore: Semaphore to limit concurrent computations
+            symbol: Symbol to compute features for
+            timeframe: Timeframe to compute features for
+            start_date: Start date for data
+            end_date: End date for data
+            indicators: List of indicator IDs
+            params_map: Map of indicator IDs to parameters
+        """
+        async with semaphore:
+            try:
+                await self.computation_engine.compute_features_for_symbol(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    start_date=start_date,
+                    end_date=end_date,
+                    indicators=indicators,
+                    params_map=params_map
+                )
+                logger.info(f"Computed features for {symbol} {timeframe}")
+            except Exception as e:
+                logger.error(f"Error computing features for {symbol} {timeframe}: {str(e)}")
+                # Continue with other pairs
     
     async def _update_job_status(self, job_id: str, status: str) -> None:
         """

@@ -46,17 +46,18 @@ except ImportError as e:
     logger.error(f"Error importing modules: {e}")
     logger.info("Trying alternative import path...")
     try:
-        # Try with the full path
-        sys.path.insert(0, "D:\\MD\\forex_trading_platform")
+        # Try with the project root path (determined dynamically)
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+        sys.path.insert(0, project_root)
         from analysis_engine.multi_asset.related_pairs_confluence_detector import RelatedPairsConfluenceAnalyzer
         from analysis_engine.multi_asset.optimized_confluence_detector import OptimizedConfluenceDetector
         from analysis_engine.multi_asset.currency_strength_analyzer import CurrencyStrengthAnalyzer
         from analysis_engine.utils.memory_optimized_dataframe import MemoryOptimizedDataFrame
         from analysis_engine.utils.distributed_tracing import DistributedTracer
         from analysis_engine.utils.gpu_accelerator import GPUAccelerator
-        logger.info("Successfully imported modules using full path")
+        logger.info(f"Successfully imported modules using project root: {project_root}")
     except ImportError as e:
-        logger.error(f"Error importing modules with full path: {e}")
+        logger.error(f"Error importing modules with project root path: {e}")
         sys.exit(1)
 
 

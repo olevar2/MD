@@ -56,11 +56,11 @@ class ServiceHealth(BaseModel):
 
 class HealthCheck:
     """Health check manager for the service."""
-    
+
     def __init__(self, service_name: str, version: str):
         """
         Initialize the health check manager.
-        
+
         Args:
             service_name: Name of the service
             version: Service version
@@ -70,31 +70,31 @@ class HealthCheck:
         self.start_time = datetime.utcnow()
         self.component_checks: Dict[str, Callable[[], Awaitable[ComponentHealth]]] = {}
         self.dependency_checks: Dict[str, Callable[[], Awaitable[DependencyHealth]]] = {}
-    
+
     def add_component_check(self, name: str, check_func: Callable[[], Awaitable[ComponentHealth]]) -> None:
         """
         Add a component health check.
-        
+
         Args:
             name: Component name
             check_func: Async function that returns a ComponentHealth object
         """
         self.component_checks[name] = check_func
-    
+
     def add_dependency_check(self, name: str, check_func: Callable[[], Awaitable[DependencyHealth]]) -> None:
         """
         Add a dependency health check.
-        
+
         Args:
             name: Dependency name
             check_func: Async function that returns a DependencyHealth object
         """
         self.dependency_checks[name] = check_func
-    
+
     async def check_health(self) -> ServiceHealth:
         """
         Check the health of the service and its components and dependencies.
-        
+
         Returns:
             ServiceHealth object
         """
@@ -103,7 +103,7 @@ class HealthCheck:
             *[check_func() for check_func in self.component_checks.values()],
             return_exceptions=True
         )
-        
+
         components = []
         for i, result in enumerate(component_results):
             if isinstance(result, Exception):
@@ -116,13 +116,13 @@ class HealthCheck:
                 ))
             else:
                 components.append(result)
-        
+
         # Check dependency health
         dependency_results = await asyncio.gather(
             *[check_func() for check_func in self.dependency_checks.values()],
             return_exceptions=True
         )
-        
+
         dependencies = []
         for i, result in enumerate(dependency_results):
             if isinstance(result, Exception):
@@ -137,19 +137,19 @@ class HealthCheck:
                 dependencies.append(result)
                 # Update dependency health metric
                 MetricsRecorder.record_dependency_health(
-                    result.name, 
+                    result.name,
                     result.status == HealthStatus.HEALTHY
                 )
-        
+
         # Calculate uptime
         uptime = (datetime.utcnow() - self.start_time).total_seconds()
-        
+
         # Get resource usage
         resource_usage = self._get_resource_usage()
-        
+
         # Determine overall status
         status = self._determine_overall_status(components, dependencies)
-        
+
         return ServiceHealth(
             status=status,
             components=components,
@@ -159,63 +159,63 @@ class HealthCheck:
             start_time=self.start_time,
             resource_usage=resource_usage
         )
-    
+
     def _determine_overall_status(
-        self, 
-        components: List[ComponentHealth], 
+        self,
+        components: List[ComponentHealth],
         dependencies: List[DependencyHealth]
     ) -> HealthStatus:
         """
         Determine the overall health status based on component and dependency health.
-        
+
         Args:
             components: List of component health results
             dependencies: List of dependency health results
-            
+
         Returns:
             Overall health status
         """
         # Check for unhealthy components or dependencies
         if any(c.status == HealthStatus.UNHEALTHY for c in components):
             return HealthStatus.UNHEALTHY
-        
+
         if any(d.status == HealthStatus.UNHEALTHY for d in dependencies):
             return HealthStatus.UNHEALTHY
-        
+
         # Check for degraded components or dependencies
         if any(c.status == HealthStatus.DEGRADED for c in components):
             return HealthStatus.DEGRADED
-        
+
         if any(d.status == HealthStatus.DEGRADED for d in dependencies):
             return HealthStatus.DEGRADED
-        
+
         # All checks passed
         return HealthStatus.HEALTHY
-    
+
     def _get_resource_usage(self) -> Dict[str, float]:
         """
         Get resource usage information.
-        
+
         Returns:
             Dictionary of resource usage metrics
         """
         process = psutil.Process(os.getpid())
-        
+
         # Get CPU usage
         cpu_percent = process.cpu_percent(interval=0.1)
-        
+
         # Get memory usage
         memory_info = process.memory_info()
         memory_percent = process.memory_percent()
-        
+
         # Get disk usage
         disk_usage = psutil.disk_usage('/')
-        
+
         # Update resource usage metrics
         MetricsRecorder.record_resource_usage('cpu', cpu_percent)
         MetricsRecorder.record_resource_usage('memory', memory_percent)
         MetricsRecorder.record_resource_usage('disk', disk_usage.percent)
-        
+
         return {
             'cpu_percent': cpu_percent,
             'memory_percent': memory_percent,
@@ -227,28 +227,38 @@ class HealthCheck:
 # Utility functions for creating health checks
 
 async def check_database_connection(
-    db_client: Any,
+    db_client: Any = None,
     name: str = "database"
 ) -> DependencyHealth:
     """
     Check database connection health.
-    
+
     Args:
-        db_client: Database client
+        db_client: Database client (optional, if None will use the standard connection module)
         name: Dependency name
-        
+
     Returns:
         DependencyHealth object
     """
     start_time = time.time()
-    
+
     try:
-        # Execute a simple query to check connection
-        await db_client.execute("SELECT 1")
-        
+        if db_client is not None:
+            # Execute a simple query to check connection using provided client
+            await db_client.execute("SELECT 1")
+        else:
+            # Use the standard connection module
+            from analysis_engine.db.connection import check_async_db_connection
+
+            # Check connection
+            connection_ok = await check_async_db_connection()
+
+            if not connection_ok:
+                raise Exception("Database connection check failed")
+
         end_time = time.time()
         latency_ms = (end_time - start_time) * 1000
-        
+
         return DependencyHealth(
             name=name,
             status=HealthStatus.HEALTHY,
@@ -261,9 +271,9 @@ async def check_database_connection(
     except Exception as e:
         end_time = time.time()
         latency_ms = (end_time - start_time) * 1000
-        
+
         logger.error(f"Database health check failed: {e}")
-        
+
         return DependencyHealth(
             name=name,
             status=HealthStatus.UNHEALTHY,
@@ -281,23 +291,23 @@ async def check_redis_connection(
 ) -> DependencyHealth:
     """
     Check Redis connection health.
-    
+
     Args:
         redis_client: Redis client
         name: Dependency name
-        
+
     Returns:
         DependencyHealth object
     """
     start_time = time.time()
-    
+
     try:
         # Execute a simple command to check connection
         await redis_client.ping()
-        
+
         end_time = time.time()
         latency_ms = (end_time - start_time) * 1000
-        
+
         return DependencyHealth(
             name=name,
             status=HealthStatus.HEALTHY,
@@ -310,9 +320,9 @@ async def check_redis_connection(
     except Exception as e:
         end_time = time.time()
         latency_ms = (end_time - start_time) * 1000
-        
+
         logger.error(f"Redis health check failed: {e}")
-        
+
         return DependencyHealth(
             name=name,
             status=HealthStatus.UNHEALTHY,
@@ -332,20 +342,20 @@ async def check_service_connection(
 ) -> DependencyHealth:
     """
     Check external service connection health.
-    
+
     Args:
         service_url: URL of the service
         service_name: Name of the service
         timeout: Request timeout in seconds
         http_client: HTTP client to use (optional)
-        
+
     Returns:
         DependencyHealth object
     """
     import aiohttp
-    
+
     start_time = time.time()
-    
+
     try:
         # Create a client if not provided
         if http_client is None:
@@ -355,10 +365,10 @@ async def check_service_connection(
                     timeout=timeout
                 ) as response:
                     await response.text()
-                    
+
                     end_time = time.time()
                     latency_ms = (end_time - start_time) * 1000
-                    
+
                     if response.status == 200:
                         return DependencyHealth(
                             name=service_name,
@@ -388,10 +398,10 @@ async def check_service_connection(
                 timeout=timeout
             ) as response:
                 await response.text()
-                
+
                 end_time = time.time()
                 latency_ms = (end_time - start_time) * 1000
-                
+
                 if response.status == 200:
                     return DependencyHealth(
                         name=service_name,
@@ -417,9 +427,9 @@ async def check_service_connection(
     except asyncio.TimeoutError:
         end_time = time.time()
         latency_ms = (end_time - start_time) * 1000
-        
+
         logger.error(f"{service_name} health check timed out after {timeout} seconds")
-        
+
         return DependencyHealth(
             name=service_name,
             status=HealthStatus.UNHEALTHY,
@@ -434,9 +444,9 @@ async def check_service_connection(
     except Exception as e:
         end_time = time.time()
         latency_ms = (end_time - start_time) * 1000
-        
+
         logger.error(f"{service_name} health check failed: {e}")
-        
+
         return DependencyHealth(
             name=service_name,
             status=HealthStatus.UNHEALTHY,
@@ -454,11 +464,11 @@ async def check_component_health(
 ) -> ComponentHealth:
     """
     Check component health.
-    
+
     Args:
         component: Component to check
         name: Component name
-        
+
     Returns:
         ComponentHealth object
     """
@@ -466,16 +476,16 @@ async def check_component_health(
         # Check if component has a health_check method
         if hasattr(component, 'health_check') and callable(component.health_check):
             start_time = time.time()
-            
+
             # Call the health_check method
             if asyncio.iscoroutinefunction(component.health_check):
                 result = await component.health_check()
             else:
                 result = component.health_check()
-            
+
             end_time = time.time()
             latency_ms = (end_time - start_time) * 1000
-            
+
             # Check the result
             if isinstance(result, bool):
                 # Simple boolean result
@@ -502,12 +512,12 @@ async def check_component_health(
                 status = result.get('status', 'unknown')
                 message = result.get('message', '')
                 details = result.get('details', {})
-                
+
                 if isinstance(details, dict):
                     details['latency_ms'] = latency_ms
                 else:
                     details = {'latency_ms': latency_ms, 'original_details': details}
-                
+
                 if status == 'healthy':
                     return ComponentHealth(
                         name=name,
@@ -550,7 +560,7 @@ async def check_component_health(
             )
     except Exception as e:
         logger.error(f"Error checking component {name}: {e}")
-        
+
         return ComponentHealth(
             name=name,
             status=HealthStatus.UNHEALTHY,

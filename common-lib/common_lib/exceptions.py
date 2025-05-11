@@ -141,6 +141,17 @@ class DataQualityError(DataError):
         super().__init__(message, "DATA_QUALITY_ERROR", *args, **kwargs)
 
 
+class ReconciliationError(DataError):
+    """Exception raised when data reconciliation fails."""
+
+    def __init__(self, message: str = None, details: Dict[str, Any] = None, *args, **kwargs):
+        message = message or "Data reconciliation failed"
+        # Pass details to kwargs
+        if details:
+            kwargs.update(details)
+        super().__init__(message, "RECONCILIATION_ERROR", *args, **kwargs)
+
+
 class ServiceError(ForexTradingPlatformError):
     """Base exception for service-related errors."""
 

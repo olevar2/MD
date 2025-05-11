@@ -1,0 +1,94 @@
+# Default configuration for the Data Pipeline Service
+
+# Service configuration
+service:
+  name: "data-pipeline-service"
+  version: "0.1.0"
+  environment: "development"
+  api_prefix: "/api/v1"
+  cors_origins: ["*"]
+  max_workers: 4
+  cache_size: 1000
+  max_requests_per_minute: 60
+  max_retries: 3
+  retry_delay_seconds: 5
+  timeout_seconds: 30
+
+# Database configuration
+database:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "postgres"
+  database: "data_pipeline"
+  min_connections: 1
+  max_connections: 10
+  ssl_required: false
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/data_pipeline_service.log"
+
+# Service clients configuration
+service_clients:
+  market_data_service:
+    base_url: "http://localhost:8001"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  feature_store_service:
+    base_url: "http://localhost:8002"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  analysis_engine_service:
+    base_url: "http://localhost:8003"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  trading_service:
+    base_url: "http://localhost:8004"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+
+# Kafka configuration
+kafka:
+  bootstrap_servers: "localhost:9092"
+  consumer_group_prefix: "data-pipeline"
+  auto_create_topics: true
+  producer_acks: "all"
+
+# Redis configuration
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: ""
+  timeout: 10
+
+# Object storage configuration
+object_storage:
+  use_object_storage: false
+  endpoint: ""
+  key: ""
+  secret: ""
+  bucket: ""

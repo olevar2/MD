@@ -261,4 +261,4 @@ class ChaikinMoneyFlow(BaseIndicator):
         result[self.name] = sum_mfv / sum_volume
         
         return result
-"""
+""""""

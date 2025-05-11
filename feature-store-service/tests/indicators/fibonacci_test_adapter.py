@@ -9,23 +9,11 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import unittest
-
-from common_lib.indicators.fibonacci_interfaces import (
-    TrendDirectionType,
-    IFibonacciBase,
-    IFibonacciRetracement,
-    IFibonacciExtension,
-    IFibonacciFan,
-    IFibonacciTimeZones,
-    IFibonacciCircles,
-    IFibonacciClusters,
-    IFibonacciUtils
-)
-
+from common_lib.indicators.fibonacci_interfaces import TrendDirectionType, IFibonacciBase, IFibonacciRetracement, IFibonacciExtension, IFibonacciFan, IFibonacciTimeZones, IFibonacciCircles, IFibonacciClusters, IFibonacciUtils
 
 class FibonacciTestBase:
     """Base class for Fibonacci indicator tests."""
-    
+
     @classmethod
     def create_test_data(cls) -> pd.DataFrame:
         """
@@ -34,36 +22,17 @@ class FibonacciTestBase:
         Returns:
             DataFrame with OHLCV data
         """
-        # Create sample OHLCV data with a clear trend for testing
         dates = [datetime.now() + timedelta(days=i) for i in range(100)]
-        
-        # Create an uptrend followed by a downtrend
-        close_prices = np.concatenate([
-            np.linspace(100, 200, 50),  # Uptrend
-            np.linspace(200, 150, 50)   # Downtrend
-        ])
-        
-        # Add some noise to the data
+        close_prices = np.concatenate([np.linspace(100, 200, 50), np.linspace(200, 150, 50)])
         noise = np.random.normal(0, 2, 100)
         close_prices = close_prices + noise
-        
-        # Create high and low prices around close
         high_prices = close_prices + np.random.uniform(1, 5, 100)
         low_prices = close_prices - np.random.uniform(1, 5, 100)
         open_prices = close_prices - np.random.uniform(-3, 3, 100)
         volume = np.random.uniform(1000, 5000, 100)
-        
-        # Create DataFrame
-        data = pd.DataFrame({
-            'open': open_prices,
-            'high': high_prices,
-            'low': low_prices,
-            'close': close_prices,
-            'volume': volume
-        }, index=dates)
-        
+        data = pd.DataFrame({'open': open_prices, 'high': high_prices, 'low': low_prices, 'close': close_prices, 'volume': volume}, index=dates)
         return data
-    
+
     @classmethod
     def get_uptrend_points(cls) -> Dict[str, int]:
         """
@@ -72,12 +41,8 @@ class FibonacciTestBase:
         Returns:
             Dictionary with start_idx, end_idx, and retracement_idx
         """
-        return {
-            'start_idx': 0,
-            'end_idx': 49,
-            'retracement_idx': 60
-        }
-    
+        return {'start_idx': 0, 'end_idx': 49, 'retracement_idx': 60}
+
     @classmethod
     def get_downtrend_points(cls) -> Dict[str, int]:
         """
@@ -86,76 +51,54 @@ class FibonacciTestBase:
         Returns:
             Dictionary with start_idx, end_idx, and retracement_idx
         """
-        return {
-            'start_idx': 49,
-            'end_idx': 99,
-            'retracement_idx': 75
-        }
-
+        return {'start_idx': 49, 'end_idx': 99, 'retracement_idx': 75}
 
 class FibonacciTestCase(unittest.TestCase):
     """Base test case for Fibonacci indicators."""
-    
-    def setUp(self):
+
+    def set_up(self):
         """Set up test data."""
         self.data = FibonacciTestBase.create_test_data()
         self.uptrend_points = FibonacciTestBase.get_uptrend_points()
         self.downtrend_points = FibonacciTestBase.get_downtrend_points()
-    
+
     def test_fibonacci_retracement_auto_detect(self):
         """Test Fibonacci Retracement with auto-detection."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_fibonacci_retracement_manual_points(self):
         """Test Fibonacci Retracement with manual points."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_fibonacci_extension_auto_detect(self):
         """Test Fibonacci Extension with auto-detection."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_fibonacci_extension_manual_points(self):
         """Test Fibonacci Extension with manual points."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_fibonacci_fan(self):
         """Test Fibonacci Fan calculation."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_fibonacci_time_zones(self):
         """Test Fibonacci Time Zones calculation."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_fibonacci_circles(self):
         """Test Fibonacci Circles calculation."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_fibonacci_clusters(self):
         """Test Fibonacci Clusters calculation."""
-        # This method should be implemented by subclasses
         pass
-    
+
     def test_get_info_methods(self):
         """Test that get_info methods return proper information."""
-        # This method should be implemented by subclasses
         pass
 
-
-def create_fibonacci_test_suite(
-    retracement_adapter: IFibonacciRetracement,
-    extension_adapter: IFibonacciExtension,
-    fan_adapter: IFibonacciFan,
-    time_zones_adapter: IFibonacciTimeZones,
-    circles_adapter: IFibonacciCircles,
-    clusters_adapter: IFibonacciClusters
-) -> unittest.TestSuite:
+def create_fibonacci_test_suite(retracement_adapter: IFibonacciRetracement, extension_adapter: IFibonacciExtension, fan_adapter: IFibonacciFan, time_zones_adapter: IFibonacciTimeZones, circles_adapter: IFibonacciCircles, clusters_adapter: IFibonacciClusters) -> unittest.TestSuite:
     """
     Create a test suite for Fibonacci indicators using the provided adapters.
     
@@ -170,10 +113,10 @@ def create_fibonacci_test_suite(
     Returns:
         TestSuite for Fibonacci indicators
     """
-    # Create a test case class that uses the adapters
+
     class FibonacciAdapterTestCase(FibonacciTestCase):
         """Test case for Fibonacci indicators using adapters."""
-        
+
         def __init__(self, methodName='runTest'):
             super().__init__(methodName)
             self.retracement_adapter = retracement_adapter
@@ -182,51 +125,20 @@ def create_fibonacci_test_suite(
             self.time_zones_adapter = time_zones_adapter
             self.circles_adapter = circles_adapter
             self.clusters_adapter = clusters_adapter
-        
+
         def test_fibonacci_retracement_auto_detect(self):
             """Test Fibonacci Retracement with auto-detection."""
-            # Initialize with auto-detection
-            adapter = self.retracement_adapter.__class__(
-                levels=[0.0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0],
-                swing_lookback=30,
-                auto_detect_swings=True
-            )
-            
-            # Calculate retracement levels
+            adapter = self.retracement_adapter.__class__(levels=[0.0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0], swing_lookback=30, auto_detect_swings=True)
             result = adapter.calculate(self.data)
-            
-            # Check that retracement columns exist
             for level in [0.0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0]:
                 level_str = str(level).replace('.', '_')
                 self.assertIn(f'fib_retracement_{level_str}', result.columns)
-            
-            # Check that start and end points are marked
             self.assertIn('fib_retracement_start', result.columns)
             self.assertIn('fib_retracement_end', result.columns)
-            
-            # At least one row should be marked as start and end
             self.assertTrue(result['fib_retracement_start'].any())
             self.assertTrue(result['fib_retracement_end'].any())
-        
-        # Implement other test methods similarly...
-    
-    # Create a test suite
     suite = unittest.TestSuite()
-    
-    # Add test methods to the suite
-    test_methods = [
-        'test_fibonacci_retracement_auto_detect',
-        'test_fibonacci_retracement_manual_points',
-        'test_fibonacci_extension_auto_detect',
-        'test_fibonacci_extension_manual_points',
-        'test_fibonacci_fan',
-        'test_fibonacci_time_zones',
-        'test_fibonacci_circles',
-        'test_fibonacci_clusters',
-        'test_get_info_methods'
-    ]
-    
+    test_methods = ['test_fibonacci_retracement_auto_detect', 'test_fibonacci_retracement_manual_points', 'test_fibonacci_extension_auto_detect', 'test_fibonacci_extension_manual_points', 'test_fibonacci_fan', 'test_fibonacci_time_zones', 'test_fibonacci_circles', 'test_fibonacci_clusters', 'test_get_info_methods']
     for method_name in test_methods:
         suite.addTest(FibonacciAdapterTestCase(method_name))
-    
     return suite

@@ -1,0 +1,150 @@
+# Default configuration for the Trading Gateway Service
+
+# Service configuration
+service:
+  name: "trading-gateway-service"
+  version: "0.1.0"
+  environment: "development"
+  api_prefix: "/api/v1"
+  cors_origins: ["*"]
+  max_workers: 4
+  cache_size: 1000
+  max_requests_per_minute: 60
+  max_retries: 3
+  retry_delay_seconds: 5
+  timeout_seconds: 30
+
+# Database configuration
+database:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "postgres"
+  database: "trading_gateway"
+  min_connections: 1
+  max_connections: 10
+  ssl_required: false
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/trading_gateway_service.log"
+
+# Service clients configuration
+service_clients:
+  market_data_service:
+    base_url: "http://localhost:8001"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  data_pipeline_service:
+    base_url: "http://localhost:8002"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  feature_store_service:
+    base_url: "http://localhost:8003"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  analysis_engine_service:
+    base_url: "http://localhost:8004"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+
+# Kafka configuration
+kafka:
+  bootstrap_servers: "localhost:9092"
+  consumer_group_prefix: "trading-gateway"
+  auto_create_topics: true
+  producer_acks: "all"
+
+# Redis configuration
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: ""
+  timeout: 10
+
+# Trading gateway configuration
+trading_gateway:
+  # Order management configuration
+  order_management:
+    max_orders_per_user: 100
+    max_open_positions: 50
+    max_order_value: 100000.0
+    min_order_value: 10.0
+    default_order_type: "market"
+    default_time_in_force: "gtc"
+    enable_stop_loss: true
+    enable_take_profit: true
+    enable_trailing_stop: true
+    
+  # Risk management configuration
+  risk_management:
+    max_leverage: 10.0
+    margin_call_level: 0.8
+    liquidation_level: 0.5
+    max_drawdown_percent: 20.0
+    max_daily_loss_percent: 5.0
+    max_position_size_percent: 10.0
+    
+  # Broker configuration
+  brokers:
+    default_broker: "interactive_brokers"
+    interactive_brokers:
+      host: "localhost"
+      port: 7496
+      client_id: 1
+      account_id: ""
+      paper_trading: true
+      timeout_seconds: 30
+    oanda:
+      api_key: ""
+      account_id: ""
+      environment: "practice"
+      timeout_seconds: 30
+    fxcm:
+      api_key: ""
+      account_id: ""
+      environment: "demo"
+      timeout_seconds: 30
+      
+  # Simulation configuration
+  simulation:
+    enable_simulation: true
+    initial_balance: 10000.0
+    commission_rate: 0.001
+    slippage_model: "random"
+    max_slippage_pips: 2
+    
+  # Authentication configuration
+  authentication:
+    jwt_secret: "your-secret-key"
+    jwt_expiration_minutes: 60
+    refresh_token_expiration_days: 7
+    
+  # Rate limiting configuration
+  rate_limiting:
+    max_requests_per_minute: 60
+    max_orders_per_minute: 10
+    max_cancellations_per_minute: 20

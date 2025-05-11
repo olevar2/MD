@@ -575,4 +575,4 @@ def run_indicator_tests():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     run_indicator_tests()
-"""
+""""""

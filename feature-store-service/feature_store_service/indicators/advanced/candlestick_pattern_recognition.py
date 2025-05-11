@@ -614,4 +614,4 @@ class CandlestickPatternRecognition(BaseIndicator):
             stronger_pattern = data.loc[pattern_mask, 'pattern_strength'] < strength_value
             data.loc[pattern_mask & stronger_pattern, 'pattern_strength'] = strength_value
             data.loc[pattern_mask & stronger_pattern, 'strongest_pattern'] = pattern_name
-"""
+""""""

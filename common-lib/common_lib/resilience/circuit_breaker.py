@@ -1,99 +1,154 @@
 """
-Circuit Breaker Pattern Implementation
+Circuit Breaker Module
 
-This module provides enhanced circuit breaker functionality by extending
-the core implementation from core-foundations with integration to common-lib
-monitoring, logging, and configuration.
+This module provides a circuit breaker implementation for resilience.
 """
 
 import logging
-from typing import Any, Callable, Dict, Optional, Type, Union, List
+import time
+import asyncio
+from enum import Enum
+from typing import Dict, Any, Optional, List, Callable, Awaitable, Type, TypeVar, Generic, Union
 
-# Import the base circuit breaker implementation
-from core_foundations.resilience.circuit_breaker import (
-    CircuitBreaker as CoreCircuitBreaker,
-    CircuitBreakerConfig,
-    CircuitState,
-    CircuitBreakerOpen
-)
+from pydantic import BaseModel, Field
 
-# Setup logger
-logger = logging.getLogger(__name__)
-
-# Re-export CircuitBreakerConfig, CircuitState, and CircuitBreakerOpen
-__all__ = [
-    "CircuitBreaker", "CircuitBreakerConfig", "CircuitState", 
-    "CircuitBreakerOpen", "create_circuit_breaker"
-]
+from common_lib.errors import ServiceError
 
 
-class CircuitBreaker(CoreCircuitBreaker):
+T = TypeVar('T')
+
+
+class CircuitState(Enum):
     """
-    Enhanced CircuitBreaker that integrates with common_lib monitoring
-    and provides additional utilities specific to the Forex platform.
+    Circuit breaker state.
     """
-    
-    @property
-    def current_state(self):
-        """Alias for state property to maintain backward compatibility."""
-        return self.state
-    
-    def get_extended_metrics(self) -> Dict[str, Any]:
+
+    CLOSED = "CLOSED"  # Circuit is closed, requests are allowed
+    OPEN = "OPEN"  # Circuit is open, requests are not allowed
+    HALF_OPEN = "HALF_OPEN"  # Circuit is half-open, limited requests are allowed
+
+
+class CircuitBreakerConfig(BaseModel):
+    """
+    Configuration for circuit breaker.
+    """
+
+    name: str = Field(..., description="Name of the circuit breaker")
+    failure_threshold: int = Field(5, description="Number of failures before opening the circuit")
+    recovery_timeout: float = Field(60.0, description="Time in seconds before attempting to close the circuit")
+    expected_exception_names: List[str] = Field(
+        ["Exception"],
+        description="List of exception class names that should be counted as failures"
+    )
+
+
+class CircuitBreaker:
+    """
+    Circuit breaker for resilience.
+
+    This class implements the circuit breaker pattern to prevent cascading failures.
+    """
+
+    def __init__(
+        self,
+        config: CircuitBreakerConfig,
+        logger: Optional[logging.Logger] = None
+    ):
         """
-        Get extended metrics for monitoring the circuit breaker.
-        
-        Returns:
-            Dictionary with extended metrics including error percentages and state duration
+        Initialize the circuit breaker.
+
+        Args:
+            config: Circuit breaker configuration
+            logger: Logger to use (if None, creates a new logger)
         """
-        metrics = super().get_metrics()
-        
-        # Add additional metrics
-        if metrics["total_calls"] > 0:
-            metrics["error_rate"] = metrics["failed_calls"] / metrics["total_calls"]
-        else:
-            metrics["error_rate"] = 0.0
-            
-        return metrics
-        
-    async def execute(self, func: Callable[..., Any], *args: Any, **kwargs: Any) -> Any:
+        self.name = config.name
+        self.failure_threshold = config.failure_threshold
+        self.recovery_timeout = config.recovery_timeout
+
+        # Convert exception names to actual exception classes
+        self.expected_exceptions = []
+        for exc_name in config.expected_exception_names:
+            try:
+                # Try to get the exception class from builtins
+                exc_class = getattr(__import__('builtins'), exc_name)
+                if issubclass(exc_class, Exception):
+                    self.expected_exceptions.append(exc_class)
+            except (AttributeError, ImportError):
+                # If not found in builtins, try to get it from common_lib.errors
+                try:
+                    exc_class = getattr(__import__('common_lib.errors', fromlist=[exc_name]), exc_name)
+                    if issubclass(exc_class, Exception):
+                        self.expected_exceptions.append(exc_class)
+                except (AttributeError, ImportError):
+                    # If not found, log a warning
+                    logging.warning(f"Exception class {exc_name} not found")
+
+        # If no valid exceptions were found, use Exception as default
+        if not self.expected_exceptions:
+            self.expected_exceptions = [Exception]
+
+        self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+
+        self.state = CircuitState.CLOSED
+        self.failure_count = 0
+        self.last_failure_time = 0
+        self.lock = asyncio.Lock()
+
+    async def execute(self, func: Callable[[], Awaitable[T]]) -> T:
         """
         Execute a function with circuit breaker protection.
-        Wraps the original call method with improved error handling.
-        
+
         Args:
-            func: The function to execute
-            *args: Positional arguments for the function
-            **kwargs: Keyword arguments for the function
-            
+            func: Function to execute
+
         Returns:
-            The function's result
-            
+            Result of the function
+
         Raises:
-            CircuitBreakerOpen: If circuit is open
-            Exception: Any exception from the function if circuit is closed
+            ServiceError: If the circuit is open
+            Exception: If the function raises an exception
         """
-        return await self.call(func, *args, **kwargs)
+        async with self.lock:
+            # Check if circuit is open
+            if self.state == CircuitState.OPEN:
+                # Check if recovery timeout has elapsed
+                if time.time() - self.last_failure_time >= self.recovery_timeout:
+                    self.logger.info(f"Circuit {self.name} is half-open, allowing request")
+                    self.state = CircuitState.HALF_OPEN
+                else:
+                    self.logger.warning(f"Circuit {self.name} is open, rejecting request")
+                    raise ServiceError(
+                        code=2000,
+                        message=f"Service {self.name} is unavailable",
+                        details=f"Circuit breaker is open"
+                    )
 
+        try:
+            # Execute function
+            result = await func()
 
-def create_circuit_breaker(
-    service_name: str, 
-    resource_name: str, 
-    config: Optional[CircuitBreakerConfig] = None,
-    fallback_function: Optional[Callable[..., Any]] = None,
-    **kwargs
-) -> CircuitBreaker:
-    """
-    Factory function to create a properly configured CircuitBreaker.
-    
-    Args:
-        service_name: Name of the service using the circuit breaker
-        resource_name: Name of the resource being protected
-        config: Optional circuit breaker configuration
-        fallback_function: Optional fallback function
-        **kwargs: Additional parameters for the CircuitBreaker constructor
-        
-    Returns:
-        Configured CircuitBreaker instance
-    """
-    name = f"{service_name}.{resource_name}"
-    return CircuitBreaker(name=name, config=config, fallback_function=fallback_function, **kwargs)
+            # Reset circuit if successful
+            async with self.lock:
+                if self.state == CircuitState.HALF_OPEN:
+                    self.logger.info(f"Circuit {self.name} is closed")
+                    self.state = CircuitState.CLOSED
+                    self.failure_count = 0
+
+            return result
+        except Exception as e:
+            # Check if exception is expected
+            is_expected = any(isinstance(e, exc) for exc in self.expected_exceptions)
+
+            if is_expected:
+                # Increment failure count
+                async with self.lock:
+                    self.failure_count += 1
+                    self.last_failure_time = time.time()
+
+                    # Open circuit if threshold is reached
+                    if (self.state == CircuitState.CLOSED and self.failure_count >= self.failure_threshold) or self.state == CircuitState.HALF_OPEN:
+                        self.logger.warning(f"Circuit {self.name} is open")
+                        self.state = CircuitState.OPEN
+
+            # Re-raise exception
+            raise

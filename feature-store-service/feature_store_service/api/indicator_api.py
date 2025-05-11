@@ -68,24 +68,24 @@ async def get_all_indicators(
 ):
     """
     Get a list of all available technical indicators.
-    
+
     If category is provided, only indicators in that category are returned.
     """
     if indicator_registry is None:
         raise HTTPException(status_code=503, detail="Indicator registry is not initialized")
-    
+
     try:
         # Get indicators, filtered by category if provided
         if category:
             indicators = indicator_registry.get_indicators_by_category(category)
         else:
             indicators = indicator_registry.get_all_indicators()
-        
+
         # Convert to response model
         result = []
         for indicator_id, indicator_class in indicators.items():
             metadata = indicator_class.get_metadata()
-            
+
             # Convert parameters format
             parameters = []
             for param_name, param_info in metadata["parameters"].items():
@@ -100,7 +100,7 @@ async def get_all_indicators(
                         options=param_info.get("options")
                     )
                 )
-            
+
             # Create indicator info
             result.append(
                 IndicatorInfo(
@@ -111,10 +111,10 @@ async def get_all_indicators(
                     parameters=parameters
                 )
             )
-            
+
         # Sort by category and name
         result.sort(key=lambda x: (x.category, x.name))
-        
+
         return result
     except Exception as e:
         logger.error(f"Error getting indicators: {str(e)}")
@@ -128,16 +128,16 @@ async def get_indicator(indicator_id: str):
     """
     if indicator_registry is None:
         raise HTTPException(status_code=503, detail="Indicator registry is not initialized")
-    
+
     try:
         # Get the indicator class
         indicator_class = indicator_registry.get_indicator(indicator_id)
         if not indicator_class:
             raise HTTPException(status_code=404, detail=f"Indicator '{indicator_id}' not found")
-        
+
         # Get metadata and convert to response model
         metadata = indicator_class.get_metadata()
-        
+
         # Convert parameters format
         parameters = []
         for param_name, param_info in metadata["parameters"].items():
@@ -152,7 +152,7 @@ async def get_indicator(indicator_id: str):
                     options=param_info.get("options")
                 )
             )
-        
+
         # Create indicator info
         result = IndicatorInfo(
             id=metadata["id"],
@@ -161,7 +161,7 @@ async def get_indicator(indicator_id: str):
             category=metadata["category"],
             parameters=parameters
         )
-        
+
         return result
     except HTTPException:
         raise
@@ -177,7 +177,7 @@ async def get_categories():
     """
     if indicator_registry is None:
         raise HTTPException(status_code=503, detail="Indicator registry is not initialized")
-    
+
     try:
         return indicator_registry.get_categories()
     except Exception as e:
@@ -202,7 +202,7 @@ async def get_indicator_values(
         indicator_class = indicator_registry.get_indicator(indicator_id)
         if not indicator_class:
             raise HTTPException(status_code=404, detail=f"Indicator {indicator_id} not found")
-            
+
         # Get the data from storage
         data = await feature_storage.get_indicator_data(
             indicator_id=indicator_id,
@@ -212,10 +212,10 @@ async def get_indicator_values(
             end_date=end_date,
             columns=columns
         )
-        
+
         if data.empty:
             return {"data": [], "columns": []}
-            
+
         # Convert to JSON-serializable format
         result = []
         for timestamp, row in data.iterrows():
@@ -223,7 +223,7 @@ async def get_indicator_values(
             for col in data.columns:
                 record[col] = float(row[col]) if pd.notna(row[col]) else None
             result.append(record)
-            
+
         return {"data": result, "columns": list(data.columns)}
     except HTTPException:
         raise
@@ -275,7 +275,7 @@ async def get_indicator_presets():
             ]
         }
     }
-    
+
     return {"presets": presets}
 
 
@@ -286,7 +286,7 @@ async def get_cache_statistics():
     """
     if enhanced_indicator_service is None:
         raise HTTPException(status_code=503, detail="Enhanced indicator service with caching is not enabled")
-    
+
     try:
         stats = enhanced_indicator_service.get_cache_stats()
         return stats
@@ -302,7 +302,7 @@ async def clear_cache_for_symbol(symbol: str):
     """
     if enhanced_indicator_service is None:
         raise HTTPException(status_code=503, detail="Enhanced indicator service with caching is not enabled")
-      try:
+    try:
         cleared_count = enhanced_indicator_service.clear_cache_for_symbol(symbol)
         return {"message": f"Cleared {cleared_count} cache entries for symbol {symbol}"}
     except Exception as e:
@@ -317,18 +317,18 @@ async def clear_cache_for_indicator(indicator_type: str):
     """
     if enhanced_indicator_service is None:
         raise HTTPException(status_code=503, detail="Enhanced indicator service with caching is not enabled")
-      try:
+    try:
         cleared_count = enhanced_indicator_service.clear_cache_for_indicator(indicator_type)
         return {"message": f"Cleared {cleared_count} cache entries for indicator {indicator_type}"}
     except Exception as e:
         logger.error(f"Error clearing cache for indicator {indicator_type}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def set_indicator_registry(registry: IndicatorRegistry, indicator_service: Optional[EnhancedIndicatorService] = None):
     """
     Set the indicator registry instance and enhanced indicator service if available.
-    
+
     Args:
         registry: The indicator registry instance
         indicator_service: Optional enhanced indicator service with caching support

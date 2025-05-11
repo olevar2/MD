@@ -30,8 +30,11 @@ from feature_store_service.caching.cache_key import CacheKey
 import time # Added for timing cache misses
 
 class EnhancedIndicatorService:
-    \"\"\"
-    Enhanced service for managing technical indicator calculations with caching support.
+    \
+\
+\
+
+    Enhanced service for managing technical indicator calculations with caching support.::
 
     This service integrates directly with the multi-tiered caching system
     to improve performance for repeated indicator calculations.

@@ -16,6 +16,8 @@ from data_pipeline_service.api.v1 import (
     monitoring,
     market_data_quality
 )
+from data_pipeline_service.api.v1.reconciliation_api import router as reconciliation_router
+from data_pipeline_service.api.market_data_api import market_data_router
 
 # Create main API router
 api_router = APIRouter()
@@ -29,3 +31,5 @@ api_router.include_router(tick_data.router, prefix="/v1/tick-data", tags=["tick-
 api_router.include_router(data_access.router, prefix="/v1/data-access", tags=["data-access"])
 api_router.include_router(monitoring.router, prefix="/v1/monitoring", tags=["monitoring"])
 api_router.include_router(market_data_quality.router, tags=["market-data-quality"])
+api_router.include_router(reconciliation_router, prefix="/v1/reconciliation", tags=["reconciliation"])
+api_router.include_router(market_data_router)

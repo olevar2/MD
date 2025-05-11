@@ -273,22 +273,30 @@ class CacheManager:
         current_size = psutil.Process().memory_info().rss / 1024 / 1024  # MB
         
         if current_size > self.max_memory_size:
-            # Sort cache items by age
+            # Sort cache items by age (oldest first)
             sorted_items = sorted(
                 self.memory_cache.items(),
                 key=lambda x: x[1]['timestamp']
             )
             
-            # Remove oldest items until under limit
-            for key, _ in sorted_items:
-                del self.memory_cache[key]
-                self.cache_stats['evictions'] += 1
-                
-                current_size = psutil.Process().memory_info().rss / 1024 / 1024
-                if current_size <= self.max_memory_size:
+            # Calculate how many items to remove (at least 25% of cache or enough to get under limit)
+            items_to_remove = max(len(sorted_items) // 4, 1)
+            
+            # Remove oldest items
+            for i, (key, _) in enumerate(sorted_items):
+                if i >= items_to_remove and current_size <= self.max_memory_size:
                     break
                     
-            # Force garbage collection
+                # Explicitly remove the reference to the cached data
+                if key in self.memory_cache:
+                    self.memory_cache[key]['data'] = None
+                    del self.memory_cache[key]
+                    self.cache_stats['evictions'] += 1
+                
+                # Check if we're under the memory limit
+                current_size = psutil.Process().memory_info().rss / 1024 / 1024
+                
+            # Force garbage collection to reclaim memory
             gc.collect()
             
     def clear(self) -> None:

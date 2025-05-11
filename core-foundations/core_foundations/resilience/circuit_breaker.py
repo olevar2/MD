@@ -1,5 +1,43 @@
 """
-Circuit breaker implementation for service resilience.
+Circuit Breaker Implementation for Service Resilience
+
+This module provides a robust implementation of the Circuit Breaker pattern
+for improving system resilience when dealing with external dependencies.
+
+The Circuit Breaker pattern prevents cascading failures by automatically
+detecting failures and stopping calls to problematic services. It has three states:
+- CLOSED: Normal operation, calls pass through to the service
+- OPEN: Service is failing, calls are blocked or redirected to fallback
+- HALF-OPEN: Testing if service has recovered, limited calls allowed
+
+Key features:
+- Failure counting with configurable thresholds
+- Automatic state transitions based on success/failure patterns
+- Sliding window for failure tracking
+- Half-open state for testing recovery
+- Metrics collection for monitoring
+- Async-first implementation with proper locking
+- Optional fallback function support
+
+Usage:
+    # Create a circuit breaker
+    breaker = CircuitBreaker("payment-service")
+    
+    # Use with async functions
+    try:
+        result = await breaker.call(external_payment_service.process_payment, payment_data)
+    except CircuitBreakerOpen:
+        # Handle service unavailability
+        notify_admin("Payment service is down")
+        return fallback_result
+        
+    # With custom configuration
+    config = CircuitBreakerConfig(
+        failure_threshold=10,
+        reset_timeout_seconds=300,
+        half_open_max_calls=5
+    )
+    breaker = CircuitBreaker("inventory-service", config=config)
 """
 
 import asyncio
@@ -20,11 +58,37 @@ class CircuitState(Enum):
 
 @dataclass
 class CircuitBreakerConfig:
-    failure_threshold: int = 5  # Number of failures before opening
-    reset_timeout_seconds: int = 60  # Time before attempting reset
-    half_open_max_calls: int = 3  # Max calls to test in half-open state
-    monitoring_window_seconds: int = 120  # Window for failure counting
-    min_throughput: int = 10  # Minimum calls before triggering
+    """
+    Configuration parameters for the CircuitBreaker.
+    
+    Attributes:
+        failure_threshold: Number of failures required to trip the circuit breaker.
+            When this many failures occur within the monitoring window, the circuit
+            transitions from CLOSED to OPEN state.
+            
+        reset_timeout_seconds: Time in seconds to wait before attempting to reset
+            the circuit breaker from OPEN to HALF-OPEN state. This allows the
+            problematic service time to recover.
+            
+        half_open_max_calls: Maximum number of test calls allowed in HALF-OPEN state.
+            These calls are used to test if the service has recovered. If any call
+            fails, the circuit returns to OPEN state. If all succeed, it transitions
+            to CLOSED state.
+            
+        monitoring_window_seconds: Time window in seconds for tracking failures.
+            Only failures within this sliding window are counted toward the
+            failure_threshold. This prevents old failures from affecting current
+            circuit state.
+            
+        min_throughput: Minimum number of calls required before the circuit breaker
+            can trip. This prevents the circuit from opening due to a small number
+            of calls that happen to fail.
+    """
+    failure_threshold: int = 5
+    reset_timeout_seconds: int = 60
+    half_open_max_calls: int = 3
+    monitoring_window_seconds: int = 120
+    min_throughput: int = 10
 
 class CircuitBreaker:
     """
@@ -61,6 +125,12 @@ class CircuitBreaker:
         
     @property
     def state(self) -> CircuitState:
+        """
+        Get the current state of the circuit breaker.
+        
+        Returns:
+            CircuitState: The current state (CLOSED, OPEN, or HALF-OPEN)
+        """
         return self._state
         
     async def call(
@@ -108,7 +178,13 @@ class CircuitBreaker:
             raise
             
     async def _handle_success(self):
-        """Handle successful call."""
+        """
+        Handle a successful call to the protected service.
+        
+        This method:
+        1. Increments the successful calls counter
+        2. If in HALF-OPEN state, transitions to CLOSED state (service has recovered)
+        """
         async with self._lock:
             self._successful_calls += 1
             if self._state == CircuitState.HALF_OPEN:

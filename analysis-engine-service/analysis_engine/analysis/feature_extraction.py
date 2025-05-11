@@ -7,7 +7,7 @@ TODO: ARCHITECTURE - This module overlaps significantly with ml-integration-serv
       module contains more complex feature transformation logic (trends, patterns, etc.)
       that could potentially be integrated here as custom transformers or extractors.
 
-This module provides a comprehensive framework for extracting machine learning features 
+This module provides a comprehensive framework for extracting machine learning features
 from technical indicators with standardized normalization and transformation functions.
 """
 
@@ -40,11 +40,11 @@ class FeatureType(Enum):
     """Types of features"""
     # Basic types
     RAW = "raw"                     # Raw indicator values
-    NORMALIZED = "normalized"       # Normalized indicator value (0-1) 
+    NORMALIZED = "normalized"       # Normalized indicator value (0-1)
     STANDARDIZED = "standardized"   # Standardized indicator value (mean=0, std=1)
     CATEGORICAL = "categorical"     # Categorical feature
     BINARY = "binary"               # Binary feature (0/1)
-    
+
     # Advanced types (merged from ml-integration-service)
     RELATIVE = "relative"           # Relative to a reference (e.g., % change)
     TREND = "trend"                 # Trend features (slope, etc.)
@@ -87,7 +87,7 @@ class Feature:
         """Initialize with defaults if needed"""
         if not self.description:
             self.description = f"{self.feature_type.value} feature from {self.indicator_name}.{self.output_column}"
-        
+
         # Initialize source_columns list if empty
         if not self.source_columns and self.output_column:
             self.source_columns = [self.output_column]
@@ -95,32 +95,32 @@ class Feature:
 
 class FeatureExtractor:
     """Base class for feature extractors"""
-    
+
     def __init__(self, name: str):
         """
         Initialize the feature extractor
-        
+
         Args:
             name: Name of the extractor
         """
         self.name = name
         self._features = {}
         self._transformers = {}
-    
+
     def register_feature(self, feature: Feature) -> None:
         """
         Register a feature with this extractor
-        
+
         Args:
             feature: Feature definition
         """
         self._features[feature.name] = feature
         logger.debug(f"Registered feature: {feature.name}")
-    
+
     def register_transformer(self, name: str, func: Callable) -> None:
         """
         Register a transformer function
-        
+
         Args:
             name: Name of the transformer
             func: Transformer function
@@ -129,7 +129,9 @@ class FeatureExtractor:
         logger.debug(f"Registered transformer: {name}")
 
     def _parse_timeframe(self, timeframe_str: Optional[str]) -> Optional[pd.Timedelta]:
-        \"\"\"Parse a timeframe string (e.g., '1H', '15min', 'D') into a pandas Timedelta or offset alias.\"\""
+        """
+        Parse a timeframe string (e.g., '1H', '15min', 'D') into a pandas Timedelta or offset alias.
+        """
         if timeframe_str is None:
             return None
         try:
@@ -140,7 +142,7 @@ class FeatureExtractor:
             return None
 
     def _resample_data(self, data: pd.DataFrame, target_timeframe: str, aggregation: Optional[Dict[str, Any]] = None) -> pd.DataFrame:
-        \"\"\"Resample data to the target timeframe.\"\""
+        """Resample data to the target timeframe."""
         if not isinstance(data.index, pd.DatetimeIndex):
             logger.warning("Cannot resample data without a DatetimeIndex.")
             return data
@@ -342,49 +344,49 @@ class FeatureExtractor:
                 if indicator_data is None:
                     logger.warning(f"Indicator {feature.indicator_name} data not available for feature {feature.name}")
                     continue
-                
+
                 # Get column from indicator data
                 if feature.output_column not in indicator_data.columns:
                     logger.warning(f"Column {feature.output_column} not found in indicator {feature.indicator_name} output")
                     continue
-                    
+
                 # Get raw feature data
                 raw_feature = indicator_data[feature.output_column]
-                
+
                 # Apply transformation based on feature type
                 if feature.transform_func:
                     # Use custom transformation function
                     transformed = feature.transform_func(raw_feature, feature.parameters)
-                
+
                 elif feature.feature_type == FeatureType.RAW:
                     # Use raw values
                     transformed = raw_feature
-                
+
                 elif feature.feature_type == FeatureType.NORMALIZED:
                     # Normalize to 0-1 range
                     min_val = feature.parameters.get('min_value', raw_feature.min())
                     max_val = feature.parameters.get('max_value', raw_feature.max())
-                    
+
                     if max_val > min_val:
                         transformed = (raw_feature - min_val) / (max_val - min_val)
                     else:
                         transformed = pd.Series(0.5, index=raw_feature.index)
-                
+
                 elif feature.feature_type == FeatureType.STANDARDIZED:
                     # Standardize to mean=0, std=1
                     mean_val = feature.parameters.get('mean', raw_feature.mean())
                     std_val = feature.parameters.get('std', raw_feature.std())
-                    
+
                     if std_val > 0:
                         transformed = (raw_feature - mean_val) / std_val
                     else:
                         transformed = raw_feature - mean_val
-                
+
                 elif feature.feature_type == FeatureType.BINARY:
                     # Create binary feature
                     threshold = feature.parameters.get('threshold', 0)
                     transformed = (raw_feature > threshold).astype(int)
-                
+
                 elif feature.feature_type == FeatureType.CATEGORICAL:
                     # Create categorical feature
                     categories = feature.parameters.get('categories', {})
@@ -392,18 +394,18 @@ class FeatureExtractor:
                         transformed = raw_feature.map(categories).fillna(feature.parameters.get('default_category', np.nan)) # Handle unmapped values
                     else:
                         transformed = raw_feature # Or apply default categorization if needed
-                
+
                 else:
                     # Default to raw values
                     transformed = raw_feature
-                
+
                 # Add to results DataFrame
                 results[feature.name] = transformed
-                
+
             except Exception as e:
                 logger.error(f"Error extracting feature {feature.name}: {str(e)}")
                 continue
-        
+
         # --- Final Resampling ---
         if resample_final_output and target_timeframe:
             logger.info(f"Resampling final feature DataFrame to target timeframe: {target_timeframe}")
@@ -422,7 +424,7 @@ class FeatureExtractor:
         return results
 
     def _is_more_granular(self, tf1: Optional[str], tf2: Optional[str]) -> bool:
-        \"\"\"Check if timeframe tf1 is more granular (shorter) than tf2.\"\""
+        """Check if timeframe tf1 is more granular (shorter) than tf2."""
         if tf1 is None: return False # Base timeframe is not more granular than a specific one
         if tf2 is None: return True  # A specific timeframe is more granular than base
 
@@ -441,13 +443,13 @@ class FeatureExtractor:
                                   indicators: Dict[str, pd.DataFrame]) -> Optional[pd.Series]:
         """
         Extract advanced feature types from data
-        
+
         Args:
             feature: Feature definition
             feature_input_data: Input data for the feature (can be Series or DataFrame)
             base_data: Original base timeframe data
             indicators: Pre-calculated indicators
-            
+
         Returns:
             Series with extracted feature values or None if extraction fails
         """
@@ -544,15 +546,15 @@ class FeatureExtractor:
         method = feature.parameters.get("method", "pct_change")
         periods = feature.parameters.get("periods", 1)
         reference_col = feature.parameters.get("reference_col", None)
-        
+
         if method == "pct_change":
             # Percent change from n periods ago
             return source_data.pct_change(periods=periods)
-            
+
         elif method == "diff":
             # Absolute difference from n periods ago
             return source_data.diff(periods=periods)
-            
+
         elif method == "ratio" and reference_col is not None:
             # Ratio to another column
             if reference_col in full_data.columns:
@@ -560,16 +562,16 @@ class FeatureExtractor:
             else:
                 logger.warning(f"Reference column {reference_col} not found in data")
                 return source_data
-                
+
         elif method == "z_score":
             # Rolling z-score
             window = feature.parameters.get("window", 20)
             return (source_data - source_data.rolling(window=window).mean()) / source_data.rolling(window=window).std()
-            
+
         else:
             # Default to percent change
             return source_data.pct_change()
-    
+
     def _extract_trend_feature(
         self,
         feature: Feature,
@@ -579,11 +581,11 @@ class FeatureExtractor:
         # Get parameters
         method = feature.parameters.get("method", "slope")
         window = feature.parameters.get("window", 5)
-        
+
         if method == "slope":
             # Calculate slope using linear regression on rolling window
             result = pd.Series(index=source_data.index, dtype=float)
-            
+
             for i in range(window - 1, len(source_data)):
                 window_data = source_data.iloc[i-window+1:i+1]
                 x = np.arange(window)
@@ -603,13 +605,13 @@ class FeatureExtractor:
                         denominator = np.sum((x - x_mean) ** 2)
                         slope = numerator / denominator if denominator != 0 else 0
                         result.iloc[i] = slope
-                    
+
             return result
-            
+
         elif method == "direction":
             # -1 for downtrend, 0 for sideways, 1 for uptrend
             return np.sign(source_data.diff(window))
-            
+
         elif method == "acceleration":
             # Acceleration (change in slope)
             slopes = self._extract_trend_feature(
@@ -625,11 +627,11 @@ class FeatureExtractor:
                 source_data
             )
             return slopes.diff()
-            
+
         else:
             # Default to simple difference as trend indicator
             return source_data.diff()
-    
+
     def _extract_momentum_feature(
         self,
         feature: Feature,
@@ -639,20 +641,20 @@ class FeatureExtractor:
         # Get parameters
         method = feature.parameters.get("method", "roc")
         periods = feature.parameters.get("periods", 10)
-        
+
         if method == "roc":
             # Rate of change
             return (source_data / source_data.shift(periods) - 1) * 100
-            
+
         elif method == "momentum":
             # Simple momentum (current - n periods ago)
             return source_data - source_data.shift(periods)
-            
+
         elif method == "tsi":
             # True Strength Index
             long_period = feature.parameters.get("long_period", 25)
             short_period = feature.parameters.get("short_period", 13)
-            
+
             momentum = source_data.diff()
             # Double EMA smoothing of momentum
             smooth1 = momentum.ewm(span=long_period).mean()
@@ -660,11 +662,11 @@ class FeatureExtractor:
             # Double EMA smoothing of absolute momentum
             abs_smooth1 = momentum.abs().ewm(span=long_period).mean()
             abs_smooth2 = abs_smooth1.ewm(span=short_period).mean()
-            
+
             # TSI calculation
             tsi = 100 * smooth2 / abs_smooth2
             return tsi
-            
+
         else:
             # Default to simple ROC
             return (source_data / source_data.shift(1) - 1) * 100
@@ -678,33 +680,33 @@ class FeatureExtractor:
         """Extract crossover features between indicators"""
         # Get parameters
         method = feature.parameters.get("method", "binary")
-        
+
         if method == "binary":
             # Binary crossover indicator (1 for above, -1 for below)
             current_above = series1 > series2
             prev_above = series1.shift(1) > series2.shift(1)
-            
+
             # Crossover happens when current and previous states differ
             crossover_up = current_above & ~prev_above  # Crossed above
             crossover_down = ~current_above & prev_above  # Crossed below
-            
+
             result = pd.Series(0, index=series1.index)
             result[crossover_up] = 1
             result[crossover_down] = -1
             return result
-            
+
         elif method == "distance":
             # Distance between indicators
             return series1 - series2
-            
+
         elif method == "ratio":
             # Ratio between indicators
             return series1 / series2
-            
+
         else:
             # Default to distance
             return series1 - series2
-    
+
     def _extract_volatility_feature(
         self,
         feature: Feature,
@@ -715,29 +717,29 @@ class FeatureExtractor:
         # Get parameters
         method = feature.parameters.get("method", "std")
         window = feature.parameters.get("window", 20)
-        
+
         if method == "std":
             # Standard deviation
             return source_data.rolling(window=window).std()
-            
+
         elif method == "atr_ratio":
             # Need ATR and close price
             atr_col = feature.parameters.get("atr_column", None)
             close_col = feature.parameters.get("close_column", "close")
-            
+
             if atr_col is not None and atr_col in full_data.columns and close_col in full_data.columns:
                 # ATR as percentage of price
                 return full_data[atr_col] / full_data[close_col] * 100
             else:
                 logger.warning("Missing ATR or close columns for ATR ratio")
                 return source_data.rolling(window=window).std()
-                
+
         elif method == "bollinger_width":
             # Need upper and lower bands
             upper_col = feature.parameters.get("upper_column", None)
             lower_col = feature.parameters.get("lower_column", None)
             middle_col = feature.parameters.get("middle_column", None)
-            
+
             if upper_col is not None and lower_col is not None:
                 if upper_col in full_data.columns and lower_col in full_data.columns:
                     # Check if we have a middle band
@@ -749,14 +751,14 @@ class FeatureExtractor:
                         return full_data[upper_col] - full_data[lower_col]
                 else:
                     logger.warning("Missing Bollinger Band columns")
-            
+
             # Default to standard deviation
             return source_data.rolling(window=window).std()
-                
+
         else:
             # Default to rolling standard deviation
             return source_data.rolling(window=window).std()
-    
+
     def _extract_divergence_feature(
         self,
         feature: Feature,
@@ -769,15 +771,15 @@ class FeatureExtractor:
         if price_col not in full_data.columns:
             logger.warning(f"Price column {price_col} not found for divergence")
             return pd.Series(index=source_data.index, dtype=float)
-            
+
         # Get parameters
         method = feature.parameters.get("method", "correlation")
         window = feature.parameters.get("window", 20)
-        
+
         if method == "correlation":
             # Rolling correlation
             return full_data[price_col].rolling(window).corr(source_data)
-            
+
         elif method == "slope_diff":
             # Difference in slope direction
             price_slope = self._extract_trend_feature(
@@ -792,7 +794,7 @@ class FeatureExtractor:
                 ),
                 full_data[price_col]
             )
-            
+
             indicator_slope = self._extract_trend_feature(
                 Feature(
                     name="indicator_slope",
@@ -805,19 +807,19 @@ class FeatureExtractor:
                 ),
                 source_data
             )
-            
+
             # Opposite signs indicate divergence
             return price_slope * indicator_slope
-            
+
         else:
             # Default to correlation
             return full_data[price_col].rolling(window).corr(source_data)
-    
+
     def _extract_pattern_feature(self,
                                  feature: Feature,
                                  feature_input_data: Union[pd.Series, pd.DataFrame], # Can be Series or DataFrame
                                  full_data: pd.DataFrame) -> Optional[pd.Series]: # Added full_data
-        \"\"\"Extract pattern features (placeholder)\"\""
+        """Extract pattern features (placeholder)"""
         # Example: Candlestick patterns would need OHLC from full_data
         # Example: Chart patterns (head & shoulders) are complex and might need dedicated libraries
         logger.warning(f"Pattern feature extraction not fully implemented for {feature.name}. Returning NaNs.")
@@ -825,7 +827,7 @@ class FeatureExtractor:
         return pd.Series(np.nan, index=index)
 
     def _extract_composite_feature(self, feature: Feature, combined_data: pd.DataFrame) -> Optional[pd.Series]:
-        \"\"\"Extract composite features from multiple sources (placeholder)\"\""
+        """Extract composite features from multiple sources (placeholder)"""
         # Example: MACD Histogram (MACD line - Signal line)
         # Example: RSI > 70 AND ADX > 25
         # Requires custom logic based on feature.parameters['formula'] or similar
@@ -854,7 +856,7 @@ class FeatureExtractor:
     # --- Placeholder Methods for New Advanced Types ---
 
     def _extract_statistical_feature(self, feature: Feature, source_data: pd.Series) -> Optional[pd.Series]:
-        \"\"\"Extract statistical features (e.g., skew, kurtosis)\"\""
+        """Extract statistical features (e.g., skew, kurtosis)"""
         method = feature.parameters.get("method", "skew")
         window = feature.parameters.get("window", 20)
 
@@ -872,7 +874,7 @@ class FeatureExtractor:
             return pd.Series(np.nan, index=source_data.index)
 
     def _extract_sentiment_feature(self, feature: Feature, base_data: pd.DataFrame, indicators: Dict[str, pd.DataFrame]) -> Optional[pd.Series]:
-        \"\"\"Extract sentiment features (placeholder)\"\""
+        """Extract sentiment features (placeholder)"""
         # This would require integrating an external sentiment data source.
         # The sentiment data could be passed in 'base_data' or 'indicators'.
         sentiment_col = feature.parameters.get("sentiment_column", "news_sentiment_score")
@@ -896,7 +898,7 @@ class FeatureExtractor:
 
 
     def _extract_regime_feature(self, feature: Feature, base_data: pd.DataFrame, indicators: Dict[str, pd.DataFrame]) -> Optional[pd.Series]:
-        \"\"\"Extract market regime features (placeholder)\"\""
+        """Extract market regime features (placeholder)"""
         # Example: Volatility-based regime (high/low based on ATR or StdDev)
         # Example: Trend-based regime (trending/ranging based on ADX or MA slope)
         method = feature.parameters.get("method", "volatility_threshold")
@@ -926,7 +928,7 @@ class FeatureExtractor:
     def list_features(self) -> List[Dict[str, Any]]:
         """
         List all available features
-        
+
         Returns:
             List of feature information dictionaries
         """
@@ -942,16 +944,16 @@ class FeatureExtractor:
             }
             for feature in self._features.values()
         ]
-            
+
         return sorted(features, key=lambda x: x['name'])
-    
+
     def get_feature_definition(self, name: str) -> Optional[Feature]:
         """
         Get the feature definition by name
-        
+
         Args:
             name: Name of the feature
-            
+
         Returns:
             The feature definition or None if not found
         """

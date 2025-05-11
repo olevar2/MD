@@ -8,8 +8,8 @@ from datetime import datetime
 from typing import Dict, Any, List, AsyncGenerator, Tuple, Optional
 
 from core_foundations.models.trading import MarketData
-# Simulators (adjust paths as needed)
-from trading_gateway_service.simulation.market_regime_simulator import MarketRegimeSimulator, MarketRegimeGenerator
+# Use adapter pattern for service dependencies
+from analysis_engine.clients.service_client_factory import ServiceClientFactory
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +37,78 @@ class BaseDataProvider(ABC):
             yield datetime.now(), {}
 
 
+class MarketDataServiceProvider(BaseDataProvider):
+    """
+    Provides market data from the Market Data Service using the adapter pattern.
+    """
+    def __init__(self, config: Dict[str, Any] = None):
+        self.config = config or {}
+        # Create the market data provider using the adapter factory
+        factory = ServiceClientFactory()
+        self.market_data_provider = factory.create_market_data_provider()
+        logger.info("MarketDataServiceProvider initialized.")
+
+    async def stream_data(
+        self,
+        start_date: datetime,
+        end_date: datetime,
+        symbols: List[str],
+        timeframe: str = '1H'
+    ) -> AsyncGenerator[Tuple[datetime, Dict[str, MarketData]], None]:
+        """
+        Streams historical market data from the Market Data Service.
+
+        Args:
+            start_date: Start date for data retrieval
+            end_date: End date for data retrieval
+            symbols: List of symbols to retrieve data for
+            timeframe: Timeframe for the data
+
+        Yields:
+            A tuple containing the timestamp and a dictionary mapping symbol
+            to its MarketData for that timestamp.
+        """
+        logger.info(f"Streaming market data from {start_date} to {end_date} for {symbols}")
+
+        try:
+            # Process each symbol
+            for symbol in symbols:
+                # Get historical data for the symbol
+                df = await self.market_data_provider.get_historical_data(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    start_time=start_date,
+                    end_time=end_date
+                )
+
+                # Process each timestamp
+                for timestamp, row in df.iterrows():
+                    # Create MarketData object
+                    market_data = MarketData(
+                        symbol=symbol,
+                        timestamp=timestamp,
+                        open=row.get('open', 0.0),
+                        high=row.get('high', 0.0),
+                        low=row.get('low', 0.0),
+                        close=row.get('close', 0.0),
+                        volume=row.get('volume', 0.0)
+                    )
+
+                    # Yield the data
+                    yield timestamp, {symbol: market_data}
+
+        except Exception as e:
+            logger.error(f"Error streaming market data: {str(e)}", exc_info=True)
+
+        logger.info("Finished streaming market data.")
+
+
 class GeneratedDataProvider(BaseDataProvider):
     """
     Generates synthetic market data using simulators.
-    Relies heavily on MarketRegimeSimulator for price data generation.
     """
-    def __init__(self, market_regime_simulator: MarketRegimeSimulator, config: Dict[str, Any]):
-        self.market_regime_simulator = market_regime_simulator
-        self.config = config
+    def __init__(self, config: Dict[str, Any] = None):
+        self.config = config or {}
         logger.info("GeneratedDataProvider initialized.")
 
     async def stream_data(
@@ -52,48 +116,82 @@ class GeneratedDataProvider(BaseDataProvider):
         start_date: datetime,
         end_date: datetime,
         symbols: List[str],
-        timeframe: str = '1H' # TODO: Use timeframe in generation
+        timeframe: str = '1H'
     ) -> AsyncGenerator[Tuple[datetime, Dict[str, MarketData]], None]:
-        """Streams generated market data."""
-        logger.info(f"Generating data from {start_date} to {end_date} for {symbols}")
-        # TODO: Implement proper generation based on start/end dates and timeframe
-        # This is a simplified example using the simulator's internal generation
+        """
+        Streams generated market data.
 
-        # Assume market_regime_simulator has a method to generate data for a period
-        # This needs alignment with the actual MarketRegimeSimulator implementation
+        This implementation generates synthetic data without external dependencies.
+        """
+        logger.info(f"Generating synthetic data from {start_date} to {end_date} for {symbols}")
+
         try:
-            async for timestamp, price_data in self.market_regime_simulator.generate_data_stream(
-                start_date, end_date, symbols, timeframe
-            ):
+            # Generate timestamps based on timeframe
+            import pandas as pd
+            from datetime import timedelta
+
+            # Parse timeframe to determine frequency
+            if timeframe.endswith('m'):
+                freq = f"{timeframe[:-1]}min"
+            elif timeframe.endswith('h'):
+                freq = f"{timeframe[:-1]}H"
+            elif timeframe.endswith('d'):
+                freq = f"{timeframe[:-1]}D"
+            else:
+                freq = "1H"  # Default to 1 hour
+
+            # Generate timestamps
+            timestamps = pd.date_range(start=start_date, end=end_date, freq=freq)
+
+            # Generate synthetic data for each timestamp
+            for timestamp in timestamps:
                 market_data_batch = {}
+
                 for symbol in symbols:
-                    if symbol in price_data:
-                        # Assuming price_data contains OHLCV or similar
-                        # Convert to MarketData model
-                        # This conversion logic depends heavily on what generate_data_stream yields
-                        ohlcv = price_data[symbol]
-                        market_data_batch[symbol] = MarketData(
-                            symbol=symbol,
-                            timestamp=timestamp,
-                            open=ohlcv.get('open', 0), # Provide defaults or handle missing data
-                            high=ohlcv.get('high', 0),
-                            low=ohlcv.get('low', 0),
-                            close=ohlcv.get('close', 0),
-                            volume=ohlcv.get('volume', 0)
-                            # Add bid/ask if generated/available
-                        )
-                    else:
-                        # Handle cases where data for a symbol might be missing at a timestamp
-                        logger.debug(f"No generated data for {symbol} at {timestamp}")
+                    # Generate synthetic price data
+                    import numpy as np
+                    import random
 
-                if market_data_batch:
-                    yield timestamp, market_data_batch
-                else:
-                    logger.debug(f"No market data generated for any symbol at {timestamp}")
+                    # Use timestamp and symbol to seed the random generator for consistency
+                    seed = int(timestamp.timestamp()) + hash(symbol) % 10000
+                    np.random.seed(seed)
+                    random.seed(seed)
 
-        except AttributeError:
-            logger.error("MarketRegimeSimulator does not have 'generate_data_stream' method as expected.")
-            # Yield nothing or raise an error
+                    # Base price depends on the symbol
+                    base_price = 1.0
+                    if symbol.startswith("EUR"):
+                        base_price = 1.1
+                    elif symbol.startswith("GBP"):
+                        base_price = 1.3
+                    elif symbol.startswith("JPY"):
+                        base_price = 110.0
+
+                    # Add some randomness
+                    price_volatility = 0.002  # 0.2% volatility
+                    close_price = base_price * (1 + np.random.normal(0, price_volatility))
+
+                    # Generate OHLC based on close price
+                    high_price = close_price * (1 + random.uniform(0, price_volatility * 2))
+                    low_price = close_price * (1 - random.uniform(0, price_volatility * 2))
+                    open_price = low_price + random.uniform(0, high_price - low_price)
+
+                    # Generate volume
+                    volume = np.random.poisson(1000)
+
+                    # Create MarketData object
+                    market_data_batch[symbol] = MarketData(
+                        symbol=symbol,
+                        timestamp=timestamp,
+                        open=open_price,
+                        high=high_price,
+                        low=low_price,
+                        close=close_price,
+                        volume=volume
+                    )
+
+                # Yield the batch
+                yield timestamp, market_data_batch
+
         except Exception as e:
             logger.error(f"Error during generated data streaming: {e}", exc_info=True)
 

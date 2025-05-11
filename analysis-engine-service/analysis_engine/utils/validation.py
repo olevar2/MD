@@ -1,4 +1,5 @@
-\"""
+\
+""
 Utility functions for data validation.
 """
 
@@ -38,11 +39,11 @@ def ensure_dataframe(X: Union[pd.DataFrame, np.ndarray, list], copy: bool = True
 
     Args:
         X: The input data (DataFrame, NumPy array, list, etc.).
-        copy: Whether to copy the DataFrame if it's already a DataFrame.
+        copy: Whether to copy the DataFrame if it's already a DataFrame.'
 
     Returns:
         A pandas DataFrame, or None if conversion fails.
-    """
+    """"""
     if isinstance(X, pd.DataFrame):
         return X.copy() if copy else X
     elif isinstance(X, np.ndarray):

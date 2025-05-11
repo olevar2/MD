@@ -1,0 +1,34 @@
+Syntax Error Fix Report
+======================
+
+Fixed Files (10):
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\analysis\advanced_ta\time_price_indicators.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\utils\validation.py
+  - D:\MD\forex_trading_platform\common-lib\common_lib\adapters\trading_adapter.py
+  - D:\MD\forex_trading_platform\e2e\framework\environments.py
+  - D:\MD\forex_trading_platform\feature-store-service\feature_store_service\services\enhanced_indicator_service.py
+  - D:\MD\forex_trading_platform\ml-integration-service\ml_integration_service\examples\feature_extraction_example.py
+  - D:\MD\forex_trading_platform\ml-workbench-service\ml_workbench_service\models\experiment_models.py
+  - D:\MD\forex_trading_platform\monitoring-alerting-service\metrics_exporters\tool_effectiveness_exporter.py
+  - D:\MD\forex_trading_platform\optimization\caching\adaptive_strategy.py
+  - D:\MD\forex_trading_platform\strategy-execution-engine\strategy_execution_engine\strategies\gann_strategy.py
+
+Failed Files (18):
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\adaptive_layer\feedback_loop.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\analysis\feature_extraction.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\analysis\advanced_ta\time_cycle.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\api\health_migrated.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\api\v1\effectiveness_analysis_api.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\causal\testing\algorithm_validation.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\clients\execution_engine_client.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\events\publisher.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\events\schemas.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\services\model_retraining_service.py
+  - D:\MD\forex_trading_platform\analysis-engine-service\tests\test_main.py
+  - D:\MD\forex_trading_platform\e2e\utils\test_environment.py
+  - D:\MD\forex_trading_platform\feature-store-service\feature_store_service\storage\timeseries_optimized_queries.py
+  - D:\MD\forex_trading_platform\optimization\caching\calculation_cache.py
+  - D:\MD\forex_trading_platform\portfolio-management-service\portfolio_management_service\clients\risk_management_client.py
+  - D:\MD\forex_trading_platform\testing\feedback_tests\test_adaptation_engine.py
+  - D:\MD\forex_trading_platform\trading-gateway-service\trading_gateway_service\resilience\degraded_mode_strategies.py
+  - D:\MD\forex_trading_platform\ui-service\components\visualization_library.py

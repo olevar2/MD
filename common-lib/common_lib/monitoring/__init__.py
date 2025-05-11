@@ -1,52 +1,29 @@
 """
-Monitoring package for common library.
+Monitoring package for the forex trading platform.
 
-This package provides monitoring utilities for the forex trading platform,
-including distributed tracing, metrics collection, and performance monitoring.
+This package provides monitoring functionality for the platform.
 """
 
-from common_lib.monitoring.tracing import (
-    setup_tracing,
-    get_tracer,
-    trace_function,
-    trace_async_function,
-    inject_trace_context,
-    extract_trace_context,
-    instrument_fastapi,
-    instrument_aiohttp_client,
-    instrument_asyncpg,
-    instrument_redis
-)
-
-from common_lib.monitoring.metrics import (
-    setup_metrics,
-    get_counter,
-    get_gauge,
-    get_histogram,
-    get_summary,
-    track_execution_time,
-    track_memory_usage
-)
+from common_lib.monitoring.metrics import MetricsManager, MetricType, track_time
+from common_lib.monitoring.logging import LoggingManager, JsonFormatter, log_execution
+from common_lib.monitoring.tracing import TracingManager, trace_function
+from common_lib.monitoring.health import HealthManager, HealthCheck, HealthStatus
+from common_lib.monitoring.alerting import AlertManager, Alert, AlertSeverity, AlertChannel
 
 __all__ = [
-    # Tracing
-    "setup_tracing",
-    "get_tracer",
-    "trace_function",
-    "trace_async_function",
-    "inject_trace_context",
-    "extract_trace_context",
-    "instrument_fastapi",
-    "instrument_aiohttp_client",
-    "instrument_asyncpg",
-    "instrument_redis",
-    
-    # Metrics
-    "setup_metrics",
-    "get_counter",
-    "get_gauge",
-    "get_histogram",
-    "get_summary",
-    "track_execution_time",
-    "track_memory_usage"
+    'MetricsManager',
+    'MetricType',
+    'track_time',
+    'LoggingManager',
+    'JsonFormatter',
+    'log_execution',
+    'TracingManager',
+    'trace_function',
+    'HealthManager',
+    'HealthCheck',
+    'HealthStatus',
+    'AlertManager',
+    'Alert',
+    'AlertSeverity',
+    'AlertChannel'
 ]

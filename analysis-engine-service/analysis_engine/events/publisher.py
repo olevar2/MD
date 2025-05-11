@@ -1,4 +1,5 @@
-\"""
+\
+""
 Handles publishing events to the message broker (Kafka).
 """
 

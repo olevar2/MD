@@ -10,6 +10,7 @@ from typing import Dict, Any, Optional, List, Callable, Awaitable
 
 from analysis_engine.core.errors import ServiceContainerError
 from analysis_engine.monitoring.health_checks import HealthCheck, ComponentHealth, DependencyHealth, HealthStatus
+from analysis_engine.adapters.adapter_factory import adapter_factory
 
 class ServiceContainer:
     """Service container for managing services and analyzers."""
@@ -124,6 +125,10 @@ class ServiceContainer:
             return
 
         try:
+            # Initialize adapter factory
+            self.register_service("adapter_factory", adapter_factory)
+            self._logger.info("Adapter factory registered")
+
             # Initialize services first
             for name, service in self._services.items():
                 if hasattr(service, 'initialize') and callable(service.initialize):
@@ -141,6 +146,32 @@ class ServiceContainer:
                     else:
                         analyzer.initialize()
                     self._logger.debug(f"Initialized analyzer: {name}")
+
+            # Register adapters with the adapter factory
+            from analysis_engine.services.analysis_service import AnalysisService
+            from analysis_engine.services.indicator_service import IndicatorService
+            from analysis_engine.services.pattern_service import PatternService
+            from analysis_engine.adapters.analysis_adapter import AnalysisProviderAdapter
+            from analysis_engine.adapters.indicator_adapter import IndicatorProviderAdapter
+            from analysis_engine.adapters.pattern_adapter import PatternRecognizerAdapter
+            from common_lib.interfaces.analysis_engine import IAnalysisProvider, IIndicatorProvider, IPatternRecognizer
+
+            # Create service instances if they don't exist
+            analysis_service = self.get_service("analysis_service") if "analysis_service" in self._services else AnalysisService()
+            indicator_service = self.get_service("indicator_service") if "indicator_service" in self._services else IndicatorService()
+            pattern_service = self.get_service("pattern_service") if "pattern_service" in self._services else PatternService()
+
+            # Create adapter instances
+            analysis_adapter = AnalysisProviderAdapter(analysis_service)
+            indicator_adapter = IndicatorProviderAdapter(indicator_service)
+            pattern_adapter = PatternRecognizerAdapter(pattern_service)
+
+            # Register adapters with the adapter factory
+            adapter_factory.register_adapter(IAnalysisProvider, analysis_adapter)
+            adapter_factory.register_adapter(IIndicatorProvider, indicator_adapter)
+            adapter_factory.register_adapter(IPatternRecognizer, pattern_adapter)
+
+            self._logger.info("Adapters registered with adapter factory")
 
             self._initialized = True
             self._logger.info("Service container initialized")
@@ -210,9 +241,15 @@ class ServiceContainer:
                         analyzer.cleanup()
                     self._logger.debug(f"Cleaned up analyzer: {name}")
 
+            # Clean up adapter factory
+            if "adapter_factory" in self._services:
+                adapter_factory = self._services["adapter_factory"]
+                adapter_factory.clear_adapters()
+                self._logger.info("Adapter factory cleared")
+
             # Then clean up services
             for name, service in self._services.items():
-                if hasattr(service, 'cleanup') and callable(service.cleanup):
+                if name != "adapter_factory" and hasattr(service, 'cleanup') and callable(service.cleanup):
                     if asyncio.iscoroutinefunction(service.cleanup):
                         await service.cleanup()
                     else:

@@ -176,7 +176,7 @@ class CausalSystemIntegrator:
             )
         else:
             components['graph_consistency'] = 0.0
-          evidence['graph_validation'] = validation.validation_details
+        evidence['graph_validation'] = validation.validation_details
         
         # 5. Add robustness score
         robustness_score, robustness_evidence = self._calculate_robustness_score(data, cause, effect)

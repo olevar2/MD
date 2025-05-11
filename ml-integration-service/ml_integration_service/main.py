@@ -38,6 +38,7 @@ from ml_integration_service.api.router import api_router
 from ml_integration_service.api.enhanced_routes import router as enhanced_router
 from ml_integration_service.api.security import api_key_middleware
 from ml_integration_service.api.metrics_integration import setup_metrics
+from ml_integration_service.api.rate_limiter import RateLimiterMiddleware
 from ml_integration_service.config.settings import settings
 from ml_integration_service.visualization.model_performance_viz import ModelPerformanceVisualizer
 from ml_integration_service.optimization.advanced_optimization import (
@@ -80,6 +81,13 @@ app.add_middleware(
 
 # Add correlation ID middleware
 app.add_middleware(FastAPICorrelationIdMiddleware)
+
+# Add rate limiter middleware
+app.add_middleware(
+    RateLimiterMiddleware,
+    requests_per_minute=60,  # Default rate limit
+    burst_size=10  # Default burst size
+)
 
 # Add API key authentication middleware using common-lib security
 app.middleware("http")(api_key_middleware)

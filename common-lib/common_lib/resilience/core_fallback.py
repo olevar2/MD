@@ -182,7 +182,7 @@ class DegradedModeManager:
             f"Using stub DegradedModeManager for service '{service_name}'. "
             "Install core_foundations package for full functionality."
         )
-      def register_dependency(self, name: str, criticality: str = "standard"):
+    def register_dependency(self, name: str, criticality: str = "standard"):
         """Register a dependency with the manager."""
         self._dependencies[name] = {"status": DependencyStatus.HEALTHY, "criticality": criticality}
         

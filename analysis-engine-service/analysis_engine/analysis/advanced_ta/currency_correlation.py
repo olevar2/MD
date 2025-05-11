@@ -22,7 +22,9 @@ logger = logging.getLogger(__name__)
 
 # Placeholder for rolling_correlation if not available
 def rolling_correlation(series1: pd.Series, series2: pd.Series, window: int) -> pd.Series:
-    \"\"\"Placeholder: Calculates rolling correlation between two series.\"\"\"
+    """
+    Placeholder: Calculates rolling correlation between two series.
+    """
     if series1.isnull().all() or series2.isnull().all():
         return pd.Series(np.nan, index=series1.index)
     # Ensure indices align for calculation
@@ -38,13 +40,13 @@ def rolling_correlation(series1: pd.Series, series2: pd.Series, window: int) -> 
 
 
 class CurrencyCorrelationAnalyzer(BaseAnalyzer):
-    \"\"\"
+    """
     Analyzer for currency pair correlations.
 
     Calculates and tracks correlations between multiple currency pairs over time,
     using pre-calculated OHLCV data provided for each instrument.
     Helps identify diversification opportunities and risks from correlated positions.
-    \"\"\"
+    """
 
     DEFAULT_PARAMS = {
         "base_window": 20,          # Short-term window for correlation calculation
@@ -60,12 +62,12 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
     }
 
     def __init__(self, parameters: Dict[str, Any] = None):
-        \"\"\"
+        """
         Initialize the Currency Correlation Analyzer.
 
         Args:
             parameters: Configuration parameters, overriding defaults.
-        \"\"\"
+        """
         resolved_params = self.DEFAULT_PARAMS.copy()
         if parameters:
             resolved_params.update(parameters)
@@ -82,7 +84,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         logger.info(f"Initialized CurrencyCorrelationAnalyzer with params: {self.parameters}")
 
     def analyze(self, data: Dict[str, MarketData]) -> AnalysisResult:
-        \"\"\"Perform correlation analysis on provided currency pair data.
+        """Perform correlation analysis on provided currency pair data.
 
         Args:
             data: Dictionary mapping instrument symbols to their MarketData objects.
@@ -91,7 +93,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         Returns:
             AnalysisResult containing correlation matrices, rolling correlations (optional),
             regime changes, strong correlations, and stability metrics (optional).
-        \"\"\"
+        """
         if not data or not isinstance(data, dict) or len(data) < 2:
             msg = "Insufficient data for correlation analysis (need at least 2 instruments)"
             logger.warning(msg)
@@ -226,7 +228,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
     def update_incremental(
         self, data: Dict[str, MarketData], previous_result: AnalysisResult
     ) -> AnalysisResult:
-        \"\"\"Update correlation analysis incrementally with new data.
+        """Update correlation analysis incrementally with new data.
         Currently falls back to full recalculation.
 
         Args:
@@ -235,7 +237,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
 
         Returns:
             Updated analysis results (via full recalculation).
-        \"\"\"
+        """
         # Check if a full recalculation is needed based on time
         update_freq_hours = self.parameters["update_frequency_hours"]
         if (self.last_full_calculation_time is None or
@@ -271,7 +273,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         #     return self.analyze(data)
 
     def _calculate_correlation_matrix(self, returns_df: pd.DataFrame, window: int) -> Optional[pd.DataFrame]:
-        \"\"\"Calculate correlation matrix for the most recent 'window' periods.
+        """Calculate correlation matrix for the most recent 'window' periods.
 
         Args:
             returns_df: DataFrame containing returns for multiple instruments.
@@ -279,7 +281,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
 
         Returns:
             Correlation matrix as DataFrame, or None if insufficient data.
-        \"\"\"
+        """
         if len(returns_df) < window:
             logger.warning(f"Insufficient data for correlation window {window} (need {window}, got {len(returns_df)})")
             return None
@@ -289,7 +291,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
     def _calculate_rolling_correlations(
         self, returns_df: pd.DataFrame, window: int
     ) -> Dict[str, Optional[pd.Series]]:
-        \"\"\"Calculate rolling correlations for all pairs of instruments.
+        """Calculate rolling correlations for all pairs of instruments.
 
         Args:
             returns_df: DataFrame containing returns for multiple instruments.
@@ -298,7 +300,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         Returns:
             Dictionary mapping pair names (e.g., "EURUSD_vs_GBPUSD") to rolling correlation Series.
             Returns None for a pair if calculation fails.
-        \"\"\"
+        """
         instruments = returns_df.columns
         result = {}
         min_periods_rolling = window // 2 # Minimum observations required in the window
@@ -322,7 +324,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
     def _detect_correlation_regime_changes(
         self, current_corr: Optional[pd.DataFrame], long_term_corr: Optional[pd.DataFrame]
     ) -> List[Dict[str, Any]]:
-        \"\"\"Detect significant changes between short-term and long-term correlation.
+        """Detect significant changes between short-term and long-term correlation.
 
         Args:
             current_corr: Short-term correlation matrix (e.g., base_window).
@@ -330,7 +332,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
 
         Returns:
             List of detected correlation regime changes.
-        \"\"\"
+        """
         changes = []
         if current_corr is None or long_term_corr is None:
             logger.warning("Cannot detect regime changes, missing correlation matrix.")
@@ -375,7 +377,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         return changes
 
     def _identify_strong_correlations(self, corr_matrix: Optional[pd.DataFrame]) -> Dict[str, List[Tuple[str, str, float]]]:
-        \"\"\"Identify strongly positively and negatively correlated pairs from a matrix.
+        """Identify strongly positively and negatively correlated pairs from a matrix.
 
         Args:
             corr_matrix: Correlation matrix.
@@ -383,7 +385,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         Returns:
             Dictionary with lists of strongly correlated ('positive') and
             inversely correlated ('negative') pairs.
-        \"\"\"
+        """
         results: Dict[str, List[Tuple[str, str, float]]] = {
             "positive": [],
             "negative": []
@@ -423,14 +425,14 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         return results
 
     def _calculate_correlation_stability(self, returns_df: pd.DataFrame) -> Dict[str, Any]:
-        \"\"\"Calculate metrics for correlation stability by comparing two halves of the data.
+        """Calculate metrics for correlation stability by comparing two halves of the data.
 
         Args:
             returns_df: DataFrame containing returns.
 
         Returns:
             Dictionary of correlation stability metrics, or error message.
-        \"\"\"
+        """
         min_points_per_half = max(10, self.parameters["long_window"] // 2) # Need enough points in each half
 
         if len(returns_df) < min_points_per_half * 2:
@@ -449,7 +451,7 @@ class CurrencyCorrelationAnalyzer(BaseAnalyzer):
         first_half_corr, second_half_corr = first_half_corr.align(second_half_corr, join='inner')
 
         if first_half_corr.empty:
-             return {"error": "Correlation matrix for stability calculation is empty after alignment."} 
+             return {"error": "Correlation matrix for stability calculation is empty after alignment."}
 
         # Calculate the absolute difference between correlation matrices
         difference = (second_half_corr - first_half_corr).abs()

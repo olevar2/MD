@@ -29,27 +29,27 @@ logger = logging.getLogger(__name__)
 class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker):
     """
     Adapter for enhanced tool effectiveness tracking that implements the common interface.
-    
+
     This adapter wraps the actual EnhancedToolEffectivenessTracker implementation.
     """
-    
+
     def __init__(self, tracker_instance: Optional[EnhancedToolEffectivenessTracker] = None):
         """
         Initialize the adapter.
-        
+
         Args:
             tracker_instance: Optional actual tracker instance to wrap
         """
         self.tracker = tracker_instance or EnhancedToolEffectivenessTracker()
-    
+
     def record_signal(self, signal: SignalEvent) -> str:
         """Record a new trading signal."""
         return self.tracker.record_signal(signal)
-    
+
     def record_outcome(self, outcome: SignalOutcome) -> bool:
         """Record the outcome of a signal."""
         return self.tracker.record_outcome(outcome)
-    
+
     def get_tool_effectiveness(
         self,
         tool_id: str,
@@ -68,7 +68,7 @@ class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker)
             start_date=start_date,
             end_date=end_date
         )
-    
+
     def get_best_tools(
         self,
         market_regime: str,
@@ -85,7 +85,7 @@ class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker)
             min_signals=min_signals,
             top_n=top_n
         )
-    
+
     def get_tool_performance_history(
         self,
         tool_id: str,
@@ -104,7 +104,7 @@ class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker)
             start_date=start_date,
             end_date=end_date
         )
-    
+
     def get_regime_transition_performance(
         self,
         tool_id: str,
@@ -121,7 +121,7 @@ class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker)
             timeframe=timeframe,
             symbol=symbol
         )
-    
+
     def get_tool_correlation_matrix(
         self,
         tool_ids: List[str],
@@ -136,7 +136,7 @@ class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker)
             timeframe=timeframe,
             symbol=symbol
         )
-    
+
     def get_tool_effectiveness_confidence(
         self,
         tool_id: str,
@@ -151,7 +151,7 @@ class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker)
             timeframe=timeframe,
             symbol=symbol
         )
-    
+
     def get_optimal_tool_combination(
         self,
         market_regime: str,
@@ -171,10 +171,10 @@ class EnhancedToolEffectivenessTrackerAdapter(IEnhancedToolEffectivenessTracker)
 class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
     """
     Adapter for adaptive layer service that implements the common interface.
-    
+
     This adapter wraps the actual AdaptiveLayer implementation.
     """
-    
+
     def __init__(
         self,
         adaptive_layer_instance: Optional[AdaptiveLayer] = None,
@@ -182,14 +182,14 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
     ):
         """
         Initialize the adapter.
-        
+
         Args:
             adaptive_layer_instance: Optional actual adaptive layer instance to wrap
             repository: Optional repository for effectiveness data
         """
         self.repository = repository or ToolEffectivenessRepository()
         self.adaptive_layer = adaptive_layer_instance or AdaptiveLayer(self.repository)
-    
+
     async def get_adaptive_parameters(
         self,
         symbol: str,
@@ -206,16 +206,16 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
                 timeframe_enum = None
         else:
             timeframe_enum = timeframe
-        
+
         # Get price data from context if available
         price_data = context.get("price_data") if context else None
-        
+
         # Get available tools from context if available
         available_tools = context.get("available_tools") if context else None
-        
+
         # Get recent signals from context if available
         recent_signals = context.get("recent_signals") if context else None
-        
+
         # Generate adaptive parameters
         return self.adaptive_layer.generate_adaptive_parameters(
             symbol=symbol,
@@ -224,7 +224,7 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
             available_tools=available_tools,
             recent_signals=recent_signals
         )
-    
+
     async def record_strategy_performance(
         self,
         strategy_id: str,
@@ -247,7 +247,7 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
         except Exception as e:
             logger.error(f"Error recording strategy performance: {str(e)}")
             return False
-    
+
     async def get_adaptation_recommendations(
         self,
         symbol: str,
@@ -264,14 +264,14 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
                 timeframe_enum = None
         else:
             timeframe_enum = timeframe
-        
+
         # Detect market regime
         market_regime = self.adaptive_layer.market_regime_service.detect_regime(
             price_data=current_market_data.get("price_data"),
             symbol=symbol,
             timeframe=timeframe_enum or timeframe
         )
-        
+
         # Get tool effectiveness metrics
         tool_metrics = {}
         available_tools = current_market_data.get("available_tools", [])
@@ -282,7 +282,7 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
                 timeframe=timeframe
             )
             tool_metrics[tool_id] = metrics
-        
+
         # Generate recommendations
         recommendations = {
             "symbol": symbol,
@@ -295,14 +295,14 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
             "risk_recommendation": "neutral",
             "timestamp": datetime.now().isoformat()
         }
-        
+
         # Add recommended tools based on effectiveness
         sorted_tools = sorted(
             tool_metrics.items(),
             key=lambda x: x[1].get("effectiveness_score", 0.0),
             reverse=True
         )
-        
+
         recommendations["recommended_tools"] = [
             {
                 "tool_id": tool_id,
@@ -311,6 +311,6 @@ class AdaptiveLayerServiceAdapter(IAdaptiveLayerService):
             }
             for tool_id, metrics in sorted_tools[:5]  # Top 5 tools
         ]
-        
+
         return recommendations
-"""
+

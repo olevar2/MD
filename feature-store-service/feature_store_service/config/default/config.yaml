@@ -1,0 +1,97 @@
+# Default configuration for the Feature Store Service
+
+# Service configuration
+service:
+  name: "feature-store-service"
+  version: "0.1.0"
+  environment: "development"
+  api_prefix: "/api/v1"
+  cors_origins: ["*"]
+  max_workers: 4
+  cache_size: 1000
+  max_requests_per_minute: 60
+  max_retries: 3
+  retry_delay_seconds: 5
+  timeout_seconds: 30
+
+# Database configuration
+database:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "postgres"
+  database: "feature_store"
+  min_connections: 1
+  max_connections: 10
+  ssl_required: false
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/feature_store_service.log"
+
+# Service clients configuration
+service_clients:
+  market_data_service:
+    base_url: "http://localhost:8001"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  data_pipeline_service:
+    base_url: "http://localhost:8002"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  analysis_engine_service:
+    base_url: "http://localhost:8003"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+  trading_service:
+    base_url: "http://localhost:8004"
+    timeout: 30
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30.0
+
+# Kafka configuration
+kafka:
+  bootstrap_servers: "localhost:9092"
+  consumer_group_prefix: "feature-store"
+  auto_create_topics: true
+  producer_acks: "all"
+
+# Redis configuration
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: ""
+  timeout: 10
+
+# Feature store configuration
+feature_store:
+  max_feature_age_days: 30
+  default_timeframe: "1h"
+  supported_timeframes: ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"]
+  default_indicators: ["sma", "ema", "rsi", "macd", "bollinger_bands"]
+  enable_feature_versioning: true
+  feature_cache_ttl_seconds: 300
+  batch_size: 1000
+  max_parallel_computations: 4

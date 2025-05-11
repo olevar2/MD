@@ -113,7 +113,7 @@ class ToolEffectivenessExporter:
             except Exception as e:
                 self.logger.error(f"Error collecting metrics: {str(e)}")
             
-            time.sleep(self.update_interval)    def collect_metrics(self):
+            time.sleep(self.update_interval)    def collect_metrics(self)::::
         """
         Collect and update all metrics
         """

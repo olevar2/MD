@@ -10,13 +10,13 @@ import time
 import json
 import logging
 import asyncio
+import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple, Union
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query, Path, Body
 from pydantic import BaseModel, Field
 
 from analysis_engine.utils.distributed_computing import DistributedTaskManager, DistributedTask
 from analysis_engine.utils.distributed_tracing import DistributedTracer
-from analysis_engine.utils.mcp_integration import mcp_integration
 from analysis_engine.multi_asset.optimized_confluence_detector import OptimizedConfluenceDetector
 from analysis_engine.multi_asset.currency_strength_analyzer import CurrencyStrengthAnalyzer
 from analysis_engine.ml.ml_confluence_detector import MLConfluenceDetector
@@ -102,36 +102,9 @@ class ManagerStatsResponse(BaseModel):
     avg_execution_time: float = Field(..., description="Average execution time in seconds")
     workers: Dict[str, WorkerStatsResponse] = Field(..., description="Worker statistics")
 
-class MCPStatusResponse(BaseModel):
-    """Response model for MCP server status."""
+# Removed MCPStatusResponse class as part of MCP cleanup
 
-    memory_mcp_enabled: bool = Field(..., description="Whether Memory MCP integration is enabled")
-    sequential_thinking_enabled: bool = Field(..., description="Whether Sequential Thinking MCP integration is enabled")
-    desktop_commander_enabled: bool = Field(..., description="Whether Desktop Commander MCP integration is enabled")
-
-class MemoryRequest(BaseModel):
-    """Request model for storing a memory."""
-
-    content: str = Field(..., description="Memory content")
-    user_id: str = Field("default-user", description="User ID")
-
-class MemoryResponse(BaseModel):
-    """Response model for memory operations."""
-
-    success: bool = Field(..., description="Whether the operation was successful")
-    message: str = Field(..., description="Operation message")
-
-class MemorySearchRequest(BaseModel):
-    """Request model for searching memories."""
-
-    query: str = Field(..., description="Search query")
-    user_id: str = Field("default-user", description="User ID")
-
-class MemorySearchResponse(BaseModel):
-    """Response model for memory search."""
-
-    memories: List[Dict[str, Any]] = Field(..., description="List of memories")
-    count: int = Field(..., description="Number of memories found")
+# Removed Memory-related models as part of MCP cleanup
 
 # Dependencies
 def get_task_manager():
@@ -616,23 +589,4 @@ async def get_manager_stats(
             logger.error(f"Error getting manager stats: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/mcp/status", response_model=MCPStatusResponse)
-async def get_mcp_status():
-    """
-    Get MCP server status.
-
-    This endpoint returns the status of MCP server integrations.
-    """
-    with tracer.start_span("get_mcp_status"):
-        try:
-            # Get MCP status
-            status = {
-                "memory_mcp_enabled": mcp_integration.memory_mcp_enabled,
-                "sequential_thinking_enabled": mcp_integration.sequential_thinking_enabled,
-                "desktop_commander_enabled": mcp_integration.desktop_commander_enabled
-            }
-
-            return status
-        except Exception as e:
-            logger.error(f"Error getting MCP status: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+# Removed get_mcp_status endpoint as part of MCP cleanup

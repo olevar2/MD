@@ -89,7 +89,7 @@ class ExecutionEngineClient:
                 logger.warning(f"Failed to load execution engine client config: {e}")
                 
         return default_config
-      async def _make_request(self, method: str, endpoint: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def _make_request(self, method: str, endpoint: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Make an HTTP request to the Strategy Execution Engine with circuit breaker and retry support.
         

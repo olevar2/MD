@@ -466,4 +466,4 @@ class AdvancedVZOIndicator(BaseIndicator):
                 'bearish': bearish_div
             }
         }
-"""
+""""""

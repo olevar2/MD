@@ -63,16 +63,24 @@ class ToolEffectivenessScheduler:
         try:
             while self.running:
                 now = datetime.now().timestamp()
+                tasks_to_run = []
 
-                # Check each scheduled task
-                for task_name, task_info in self.scheduled_tasks.items():
-                    if now >= task_info["next_run"]:
-                        # Run the task
-                        self.logger.info(f"Running scheduled task: {task_name}")
-                        asyncio.create_task(task_info["func"]())
-
-                        # Update next run time
-                        task_info["next_run"] = now + task_info["interval"]
+                # Check each scheduled task under a lock to prevent race conditions
+                async with asyncio.Lock():
+                    for task_name, task_info in self.scheduled_tasks.items():
+                        if now >= task_info["next_run"]:
+                            # Add task to the list of tasks to run
+                            tasks_to_run.append((task_name, task_info["func"]))
+                            
+                            # Update next run time
+                            task_info["next_run"] = now + task_info["interval"]
+                
+                # Run tasks outside the lock to prevent blocking
+                for task_name, task_func in tasks_to_run:
+                    self.logger.info(f"Running scheduled task: {task_name}")
+                    # Use a unique task name to avoid task name collisions
+                    task_id = f"{task_name}_{datetime.now().timestamp()}"
+                    asyncio.create_task(task_func(), name=task_id)
 
                 # Sleep for a minute before checking again
                 await asyncio.sleep(60)
@@ -82,7 +90,8 @@ class ToolEffectivenessScheduler:
         except Exception as e:
             self.logger.error(f"Error in scheduler loop: {e}")
             if self.running:
-                # Restart the scheduler task
+                # Restart the scheduler task after a short delay to prevent rapid restarts
+                await asyncio.sleep(5)
                 self.scheduler_task = asyncio.create_task(self._run_scheduler())
 
     def _next_hour(self):

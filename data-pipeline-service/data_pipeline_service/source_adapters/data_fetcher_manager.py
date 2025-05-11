@@ -560,4 +560,4 @@ class DataFetcherManager:
 
 
     async def _fetch_tick_data_async(self, adapter: BaseAdapter, source_name: str, symbol: str, start_date: datetime, end_date: datetime) -> List[TickData]:
-        """Helper coroutine to fetch and validate tick data from a
+        """Helper coroutine to fetch and validate tick data from a"""

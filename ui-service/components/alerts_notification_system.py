@@ -515,4 +515,4 @@ class SmartAlertFactory:
             timeframe=timeframe
         )
         return rule
-"""
+""""""

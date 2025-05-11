@@ -21,6 +21,12 @@ from .fibonacci_adapter import (
     FibonacciClustersAdapter,
     FibonacciUtilsAdapter
 )
+from .service_adapters import (
+    FeatureProviderAdapter,
+    FeatureStoreAdapter,
+    FeatureGeneratorAdapter
+)
+from .analysis_engine_adapter import AnalysisEngineAdapter
 
 __all__ = [
     'MLFeatureConsumerAdapter',
@@ -35,5 +41,10 @@ __all__ = [
     'FibonacciTimeZonesAdapter',
     'FibonacciCirclesAdapter',
     'FibonacciClustersAdapter',
-    'FibonacciUtilsAdapter'
+    'FibonacciUtilsAdapter',
+    # Service adapters
+    'FeatureProviderAdapter',
+    'FeatureStoreAdapter',
+    'FeatureGeneratorAdapter',
+    'AnalysisEngineAdapter'
 ]

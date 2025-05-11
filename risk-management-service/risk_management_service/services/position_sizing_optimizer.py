@@ -431,4 +431,4 @@ class PositionSizingOptimizer:
             "correlated_exposure": total_correlated_exposure,
             "adjusted_position_size": new_position.get("position_size", 0) * adjustment_factor
         }
-"""
+""""""

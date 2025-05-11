@@ -201,6 +201,19 @@ class PredictiveCacheManager:
                 prev_key = self.access_history[-2][0]
                 if prev_key != key:  # Don't count repeated accesses
                     self.access_patterns[prev_key][key] += 1
+                    
+            # Limit the size of access patterns to prevent memory leaks
+            # Only keep patterns for keys that are in the recent history
+            if len(self.access_patterns) > self.pattern_history_size * 2:
+                # Get recent keys from history
+                recent_keys = set(item[0] for item in self.access_history)
+                
+                # Remove patterns for keys that are not in recent history
+                keys_to_remove = [k for k in self.access_patterns.keys() if k not in recent_keys]
+                for k in keys_to_remove:
+                    del self.access_patterns[k]
+                
+                logger.debug(f"Cleaned up {len(keys_to_remove)} old access patterns")
     
     def _predict_and_precompute(self, key: Any) -> None:
         """
@@ -242,6 +255,15 @@ class PredictiveCacheManager:
                 precompute_func = self._find_precomputation_function(next_key)
                 if not precompute_func:
                     continue
+                
+                # Limit queue size to prevent memory leaks
+                if self.precompute_queue.qsize() >= self.max_precompute_workers * 10:
+                    # Remove lowest priority items
+                    try:
+                        self.precompute_queue.get_nowait()
+                        self.precompute_queue.task_done()
+                    except queue.Empty:
+                        pass
                 
                 # Add to precomputation queue
                 priority = -probability  # Negative for priority queue (lower is higher priority)

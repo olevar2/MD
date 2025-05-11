@@ -1,0 +1,69 @@
+groups:
+  - name: service_alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: sum(rate(forex_requests_total{status="error"}[5m])) by (job) / sum(rate(forex_requests_total[5m])) by (job) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate for {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has a high error rate (> 5%) for more than 5 minutes."
+
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, sum(rate(forex_request_duration_seconds_bucket[5m])) by (job, le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow response time for {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has a 95th percentile response time > 1s for more than 5 minutes."
+
+  - name: database_alerts
+    rules:
+      - alert: HighDatabaseQueryTime
+        expr: histogram_quantile(0.95, sum(rate(forex_database_query_duration_seconds_bucket[5m])) by (job, operation, le)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow database queries for {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has a 95th percentile database query time > 0.5s for operation {{ $labels.operation }} for more than 5 minutes."
+
+      - alert: HighDatabaseErrorRate
+        expr: sum(rate(forex_database_queries_total{status="error"}[5m])) by (job) / sum(rate(forex_database_queries_total[5m])) by (job) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database error rate for {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has a high database error rate (> 5%) for more than 5 minutes."
+
+  - name: resource_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: avg(forex_cpu_usage_percent) by (job) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage for {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has a CPU usage > 80% for more than 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: avg(forex_memory_usage_bytes / 1024 / 1024 / 1024) by (job) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage for {{ $labels.job }}"
+          description: "Service {{ $labels.job }} is using more than 2GB of memory for more than 5 minutes."

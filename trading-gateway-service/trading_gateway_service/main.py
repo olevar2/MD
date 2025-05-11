@@ -43,6 +43,8 @@ from trading_gateway_service.resilience.degraded_mode_strategies import configur
 
 # Import API router
 from trading_gateway_service.api import router as api_router
+from trading_gateway_service.api.v1.adapter_api import adapter_router
+from trading_gateway_service.adapters.adapter_factory import adapter_factory
 
 # Configuration
 APP_NAME = "Trading Gateway Service (Python)"
@@ -78,8 +80,9 @@ register_exception_handlers(app)
 # Set up metrics
 setup_metrics(app, service_name="trading-gateway-service")
 
-# Include API router
+# Include API routers
 app.include_router(api_router)
+app.include_router(adapter_router)
 
 # Define health checks
 health_checks = [
@@ -97,6 +100,11 @@ health_checks = [
         "name": "kafka_connection",
         "check_func": lambda: True,  # Will be replaced at startup
         "critical": False,
+    },
+    {
+        "name": "adapter_factory",
+        "check_func": lambda: adapter_factory._initialized,
+        "critical": True,
     }
 ]
 
@@ -214,6 +222,10 @@ async def startup_event():
         )
         logger.info("Degraded mode strategies configured")
 
+        # Initialize adapter factory
+        adapter_factory.initialize()
+        logger.info("Adapter factory initialized")
+
         # Initialize Kafka event bus
         try:
             app.state.event_bus = KafkaEventBus(
@@ -268,6 +280,13 @@ async def shutdown_event():
             logger.info("Kafka event bus closed successfully")
         except Exception as e:
             logger.error(f"Error closing Kafka event bus: {e}")
+
+    # Clean up adapter factory
+    try:
+        adapter_factory.cleanup()
+        logger.info("Adapter factory cleaned up")
+    except Exception as e:
+        logger.error(f"Error cleaning up adapter factory: {e}")
 
 # Main entry point
 if __name__ == "__main__":

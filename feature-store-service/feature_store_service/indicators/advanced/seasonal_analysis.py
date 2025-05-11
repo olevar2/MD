@@ -506,4 +506,4 @@ class SeasonalAnalysisIndicator(BaseIndicator):
                 visualization_data["strengths"][seasonality_type.value] = result[strength_col].tolist()
         
         return visualization_data
-"""
+""""""

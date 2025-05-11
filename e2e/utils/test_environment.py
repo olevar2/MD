@@ -279,7 +279,7 @@ class TestEnvironment:
             self._setup_test_databases()
             
         self._setup_complete = True
-          def _start_required_services(self) -> None:
+        def _start_required_services(self) -> None:
         """Start the required services based on the environment mode."""
         # Start services based on the environment mode
         if self.config.mode == EnvironmentMode.SIMULATED:

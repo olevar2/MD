@@ -124,6 +124,24 @@ async def lifespan(app: FastAPI):
     service_container = app.state.service_container
 
     try:
+        # Initialize database connections
+        from analysis_engine.db.connection import initialize_database, initialize_async_database, check_async_db_connection
+
+        # Initialize synchronous database
+        initialize_database()
+        logger.info("Synchronous database initialized")
+
+        # Initialize asynchronous database
+        await initialize_async_database()
+        logger.info("Asynchronous database initialized")
+
+        # Check database connection
+        db_connected = await check_async_db_connection()
+        if db_connected:
+            logger.info("Database connection verified")
+        else:
+            logger.warning("Database connection check failed, but continuing startup")
+
         # Initialize core services
         await service_container.initialize()
         logger.info("Service container initialized successfully")
@@ -186,6 +204,17 @@ async def lifespan(app: FastAPI):
         async_monitor = get_async_monitor()
         await async_monitor.stop_reporting()
         logger.info("Async performance monitoring stopped")
+
+        # Dispose database connections
+        from analysis_engine.db.connection import dispose_database, dispose_async_database
+
+        # Dispose synchronous database
+        dispose_database()
+        logger.info("Synchronous database disposed")
+
+        # Dispose asynchronous database
+        await dispose_async_database()
+        logger.info("Asynchronous database disposed")
 
         logger.info("Service shutdown complete")
     except Exception as e:

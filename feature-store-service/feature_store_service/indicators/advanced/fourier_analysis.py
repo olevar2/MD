@@ -537,4 +537,4 @@ class FourierAnalysisIndicator(BaseIndicator):
             'cycle_momentum': result['cycle_momentum'].dropna().tolist() if 'cycle_momentum' in result.columns else [],
             'cycle_turning_points': result.loc[result['cycle_turning_point'] != 0].index.tolist() if 'cycle_turning_point' in result.columns else []
         }
-"""
+""""""

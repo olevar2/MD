@@ -40,7 +40,7 @@ class AdaptiveCache:
 
         print(f"Evicting least used key: {least_used_key} with frequency: {self.usage_frequency[least_used_key]}")
         del self.cache[least_used_key]
-        del self.usage_frequency[least_used_key]    def update_strategy(self, usage_data):
+        del self.usage_frequency[least_used_key]    def update_strategy(self, usage_data)::::
         """
         Adapts the caching strategy based on historical usage patterns.
         

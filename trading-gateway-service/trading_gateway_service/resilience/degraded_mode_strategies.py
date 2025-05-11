@@ -290,7 +290,10 @@ class OrderQueueManager:
         logger.info("Stopped order queue processor")
 
     def _process_queue(self) -> int:
-        \"\"\"
+        \
+\
+\
+
         Process queued orders.
         
         Returns:

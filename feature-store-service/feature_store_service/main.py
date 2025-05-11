@@ -45,6 +45,8 @@ from feature_store_service.api.feature_computation_api import feature_computatio
 from feature_store_service.api.indicator_api import indicator_router
 from feature_store_service.api.realtime_indicators_api import realtime_indicators_router
 from feature_store_service.api.incremental_indicators import router as incremental_indicators_router
+from feature_store_service.api.v1.reconciliation_api import router as reconciliation_router
+from feature_store_service.api.v1.adapter_api import adapter_router
 from feature_store_service.api.metrics_integration import setup_metrics
 from feature_store_service.caching.config import CacheConfig
 from feature_store_service.caching.cache_manager import CacheManager
@@ -55,6 +57,7 @@ from feature_store_service.storage.feature_storage import FeatureStorage
 from feature_store_service.services.indicator_manager import initialize_indicator_service
 from feature_store_service.db import initialize_database, dispose_database, check_connection
 from data_pipeline_service.services.ohlcv_service import get_ohlcv_service
+from feature_store_service.adapters.adapter_factory import adapter_factory
 
 # Initialize enhanced logging
 configure_logging(
@@ -141,6 +144,8 @@ app.include_router(indicator_router)
 app.include_router(feature_computation_router)
 app.include_router(realtime_indicators_router)
 app.include_router(incremental_indicators_router)
+app.include_router(reconciliation_router, prefix="/api/v1")
+app.include_router(adapter_router)
 
 # Add a cache stats endpoint
 from common_lib.correlation import FastAPICorrelationIdMiddleware
@@ -185,6 +190,11 @@ health_check = add_health_check_to_app(
         {
             "name": "indicators",
             "check_func": lambda: len(indicator_registry.get_all_indicators()) > 0,
+            "critical": True,
+        },
+        {
+            "name": "adapter_factory",
+            "check_func": lambda: adapter_factory._initialized,
             "critical": True,
         },
     ],
@@ -238,6 +248,10 @@ async def startup_event():
         set_indicator_registry(indicator_registry, enhanced_indicator_service)
         logger.info("Registered enhanced indicator service with API layer")
 
+        # Initialize adapter factory
+        adapter_factory.initialize()
+        logger.info("Adapter factory initialized")
+
     except Exception as e:
         logger.error(f"Failed to initialize service: {str(e)}")
         raise
@@ -251,5 +265,9 @@ async def shutdown_event():
         # Dispose centralized database
         await dispose_database()
         logger.info("Database connections closed")
+
+        # Clean up adapter factory
+        adapter_factory.cleanup()
+        logger.info("Adapter factory cleaned up")
     except Exception as e:
         logger.error(f"Error during service shutdown: {str(e)}")

@@ -44,6 +44,7 @@ class MemoryOptimizedDataFrame:
 
         self._views = {}
         self._computed_columns = set()
+        self._max_views_cache = 10  # Limit the number of cached views to prevent memory leaks
 
         logger.debug(f"MemoryOptimizedDataFrame initialized with shape {self._data.shape}")
 
@@ -117,6 +118,15 @@ class MemoryOptimizedDataFrame:
         else:
             view = self._data.loc[rows, columns]
 
+        # Limit the number of cached views to prevent memory leaks
+        if len(self._views) >= self._max_views_cache:
+            # Remove the oldest view (first item in the dictionary)
+            try:
+                oldest_key = next(iter(self._views))
+                del self._views[oldest_key]
+            except (StopIteration, KeyError):
+                pass  # Dictionary might be empty or key might be gone
+
         self._views[key] = view
         return view
 
@@ -175,3 +185,18 @@ class MemoryOptimizedDataFrame:
     def __len__(self):
         """Get the length of the DataFrame."""
         return len(self._data)
+        
+    def clear_cache(self):
+        """Clear the view cache to free memory."""
+        self._views.clear()
+        
+    def __del__(self):
+        """Destructor to ensure proper cleanup."""
+        self.clear_cache()
+        # Remove references to large objects
+        if hasattr(self, '_data'):
+            self._data = None
+        if hasattr(self, '_views'):
+            self._views = None
+        if hasattr(self, '_computed_columns'):
+            self._computed_columns = None
