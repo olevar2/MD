@@ -1,0 +1,18 @@
+symbol,description,type,pip_value,lot_size,min_lot,max_lot,is_active
+EURUSD,Euro vs US Dollar,forex,0.0001,100000,0.01,100,true
+GBPUSD,British Pound vs US Dollar,forex,0.0001,100000,0.01,100,true
+USDJPY,US Dollar vs Japanese Yen,forex,0.01,100000,0.01,100,true
+AUDUSD,Australian Dollar vs US Dollar,forex,0.0001,100000,0.01,100,true
+USDCAD,US Dollar vs Canadian Dollar,forex,0.0001,100000,0.01,100,true
+USDCHF,US Dollar vs Swiss Franc,forex,0.0001,100000,0.01,100,true
+NZDUSD,New Zealand Dollar vs US Dollar,forex,0.0001,100000,0.01,100,true
+EURGBP,Euro vs British Pound,forex,0.0001,100000,0.01,100,true
+EURJPY,Euro vs Japanese Yen,forex,0.01,100000,0.01,100,true
+GBPJPY,British Pound vs Japanese Yen,forex,0.01,100000,0.01,100,true
+BTCUSD,Bitcoin vs US Dollar,crypto,0.01,1,0.001,10,true
+ETHUSD,Ethereum vs US Dollar,crypto,0.01,1,0.001,10,true
+XAUUSD,Gold vs US Dollar,commodity,0.01,100,0.01,100,true
+XAGUSD,Silver vs US Dollar,commodity,0.01,5000,0.01,100,true
+SPX500,S&P 500 Index,index,0.01,1,0.01,100,true
+NASDAQ,NASDAQ Composite Index,index,0.01,1,0.01,100,true
+DJI,Dow Jones Industrial Average,index,0.01,1,0.01,100,true

@@ -1,0 +1,6 @@
+id,name,description,broker,account_type,currency,is_active
+ACC001,Demo Account 1,Demo account for testing,Demo Broker,demo,USD,true
+ACC002,Demo Account 2,Demo account for backtesting,Demo Broker,demo,EUR,true
+ACC003,Live Account 1,Live trading account,Real Broker,live,USD,true
+ACC004,Live Account 2,Live trading account with higher leverage,Real Broker,live,GBP,false
+ACC005,Prop Account,Proprietary trading account,Prop Firm,prop,USD,true
