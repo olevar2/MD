@@ -25,14 +25,14 @@ router = APIRouter()
 async def get_dataset_service() -> DatasetService:
     """
     Dependency for getting the dataset service.
-    
+
     Returns:
         Dataset service
     """
     # Configuration should come from environment in production
     mongo_url = "mongodb://localhost:27017"
     feature_store_url = "http://localhost:8001"
-    
+
     repository = ExperimentRepository(mongo_url)
     feature_store = FeatureStoreClient(feature_store_url)
     return DatasetService(repository, feature_store)
@@ -50,11 +50,11 @@ async def create_dataset(
 ):
     """
     Create a new dataset.
-    
+
     Args:
         dataset_data: Data for the new dataset
         service: Dataset service
-    
+
     Returns:
         Created dataset
     """
@@ -82,7 +82,7 @@ async def list_datasets(
 ):
     """
     List datasets with optional filtering.
-    
+
     Args:
         skip: Number of datasets to skip
         limit: Maximum number of datasets to return
@@ -91,7 +91,7 @@ async def list_datasets(
         sort_by: Field to sort by
         sort_order: Sort order (asc or desc)
         service: Dataset service
-    
+
     Returns:
         List of datasets
     """
@@ -121,20 +121,20 @@ async def get_dataset(
 ):
     """
     Get a specific dataset by ID.
-    
+
     Args:
         dataset_id: ID of the dataset to retrieve
         service: Dataset service
-    
+
     Returns:
         Dataset
     """
     try:
         dataset = await service.get_dataset(dataset_id)
-        
+
         if not dataset:
             raise HTTPException(status_code=404, detail=f"Dataset {dataset_id} not found")
-            
+
         return dataset
     except HTTPException:
         raise
@@ -154,11 +154,11 @@ async def generate_dataset(
 ):
     """
     Generate a new dataset from feature store data.
-    
+
     Args:
         dataset_data: Dataset creation parameters
         service: Dataset service
-    
+
     Returns:
         Created dataset
     """
@@ -182,11 +182,11 @@ async def get_dataset_statistics(
 ):
     """
     Get statistics for a dataset.
-    
+
     Args:
         dataset_id: ID of the dataset
         service: Dataset service
-    
+
     Returns:
         Dictionary of feature statistics
     """
@@ -211,12 +211,12 @@ async def get_available_features(
 ):
     """
     Get available features from the feature store.
-    
+
     Args:
         symbol: Optional symbol filter
         timeframe: Optional timeframe filter
         service: Dataset service
-    
+
     Returns:
         List of available features with metadata
     """
@@ -239,30 +239,35 @@ async def download_dataset(
 ):
     """
     Download a dataset file.
-    
+
     Args:
         dataset_id: ID of the dataset to download
         format: File format (parquet or csv)
         service: Dataset service
-    
+
     Returns:
         Dataset file
     """
     try:
         # Get the dataset to check if it exists
         dataset = await service.get_dataset(dataset_id)
-        
+
         if not dataset:
             raise HTTPException(status_code=404, detail=f"Dataset {dataset_id} not found")
-        
+
+        # Validate dataset_id to prevent path injection
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', dataset_id):
+            raise HTTPException(status_code=400, detail="Invalid dataset ID format")
+
         # Define the file path
         if format.lower() == "csv":
             file_path = os.path.join(service.dataset_dir, f"{dataset_id}.csv")
-            
+
             # If CSV doesn't exist but parquet does, convert it
             if not os.path.exists(file_path):
                 parquet_path = os.path.join(service.dataset_dir, f"{dataset_id}.parquet")
-                
+
                 if os.path.exists(parquet_path):
                     # Load and save as CSV
                     import pandas as pd
@@ -272,13 +277,17 @@ async def download_dataset(
                     # Try to regenerate the dataset
                     df = await service.load_dataset(dataset_id, as_train_test_split=False)
                     df.to_csv(file_path)
-                    
+
             media_type = "text/csv"
-            filename = f"{dataset.name.replace(' ', '_')}_{dataset.symbol}_{dataset.timeframe}.csv"
-            
+            # Sanitize filename components
+            safe_name = re.sub(r'[^\w\-\.]', '_', dataset.name)
+            safe_symbol = re.sub(r'[^\w\-\.]', '_', dataset.symbol)
+            safe_timeframe = re.sub(r'[^\w\-\.]', '_', dataset.timeframe)
+            filename = f"{safe_name}_{safe_symbol}_{safe_timeframe}.csv"
+
         else:  # Default to parquet
             file_path = os.path.join(service.dataset_dir, f"{dataset_id}.parquet")
-            
+
             # If file doesn't exist, try to regenerate it
             if not os.path.exists(file_path):
                 # Try to regenerate the dataset
@@ -296,21 +305,25 @@ async def download_dataset(
                         preprocessing=dataset.preprocessing
                     )
                 )
-                
+
             media_type = "application/octet-stream"
-            filename = f"{dataset.name.replace(' ', '_')}_{dataset.symbol}_{dataset.timeframe}.parquet"
-        
+            # Sanitize filename components
+            safe_name = re.sub(r'[^\w\-\.]', '_', dataset.name)
+            safe_symbol = re.sub(r'[^\w\-\.]', '_', dataset.symbol)
+            safe_timeframe = re.sub(r'[^\w\-\.]', '_', dataset.timeframe)
+            filename = f"{safe_name}_{safe_symbol}_{safe_timeframe}.parquet"
+
         # Check if the file exists now
         if not os.path.exists(file_path):
             raise HTTPException(status_code=404, detail=f"Dataset file not found")
-            
+
         # Return the file
         return FileResponse(
             path=file_path,
             filename=filename,
             media_type=media_type
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:

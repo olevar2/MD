@@ -6,38 +6,45 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+# Default permissions are read-only
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write  # For test results
     strategy:
       matrix:
         python-version: [3.9, 3.10]
-        
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pytest flake8 mypy
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        
+
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-        
+
     - name: Type check with mypy
       run: |
         mypy --ignore-missing-imports ./core-foundations/ ./data-pipeline-service/ ./feature-store-service/
-        
+
     - name: Test with pytest
       run: |
         pytest
@@ -45,31 +52,34 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write  # For uploading artifacts
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build twine
-        
+
     - name: Build packages
       run: |
         # Build core-foundations package
         cd core-foundations
         python -m build
-        
+
         # Build other packages as needed
         # cd ../feature-store-service
         # python -m build
-        
+
     - name: Store artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -82,17 +92,20 @@ jobs:
   deploy-staging:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # For AWS authentication
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     environment: staging
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
         name: packages
-        
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -100,14 +113,14 @@ jobs:
           - name: Deploy to staging
       run: |
         echo "Deploying to staging environment"
-        
+
         # Set up AWS credentials
         echo "::add-mask::${{ secrets.AWS_ACCESS_KEY_ID }}"
         echo "::add-mask::${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws configure set default.region us-east-1
-        
+
         # Initialize and apply Terraform for staging
         cd infrastructure/terraform
         terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
@@ -116,25 +129,28 @@ jobs:
                       -backend-config="dynamodb_table=${{ secrets.TF_LOCK_TABLE }}"
         terraform workspace select staging || terraform workspace new staging
         terraform apply -var-file=environments/staging.tfvars -auto-approve
-        
+
         # Deploy services to staging
         python scripts/deploy.py --environment staging --version ${{ github.sha }}
-        
+
   deploy-production:
     needs: deploy-staging
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # For tagging releases
+      id-token: write  # For AWS authentication
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
     # Manual approval required before deploying to production
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
         name: packages
-        
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -142,14 +158,14 @@ jobs:
           - name: Deploy to production
       run: |
         echo "Deploying to production environment"
-        
+
         # Set up AWS credentials
         echo "::add-mask::${{ secrets.AWS_ACCESS_KEY_ID }}"
         echo "::add-mask::${{ secrets.AWS_SECRET_ACCESS_KEY }}"
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws configure set default.region us-east-1
-        
+
         # Initialize and apply Terraform for production
         cd infrastructure/terraform
         terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
@@ -158,10 +174,10 @@ jobs:
                       -backend-config="dynamodb_table=${{ secrets.TF_LOCK_TABLE }}"
         terraform workspace select production || terraform workspace new production
         terraform apply -var-file=environments/production.tfvars -auto-approve
-        
+
         # Deploy services to production
         python scripts/deploy.py --environment production --version ${{ github.sha }}
-        
+
         # Tag the release in Git
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"

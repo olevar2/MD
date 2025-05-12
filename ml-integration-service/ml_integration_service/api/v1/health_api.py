@@ -25,7 +25,7 @@ router = APIRouter(prefix="/health", tags=["health"])
 
 class HealthStatus(BaseModel):
     """Health status model."""
-    
+
     status: str = Field(..., description="Overall health status")
     version: str = Field(..., description="Service version")
     components: Dict[str, Dict[str, Any]] = Field(..., description="Component health statuses")
@@ -34,7 +34,7 @@ class HealthStatus(BaseModel):
 
 class ComponentHealth(BaseModel):
     """Component health model."""
-    
+
     name: str = Field(..., description="Component name")
     status: str = Field(..., description="Component health status")
     details: Dict[str, Any] = Field({}, description="Additional component details")
@@ -44,7 +44,7 @@ class ComponentHealth(BaseModel):
 async def get_health() -> Dict[str, Any]:
     """
     Get the health status of the ML Integration Service.
-    
+
     This endpoint checks the health of the service and its dependencies,
     including the model repository, feature service, and data validator.
     """
@@ -52,19 +52,19 @@ async def get_health() -> Dict[str, Any]:
         # Check model repository health
         model_repository = get_model_repository()
         model_repository_health = await check_model_repository_health(model_repository)
-        
+
         # Check feature service health
         feature_service = get_feature_service()
         feature_service_health = await check_feature_service_health(feature_service)
-        
+
         # Check data validator health
         data_validator = get_data_validator()
         data_validator_health = await check_data_validator_health(data_validator)
-        
+
         # Check reconciliation service health
         reconciliation_service = get_reconciliation_service()
         reconciliation_service_health = await check_reconciliation_service_health(reconciliation_service)
-        
+
         # Determine overall health status
         components = {
             "model_repository": model_repository_health,
@@ -72,16 +72,16 @@ async def get_health() -> Dict[str, Any]:
             "data_validator": data_validator_health,
             "reconciliation_service": reconciliation_service_health
         }
-        
+
         status = "healthy"
         for component in components.values():
             if component["status"] != "healthy":
                 status = "unhealthy"
                 break
-        
+
         # Get service version
         version = "1.0.0"  # Replace with actual version
-        
+
         return {
             "status": status,
             "version": version,
@@ -93,19 +93,20 @@ async def get_health() -> Dict[str, Any]:
         }
     except Exception as e:
         logger.exception(f"Error checking health: {str(e)}")
+        # Don't expose the actual exception details to the client
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error checking health: {str(e)}"
+            detail="Internal server error while checking service health"
         )
 
 
 async def check_model_repository_health(model_repository) -> Dict[str, Any]:
     """
     Check the health of the model repository.
-    
+
     Args:
         model_repository: Model repository instance
-        
+
     Returns:
         Health status of the model repository
     """
@@ -132,10 +133,10 @@ async def check_model_repository_health(model_repository) -> Dict[str, Any]:
 async def check_feature_service_health(feature_service) -> Dict[str, Any]:
     """
     Check the health of the feature service.
-    
+
     Args:
         feature_service: Feature service instance
-        
+
     Returns:
         Health status of the feature service
     """
@@ -162,10 +163,10 @@ async def check_feature_service_health(feature_service) -> Dict[str, Any]:
 async def check_data_validator_health(data_validator) -> Dict[str, Any]:
     """
     Check the health of the data validator.
-    
+
     Args:
         data_validator: Data validator instance
-        
+
     Returns:
         Health status of the data validator
     """
@@ -191,20 +192,20 @@ async def check_data_validator_health(data_validator) -> Dict[str, Any]:
 async def check_reconciliation_service_health(reconciliation_service) -> Dict[str, Any]:
     """
     Check the health of the reconciliation service.
-    
+
     Args:
         reconciliation_service: Reconciliation service instance
-        
+
     Returns:
         Health status of the reconciliation service
     """
     try:
         # Check if reconciliation service is available
         # This is a placeholder for actual health check logic
-        
+
         # Get reconciliation configuration
         reconciliation_config = get_reconciliation_config()
-        
+
         return {
             "status": "healthy",
             "details": {
@@ -227,14 +228,14 @@ async def check_reconciliation_service_health(reconciliation_service) -> Dict[st
 async def get_reconciliation_health() -> Dict[str, Any]:
     """
     Get the health status of the reconciliation service.
-    
+
     This endpoint checks the health of the reconciliation service specifically.
     """
     try:
         # Check reconciliation service health
         reconciliation_service = get_reconciliation_service()
         reconciliation_service_health = await check_reconciliation_service_health(reconciliation_service)
-        
+
         return {
             "name": "reconciliation_service",
             "status": reconciliation_service_health["status"],
@@ -242,7 +243,8 @@ async def get_reconciliation_health() -> Dict[str, Any]:
         }
     except Exception as e:
         logger.exception(f"Error checking reconciliation service health: {str(e)}")
+        # Don't expose the actual exception details to the client
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error checking reconciliation service health: {str(e)}"
+            detail="Internal server error while checking reconciliation service health"
         )

@@ -18,11 +18,18 @@ on:
           - simulated
           - hybrid
 
+# Default permissions are read-only
+permissions:
+  contents: read
+
 jobs:
   e2e-tests:
     name: End-to-End Tests
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      actions: write  # For uploading artifacts
+
     services:
       # Start Kafka service for event messaging
       kafka:
@@ -33,7 +40,7 @@ jobs:
           KAFKA_ADVERTISED_HOST_NAME: localhost
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
           KAFKA_CREATE_TOPICS: "trading-signals:1:1,orders:1:1,trades:1:1,market-data:1:1"
-        
+
       # Start Zookeeper service for Kafka
       zookeeper:
         image: wurstmeister/zookeeper:3.4.6
@@ -55,16 +62,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-playwright pytest-asyncio pytest-xdist
-          
+
       - name: Install Playwright browsers
         run: |
           python -m playwright install chromium
-          
+
       - name: Build Docker images
         run: |
           cd infrastructure/docker
           docker-compose build
-          
+
       - name: Run E2E tests
         env:
           TEST_ENVIRONMENT: ${{ github.event.inputs.environment || 'simulated' }}
@@ -76,13 +83,13 @@ jobs:
         run: |
           # Start the application in background
           docker-compose -f infrastructure/docker/docker-compose.test.yml up -d
-          
+
           # Wait for services to be ready
           python -c "import time; time.sleep(15)"
-          
+
           # Run E2E tests with parallel execution
           python -m pytest e2e/tests/trading_lifecycle_test.py -v --html=reports/e2e-test-report.html
-          
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3

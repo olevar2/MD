@@ -129,7 +129,11 @@ async def analyze_regime_performance(
 
     except Exception as e:
         logger.error(f"Error in regime analysis for tool {request.tool_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed regime analysis: {str(e)}")
+        # Don't expose the actual exception details to the client
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to perform regime analysis. Please check logs for details."
+        )
 
 @router.post("/temporal", response_model=Dict[str, Any])
 async def analyze_temporal_performance(
@@ -168,7 +172,11 @@ async def analyze_temporal_performance(
 
     except Exception as e:
         logger.error(f"Error in temporal analysis for tool {request.tool_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed temporal analysis: {str(e)}")
+        # Don't expose the actual exception details to the client
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to perform temporal analysis. Please check logs for details."
+        )
 
 @router.post("/optimal-conditions", response_model=Dict[str, Any])
 async def find_optimal_conditions(
@@ -191,7 +199,11 @@ async def find_optimal_conditions(
         return {"status": "success", "tool_id": request.tool_id, "results": result}
     except Exception as e:
         logger.error(f"Error finding optimal conditions for tool {request.tool_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to find optimal conditions: {str(e)}")
+        # Don't expose the actual exception details to the client
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to find optimal conditions. Please check logs for details."
+        )
 
 @router.post("/complementarity", response_model=Dict[str, Any])
 async def analyze_complementarity(
@@ -213,7 +225,11 @@ async def analyze_complementarity(
         return {"status": "success", "tool_ids": request.tool_ids, "results": result}
     except Exception as e:
         logger.error(f"Error analyzing complementarity for tools {request.tool_ids}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed complementarity analysis: {str(e)}")
+        # Don't expose the actual exception details to the client
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to perform complementarity analysis. Please check logs for details."
+        )
 
 @router.post("/dashboard", response_model=Dict[str, Any])
 async def generate_dashboard(
@@ -234,7 +250,11 @@ async def generate_dashboard(
         return {"status": "success", "filters": request.dict(), "results": result}
     except Exception as e:
         logger.error(f"Error generating dashboard data: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to generate dashboard data: {str(e)}")
+        # Don't expose the actual exception details to the client
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate dashboard data. Please check logs for details."
+        )
 
 @router.post("/cross-timeframe", response_model=Dict[str, Any])
 async def analyze_cross_timeframe(
@@ -253,7 +273,11 @@ async def analyze_cross_timeframe(
         return {"status": "success", "tool_id": request.tool_id, "results": result}
     except Exception as e:
         logger.error(f"Error in cross-timeframe analysis for tool {request.tool_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed cross-timeframe analysis: {str(e)}")
+        # Don't expose the actual exception details to the client
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to perform cross-timeframe analysis. Please check logs for details."
+        )
 
 @router.get("/metrics", response_model=Dict[str, Any])
 def get_basic_metrics(
@@ -301,7 +325,11 @@ async def analyze_comprehensive(
         return {"status": "success", "tool_id": request.tool_id, "results": report}
     except Exception as e:
         logger.error(f"Error in comprehensive analysis for tool {request.tool_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed comprehensive analysis: {str(e)}")
+        # Don't expose the actual exception details to the client
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to perform comprehensive analysis. Please check logs for details."
+        )
 
 # TODO:
 # 1. Implement the logic for fetching raw data needed by 'advanced' regime analysis and 'decay' temporal analysis.
