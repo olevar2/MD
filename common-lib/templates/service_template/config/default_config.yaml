@@ -1,0 +1,86 @@
+app:
+  environment: development
+  debug: true
+  testing: false
+
+database:
+  host: localhost
+  port: 5432
+  username: postgres
+  password: password
+  database: forex_platform
+  min_connections: 1
+  max_connections: 10
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/service.log
+
+service:
+  host: 0.0.0.0
+  port: 8000
+  workers: 4
+  timeout: 60
+
+service_clients:
+  market_data_service:
+    base_url: http://market-data-service:8001
+    timeout: 30.0
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+      max_backoff: 60.0
+      backoff_factor: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 60.0
+      expected_exceptions:
+        - ConnectionError
+        - Timeout
+  feature_store_service:
+    base_url: http://feature-store-service:8002
+    timeout: 30.0
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+      max_backoff: 60.0
+      backoff_factor: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 60.0
+      expected_exceptions:
+        - ConnectionError
+        - Timeout
+  analysis_engine_service:
+    base_url: http://analysis-engine-service:8003
+    timeout: 30.0
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+      max_backoff: 60.0
+      backoff_factor: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 60.0
+      expected_exceptions:
+        - ConnectionError
+        - Timeout
+  trading_service:
+    base_url: http://trading-service:8004
+    timeout: 30.0
+    retry:
+      max_retries: 3
+      initial_backoff: 1.0
+      max_backoff: 60.0
+      backoff_factor: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 60.0
+      expected_exceptions:
+        - ConnectionError
+        - Timeout
+
+service_specific:
+  max_workers: 4
+  cache_size: 1000
