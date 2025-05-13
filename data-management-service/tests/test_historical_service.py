@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pandas as pd
 import pytest
 
-from data_management_service.historical.models import (
+from models.models_1 import (
     DataSourceType,
     CorrectionType,
     HistoricalOHLCVRecord,
@@ -20,8 +20,8 @@ from data_management_service.historical.models import (
     DataQualityReport,
     MLDatasetConfig
 )
-from data_management_service.historical.repository import HistoricalDataRepository
-from data_management_service.historical.service import HistoricalDataService
+from models.repository import HistoricalDataRepository
+from services.service_1 import HistoricalDataService
 
 
 class TestHistoricalDataService(unittest.TestCase):

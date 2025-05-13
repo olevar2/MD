@@ -10,17 +10,17 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from data_pipeline_service.config.standardized_config import settings, get_service_settings
-from data_pipeline_service.logging_setup_standardized import get_service_logger
-from data_pipeline_service.database_standardized import database
-from data_pipeline_service.service_clients_standardized import service_clients
-from data_pipeline_service.error_handling_standardized import (
+from config.standardized_config_1 import settings, get_service_settings
+from core.logging_setup_standardized import get_service_logger
+from core.database_standardized import database
+from services.service_clients_standardized import service_clients
+from api.error_handling_standardized import (
     handle_error,
     handle_exception,
     handle_async_exception,
     get_status_code
 )
-from data_pipeline_service.main import app
+from core.main_1 import app
 
 
 @pytest.fixture

@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
-from trading_gateway_service.main import app
+from core.main_1 import app
 from trading_gateway_service.error import MarketDataError
 
 class TestAPI(unittest.TestCase):

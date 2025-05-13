@@ -26,16 +26,15 @@ class ForexTradingPlatformError(Exception):
     """
 
     def __init__(self, message: str = None, error_code: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        error_code: Description of error_code
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            error_code: Error code for categorization
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         self.message = message or "An error occurred in the Forex Trading Platform"
         self.error_code = error_code or "FOREX_PLATFORM_ERROR"
@@ -61,16 +60,15 @@ class ConfigurationError(ForexTradingPlatformError):
     """Exception raised for configuration-related errors."""
 
     def __init__(self, message: str = None, error_code: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        error_code: Description of error_code
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            error_code: Error code for categorization
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or "Configuration error"
         error_code = error_code or "CONFIG_ERROR"
@@ -81,15 +79,14 @@ class ConfigNotFoundError(ConfigurationError):
     """Exception raised when a configuration file or setting is not found."""
 
     def __init__(self, config_name: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        config_name: Description of config_name
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            config_name: Name of the missing configuration
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = f"Configuration not found: {config_name}" if config_name else "Configuration not found"
         # Pass config_name to details via kwargs
@@ -101,16 +98,14 @@ class ConfigValidationError(ConfigurationError):
     """Exception raised when configuration validation fails."""
 
     def __init__(self, errors: Dict[str, Any] = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        errors: Description of errors
-        Any]: Description of Any]
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            errors: Dictionary of validation errors
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = "Configuration validation failed"
         # Pass errors to details via kwargs
@@ -123,16 +118,15 @@ class DataError(ForexTradingPlatformError):
     """Base exception for data-related errors."""
 
     def __init__(self, message: str = None, error_code: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        error_code: Description of error_code
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            error_code: Error code for categorization
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or "Data error"
         error_code = error_code or "DATA_ERROR"
@@ -143,17 +137,15 @@ class DataValidationError(DataError):
     """Exception raised for data validation failures."""
 
     def __init__(self, message: str = None, validation_errors: Dict[str, Any] = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        validation_errors: Description of validation_errors
-        Any]: Description of Any]
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            validation_errors: Dictionary of validation errors
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or "Data validation error"
         # Pass validation_errors to details via kwargs
@@ -166,17 +158,16 @@ class DataFetchError(DataError):
     """Exception raised when data cannot be fetched from a source."""
 
     def __init__(self, message: str = None, source: str = None, status_code: int = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        source: Description of source
-        status_code: Description of status_code
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            source: Data source that failed
+            status_code: HTTP or other status code
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Failed to fetch data from {source or 'unknown source'}"
         # Pass source and status_code to details via kwargs
@@ -190,16 +181,15 @@ class DataStorageError(DataError):
     """Exception raised when data cannot be stored."""
 
     def __init__(self, message: str = None, storage_type: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        storage_type: Description of storage_type
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            storage_type: Type of storage that failed
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Failed to store data in {storage_type or 'storage'}"
         # Pass storage_type to details via kwargs
@@ -212,16 +202,15 @@ class DataTransformationError(DataError):
     """Exception raised when data transformation fails."""
 
     def __init__(self, message: str = None, transformation: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        transformation: Description of transformation
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            transformation: Type of transformation that failed
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Failed to transform data with {transformation or 'transformation'}"
         # Pass transformation to details via kwargs
@@ -234,16 +223,15 @@ class DataQualityError(DataError):
     """Exception raised for data quality issues."""
 
     def __init__(self, message: str = None, quality_check: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        quality_check: Description of quality_check
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            quality_check: Type of quality check that failed
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Data quality check failed: {quality_check or 'unknown'}"
         # Pass quality_check to details via kwargs
@@ -256,17 +244,15 @@ class ReconciliationError(DataError):
     """Exception raised when data reconciliation fails."""
 
     def __init__(self, message: str = None, details: Dict[str, Any] = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        details: Description of details
-        Any]: Description of Any]
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            details: Dictionary with reconciliation details
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or "Data reconciliation failed"
         # Pass details to kwargs
@@ -279,17 +265,16 @@ class ServiceError(ForexTradingPlatformError):
     """Base exception for service-related errors."""
 
     def __init__(self, message: str = None, service_name: str = None, error_code: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        service_name: Description of service_name
-        error_code: Description of error_code
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            service_name: Name of the service that failed
+            error_code: Error code for categorization
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Error in service: {service_name or 'unknown'}"
         error_code = error_code or "SERVICE_ERROR"
@@ -303,15 +288,14 @@ class ServiceUnavailableError(ServiceError):
     """Exception raised when a dependent service is unavailable."""
 
     def __init__(self, service_name: str, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        service_name: Description of service_name
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            service_name: Name of the unavailable service
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = f"Service unavailable: {service_name}"
         # Pass service_name explicitly to parent and set specific error code
@@ -322,16 +306,15 @@ class ServiceTimeoutError(ServiceError):
     """Exception raised when a service request times out."""
 
     def __init__(self, service_name: str, timeout_seconds: float = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        service_name: Description of service_name
-        timeout_seconds: Description of timeout_seconds
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            service_name: Name of the service that timed out
+            timeout_seconds: Timeout duration in seconds
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = f"Service timeout: {service_name}"
         # Pass timeout_seconds to details via kwargs
@@ -354,17 +337,16 @@ class AuthorizationError(ForexTradingPlatformError):
     """Exception raised for authorization failures."""
 
     def __init__(self, message: str = None, resource: str = None, action: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        resource: Description of resource
-        action: Description of action
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            resource: Resource that was being accessed
+            action: Action that was attempted
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         if resource and action:
             message = message or f"Not authorized to {action} on {resource}"
@@ -379,16 +361,15 @@ class TradingError(ForexTradingPlatformError):
     """Base exception for trading-related errors."""
 
     def __init__(self, message: str = None, error_code: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        error_code: Description of error_code
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            error_code: Error code for categorization
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or "Trading error"
         error_code = error_code or "TRADING_ERROR"
@@ -399,16 +380,15 @@ class OrderExecutionError(TradingError):
     """Exception raised when an order fails to execute."""
 
     def __init__(self, message: str = None, order_id: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        order_id: Description of order_id
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            order_id: ID of the order that failed
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Failed to execute order {order_id or 'unknown'}"
         # Pass order_id to details via kwargs
@@ -420,16 +400,15 @@ class PositionError(TradingError):
     """Exception raised for position-related errors."""
 
     def __init__(self, message: str = None, position_id: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        position_id: Description of position_id
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            position_id: ID of the position with an error
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Position error for {position_id or 'unknown'}"
         # Pass position_id to details via kwargs
@@ -441,16 +420,15 @@ class RiskLimitError(TradingError):
     """Exception raised when a risk limit is breached."""
 
     def __init__(self, message: str = None, limit_type: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        limit_type: Description of limit_type
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            limit_type: Type of risk limit that was breached
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Risk limit breached: {limit_type or 'unknown'}"
         # Pass limit_type to details via kwargs
@@ -462,17 +440,16 @@ class ModelError(ForexTradingPlatformError):
     """Base exception for ML model-related errors."""
 
     def __init__(self, message: str = None, model_id: str = None, error_code: str = None, *args, **kwargs):
-    """
-      init  .
-    
-    Args:
-        message: Description of message
-        model_id: Description of model_id
-        error_code: Description of error_code
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            model_id: ID of the model with an error
+            error_code: Error code for categorization
+            args: Additional positional arguments
+            kwargs: Additional keyword arguments for details
+        """
 
         message = message or f"Model error for {model_id or 'unknown model'}"
         error_code = error_code or "MODEL_ERROR"
@@ -487,13 +464,13 @@ class ModelTrainingError(ModelError):
     def __init__(self, message: str = None, model_id: str = None, *args, **kwargs):
     """
       init  .
-    
+
     Args:
         message: Description of message
         model_id: Description of model_id
         args: Description of args
         kwargs: Description of kwargs
-    
+
     """
 
         message = message or f"Training failed for model {model_id or 'unknown'}"
@@ -506,13 +483,13 @@ class ModelPredictionError(ModelError):
     def __init__(self, message: str = None, model_id: str = None, *args, **kwargs):
     """
       init  .
-    
+
     Args:
         message: Description of message
         model_id: Description of model_id
         args: Description of args
         kwargs: Description of kwargs
-    
+
     """
 
         message = message or f"Prediction failed for model {model_id or 'unknown'}"

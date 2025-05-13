@@ -10,10 +10,10 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from ml_integration_service.config.standardized_config import settings, get_service_settings
-from ml_integration_service.logging_setup_standardized import get_service_logger
-from ml_integration_service.service_clients_standardized import service_clients
-from ml_integration_service.error_handling_standardized import (
+from config.standardized_config_1 import settings, get_service_settings
+from core.logging_setup_standardized import get_service_logger
+from services.service_clients_standardized import service_clients
+from models.error_handling_standardized import (
     handle_error,
     handle_exception,
     handle_async_exception,
@@ -22,7 +22,7 @@ from ml_integration_service.error_handling_standardized import (
     ModelNotFoundError,
     ModelTrainingError
 )
-from ml_integration_service.main import app
+from core.main_1 import app
 
 
 @pytest.fixture

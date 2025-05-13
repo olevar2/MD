@@ -11,24 +11,24 @@ from datetime import datetime, timedelta
 import asyncio
 from fastapi.testclient import TestClient
 
-from ml_integration_service.visualization.model_performance_viz import ModelPerformanceVisualizer
-from ml_integration_service.optimization.advanced_optimization import (
+from models.model_performance_viz import ModelPerformanceVisualizer
+from core.advanced_optimization import (
     RegimeAwareOptimizer,
     MultiObjectiveOptimizer
 )
-from ml_integration_service.stress_testing.model_stress_tester import (
+from core.model_stress_tester import (
     ModelRobustnessTester,
     SensitivityAnalyzer,
     LoadTester
 )
-from ml_integration_service.services.data_service import DataService
-from ml_integration_service.monitoring.metrics_collector import MetricsCollector
+from services.data_service import DataService
+from core.metrics_collector import MetricsCollector
 
 # Test fixtures
 @pytest.fixture
 def test_client():
     """Create a test client."""
-    from ml_integration_service.main import app
+    from core.main_1 import app
     return TestClient(app)
 
 @pytest.fixture

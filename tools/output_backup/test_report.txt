@@ -1,0 +1,241 @@
+
+Forex Trading Platform Test Report
+=================================
+
+Summary
+-------
+Total tests: 3
+Passed: 1
+Failed: 1
+Skipped: 1
+Errors: 0
+
+Details
+-------
+
+trading-gateway-service
+-----------------------
+  unit: failed
+    Error: 
+    Output: ============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-8.3.4, pluggy-1.5.0 -- C:\Users\ASD\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default' -> database=DirectoryBasedExampleDatabase(WindowsPath('C:/Users/ASD/AppData/Local/Programs/Microsoft VS Code Insiders/.hypothesis/examples'))
+rootdir: D:\MD\forex_trading_platform\trading-gateway-service
+configfile: pyproject.toml
+plugins: anyio-4.8.0, dash-2.18.2, hypothesis-6.127.2, asyncio-0.25.2, base-url-2.1.0, cov-6.0.0, mock-3.14.0, playwright-0.7.0, xdist-3.6.1
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=function
+collecting ... collected 3 items / 8 errors
+
+=================================== ERRORS ====================================
+_____________________ ERROR collecting tests/test_api.py ______________________
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:184: in exec_module
+    exec(co, module.__dict__)
+D:\MD\forex_trading_platform\trading-gateway-service\tests\test_api.py:11: in <module>
+    from core.main_1 import app
+D:\MD\forex_trading_platform\trading-gateway-service\core\main_1.py:13: in <module>
+    from common_lib.correlation import FastAPICorrelationIdMiddleware
+D:\MD\forex_trading_platform\common-lib\common_lib\correlation\__init__.py:15: in <module>
+    from common_lib.correlation.correlation_id import (
+E     File "D:\MD\forex_trading_platform\common-lib\common_lib\correlation\correlation_id.py", line 164
+E       """
+E       ^^^
+E   IndentationError: expected an indented block after function definition on line 163
+__________ ERROR collecting tests/test_connectivity_loss_handling.py __________
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:175: in exec_module
+    source_stat, co = _rewrite_test(fn, self.config)
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:355: in _rewrite_test
+    tree = ast.parse(source, filename=strfn)
+..\Python\Python313\Lib\ast.py:54: in parse
+    return compile(source, filename, mode, flags,
+E     File "D:\MD\forex_trading_platform\trading-gateway-service\tests\test_connectivity_loss_handling.py", line 25
+E       """
+E       ^^^
+E   IndentationError: expected an indented block after function definition on line 24
+________________ ERROR collecting tests/test_error_handlers.py ________________
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:184: in exec_module
+    exec(co, module.__dict__)
+D:\MD\forex_trading_platform\trading-gateway-service\tests\test_error_handlers.py:12: in <module>
+    from api.exception_handlers import (
+D:\MD\forex_trading_platform\trading-gateway-service\api\exception_handlers.py:17: in <module>
+    from common_lib.exceptions import (
+E     File "D:\MD\forex_trading_platform\common-lib\common_lib\exceptions.py", line 29
+E       """
+E       ^^^
+E   IndentationError: expected an indented block after function definition on line 28
+________________ ERROR collecting tests/test_error_handling.py ________________
+ImportError while importing test module 'D:\MD\forex_trading_platform\trading-gateway-service\tests\test_error_handling.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:184: in exec_module
+    exec(co, module.__dict__)
+D:\MD\forex_trading_platform\trading-gateway-service\tests\test_error_handling.py:12: in <module>
+    from trading_gateway_service.error import (
+E   ImportError: cannot import name 'ForexTradingPlatformError' from 'trading_gateway_service.error' (unknown location)
+_____________ ERROR collecting tests/test_execution_algorithms.py _____________
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:175: in exec_module
+    source_stat, co = _rewrite_test(fn, self.config)
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:355: in _rewrite_test
+    tree = ast.parse(source, filename=strfn)
+..\Python\Python313\Lib\ast.py:54: in parse
+    return compile(source, filename, mode, flags,
+E     File "D:\MD\forex_trading_platform\trading-gateway-service\tests\test_execution_algorithms.py", line 28
+E       """
+E       ^^^
+E   IndentationError: expected an indented block after function definition on line 27
+______ ERROR collecting tests/test_market_data_service_error_handling.py ______
+ImportError while importing test module 'D:\MD\forex_trading_platform\trading-gateway-service\tests\test_market_data_service_error_handling.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:184: in exec_module
+    exec(co, module.__dict__)
+D:\MD\forex_trading_platform\trading-gateway-service\tests\test_market_data_service_error_handling.py:12: in <module>
+    from services.market_data_service import MarketDataService
+D:\MD\forex_trading_platform\trading-gateway-service\services\market_data_service.py:14: in <module>
+    from ..interfaces.broker_adapter_interface import BrokerAdapterInterface
+E   ImportError: attempted relative import beyond top-level package
+________________ ERROR collecting tests/test_paper_trading.py _________________
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:184: in exec_module
+    exec(co, module.__dict__)
+D:\MD\forex_trading_platform\trading-gateway-service\tests\test_paper_trading.py:9: in <module>
+    from core.broker_simulator import (
+E     File "D:\MD\forex_trading_platform\trading-gateway-service\core\broker_simulator.py", line 69
+E       """
+E       ^^^
+E   IndentationError: expected an indented block after function definition on line 64
+__________ ERROR collecting tests/test_paper_trading_integration.py ___________
+..\Python\Python313\Lib\site-packages\_pytest\python.py:493: in importtestmodule
+    mod = import_path(
+..\Python\Python313\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+..\Python\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:175: in exec_module
+    source_stat, co = _rewrite_test(fn, self.config)
+..\Python\Python313\Lib\site-packages\_pytest\assertion\rewrite.py:355: in _rewrite_test
+    tree = ast.parse(source, filename=strfn)
+..\Python\Python313\Lib\ast.py:54: in parse
+    return compile(source, filename, mode, flags,
+E     File "D:\MD\forex_trading_platform\trading-gateway-service\tests\test_paper_trading_integration.py", line 105
+E       """
+E   IndentationError: expected an indented block after function definition on line 104
+=========================== short test summary info ===========================
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_api.py
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_connectivity_loss_handling.py
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_error_handlers.py
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_error_handling.py
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_execution_algorithms.py
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_market_data_service_error_handling.py
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_paper_trading.py
+ERROR D:\MD\forex_trading_platform\trading-gateway-service\tests\test_paper_trading_integration.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 8 errors in 8.43s ==============================
+
+  integration: skipped
+  health: passed

@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
-from trading_gateway_service.error.exception_handlers import (
+from api.exception_handlers import (
     forex_platform_exception_handler,
     data_validation_exception_handler,
     service_exception_handler,

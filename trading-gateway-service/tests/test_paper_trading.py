@@ -6,12 +6,12 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 
-from trading_gateway_service.simulation.broker_simulator import (
+from core.broker_simulator import (
     SimulatedBroker,
     OrderType,
     OrderStatus
 )
-from trading_gateway_service.simulation.market_simulator import (
+from core.market_simulator import (
     MarketDataSimulator,
     MarketRegime,
     MarketProfile

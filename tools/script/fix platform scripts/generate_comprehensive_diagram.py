@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+"""
+Generate Comprehensive Architecture Diagram for the Forex Trading Platform
+
+This script generates a comprehensive architecture diagram for the forex trading platform
+by combining the results from various analysis scripts.
+
+Usage:
+    python generate_comprehensive_diagram.py [--output-file OUTPUT_FILE]
+
+Options:
+    --output-file OUTPUT_FILE    Output file for the architecture diagram (default: comprehensive-architecture-diagram.png)
+"""
+
+import os
+import sys
+import json
+import argparse
+import networkx as nx
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.patches as mpatches
+from typing import Dict, List, Any, Tuple
+
+# Root directory of the forex trading platform
+ROOT_DIR = "D:/MD/forex_trading_platform"
+
+def load_report(file_path: str) -> Dict[str, Any]:
+    """Load a report from a JSON file."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading report from {file_path}: {e}")
+        return {}
+
+def generate_comprehensive_diagram() -> None:
+    """Generate a comprehensive architecture diagram."""
+    # Load reports
+    dependency_report_path = os.path.join(ROOT_DIR, 'tools', 'output', 'dependency-report.json')
+    service_structure_report_path = os.path.join(ROOT_DIR, 'tools', 'output', 'service-structure-report.json')
+    api_endpoints_report_path = os.path.join(ROOT_DIR, 'tools', 'output', 'api-endpoints-report.json')
+    database_schema_report_path = os.path.join(ROOT_DIR, 'tools', 'output', 'database-schema-report.json')
+    
+    dependency_report = load_report(dependency_report_path)
+    service_structure_report = load_report(service_structure_report_path)
+    api_endpoints_report = load_report(api_endpoints_report_path)
+    database_schema_report = load_report(database_schema_report_path)
+    
+    # Create directed graph
+    G = nx.DiGraph()
+    
+    # Add nodes (services)
+    dependencies = dependency_report.get('dependencies', {})
+    for service in dependencies:
+        G.add_node(service)
+    
+    # Add edges (dependencies)
+    for service, deps in dependencies.items():
+        for dep in deps:
+            G.add_edge(service, dep)
+    
+    # Set up the figure
+    plt.figure(figsize=(20, 16))
+    
+    # Define node colors based on service type
+    service_types = {
+        'common-lib': 'core',
+        'common-js-lib': 'core',
+        'api-gateway': 'gateway',
+        'ui-service': 'frontend',
+        'data-management-service': 'data',
+        'data-pipeline-service': 'data',
+        'feature-store-service': 'data',
+        'model-registry-service': 'data',
+        'ml-integration-service': 'ml',
+        'ml-workbench-service': 'ml',
+        'analysis-engine-service': 'analysis',
+        'strategy-execution-engine': 'execution',
+        'trading-gateway-service': 'execution',
+        'portfolio-management-service': 'management',
+        'risk-management-service': 'management',
+        'monitoring-alerting-service': 'monitoring'
+    }
+    
+    # Define color map for service types
+    color_map = {
+        'core': '#FF5733',       # Red-Orange
+        'gateway': '#33A8FF',    # Blue
+        'frontend': '#33FF57',   # Green
+        'data': '#A833FF',       # Purple
+        'ml': '#FFD433',         # Yellow
+        'analysis': '#FF33A8',   # Pink
+        'execution': '#33FFA8',  # Teal
+        'management': '#A8FF33', # Lime
+        'monitoring': '#FF8333'  # Orange
+    }
+    
+    # Create node color list
+    node_colors = [color_map.get(service_types.get(node, 'other'), '#CCCCCC') for node in G.nodes()]
+    
+    # Calculate node sizes based on incoming connections (importance)
+    incoming_connections = {node: 0 for node in G.nodes()}
+    for u, v in G.edges():
+        incoming_connections[v] += 1
+    
+    # Get file counts for each service
+    file_counts = {}
+    for service in G.nodes():
+        structure = service_structure_report.get('service_structure', {}).get(service, {})
+        file_counts[service] = structure.get('file_count', 0)
+    
+    # Scale node sizes based on file count
+    min_size = 1000
+    max_size = 5000
+    node_sizes = []
+    for node in G.nodes():
+        # Combine file count and incoming connections for size
+        size = min_size + (file_counts.get(node, 0) * 5) + (incoming_connections.get(node, 0) * 200)
+        node_sizes.append(min(size, max_size))
+    
+    # Create layout
+    pos = nx.spring_layout(G, k=0.3, iterations=100, seed=42)
+    
+    # Draw nodes
+    nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_colors, alpha=0.8, 
+                          edgecolors='black', linewidths=1.5)
+    
+    # Draw edges with arrows
+    nx.draw_networkx_edges(G, pos, width=1.5, alpha=0.7, edge_color='gray', 
+                          arrowsize=20, connectionstyle='arc3,rad=0.1')
+    
+    # Draw labels
+    nx.draw_networkx_labels(G, pos, font_size=12, font_family='sans-serif', font_weight='bold')
+    
+    # Add node annotations
+    for node in G.nodes():
+        # Get node position
+        x, y = pos[node]
+        
+        # Get service statistics
+        structure = service_structure_report.get('service_structure', {}).get(node, {})
+        file_count = structure.get('file_count', 0)
+        class_count = structure.get('class_count', 0)
+        function_count = structure.get('function_count', 0)
+        
+        # Get API endpoints
+        endpoints = api_endpoints_report.get('api_endpoints', {}).get('service_endpoints', {}).get(node, [])
+        endpoint_count = len(endpoints)
+        
+        # Create annotation text
+        annotation = f"Files: {file_count}\nClasses: {class_count}\nFunctions: {function_count}\nEndpoints: {endpoint_count}"
+        
+        # Add annotation
+        plt.annotate(annotation, xy=(x, y), xytext=(x, y-0.1), 
+                    bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
+                    ha='center', va='center', fontsize=8)
+    
+    # Create legend
+    legend_patches = [mpatches.Patch(color=color, label=service_type.capitalize())
+                     for service_type, color in color_map.items()]
+    plt.legend(handles=legend_patches, loc='upper right', fontsize=12)
+    
+    # Add title
+    plt.title('Forex Trading Platform Architecture', fontsize=20)
+    
+    # Remove axes
+    plt.axis('off')
+    
+    # Create output directory if it doesn't exist
+    output_dir = os.path.join(ROOT_DIR, 'tools', 'output', 'architecture_diagrams')
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Save figure
+    output_path = os.path.join(output_dir, 'comprehensive-architecture-diagram.png')
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    print(f"Comprehensive architecture diagram saved to {output_path}")
+    
+    # Close figure
+    plt.close()
+
+def main():
+    parser = argparse.ArgumentParser(description='Generate comprehensive architecture diagram for the forex trading platform')
+    parser.add_argument('--output-file', default='comprehensive-architecture-diagram.png', 
+                        help='Output file for the architecture diagram')
+    args = parser.parse_args()
+    
+    print("Generating comprehensive architecture diagram...")
+    generate_comprehensive_diagram()
+
+if __name__ == "__main__":
+    main()

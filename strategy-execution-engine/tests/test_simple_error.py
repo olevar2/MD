@@ -5,7 +5,7 @@ import pytest
 from unittest.mock import MagicMock
 
 
-from strategy_execution_engine.error.exceptions_bridge import (
+from core.exceptions_bridge import (
     with_exception_handling,
     async_with_exception_handling,
     ForexTradingPlatformError,

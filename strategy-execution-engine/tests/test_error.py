@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import asyncio
 from fastapi import HTTPException
 
-from strategy_execution_engine.error import (
+from core.error import (
     ForexTradingPlatformError,
     StrategyExecutionError,
     StrategyConfigurationError,

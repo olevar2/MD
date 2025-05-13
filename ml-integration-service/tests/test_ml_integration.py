@@ -10,10 +10,10 @@ import os
 import pickle
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-from ml_integration_service.adapters.feature_store_adapter import FeatureProviderAdapter, FeatureTransformerAdapter, FeatureSelectorAdapter
+from adapters.feature_store_adapter import FeatureProviderAdapter, FeatureTransformerAdapter, FeatureSelectorAdapter
 from common_lib.ml.feature_interfaces import FeatureType, FeatureScope, SelectionMethod, IFeatureProvider, IFeatureTransformer, IFeatureSelector
 from common_lib.indicators.indicator_interfaces import IBaseIndicator, IAdvancedIndicator, IIndicatorAdapter
-from ml_integration_service.feature_extraction import FeatureExtractor, FeatureDefinition, LegacyFeatureType
+from core.feature_extraction import FeatureExtractor, FeatureDefinition, LegacyFeatureType
 from ml_integration_service.feature_selection import FeatureSelector, ImportanceBasedSelector, CorrelationBasedSelector, RecursiveFeatureElimination
 from ml_integration_service.indicator_feedback import IndicatorMLFeedback, FeatureImportanceTracker, IndicatorPerformanceOptimizer
 from ml_integration_service.model_preparation import ModelInputPreparation, TabularInputPreparator, SequentialInputPreparator, MultiTimeframePreparator
