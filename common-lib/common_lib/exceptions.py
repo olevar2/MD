@@ -462,16 +462,15 @@ class ModelTrainingError(ModelError):
     """Exception raised when model training fails."""
 
     def __init__(self, message: str = None, model_id: str = None, *args, **kwargs):
-    """
-      init  .
+        """
+        Initialize ModelTrainingError.
 
-    Args:
-        message: Description of message
-        model_id: Description of model_id
-        args: Description of args
-        kwargs: Description of kwargs
-
-    """
+        Args:
+            message: Description of message
+            model_id: Description of model_id
+            args: Description of args
+            kwargs: Description of kwargs
+        """
 
         message = message or f"Training failed for model {model_id or 'unknown'}"
         super().__init__(message, model_id=model_id, error_code="MODEL_TRAINING_ERROR", *args, **kwargs)
@@ -481,16 +480,15 @@ class ModelPredictionError(ModelError):
     """Exception raised when model prediction fails."""
 
     def __init__(self, message: str = None, model_id: str = None, *args, **kwargs):
-    """
-      init  .
+        """
+        Initialize ModelPredictionError.
 
-    Args:
-        message: Description of message
-        model_id: Description of model_id
-        args: Description of args
-        kwargs: Description of kwargs
-
-    """
+        Args:
+            message: Description of message
+            model_id: Description of model_id
+            args: Description of args
+            kwargs: Description of kwargs
+        """
 
         message = message or f"Prediction failed for model {model_id or 'unknown'}"
         super().__init__(message, model_id=model_id, error_code="MODEL_PREDICTION_ERROR", *args, **kwargs)
