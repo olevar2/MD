@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: portfolio-management-service
+  name: portfolio-management-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: portfolio-management-service
+  template:
+    metadata:
+      labels:
+        app: portfolio-management-service
+    spec:
+      containers:
+      - image: forex-trading-platform/portfolio-management-service:latest
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: portfolio-management-service
+        ports:
+        - containerPort: 8002
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi

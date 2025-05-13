@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: data-pipeline-service
+  name: data-pipeline-service
+spec:
+  ports:
+  - name: http
+    port: 8004
+    targetPort: 8004
+  selector:
+    app: data-pipeline-service

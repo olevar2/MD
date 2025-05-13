@@ -27,7 +27,7 @@
 | model-registry-service | 11 | 11 | 0 | 100.00% |
 | portfolio-management-service | 15 | 8 | 7 | 53.33% |
 | monitoring-alerting-service | 23 | 3 | 20 | 13.04% |
-| ml-workbench-service | 127 | 41 | 86 | 32.28% |
+| ml_workbench-service | 127 | 41 | 86 | 32.28% |
 | api-gateway | 1 | 0 | 1 | 0.00% |
 | data-management-service | 17 | 0 | 17 | 0.00% |
 | data-pipeline-service | 45 | 35 | 10 | 77.78% |
@@ -51,7 +51,7 @@
 | model-registry-service | 0 | 0 | 0 | 0 | 0 | 0 |
 | portfolio-management-service | 3 | 0 | 3 | 0 | 0 | 0 |
 | monitoring-alerting-service | 0 | 0 | 0 | 0 | 0 | 0 |
-| ml-workbench-service | 0 | 0 | 0 | 0 | 0 | 0 |
+| ml_workbench-service | 0 | 0 | 0 | 0 | 0 | 0 |
 | api-gateway | 8 | 4 | 4 | 0 | 0 | 0 |
 | data-management-service | 0 | 0 | 0 | 0 | 0 | 0 |
 | data-pipeline-service | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -70,7 +70,7 @@
 | feature_store_service | No error handling patterns found |
 | analysis_engine | Low custom error usage (0.00%) |
 | monitoring-alerting-service | Low custom error usage (13.04%) |
-| ml-workbench-service | Low custom error usage (32.28%) |
+| ml_workbench-service | Low custom error usage (32.28%) |
 | api-gateway | Low custom error usage (0.00%) |
 | data-management-service | Low custom error usage (0.00%) |
 
@@ -90,7 +90,7 @@
 | model-registry-service | No resilience patterns used |
 | portfolio-management-service | Missing resilience patterns: fallback, bulkhead, timeout, circuit_breaker |
 | monitoring-alerting-service | No resilience patterns used |
-| ml-workbench-service | No resilience patterns used |
+| ml_workbench-service | No resilience patterns used |
 | api-gateway | Missing resilience patterns: fallback, bulkhead, timeout |
 | data-management-service | No resilience patterns used |
 | data-pipeline-service | No resilience patterns used |

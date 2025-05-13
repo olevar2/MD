@@ -1,11 +1,17 @@
 """
-Base Indicator Module.
-
-This module provides the base class for all technical indicators in the feature store.
-It now imports the BaseIndicator class from common_lib to ensure consistency across services.
+Base indicator class.
 """
 
-from common_lib.indicators.base_indicator import BaseIndicator
 
-# Re-export the BaseIndicator class
-__all__ = ['BaseIndicator']
+class BaseIndicator:
+    """Base class for all indicators."""
+    
+    category = "generic"
+    
+    def __init__(self, **kwargs):
+        """Initialize base indicator."""
+        self.name = kwargs.get("name", "indicator")
+    
+    def calculate(self, data):
+        """Calculate indicator values."""
+        raise NotImplementedError("Subclasses must implement calculate")

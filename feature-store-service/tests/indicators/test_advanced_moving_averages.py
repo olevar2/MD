@@ -10,6 +10,14 @@ from feature_store_service.indicators.advanced_moving_averages import TripleExpo
 
 @pytest.fixture
 def sample_data() -> pd.DataFrame:
+    """
+    Sample data.
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     periods = 100
     index = pd.date_range(start='2023-01-01', periods=periods, freq='D')
     close = 100 + 10 * np.sin(np.linspace(0, 4 * np.pi, periods))
@@ -23,10 +31,29 @@ def sample_data() -> pd.DataFrame:
 
 @pytest.fixture
 def short_data(sample_data) -> pd.DataFrame:
+    """
+    Short data.
+    
+    Args:
+        sample_data: Description of sample_data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     return sample_data.head(15)
 
 @pytest.fixture
 def constant_data() -> pd.DataFrame:
+    """
+    Constant data.
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     periods = 100
     index = pd.date_range(start='2023-01-01', periods=periods, freq='D')
     data = pd.DataFrame({'open': 100.0, 'high': 100.5, 'low': 99.5, 'close': 100.0, 'volume': 100.0}, index=index)

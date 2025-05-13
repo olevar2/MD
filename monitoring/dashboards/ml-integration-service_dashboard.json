@@ -1,0 +1,38 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "ml-integration-service Dashboard",
+    "tags": [
+      "forex-trading-platform",
+      "ml-integration-service"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "10s",
+    "panels": [
+      {
+        "title": "HTTP Request Rate",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "title": "HTTP Request Duration",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "folderId": 123,
+  "overwrite": true
+}

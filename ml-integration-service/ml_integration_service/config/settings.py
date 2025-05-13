@@ -14,7 +14,14 @@ class MLIntegrationSettings(AppSettings):
 
     # --- Service Specific Metadata ---
     # Override SERVICE_NAME from base class
-    SERVICE_NAME: str = "ml-integration-service"
+    SERVICE_NAME:
+    """
+    SERVICE_NAME class.
+    
+    Attributes:
+        Add attributes here
+    """
+ str = "ml-integration-service"
     # DEBUG_MODE and LOG_LEVEL are inherited
 
     # --- API settings ---
@@ -26,7 +33,7 @@ class MLIntegrationSettings(AppSettings):
 
     # --- ML Workbench service integration ---
     ML_WORKBENCH_API_URL: str = Field(
-        default="http://ml-workbench-service:8000/api/v1",
+        default="http://ml_workbench-service:8000/api/v1",
         env="ML_WORKBENCH_API_URL",
     )
     ML_WORKBENCH_API_KEY: Optional[SecretStr] = Field(
@@ -85,6 +92,13 @@ class MLIntegrationSettings(AppSettings):
     # model_config is inherited from AppSettings.
     # Remove the old Config class:
     # class Config:
+    """
+    Config class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     #     env_file = ".env"
     #     case_sensitive = True # Base class uses case_sensitive=False
 

@@ -1,33 +1,31 @@
 """
-Configuration package for the Analysis Engine Service.
+Configuration package for Analysis Engine Service.
 
-This package provides a centralized configuration management system
-that consolidates settings from various sources.
+This package provides configuration management for the Analysis Engine Service.
+It includes both legacy and standardized configuration systems for backward compatibility.
 """
 
+# Legacy configuration system
 from analysis_engine.config.config import (
+from analysis_engine.config.standardized_config import config_manager, get_config
+    config_manager as legacy_config_manager,
     get_service_config,
-    get_database_config,
-    get_logging_config,
-    get_service_client_config,
-    get_analysis_engine_config,
-    is_development,
-    is_testing,
-    is_production
+    get_database_config
 )
 
-# For backward compatibility
-from analysis_engine.config.settings import AnalysisEngineSettings, get_settings
+# Standardized configuration system
+from analysis_engine.config.standardized_config import (
+    config_manager,
+    get_config
+)
 
 __all__ = [
-    "get_service_config",
-    "get_database_config",
-    "get_logging_config",
-    "get_service_client_config",
-    "get_analysis_engine_config",
-    "is_development",
-    "is_testing",
-    "is_production",
-    "AnalysisEngineSettings",
-    "get_settings"
+    # Legacy configuration system
+    'legacy_config_manager',
+    'get_service_config',
+    'get_database_config',
+    
+    # Standardized configuration system
+    'config_manager',
+    'get_config'
 ]

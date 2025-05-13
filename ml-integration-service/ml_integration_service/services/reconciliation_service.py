@@ -4,59 +4,41 @@ Reconciliation Service for the ML Integration Service.
 This service provides functionality for reconciling model data from different sources,
 including training data and inference data.
 """
-
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import logging
 import pandas as pd
 import numpy as np
 import uuid
-
 from ml_integration_service.config.enhanced_settings import enhanced_settings
 from ml_integration_service.config.reconciliation_config import get_reconciliation_config
-from ml_integration_service.reconciliation.model_data_reconciliation import (
-    TrainingDataReconciliation,
-    InferenceDataReconciliation,
-)
+from ml_integration_service.reconciliation.model_data_reconciliation import TrainingDataReconciliation, InferenceDataReconciliation
 from ml_integration_service.repositories.model_repository import ModelRepository
 from ml_integration_service.repositories.reconciliation_repository import ReconciliationRepository
 from ml_integration_service.services.feature_service import FeatureService
 from ml_integration_service.validation.data_validator import DataValidator
-
-from common_lib.data_reconciliation import (
-    DataSource,
-    DataSourceType,
-    ReconciliationConfig,
-    ReconciliationResult,
-    ReconciliationStatus,
-    ReconciliationSeverity,
-    ReconciliationStrategy,
-)
-from common_lib.exceptions import (
-    DataFetchError,
-    DataValidationError,
-    ReconciliationError,
-)
-from common_lib.metrics.reconciliation_metrics import (
-    track_reconciliation,
-    record_discrepancy,
-    record_resolution,
-)
+from common_lib.data_reconciliation import DataSource, DataSourceType, ReconciliationConfig, ReconciliationResult, ReconciliationStatus, ReconciliationSeverity, ReconciliationStrategy
+from common_lib.exceptions import DataFetchError, DataValidationError, ReconciliationError
+from common_lib.metrics.reconciliation_metrics import track_reconciliation, record_discrepancy, record_resolution
 from ml_integration_service.tracing import trace_method
-
 logger = logging.getLogger(__name__)
 
+
+from ml_integration_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class ReconciliationService:
     """Service for reconciling model data from different sources."""
 
-    def __init__(
-        self,
-        model_repository: ModelRepository,
-        feature_service: FeatureService,
-        data_validator: DataValidator,
-        reconciliation_repository = None
-    ):
+    def __init__(self, model_repository: ModelRepository, feature_service:
+        FeatureService, data_validator: DataValidator,
+        reconciliation_repository=None):
         """
         Initialize the reconciliation service.
 
@@ -70,21 +52,18 @@ class ReconciliationService:
         self.feature_service = feature_service
         self.data_validator = data_validator
         self.reconciliation_repository = reconciliation_repository
-        self.reconciliation_results = {}  # In-memory cache for reconciliation results
+        self.reconciliation_results = {}
 
-    @trace_method(name="reconcile_training_data")
-    @track_reconciliation(service="ml_integration_service", reconciliation_type="training_data")
-    async def reconcile_training_data(
-        self,
-        model_id: str,
-        version: Optional[str] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        strategy: Optional[ReconciliationStrategy] = None,
-        tolerance: Optional[float] = None,
-        auto_resolve: Optional[bool] = None,
-        notification_threshold: Optional[ReconciliationSeverity] = None
-    ) -> ReconciliationResult:
+    @trace_method(name='reconcile_training_data')
+    @track_reconciliation(service='ml_integration_service',
+        reconciliation_type='training_data')
+    @async_with_exception_handling
+    async def reconcile_training_data(self, model_id: str, version:
+        Optional[str]=None, start_time: Optional[datetime]=None, end_time:
+        Optional[datetime]=None, strategy: Optional[ReconciliationStrategy]
+        =None, tolerance: Optional[float]=None, auto_resolve: Optional[bool
+        ]=None, notification_threshold: Optional[ReconciliationSeverity]=None
+        ) ->ReconciliationResult:
         """
         Reconcile training data for a model.
 
@@ -107,171 +86,113 @@ class ReconciliationService:
             ReconciliationError: If reconciliation fails
         """
         try:
-            # Get reconciliation configuration
             reconciliation_config = get_reconciliation_config()
-
-            # Use provided values or defaults from configuration
-            strategy = strategy or reconciliation_config.defaults.default_strategy
-            tolerance = tolerance if tolerance is not None else reconciliation_config.defaults.default_tolerance
-            auto_resolve = auto_resolve if auto_resolve is not None else reconciliation_config.defaults.default_auto_resolve
-            notification_threshold = notification_threshold or reconciliation_config.defaults.default_notification_threshold
-
-            # Define data sources
-            database_source = DataSource(
-                source_id="database",
-                name="Model Repository Database",
-                source_type=DataSourceType.DATABASE,
-                priority=1
-            )
-
-            cache_source = DataSource(
-                source_id="cache",
-                name="Feature Service Cache",
-                source_type=DataSourceType.CACHE,
-                priority=2
-            )
-
-            # Create configuration
-            config = ReconciliationConfig(
-                sources=[database_source, cache_source],
-                strategy=strategy,
-                tolerance=tolerance,
-                auto_resolve=auto_resolve,
-                notification_threshold=notification_threshold
-            )
-
-            # Create reconciliation processor
-            reconciliation = TrainingDataReconciliation(
-                config=config,
-                model_repository=self.model_repository,
-                feature_service=self.feature_service,
-                data_validator=self.data_validator
-            )
-
-            # Create reconciliation process in database if repository is available
+            strategy = (strategy or reconciliation_config.defaults.
+                default_strategy)
+            tolerance = (tolerance if tolerance is not None else
+                reconciliation_config.defaults.default_tolerance)
+            auto_resolve = (auto_resolve if auto_resolve is not None else
+                reconciliation_config.defaults.default_auto_resolve)
+            notification_threshold = (notification_threshold or
+                reconciliation_config.defaults.default_notification_threshold)
+            database_source = DataSource(source_id='database', name=
+                'Model Repository Database', source_type=DataSourceType.
+                DATABASE, priority=1)
+            cache_source = DataSource(source_id='cache', name=
+                'Feature Service Cache', source_type=DataSourceType.CACHE,
+                priority=2)
+            config = ReconciliationConfig(sources=[database_source,
+                cache_source], strategy=strategy, tolerance=tolerance,
+                auto_resolve=auto_resolve, notification_threshold=
+                notification_threshold)
+            reconciliation = TrainingDataReconciliation(config=config,
+                model_repository=self.model_repository, feature_service=
+                self.feature_service, data_validator=self.data_validator)
             if self.reconciliation_repository:
-                reconciliation_process = await self.reconciliation_repository.create_reconciliation_process(
-                    reconciliation_type="training_data",
-                    model_id=model_id,
-                    version=version,
-                    status=ReconciliationStatus.IN_PROGRESS,
-                    strategy=strategy,
-                    tolerance=tolerance,
-                    auto_resolve=auto_resolve,
-                    notification_threshold=notification_threshold
-                )
+                reconciliation_process = (await self.
+                    reconciliation_repository.create_reconciliation_process
+                    (reconciliation_type='training_data', model_id=model_id,
+                    version=version, status=ReconciliationStatus.
+                    IN_PROGRESS, strategy=strategy, tolerance=tolerance,
+                    auto_resolve=auto_resolve, notification_threshold=
+                    notification_threshold))
                 reconciliation_id = reconciliation_process.id
             else:
-                # Generate a random ID if no repository is available
                 reconciliation_id = str(uuid.uuid4())
-
-            # Log reconciliation start
             logger.info(
-                f"Starting training data reconciliation for model {model_id}, version {version}, "
-                f"reconciliation ID: {reconciliation_id}"
-            )
-
-            # Perform reconciliation
-            result = await reconciliation.reconcile(
-                model_id=model_id,
-                version=version,
-                start_time=start_time,
-                end_time=end_time
-            )
-
-            # Set the reconciliation ID
+                f'Starting training data reconciliation for model {model_id}, version {version}, reconciliation ID: {reconciliation_id}'
+                )
+            result = await reconciliation.reconcile(model_id=model_id,
+                version=version, start_time=start_time, end_time=end_time)
             result.reconciliation_id = reconciliation_id
-
-            # Log reconciliation result
             logger.info(
-                f"Completed training data reconciliation for model {model_id}, version {version}, "
-                f"reconciliation ID: {result.reconciliation_id}, "
-                f"status: {result.status.name}, "
-                f"discrepancies: {result.discrepancy_count}, "
-                f"resolutions: {result.resolution_count}"
-            )
-
-            # Record metrics for each severity level
+                f'Completed training data reconciliation for model {model_id}, version {version}, reconciliation ID: {result.reconciliation_id}, status: {result.status.name}, discrepancies: {result.discrepancy_count}, resolutions: {result.resolution_count}'
+                )
             for severity in ReconciliationSeverity:
-                count = sum(1 for d in result.discrepancies if d.severity == severity)
+                count = sum(1 for d in result.discrepancies if d.severity ==
+                    severity)
                 if count > 0:
-                    record_discrepancy(
-                        service="ml_integration_service",
-                        reconciliation_type="training_data",
-                        severity=severity.name,
-                        count=count
-                    )
-
-            # Record resolution metrics
-            record_resolution(
-                service="ml_integration_service",
-                reconciliation_type="training_data",
-                strategy=strategy.name,
-                count=result.resolution_count
-            )
-
-            # Store the result in the database if repository is available
+                    record_discrepancy(service='ml_integration_service',
+                        reconciliation_type='training_data', severity=
+                        severity.name, count=count)
+            record_resolution(service='ml_integration_service',
+                reconciliation_type='training_data', strategy=strategy.name,
+                count=result.resolution_count)
             if self.reconciliation_repository:
                 await self.reconciliation_repository.update_reconciliation_process(
-                    reconciliation_id=result.reconciliation_id,
-                    status=result.status,
-                    end_time=result.end_time,
+                    reconciliation_id=result.reconciliation_id, status=
+                    result.status, end_time=result.end_time,
                     duration_seconds=result.duration_seconds,
                     discrepancy_count=result.discrepancy_count,
                     resolution_count=result.resolution_count,
-                    resolution_rate=result.resolution_rate
-                )
-
-                # Store discrepancies in the database
+                    resolution_rate=result.resolution_rate)
                 for discrepancy in result.discrepancies:
                     await self.reconciliation_repository.add_discrepancy(
                         reconciliation_id=result.reconciliation_id,
-                        field_name=discrepancy.field_name,
-                        severity=discrepancy.severity,
-                        source_1_id=discrepancy.source_1_id,
-                        source_1_value=discrepancy.source_1_value,
-                        source_2_id=discrepancy.source_2_id,
+                        field_name=discrepancy.field_name, severity=
+                        discrepancy.severity, source_1_id=discrepancy.
+                        source_1_id, source_1_value=discrepancy.
+                        source_1_value, source_2_id=discrepancy.source_2_id,
                         source_2_value=discrepancy.source_2_value,
-                        difference=discrepancy.difference,
-                        resolved=discrepancy.resolved,
-                        resolution_strategy=discrepancy.resolution_strategy,
-                        resolved_value=discrepancy.resolved_value
-                    )
-
-            # Store the result in memory for later retrieval
+                        difference=discrepancy.difference, resolved=
+                        discrepancy.resolved, resolution_strategy=
+                        discrepancy.resolution_strategy, resolved_value=
+                        discrepancy.resolved_value)
             self.reconciliation_results[result.reconciliation_id] = result
-
             return result
-
         except DataFetchError as e:
-            logger.error(f"Data fetch error during training data reconciliation: {str(e)}")
+            logger.error(
+                f'Data fetch error during training data reconciliation: {str(e)}'
+                )
             raise
         except DataValidationError as e:
-            logger.error(f"Data validation error during training data reconciliation: {str(e)}")
+            logger.error(
+                f'Data validation error during training data reconciliation: {str(e)}'
+                )
             raise
         except ReconciliationError as e:
-            logger.error(f"Reconciliation error during training data reconciliation: {str(e)}")
+            logger.error(
+                f'Reconciliation error during training data reconciliation: {str(e)}'
+                )
             raise
         except Exception as e:
-            logger.exception(f"Unexpected error during training data reconciliation: {str(e)}")
+            logger.exception(
+                f'Unexpected error during training data reconciliation: {str(e)}'
+                )
             raise ReconciliationError(
-                f"Unexpected error during training data reconciliation: {str(e)}",
-                details={"model_id": model_id, "version": version}
-            )
+                f'Unexpected error during training data reconciliation: {str(e)}'
+                , details={'model_id': model_id, 'version': version})
 
-    @trace_method(name="reconcile_inference_data")
-    @track_reconciliation(service="ml_integration_service", reconciliation_type="inference_data")
-    async def reconcile_inference_data(
-        self,
-        model_id: str,
-        version: Optional[str] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        strategy: Optional[ReconciliationStrategy] = None,
-        tolerance: Optional[float] = None,
-        auto_resolve: Optional[bool] = None,
-        notification_threshold: Optional[ReconciliationSeverity] = None
-    ) -> ReconciliationResult:
+    @trace_method(name='reconcile_inference_data')
+    @track_reconciliation(service='ml_integration_service',
+        reconciliation_type='inference_data')
+    @async_with_exception_handling
+    async def reconcile_inference_data(self, model_id: str, version:
+        Optional[str]=None, start_time: Optional[datetime]=None, end_time:
+        Optional[datetime]=None, strategy: Optional[ReconciliationStrategy]
+        =None, tolerance: Optional[float]=None, auto_resolve: Optional[bool
+        ]=None, notification_threshold: Optional[ReconciliationSeverity]=None
+        ) ->ReconciliationResult:
         """
         Reconcile inference data for a model.
 
@@ -294,160 +215,107 @@ class ReconciliationService:
             ReconciliationError: If reconciliation fails
         """
         try:
-            # Get reconciliation configuration
             reconciliation_config = get_reconciliation_config()
-
-            # Use provided values or defaults from configuration
-            strategy = strategy or reconciliation_config.defaults.default_strategy
-            tolerance = tolerance if tolerance is not None else reconciliation_config.defaults.default_tolerance
-            auto_resolve = auto_resolve if auto_resolve is not None else reconciliation_config.defaults.default_auto_resolve
-            notification_threshold = notification_threshold or reconciliation_config.defaults.default_notification_threshold
-
-            # Define data sources
-            database_source = DataSource(
-                source_id="database",
-                name="Model Repository Database",
-                source_type=DataSourceType.DATABASE,
-                priority=1
-            )
-
-            cache_source = DataSource(
-                source_id="cache",
-                name="Feature Service Cache",
-                source_type=DataSourceType.CACHE,
-                priority=2
-            )
-
-            # Create configuration
-            config = ReconciliationConfig(
-                sources=[database_source, cache_source],
-                strategy=strategy,
-                tolerance=tolerance,
-                auto_resolve=auto_resolve,
-                notification_threshold=notification_threshold
-            )
-
-            # Create reconciliation processor
-            reconciliation = InferenceDataReconciliation(
-                config=config,
-                model_repository=self.model_repository,
-                feature_service=self.feature_service,
-                data_validator=self.data_validator
-            )
-
-            # Create reconciliation process in database if repository is available
+            strategy = (strategy or reconciliation_config.defaults.
+                default_strategy)
+            tolerance = (tolerance if tolerance is not None else
+                reconciliation_config.defaults.default_tolerance)
+            auto_resolve = (auto_resolve if auto_resolve is not None else
+                reconciliation_config.defaults.default_auto_resolve)
+            notification_threshold = (notification_threshold or
+                reconciliation_config.defaults.default_notification_threshold)
+            database_source = DataSource(source_id='database', name=
+                'Model Repository Database', source_type=DataSourceType.
+                DATABASE, priority=1)
+            cache_source = DataSource(source_id='cache', name=
+                'Feature Service Cache', source_type=DataSourceType.CACHE,
+                priority=2)
+            config = ReconciliationConfig(sources=[database_source,
+                cache_source], strategy=strategy, tolerance=tolerance,
+                auto_resolve=auto_resolve, notification_threshold=
+                notification_threshold)
+            reconciliation = InferenceDataReconciliation(config=config,
+                model_repository=self.model_repository, feature_service=
+                self.feature_service, data_validator=self.data_validator)
             if self.reconciliation_repository:
-                reconciliation_process = await self.reconciliation_repository.create_reconciliation_process(
-                    reconciliation_type="inference_data",
-                    model_id=model_id,
-                    version=version,
-                    status=ReconciliationStatus.IN_PROGRESS,
-                    strategy=strategy,
-                    tolerance=tolerance,
-                    auto_resolve=auto_resolve,
-                    notification_threshold=notification_threshold
-                )
+                reconciliation_process = (await self.
+                    reconciliation_repository.create_reconciliation_process
+                    (reconciliation_type='inference_data', model_id=
+                    model_id, version=version, status=ReconciliationStatus.
+                    IN_PROGRESS, strategy=strategy, tolerance=tolerance,
+                    auto_resolve=auto_resolve, notification_threshold=
+                    notification_threshold))
                 reconciliation_id = reconciliation_process.id
             else:
-                # Generate a random ID if no repository is available
                 reconciliation_id = str(uuid.uuid4())
-
-            # Log reconciliation start
             logger.info(
-                f"Starting inference data reconciliation for model {model_id}, version {version}, "
-                f"reconciliation ID: {reconciliation_id}"
-            )
-
-            # Perform reconciliation
-            result = await reconciliation.reconcile(
-                model_id=model_id,
-                version=version,
-                start_time=start_time,
-                end_time=end_time
-            )
-
-            # Set the reconciliation ID
+                f'Starting inference data reconciliation for model {model_id}, version {version}, reconciliation ID: {reconciliation_id}'
+                )
+            result = await reconciliation.reconcile(model_id=model_id,
+                version=version, start_time=start_time, end_time=end_time)
             result.reconciliation_id = reconciliation_id
-
-            # Log reconciliation result
             logger.info(
-                f"Completed inference data reconciliation for model {model_id}, version {version}, "
-                f"reconciliation ID: {result.reconciliation_id}, "
-                f"status: {result.status.name}, "
-                f"discrepancies: {result.discrepancy_count}, "
-                f"resolutions: {result.resolution_count}"
-            )
-
-            # Record metrics for each severity level
+                f'Completed inference data reconciliation for model {model_id}, version {version}, reconciliation ID: {result.reconciliation_id}, status: {result.status.name}, discrepancies: {result.discrepancy_count}, resolutions: {result.resolution_count}'
+                )
             for severity in ReconciliationSeverity:
-                count = sum(1 for d in result.discrepancies if d.severity == severity)
+                count = sum(1 for d in result.discrepancies if d.severity ==
+                    severity)
                 if count > 0:
-                    record_discrepancy(
-                        service="ml_integration_service",
-                        reconciliation_type="inference_data",
-                        severity=severity.name,
-                        count=count
-                    )
-
-            # Record resolution metrics
-            record_resolution(
-                service="ml_integration_service",
-                reconciliation_type="inference_data",
-                strategy=strategy.name,
-                count=result.resolution_count
-            )
-
-            # Store the result in the database if repository is available
+                    record_discrepancy(service='ml_integration_service',
+                        reconciliation_type='inference_data', severity=
+                        severity.name, count=count)
+            record_resolution(service='ml_integration_service',
+                reconciliation_type='inference_data', strategy=strategy.
+                name, count=result.resolution_count)
             if self.reconciliation_repository:
                 await self.reconciliation_repository.update_reconciliation_process(
-                    reconciliation_id=result.reconciliation_id,
-                    status=result.status,
-                    end_time=result.end_time,
+                    reconciliation_id=result.reconciliation_id, status=
+                    result.status, end_time=result.end_time,
                     duration_seconds=result.duration_seconds,
                     discrepancy_count=result.discrepancy_count,
                     resolution_count=result.resolution_count,
-                    resolution_rate=result.resolution_rate
-                )
-
-                # Store discrepancies in the database
+                    resolution_rate=result.resolution_rate)
                 for discrepancy in result.discrepancies:
                     await self.reconciliation_repository.add_discrepancy(
                         reconciliation_id=result.reconciliation_id,
-                        field_name=discrepancy.field_name,
-                        severity=discrepancy.severity,
-                        source_1_id=discrepancy.source_1_id,
-                        source_1_value=discrepancy.source_1_value,
-                        source_2_id=discrepancy.source_2_id,
+                        field_name=discrepancy.field_name, severity=
+                        discrepancy.severity, source_1_id=discrepancy.
+                        source_1_id, source_1_value=discrepancy.
+                        source_1_value, source_2_id=discrepancy.source_2_id,
                         source_2_value=discrepancy.source_2_value,
-                        difference=discrepancy.difference,
-                        resolved=discrepancy.resolved,
-                        resolution_strategy=discrepancy.resolution_strategy,
-                        resolved_value=discrepancy.resolved_value
-                    )
-
-            # Store the result in memory for later retrieval
+                        difference=discrepancy.difference, resolved=
+                        discrepancy.resolved, resolution_strategy=
+                        discrepancy.resolution_strategy, resolved_value=
+                        discrepancy.resolved_value)
             self.reconciliation_results[result.reconciliation_id] = result
-
             return result
-
         except DataFetchError as e:
-            logger.error(f"Data fetch error during inference data reconciliation: {str(e)}")
+            logger.error(
+                f'Data fetch error during inference data reconciliation: {str(e)}'
+                )
             raise
         except DataValidationError as e:
-            logger.error(f"Data validation error during inference data reconciliation: {str(e)}")
+            logger.error(
+                f'Data validation error during inference data reconciliation: {str(e)}'
+                )
             raise
         except ReconciliationError as e:
-            logger.error(f"Reconciliation error during inference data reconciliation: {str(e)}")
+            logger.error(
+                f'Reconciliation error during inference data reconciliation: {str(e)}'
+                )
             raise
         except Exception as e:
-            logger.exception(f"Unexpected error during inference data reconciliation: {str(e)}")
+            logger.exception(
+                f'Unexpected error during inference data reconciliation: {str(e)}'
+                )
             raise ReconciliationError(
-                f"Unexpected error during inference data reconciliation: {str(e)}",
-                details={"model_id": model_id, "version": version}
-            )
+                f'Unexpected error during inference data reconciliation: {str(e)}'
+                , details={'model_id': model_id, 'version': version})
 
-    @trace_method(name="get_reconciliation_status")
-    async def get_reconciliation_status(self, reconciliation_id: str) -> Optional[ReconciliationResult]:
+    @trace_method(name='get_reconciliation_status')
+    @async_with_exception_handling
+    async def get_reconciliation_status(self, reconciliation_id: str
+        ) ->Optional[ReconciliationResult]:
         """
         Get the status of a reconciliation process.
 
@@ -457,30 +325,25 @@ class ReconciliationService:
         Returns:
             Results of the reconciliation process, or None if not found
         """
-        # Check in-memory cache first
         result = self.reconciliation_results.get(reconciliation_id)
-
-        # If not found in memory and repository is available, check the database
         if not result and self.reconciliation_repository:
             try:
-                # Get the reconciliation process from the database
-                reconciliation_process = await self.reconciliation_repository.get_reconciliation_process(
+                reconciliation_process = (await self.
+                    reconciliation_repository.get_reconciliation_process(
                     reconciliation_id=reconciliation_id,
-                    include_discrepancies=True
-                )
-
+                    include_discrepancies=True))
                 if reconciliation_process:
-                    # Convert to result object
-                    result = await self.reconciliation_repository.convert_to_result(reconciliation_process)
-
-                    # Cache the result in memory
+                    result = (await self.reconciliation_repository.
+                        convert_to_result(reconciliation_process))
                     self.reconciliation_results[reconciliation_id] = result
             except Exception as e:
-                logger.error(f"Error getting reconciliation status from database: {str(e)}")
-
+                logger.error(
+                    f'Error getting reconciliation status from database: {str(e)}'
+                    )
         if result:
-            logger.info(f"Retrieved reconciliation status for ID {reconciliation_id}, status: {result.status.name}")
+            logger.info(
+                f'Retrieved reconciliation status for ID {reconciliation_id}, status: {result.status.name}'
+                )
         else:
-            logger.warning(f"Reconciliation ID {reconciliation_id} not found")
-
+            logger.warning(f'Reconciliation ID {reconciliation_id} not found')
         return result

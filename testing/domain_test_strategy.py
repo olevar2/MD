@@ -470,7 +470,7 @@ registry.register_domain(DomainTestConfig(
     context=DomainContext.MACHINE_LEARNING,
     service_paths=[
         "ml-integration-service",
-        "ml-workbench-service"
+        "ml_workbench-service"
     ],
     fixture_paths=[
         "testing/fixtures/machine_learning"

@@ -1,7 +1,21 @@
+"""
+Check syntax targeted module.
+
+This module provides functionality for...
+"""
+
 import os
 import sys
 
 def check_syntax(file_path):
+    """
+    Check syntax.
+    
+    Args:
+        file_path: Description of file_path
+    
+    """
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             compile(f.read(), file_path, 'exec')

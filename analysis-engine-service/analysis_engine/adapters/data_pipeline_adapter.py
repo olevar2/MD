@@ -12,17 +12,23 @@ from datetime import datetime, timedelta
 import httpx
 import asyncio
 import os
-
 logger = logging.getLogger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
 
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class TickDataServiceAdapter:
     """
     Adapter for TickDataService that provides standalone functionality
     to avoid circular dependencies.
     """
-    
-    def __init__(self, service_instance=None, config: Dict[str, Any] = None):
+
+    def __init__(self, service_instance=None, config: Dict[str, Any]=None):
         """
         Initialize the adapter.
         
@@ -33,29 +39,19 @@ class TickDataServiceAdapter:
         self.service = service_instance
         self.config = config or {}
         self.logger = logging.getLogger(__name__)
-        
-        # Get data pipeline URL from config or environment
-        data_pipeline_base_url = self.config.get(
-            "data_pipeline_base_url", 
-            os.environ.get("DATA_PIPELINE_BASE_URL", "http://data-pipeline-service:8000")
-        )
-        
-        # Set up the client with resolved URL
-        self.client = httpx.AsyncClient(
-            base_url=f"{data_pipeline_base_url.rstrip('/')}/api/v1",
-            timeout=30.0
-        )
-        
-        # Data cache
+        data_pipeline_base_url = self.config.get('data_pipeline_base_url',
+            os.environ.get('DATA_PIPELINE_BASE_URL',
+            'http://data-pipeline-service:8000'))
+        self.client = httpx.AsyncClient(base_url=
+            f"{data_pipeline_base_url.rstrip('/')}/api/v1", timeout=30.0)
         self.data_cache = {}
         self.last_update = {}
-        self.cache_ttl = self.config.get("cache_ttl_minutes", 30)
-    
-    async def get_tick_data(self, 
-                          symbol: str, 
-                          start_time: datetime, 
-                          end_time: datetime,
-                          limit: int = 1000) -> pd.DataFrame:
+        self.cache_ttl = self.config_manager.get('cache_ttl_minutes', 30)
+
+    @with_resilience('get_tick_data')
+    @async_with_exception_handling
+    async def get_tick_data(self, symbol: str, start_time: datetime,
+        end_time: datetime, limit: int=1000) ->pd.DataFrame:
         """
         Get tick data for a symbol within a time range.
         
@@ -70,48 +66,39 @@ class TickDataServiceAdapter:
         """
         if self.service:
             try:
-                return await self.service.get_tick_data(symbol, start_time, end_time, limit)
+                return await self.service.get_tick_data(symbol, start_time,
+                    end_time, limit)
             except Exception as e:
-                self.logger.warning(f"Error getting tick data from service: {str(e)}")
-        
-        # Check cache first
-        cache_key = f"{symbol}_{start_time.isoformat()}_{end_time.isoformat()}_{limit}"
+                self.logger.warning(
+                    f'Error getting tick data from service: {str(e)}')
+        cache_key = (
+            f'{symbol}_{start_time.isoformat()}_{end_time.isoformat()}_{limit}'
+            )
         if cache_key in self.data_cache:
-            cache_age = datetime.now() - self.last_update.get(cache_key, datetime.min)
-            if cache_age.total_seconds() < (self.cache_ttl * 60):
+            cache_age = datetime.now() - self.last_update.get(cache_key,
+                datetime.min)
+            if cache_age.total_seconds() < self.cache_ttl * 60:
                 return self.data_cache[cache_key]
-        
-        # Fallback to API call
         try:
-            params = {
-                "symbol": symbol,
-                "start_time": start_time.isoformat(),
-                "end_time": end_time.isoformat(),
-                "limit": limit
-            }
-            
-            response = await self.client.get("/tick-data", params=params)
+            params = {'symbol': symbol, 'start_time': start_time.isoformat(
+                ), 'end_time': end_time.isoformat(), 'limit': limit}
+            response = await self.client.get('/tick-data', params=params)
             response.raise_for_status()
-            
             data = response.json()
-            df = pd.DataFrame(data.get("ticks", []))
-            
-            # Convert timestamp to datetime
-            if not df.empty and "timestamp" in df.columns:
-                df["timestamp"] = pd.to_datetime(df["timestamp"])
-                
-            # Cache the result
+            df = pd.DataFrame(data.get('ticks', []))
+            if not df.empty and 'timestamp' in df.columns:
+                df['timestamp'] = pd.to_datetime(df['timestamp'])
             self.data_cache[cache_key] = df
             self.last_update[cache_key] = datetime.now()
-            
             return df
-            
         except Exception as e:
-            self.logger.error(f"Error fetching tick data from API: {str(e)}")
-            # Return empty DataFrame as fallback
+            self.logger.error(f'Error fetching tick data from API: {str(e)}')
             return pd.DataFrame()
-    
-    async def get_latest_ticks(self, symbol: str, count: int = 100) -> pd.DataFrame:
+
+    @with_resilience('get_latest_ticks')
+    @async_with_exception_handling
+    async def get_latest_ticks(self, symbol: str, count: int=100
+        ) ->pd.DataFrame:
         """
         Get the latest ticks for a symbol.
         
@@ -126,14 +113,14 @@ class TickDataServiceAdapter:
             try:
                 return await self.service.get_latest_ticks(symbol, count)
             except Exception as e:
-                self.logger.warning(f"Error getting latest ticks from service: {str(e)}")
-        
-        # Fallback to API call
+                self.logger.warning(
+                    f'Error getting latest ticks from service: {str(e)}')
         end_time = datetime.now()
-        start_time = end_time - timedelta(hours=1)  # Look back 1 hour
-        
+        start_time = end_time - timedelta(hours=1)
         return await self.get_tick_data(symbol, start_time, end_time, count)
-    
+
+    @with_resilience('get_tick_stream')
+    @async_with_exception_handling
     async def get_tick_stream(self, symbol: str, callback: callable):
         """
         Get a stream of ticks for a symbol.
@@ -146,41 +133,37 @@ class TickDataServiceAdapter:
             try:
                 return await self.service.get_tick_stream(symbol, callback)
             except Exception as e:
-                self.logger.warning(f"Error getting tick stream from service: {str(e)}")
-        
-        # Fallback implementation - simulate streaming with polling
+                self.logger.warning(
+                    f'Error getting tick stream from service: {str(e)}')
+
+        @async_with_exception_handling
         async def polling_stream():
+    """
+    Polling stream.
+    
+    """
+
             last_timestamp = datetime.now() - timedelta(minutes=1)
-            
             while True:
                 try:
-                    # Get ticks since last timestamp
                     end_time = datetime.now()
-                    ticks = await self.get_tick_data(symbol, last_timestamp, end_time, 100)
-                    
+                    ticks = await self.get_tick_data(symbol, last_timestamp,
+                        end_time, 100)
                     if not ticks.empty:
-                        # Update last timestamp
-                        last_timestamp = ticks["timestamp"].max()
-                        
-                        # Call callback with new ticks
+                        last_timestamp = ticks['timestamp'].max()
                         callback(ticks)
-                    
-                    # Wait before next poll
                     await asyncio.sleep(1.0)
-                    
                 except Exception as e:
-                    self.logger.error(f"Error in tick polling stream: {str(e)}")
-                    await asyncio.sleep(5.0)  # Wait longer after error
-        
-        # Start polling task
+                    self.logger.error(f'Error in tick polling stream: {str(e)}'
+                        )
+                    await asyncio.sleep(5.0)
         task = asyncio.create_task(polling_stream())
         return task
-    
-    async def get_aggregated_ticks(self, 
-                                 symbol: str, 
-                                 start_time: datetime, 
-                                 end_time: datetime,
-                                 interval: str = "1m") -> pd.DataFrame:
+
+    @with_resilience('get_aggregated_ticks')
+    @async_with_exception_handling
+    async def get_aggregated_ticks(self, symbol: str, start_time: datetime,
+        end_time: datetime, interval: str='1m') ->pd.DataFrame:
         """
         Get aggregated tick data (OHLCV) for a symbol.
         
@@ -195,32 +178,22 @@ class TickDataServiceAdapter:
         """
         if self.service:
             try:
-                return await self.service.get_aggregated_ticks(symbol, start_time, end_time, interval)
+                return await self.service.get_aggregated_ticks(symbol,
+                    start_time, end_time, interval)
             except Exception as e:
-                self.logger.warning(f"Error getting aggregated ticks from service: {str(e)}")
-        
-        # Fallback to API call
+                self.logger.warning(
+                    f'Error getting aggregated ticks from service: {str(e)}')
         try:
-            params = {
-                "symbol": symbol,
-                "start_time": start_time.isoformat(),
-                "end_time": end_time.isoformat(),
-                "interval": interval
-            }
-            
-            response = await self.client.get("/ohlcv", params=params)
+            params = {'symbol': symbol, 'start_time': start_time.isoformat(
+                ), 'end_time': end_time.isoformat(), 'interval': interval}
+            response = await self.client.get('/ohlcv', params=params)
             response.raise_for_status()
-            
             data = response.json()
-            df = pd.DataFrame(data.get("candles", []))
-            
-            # Convert timestamp to datetime
-            if not df.empty and "timestamp" in df.columns:
-                df["timestamp"] = pd.to_datetime(df["timestamp"])
-                
+            df = pd.DataFrame(data.get('candles', []))
+            if not df.empty and 'timestamp' in df.columns:
+                df['timestamp'] = pd.to_datetime(df['timestamp'])
             return df
-            
         except Exception as e:
-            self.logger.error(f"Error fetching aggregated tick data from API: {str(e)}")
-            # Return empty DataFrame as fallback
+            self.logger.error(
+                f'Error fetching aggregated tick data from API: {str(e)}')
             return pd.DataFrame()

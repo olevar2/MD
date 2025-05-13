@@ -37,6 +37,13 @@ class ResilientHTTPClient:
     HTTP client with resilience patterns.
     
     This class provides:
+    """
+    provides class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     1. Retry mechanisms for transient HTTP errors
     2. Circuit breakers to prevent cascading failures
     3. Timeout handling for HTTP operations
@@ -149,6 +156,11 @@ class ResilientHTTPClient:
         
         # Define the request function
         def request_func():
+    """
+    Request func.
+    
+    """
+
             return requests.request(method, url, **kwargs)
         
         # Apply resilience patterns

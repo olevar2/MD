@@ -1,3 +1,9 @@
+"""
+Mfa provider module.
+
+This module provides functionality for...
+"""
+
 \
 import abc
 import logging
@@ -254,6 +260,17 @@ class EmailProvider(MFAProvider):
 # from .mfa_provider import TOTPProvider, SMSProvider, EmailProvider
 #
 # def get_mfa_provider(method: str) -> MFAProvider:
+    """
+    Get mfa provider.
+    
+    Args:
+        method: Description of method
+    
+    Returns:
+        MFAProvider: Description of return value
+    
+    """
+
 #     if method == 'totp':
 #         return TOTPProvider()
 #     elif method == 'sms':
@@ -264,6 +281,15 @@ class EmailProvider(MFAProvider):
 #         raise ValueError("Unsupported MFA method")
 #
 # def initiate_mfa_verification(user, preferred_method):
+    """
+    Initiate mfa verification.
+    
+    Args:
+        user: Description of user
+        preferred_method: Description of preferred_method
+    
+    """
+
 #     provider = get_mfa_provider(preferred_method)
 #     # For TOTP, UI prompts directly. For SMS/Email, trigger code sending here.
 #     if isinstance(provider, (SMSProvider, EmailProvider)):
@@ -271,11 +297,30 @@ class EmailProvider(MFAProvider):
 #     # UI Flow: Prompt user for code based on 'preferred_method'
 #
 # def complete_mfa_verification(user, method, code):
+    """
+    Complete mfa verification.
+    
+    Args:
+        user: Description of user
+        method: Description of method
+        code: Description of code
+    
+    """
+
 #     provider = get_mfa_provider(method)
 #     is_valid = provider.verify(user, code)
 #     # Update session, grant access, etc.
 #
 # def enroll_mfa(user, method):
+    """
+    Enroll mfa.
+    
+    Args:
+        user: Description of user
+        method: Description of method
+    
+    """
+
 #     provider = get_mfa_provider(method)
 #     enrollment_data = provider.enroll(user)
 #     # Return data to UI (e.g., QR code URI for TOTP)

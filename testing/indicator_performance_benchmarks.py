@@ -67,6 +67,15 @@ def timing_decorator(func):
     """Decorator to measure execution time of functions."""
     @wraps(func)
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         start_time = time.perf_counter()
         result = func(*args, **kwargs)
         end_time = time.perf_counter()

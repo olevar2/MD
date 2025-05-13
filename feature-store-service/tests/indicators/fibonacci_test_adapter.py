@@ -118,6 +118,14 @@ def create_fibonacci_test_suite(retracement_adapter: IFibonacciRetracement, exte
         """Test case for Fibonacci indicators using adapters."""
 
         def __init__(self, methodName='runTest'):
+    """
+      init  .
+    
+    Args:
+        methodName: Description of methodName
+    
+    """
+
             super().__init__(methodName)
             self.retracement_adapter = retracement_adapter
             self.extension_adapter = extension_adapter

@@ -126,6 +126,14 @@ class TestMemoryOptimizedDataFrame(unittest.TestCase):
         """Test adding a computed column."""
         # Define a function to compute a column
         def compute_sum(df):
+    """
+    Compute sum.
+    
+    Args:
+        df: Description of df
+    
+    """
+
             return df['int_col'] + df['float_col']
 
         # Add a computed column

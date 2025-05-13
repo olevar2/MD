@@ -15,6 +15,14 @@ class MarketScenarioGenerator:
     """
 
     def __init__(self, config):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+    
+    """
+
         self.config = config # Store the main config
         self.scenario_config = config.get('market_scenario', {}) # Get scenario-specific config
         self.symbols = self.scenario_config.get('symbols', ["EURUSD", "GBPUSD", "USDJPY"])

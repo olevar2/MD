@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: monitoring-alerting-service
+  name: monitoring-alerting-service
+spec:
+  ports:
+  - name: http
+    port: 8008
+    targetPort: 8008
+  selector:
+    app: monitoring-alerting-service

@@ -42557,8 +42557,8 @@ forex_trading_platform/
 │   │   │   │   ├── feature_store_adapter.py
 │   │   │   │   └── learning_adaptive_integration.py
 │   │   │   ├── interfaces/
-│   │   │   │   ├── IAdvancedIndicator.py
-│   │   │   │   └── IPatternRecognizer.py
+│   │   │   │   ├── i_advanced_indicator.py
+│   │   │   │   └── i_pattern_recognizer.py
 │   │   │   ├── learning_from_mistakes/
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── effectiveness_logger.py
@@ -42793,11 +42793,11 @@ forex_trading_platform/
 │   │   │   │   └── test_detection_quality.py
 │   │   ├── ui/
 │   │   │   ├── api/
-│   │   │   │   └── apiClient.js
+│   │   │   │   └── api-client.js
 │   │   │   ├── components/
-│   │   │   │   ├── AnalysisDashboard.js
-│   │   │   │   ├── ConfluenceDetectionWidget.js
-│   │   │   │   └── DivergenceAnalysisWidget.js
+│   │   │   │   ├── analysis-dashboard.js
+│   │   │   │   ├── confluence-detection-widget.js
+│   │   │   │   └── divergence-analysis-widget.js
 │   ├── analysis_engine/
 │   │   └── __init__.py
 │   │   ├── analysis/
@@ -42827,7 +42827,7 @@ forex_trading_platform/
 │   │   └── directory_structure.txt
 │   ├── assessment_results/
 │   ├── chat_interface_template/
-│   │   ├── ChatBackendService.py
+│   │   ├── chat_backend_service.py
 │   │   ├── ChatInterface.tsx
 │   │   ├── ChatService.ts
 │   │   ├── README.md
@@ -42842,9 +42842,9 @@ forex_trading_platform/
 │   │   ├── .pre-commit-config.yaml
 │   │   ├── .prettierrc.json
 │   │   ├── README.md
-│   │   ├── apiClient.js
+│   │   ├── api-client.js
 │   │   ├── errorBridge.ts
-│   │   ├── errorHandler.js
+│   │   ├── error-handler.js
 │   │   ├── errors.js
 │   │   ├── errors.ts
 │   │   ├── index.js
@@ -42855,7 +42855,7 @@ forex_trading_platform/
 │   │   ├── docs/
 │   │   │   └── error_handling.md
 │   │   ├── templates/
-│   │   │   └── ServiceClientTemplate.ts
+│   │   │   └── service-client-template.ts
 │   │   ├── test/
 │   │   │   └── security.test.js
 │   ├── common-lib/
@@ -43707,7 +43707,7 @@ forex_trading_platform/
 │   │   │   │   │   ├── utils.py
 │   │   │   │   │   └── vix.py
 │   │   │   ├── interfaces/
-│   │   │   │   └── IIndicator.py
+│   │   │   │   └── i_indicator.py
 │   │   │   ├── logging/
 │   │   │   │   ├── enhanced_logging.py
 │   │   │   │   └── indicator_logging.py
@@ -43996,7 +43996,7 @@ forex_trading_platform/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_enhanced_integration.py
 │   │   │   └── test_ml_integration.py
-│   ├── ml-workbench-service/
+│   ├── ml_workbench-service/
 │   │   ├── .env.example
 │   │   ├── .pre-commit-config.yaml
 │   │   ├── .pylintrc
@@ -52768,7 +52768,7 @@ forex_trading_platform/
 │   │   │   │   │   ├── monitoring.js
 │   │   │   │   │   └── performance.js
 │   │   │   ├── middleware/
-│   │   │   │   └── errorHandler.js
+│   │   │   │   └── error-handler.js
 │   │   │   ├── utils/
 │   │   │   │   ├── errorBridge.js
 │   │   │   │   ├── errors.js
@@ -52909,29 +52909,29 @@ forex_trading_platform/
 │   │   │   └── service-worker.js
 │   │   ├── src/
 │   │   │   ├── api/
-│   │   │   │   ├── apiClient.ts
+│   │   │   │   ├── api-client.ts
 │   │   │   │   └── strategy-api.ts
 │   │   │   ├── components/
-│   │   │   │   ├── ABTestMonitor.tsx
-│   │   │   │   ├── AssetDetailView.jsx
-│   │   │   │   ├── CausalDashboard.tsx
-│   │   │   │   ├── FeedbackDashboard.tsx
-│   │   │   │   ├── ModelExplainabilityVisualization.tsx
-│   │   │   │   ├── MultiAssetPortfolioDashboard.jsx
-│   │   │   │   ├── NetworkGraph.tsx
-│   │   │   │   ├── ParameterTuningInterface.tsx
-│   │   │   │   ├── PortfolioBreakdown.tsx
-│   │   │   │   ├── PositionMonitoringDashboard.jsx
-│   │   │   │   ├── RLEnvironmentConfig.tsx
-│   │   │   │   ├── RLTrainingDashboard.tsx
-│   │   │   │   ├── RegimeAwareDashboard.tsx
-│   │   │   │   ├── SignalVisualization.jsx
-│   │   │   │   └── SignalVisualizer.tsx
+│   │   │   │   ├── ab-test-monitor.tsx
+│   │   │   │   ├── asset-detail-view.jsx
+│   │   │   │   ├── causal-dashboard.tsx
+│   │   │   │   ├── feedback-dashboard.tsx
+│   │   │   │   ├── model-explainability-visualization.tsx
+│   │   │   │   ├── multi-asset-portfolio-dashboard.jsx
+│   │   │   │   ├── network-graph.tsx
+│   │   │   │   ├── parameter-tuning-interface.tsx
+│   │   │   │   ├── portfolio-breakdown.tsx
+│   │   │   │   ├── position-monitoring-dashboard.jsx
+│   │   │   │   ├── rl-environment-config.tsx
+│   │   │   │   ├── rl-training-dashboard.tsx
+│   │   │   │   ├── regime-aware-dashboard.tsx
+│   │   │   │   ├── signal-visualization.jsx
+│   │   │   │   └── signal-visualizer.tsx
 │   │   │   │   ├── analysis/
 │   │   │   │   │   ├── AnalysisCharting.tsx
 │   │   │   │   │   ├── ConfluenceHighlighting.tsx
 │   │   │   │   │   └── InteractiveAnalysisTools.tsx
-│   │   │   │   ├── asset-detail/
+│   │   │   │   ├── asset_detail/
 │   │   │   │   │   ├── CryptoDetails.jsx
 │   │   │   │   │   ├── ForexDetails.jsx
 │   │   │   │   │   └── StockDetails.jsx
@@ -52964,14 +52964,14 @@ forex_trading_platform/
 │   │   │   │   │   └── GlobalErrorBoundary.tsx
 │   │   │   │   ├── dashboard/
 │   │   │   │   │   ├── AdvancedTradingDashboard.tsx
-│   │   │   │   │   ├── RegimeAwareDashboard.tsx
+│   │   │   │   │   ├── regime-aware-dashboard.tsx
 │   │   │   │   │   ├── RegimeIndicator.tsx
 │   │   │   │   │   └── TradingDashboard.tsx
 │   │   │   │   │   ├── __tests__/
 │   │   │   │   │   │   └── RegimeAwareDashboard.test.tsx
 │   │   │   │   ├── documentation/
 │   │   │   │   │   └── PhaseDocumentation.tsx
-│   │   │   │   ├── feedback-loop/
+│   │   │   │   ├── feedback_loop/
 │   │   │   │   │   ├── FeedbackLoopDashboard.tsx
 │   │   │   │   │   ├── HistoricalTrendAnalysis.tsx
 │   │   │   │   │   ├── ParameterCrossRegimeAnalysis.tsx
@@ -52989,10 +52989,10 @@ forex_trading_platform/
 │   │   │   │   │   └── DashboardLayout.tsx
 │   │   │   │   ├── ml/
 │   │   │   │   │   ├── MLConfirmationFilter.tsx
-│   │   │   │   │   ├── ModelExplainabilityVisualization.tsx
+│   │   │   │   │   ├── model-explainability-visualization.tsx
 │   │   │   │   │   ├── RLEnvironmentConfigurator.tsx
-│   │   │   │   │   └── RLTrainingDashboard.tsx
-│   │   │   │   ├── ml-workbench/
+│   │   │   │   │   └── rl-training-dashboard.tsx
+│   │   │   │   ├── ml_workbench/
 │   │   │   │   │   └── RLTrainingVisualization.jsx
 │   │   │   │   ├── monitoring/
 │   │   │   │   │   └── RealTimeMonitoringDisplays.tsx
@@ -53002,7 +53002,7 @@ forex_trading_platform/
 │   │   │   │   ├── portfolio/
 │   │   │   │   │   └── PortfolioManagement.tsx
 │   │   │   │   ├── reinforcement/
-│   │   │   │   │   └── RLTrainingDashboard.tsx
+│   │   │   │   │   └── rl-training-dashboard.tsx
 │   │   │   │   ├── settings/
 │   │   │   │   │   ├── ApiKeyDialog.tsx
 │   │   │   │   │   ├── IndicatorSelector.tsx
@@ -53018,12 +53018,12 @@ forex_trading_platform/
 │   │   │   │   │   ├── OrderEntry.tsx
 │   │   │   │   │   ├── OrdersList.tsx
 │   │   │   │   │   ├── PositionsMonitor.tsx
-│   │   │   │   │   ├── SignalVisualizer.tsx
+│   │   │   │   │   ├── signal-visualizer.tsx
 │   │   │   │   │   ├── TouchControls.tsx
 │   │   │   │   │   ├── TradingDashboard.tsx
 │   │   │   │   │   ├── TradingSignals.tsx
 │   │   │   │   │   └── Watchlist.tsx
-│   │   │   │   ├── ui-library/
+│   │   │   │   ├── ui_library/
 │   │   │   │   │   ├── Button.tsx
 │   │   │   │   │   ├── Card.tsx
 │   │   │   │   │   ├── Chart.tsx
@@ -53056,7 +53056,7 @@ forex_trading_platform/
 │   │   │   │   ├── Settings.tsx
 │   │   │   │   ├── SystemHealth.tsx
 │   │   │   │   └── _app.tsx
-│   │   │   │   ├── chat-demo/
+│   │   │   │   ├── chat_demo/
 │   │   │   │   │   └── index.tsx
 │   │   │   │   ├── dashboard/
 │   │   │   │   │   ├── index.tsx

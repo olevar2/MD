@@ -265,6 +265,14 @@ def cache_indicator(
         Decorated function
     """
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         def wrapper(
             self,
             symbol: str,
@@ -272,6 +280,17 @@ def cache_indicator(
             data: pd.DataFrame,
             **kwargs
         ):
+    """
+    Wrapper.
+    
+    Args:
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        data: Description of data
+        kwargs: Description of kwargs
+    
+    """
+
             # Get indicator name from function name
             indicator_name = func.__name__
             

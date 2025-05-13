@@ -308,6 +308,15 @@ async def test_async_indicator_calculation():
     import asyncio
     
     async def calculate_indicator(name, params):
+    """
+    Calculate indicator.
+    
+    Args:
+        name: Description of name
+        params: Description of params
+    
+    """
+
         # In real implementation, this would call an async service
         await asyncio.sleep(0.1)  # Simulate async operation
         return registry.calculate(name, price_data, **params)

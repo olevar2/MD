@@ -3,34 +3,29 @@ Adapter API Module
 
 This module provides API endpoints that use the adapter pattern.
 """
-
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 import logging
-
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from pydantic import BaseModel
-
 from common_lib.interfaces.analysis_engine import IAnalysisProvider, IIndicatorProvider, IPatternRecognizer
-from common_lib.errors.base_exceptions import (
-    BaseError, ValidationError, DataError, ServiceError
-)
-
+from common_lib.errors.base_exceptions import BaseError, ValidationError, DataError, ServiceError
 from analysis_engine.api.dependencies import get_analysis_provider, get_indicator_provider, get_pattern_recognizer
 from analysis_engine.core.logging import get_logger
+logger = get_logger('analysis-engine-service.adapter-api')
+adapter_router = APIRouter(prefix='/api/v1/adapter', tags=['adapter'],
+    responses={(404): {'description': 'Not found'}})
 
-# Configure logging
-logger = get_logger("analysis-engine-service.adapter-api")
 
-# Create router
-adapter_router = APIRouter(
-    prefix="/api/v1/adapter",
-    tags=["adapter"],
-    responses={404: {"description": "Not found"}}
+from analysis_engine.core.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
 )
 
-
-# Response models
 class AnalysisResponse(BaseModel):
     """Response model for analysis."""
     symbol: str
@@ -57,16 +52,18 @@ class PatternResponse(BaseModel):
     category: str
 
 
-@adapter_router.get("/analysis/{symbol}/{timeframe}", response_model=AnalysisResponse)
-async def get_analysis(
-    symbol: str = Path(..., description="The trading symbol (e.g., 'EURUSD')"),
-    timeframe: str = Path(..., description="The timeframe (e.g., '1m', '5m', '1h', '1d')"),
-    start_time: datetime = Query(..., description="Start time for the data"),
-    end_time: Optional[datetime] = Query(None, description="End time for the data"),
-    indicators: Optional[List[str]] = Query(None, description="List of indicators to include"),
-    patterns: Optional[List[str]] = Query(None, description="List of patterns to detect"),
-    analysis_provider: IAnalysisProvider = Depends(get_analysis_provider)
-):
+@adapter_router.get('/analysis/{symbol}/{timeframe}', response_model=
+    AnalysisResponse)
+@async_with_exception_handling
+async def get_analysis(symbol: str=Path(..., description=
+    "The trading symbol (e.g., 'EURUSD')"), timeframe: str=Path(...,
+    description="The timeframe (e.g., '1m', '5m', '1h', '1d')"), start_time:
+    datetime=Query(..., description='Start time for the data'), end_time:
+    Optional[datetime]=Query(None, description='End time for the data'),
+    indicators: Optional[List[str]]=Query(None, description=
+    'List of indicators to include'), patterns: Optional[List[str]]=Query(
+    None, description='List of patterns to detect'), analysis_provider:
+    IAnalysisProvider=Depends(get_analysis_provider)):
     """
     Get analysis for a symbol.
     
@@ -83,46 +80,34 @@ async def get_analysis(
         AnalysisResponse containing the analysis results
     """
     try:
-        # Call the analysis provider
-        result = await analysis_provider.analyze_market_data(
-            symbol=symbol,
-            timeframe=timeframe,
-            start_time=start_time,
-            end_time=end_time,
-            indicators=indicators,
-            patterns=patterns
-        )
-        
-        # Convert to response model
-        return AnalysisResponse(
-            symbol=symbol,
-            timeframe=timeframe,
-            start_time=start_time,
-            end_time=end_time,
-            indicators=result.get("indicators", {}),
-            patterns=result.get("patterns", {})
-        )
+        result = await analysis_provider.analyze_market_data(symbol=symbol,
+            timeframe=timeframe, start_time=start_time, end_time=end_time,
+            indicators=indicators, patterns=patterns)
+        return AnalysisResponse(symbol=symbol, timeframe=timeframe,
+            start_time=start_time, end_time=end_time, indicators=result.get
+            ('indicators', {}), patterns=result.get('patterns', {}))
     except ValidationError as e:
-        logger.warning(f"Validation error: {str(e)}")
+        logger.warning(f'Validation error: {str(e)}')
         raise HTTPException(status_code=400, detail=str(e))
     except DataError as e:
-        logger.warning(f"Data error: {str(e)}")
+        logger.warning(f'Data error: {str(e)}')
         raise HTTPException(status_code=404, detail=str(e))
     except ServiceError as e:
-        logger.error(f"Service error: {str(e)}")
+        logger.error(f'Service error: {str(e)}')
         raise HTTPException(status_code=503, detail=str(e))
     except BaseError as e:
-        logger.error(f"Base error: {str(e)}")
+        logger.error(f'Base error: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        logger.error(f'Unexpected error: {str(e)}')
+        raise HTTPException(status_code=500, detail=
+            f'Unexpected error: {str(e)}')
 
 
-@adapter_router.get("/indicators", response_model=List[IndicatorResponse])
-async def get_indicators(
-    indicator_provider: IIndicatorProvider = Depends(get_indicator_provider)
-):
+@adapter_router.get('/indicators', response_model=List[IndicatorResponse])
+@async_with_exception_handling
+async def get_indicators(indicator_provider: IIndicatorProvider=Depends(
+    get_indicator_provider)):
     """
     Get available indicators.
     
@@ -133,34 +118,27 @@ async def get_indicators(
         List of IndicatorResponse containing information about available indicators
     """
     try:
-        # Call the indicator provider
         result = await indicator_provider.get_all_indicators_info()
-        
-        # Convert to response model
-        return [
-            IndicatorResponse(
-                name=indicator.get("name", ""),
-                description=indicator.get("description", ""),
-                parameters=indicator.get("parameters", {}),
-                category=indicator.get("category", "")
-            )
-            for indicator in result
-        ]
+        return [IndicatorResponse(name=indicator.get('name', ''),
+            description=indicator.get('description', ''), parameters=
+            indicator.get('parameters', {}), category=indicator.get(
+            'category', '')) for indicator in result]
     except ServiceError as e:
-        logger.error(f"Service error: {str(e)}")
+        logger.error(f'Service error: {str(e)}')
         raise HTTPException(status_code=503, detail=str(e))
     except BaseError as e:
-        logger.error(f"Base error: {str(e)}")
+        logger.error(f'Base error: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        logger.error(f'Unexpected error: {str(e)}')
+        raise HTTPException(status_code=500, detail=
+            f'Unexpected error: {str(e)}')
 
 
-@adapter_router.get("/patterns", response_model=List[PatternResponse])
-async def get_patterns(
-    pattern_recognizer: IPatternRecognizer = Depends(get_pattern_recognizer)
-):
+@adapter_router.get('/patterns', response_model=List[PatternResponse])
+@async_with_exception_handling
+async def get_patterns(pattern_recognizer: IPatternRecognizer=Depends(
+    get_pattern_recognizer)):
     """
     Get available patterns.
     
@@ -171,25 +149,18 @@ async def get_patterns(
         List of PatternResponse containing information about available patterns
     """
     try:
-        # Call the pattern recognizer
         result = await pattern_recognizer.get_all_patterns_info()
-        
-        # Convert to response model
-        return [
-            PatternResponse(
-                name=pattern.get("name", ""),
-                description=pattern.get("description", ""),
-                parameters=pattern.get("parameters", {}),
-                category=pattern.get("category", "")
-            )
-            for pattern in result
-        ]
+        return [PatternResponse(name=pattern.get('name', ''), description=
+            pattern.get('description', ''), parameters=pattern.get(
+            'parameters', {}), category=pattern.get('category', '')) for
+            pattern in result]
     except ServiceError as e:
-        logger.error(f"Service error: {str(e)}")
+        logger.error(f'Service error: {str(e)}')
         raise HTTPException(status_code=503, detail=str(e))
     except BaseError as e:
-        logger.error(f"Base error: {str(e)}")
+        logger.error(f'Base error: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        logger.error(f'Unexpected error: {str(e)}')
+        raise HTTPException(status_code=500, detail=
+            f'Unexpected error: {str(e)}')

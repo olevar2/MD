@@ -398,8 +398,8 @@
             "learning_adaptive_integration.py": null
           },
           "interfaces/": {
-            "IAdvancedIndicator.py": null,
-            "IPatternRecognizer.py": null
+            "i_advanced_indicator.py": null,
+            "i_pattern_recognizer.py": null
           },
           "learning_from_mistakes/": {
             "effectiveness_logger.py": null,
@@ -686,12 +686,12 @@
         "test_config.py": null,
         "ui/": {
           "api/": {
-            "apiClient.js": null
+            "api-client.js": null
           },
           "components/": {
-            "AnalysisDashboard.js": null,
-            "ConfluenceDetectionWidget.js": null,
-            "DivergenceAnalysisWidget.js": null
+            "analysis-dashboard.js": null,
+            "confluence-detection-widget.js": null,
+            "divergence-analysis-widget.js": null
           }
         }
       },
@@ -725,7 +725,7 @@
       "caching_optimization_summary.md": null,
       "chat_interface_template/": {
         "api_endpoints.py": null,
-        "ChatBackendService.py": null,
+        "chat_backend_service.py": null,
         "ChatInterface.tsx": null,
         "ChatService.ts": null,
         "integration_guide.md": null,
@@ -741,12 +741,12 @@
         ".eslintrc.js": null,
         ".pre-commit-config.yaml": null,
         ".prettierrc.json": null,
-        "apiClient.js": null,
+        "api-client.js": null,
         "docs/": {
           "error_handling.md": null
         },
         "errorBridge.ts": null,
-        "errorHandler.js": null,
+        "error-handler.js": null,
         "errors.js": null,
         "errors.ts": null,
         "index.js": null,
@@ -756,7 +756,7 @@
         "resilience.js": null,
         "security.js": null,
         "templates/": {
-          "ServiceClientTemplate.ts": null
+          "service-client-template.ts": null
         },
         "test/": {
           "security.test.js": null
@@ -1693,7 +1693,7 @@
             "volume.py": null
           },
           "interfaces/": {
-            "IIndicator.py": null
+            "i_indicator.py": null
           },
           "logging/": {
             "enhanced_logging.py": null,
@@ -2065,7 +2065,7 @@
           "test_ml_integration.py": null
         }
       },
-      "ml-workbench-service/": {
+      "ml_workbench-service/": {
         ".env.example": null,
         ".pre-commit-config.yaml": null,
         ".pylintrc": null,
@@ -3460,7 +3460,7 @@
           },
           "app.js": null,
           "middleware/": {
-            "errorHandler.js": null
+            "error-handler.js": null
           },
           "utils/": {
             "errorBridge.js": null,
@@ -3614,23 +3614,23 @@
         "SERVICE_CHECKLIST.md": null,
         "src/": {
           "api/": {
-            "apiClient.ts": null,
+            "api-client.ts": null,
             "strategy-api.ts": null
           },
           "components/": {
-            "ABTestMonitor.tsx": null,
+            "ab-test-monitor.tsx": null,
             "analysis/": {
               "AnalysisCharting.tsx": null,
               "ConfluenceHighlighting.tsx": null,
               "InteractiveAnalysisTools.tsx": null
             },
-            "asset-detail/": {
+            "asset_detail/": {
               "CryptoDetails.jsx": null,
               "ForexDetails.jsx": null,
               "StockDetails.jsx": null
             },
-            "AssetDetailView.jsx": null,
-            "CausalDashboard.tsx": null,
+            "asset-detail-view.jsx": null,
+            "causal-dashboard.tsx": null,
             "chart/": {
               "Chart.tsx": null,
               "ChartControlPanel.tsx": null,
@@ -3664,7 +3664,7 @@
             },
             "dashboard/": {
               "AdvancedTradingDashboard.tsx": null,
-              "RegimeAwareDashboard.tsx": null,
+              "regime-aware-dashboard.tsx": null,
               "RegimeIndicator.tsx": null,
               "TradingDashboard.tsx": null,
               "__tests__/": {
@@ -3674,14 +3674,14 @@
             "documentation/": {
               "PhaseDocumentation.tsx": null
             },
-            "feedback-loop/": {
+            "feedback_loop/": {
               "FeedbackLoopDashboard.tsx": null,
               "HistoricalTrendAnalysis.tsx": null,
               "ParameterCrossRegimeAnalysis.tsx": null,
               "ParameterEffectivenessCard.tsx": null,
               "ParameterInsightsPanel.tsx": null
             },
-            "FeedbackDashboard.tsx": null,
+            "feedback-dashboard.tsx": null,
             "health/": {
               "HealthSummary.tsx": null,
               "MetricChart.tsx": null,
@@ -3697,42 +3697,42 @@
             },
             "ml/": {
               "MLConfirmationFilter.tsx": null,
-              "ModelExplainabilityVisualization.tsx": null,
+              "model-explainability-visualization.tsx": null,
               "RLEnvironmentConfigurator.tsx": null,
-              "RLTrainingDashboard.tsx": null
+              "rl-training-dashboard.tsx": null
             },
-            "ml-workbench/": {
+            "ml_workbench/": {
               "RLTrainingVisualization.jsx": null
             },
-            "ModelExplainabilityVisualization.tsx": null,
+            "model-explainability-visualization.tsx": null,
             "monitoring/": {
               "RealTimeMonitoringDisplays.tsx": null
             },
-            "MultiAssetPortfolioDashboard.jsx": null,
+            "multi-asset-portfolio-dashboard.jsx": null,
             "navigation/": {
               "MainNavigation.tsx": null,
               "MobileNavigation.tsx": null
             },
-            "NetworkGraph.tsx": null,
-            "ParameterTuningInterface.tsx": null,
+            "network-graph.tsx": null,
+            "parameter-tuning-interface.tsx": null,
             "portfolio/": {
               "PortfolioManagement.tsx": null
             },
-            "PortfolioBreakdown.tsx": null,
-            "PositionMonitoringDashboard.jsx": null,
-            "RegimeAwareDashboard.tsx": null,
+            "portfolio-breakdown.tsx": null,
+            "position-monitoring-dashboard.jsx": null,
+            "regime-aware-dashboard.tsx": null,
             "reinforcement/": {
-              "RLTrainingDashboard.tsx": null
+              "rl-training-dashboard.tsx": null
             },
-            "RLEnvironmentConfig.tsx": null,
-            "RLTrainingDashboard.tsx": null,
+            "rl-environment-config.tsx": null,
+            "rl-training-dashboard.tsx": null,
             "settings/": {
               "ApiKeyDialog.tsx": null,
               "IndicatorSelector.tsx": null,
               "Setup2FADialog.tsx": null
             },
-            "SignalVisualization.jsx": null,
-            "SignalVisualizer.tsx": null,
+            "signal-visualization.jsx": null,
+            "signal-visualizer.tsx": null,
             "strategy/": {
               "AdaptiveStrategySettings.tsx": null,
               "ParameterConfigurator.tsx": null,
@@ -3745,13 +3745,13 @@
               "OrderEntry.tsx": null,
               "OrdersList.tsx": null,
               "PositionsMonitor.tsx": null,
-              "SignalVisualizer.tsx": null,
+              "signal-visualizer.tsx": null,
               "TouchControls.tsx": null,
               "TradingDashboard.tsx": null,
               "TradingSignals.tsx": null,
               "Watchlist.tsx": null
             },
-            "ui-library/": {
+            "ui_library/": {
               "Button.tsx": null,
               "Card.tsx": null,
               "Chart.tsx": null,
@@ -3787,7 +3787,7 @@
             "useWebSocket.ts": null
           },
           "pages/": {
-            "chat-demo/": {
+            "chat_demo/": {
               "index.tsx": null
             },
             "dashboard/": {
@@ -13584,7 +13584,7 @@
     },
     {
       "name": "analysis-engine-service.analysis_engine.interfaces.IAdvancedIndicator",
-      "file_path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\IAdvancedIndicator.py",
+      "file_path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\i_advanced_indicator.py",
       "classes": [],
       "functions": [],
       "imports": [],
@@ -13592,7 +13592,7 @@
     },
     {
       "name": "analysis-engine-service.analysis_engine.interfaces.IPatternRecognizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\IPatternRecognizer.py",
+      "file_path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\i_pattern_recognizer.py",
       "classes": [],
       "functions": [],
       "imports": [],
@@ -36665,7 +36665,7 @@
     },
     {
       "name": "feature-store-service.feature_store_service.interfaces.IIndicator",
-      "file_path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\interfaces\\IIndicator.py",
+      "file_path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\interfaces\\i_indicator.py",
       "classes": [],
       "functions": [],
       "imports": [],
@@ -42124,8 +42124,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.examples.hardware_specific_optimization_example",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\examples\\hardware_specific_optimization_example.py",
+      "name": "ml_workbench-service.examples.hardware_specific_optimization_example",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\examples\\hardware_specific_optimization_example.py",
       "classes": [
         {
           "name": "SimpleModel",
@@ -42167,8 +42167,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.examples.ml_optimization_example",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\examples\\ml_optimization_example.py",
+      "name": "ml_workbench-service.examples.ml_optimization_example",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\examples\\ml_optimization_example.py",
       "classes": [
         {
           "name": "SimpleModel",
@@ -42222,8 +42222,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.examples.ml_pipeline_integration_example",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\examples\\ml_pipeline_integration_example.py",
+      "name": "ml_workbench-service.examples.ml_pipeline_integration_example",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\examples\\ml_pipeline_integration_example.py",
       "classes": [
         {
           "name": "PricePredictorModel",
@@ -42272,8 +42272,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.examples.ml_profiling_monitor_example",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\examples\\ml_profiling_monitor_example.py",
+      "name": "ml_workbench-service.examples.ml_profiling_monitor_example",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\examples\\ml_profiling_monitor_example.py",
       "classes": [
         {
           "name": "SimpleModel",
@@ -42315,8 +42315,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.examples.news_sentiment_rl_pipeline",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\examples\\news_sentiment_rl_pipeline.py",
+      "name": "ml_workbench-service.examples.news_sentiment_rl_pipeline",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\examples\\news_sentiment_rl_pipeline.py",
       "classes": [],
       "functions": [
         {
@@ -42342,16 +42342,16 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.main",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\main.py",
+      "name": "ml_workbench-service.ml_workbench_service.main",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\main.py",
       "classes": [],
       "functions": [],
       "imports": [],
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.rl_model_factory",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\rl_model_factory.py",
+      "name": "ml_workbench-service.ml_workbench_service.rl_model_factory",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\rl_model_factory.py",
       "classes": [
         {
           "name": "RLAlgorithm",
@@ -42386,8 +42386,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.adapters.analysis_adapters",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\analysis_adapters.py",
+      "name": "ml_workbench-service.ml_workbench_service.adapters.analysis_adapters",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\adapters\\analysis_adapters.py",
       "classes": [
         {
           "name": "AnalysisEngineAdapter",
@@ -42423,8 +42423,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.adapters.analysis_engine_adapter",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\analysis_engine_adapter.py",
+      "name": "ml_workbench-service.ml_workbench_service.adapters.analysis_engine_adapter",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\adapters\\analysis_engine_adapter.py",
       "classes": [
         {
           "name": "MarketRegimeAnalyzerAdapter",
@@ -42460,8 +42460,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.adapters.risk_adapters",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\risk_adapters.py",
+      "name": "ml_workbench-service.ml_workbench_service.adapters.risk_adapters",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\adapters\\risk_adapters.py",
       "classes": [
         {
           "name": "RiskManagerAdapter",
@@ -42488,8 +42488,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.adapters.risk_optimizer_adapter",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\risk_optimizer_adapter.py",
+      "name": "ml_workbench-service.ml_workbench_service.adapters.risk_optimizer_adapter",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\adapters\\risk_optimizer_adapter.py",
       "classes": [
         {
           "name": "RiskParametersAdapter",
@@ -42528,8 +42528,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.adapters.simulation_adapters",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\simulation_adapters.py",
+      "name": "ml_workbench-service.ml_workbench_service.adapters.simulation_adapters",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\adapters\\simulation_adapters.py",
       "classes": [
         {
           "name": "MarketRegimeSimulatorAdapter",
@@ -42580,8 +42580,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.adapters.trading_feedback_adapter",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\trading_feedback_adapter.py",
+      "name": "ml_workbench-service.ml_workbench_service.adapters.trading_feedback_adapter",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\adapters\\trading_feedback_adapter.py",
       "classes": [
         {
           "name": "TradingFeedbackCollectorAdapter",
@@ -42606,24 +42606,24 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.dataset_api",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\dataset_api.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.dataset_api",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\dataset_api.py",
       "classes": [],
       "functions": [],
       "imports": [],
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.experiment_api",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\experiment_api.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.experiment_api",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\experiment_api.py",
       "classes": [],
       "functions": [],
       "imports": [],
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.model_api",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\model_api.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.model_api",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\model_api.py",
       "classes": [
         {
           "name": "ModelCreate",
@@ -42649,8 +42649,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.model_registry_api",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\model_registry_api.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.model_registry_api",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\model_registry_api.py",
       "classes": [
         {
           "name": "ModelRegistryCreateRequest",
@@ -42700,16 +42700,16 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.security",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\security.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.security",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\security.py",
       "classes": [],
       "functions": [],
       "imports": [],
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.routes.model_registry",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\routes\\model_registry.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.routes.model_registry",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\routes\\model_registry.py",
       "classes": [
         {
           "name": "ModelRegistrationRequest",
@@ -42769,8 +42769,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.v1.model_registry",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\v1\\model_registry.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.v1.model_registry",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\v1\\model_registry.py",
       "classes": [
         {
           "name": "ModelRegistrationRequest",
@@ -42830,8 +42830,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.v1.prediction_api",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\v1\\prediction_api.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.v1.prediction_api",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\v1\\prediction_api.py",
       "classes": [
         {
           "name": "PredictionRequest",
@@ -42867,8 +42867,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.api.v1.transfer_learning",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\v1\\transfer_learning.py",
+      "name": "ml_workbench-service.ml_workbench_service.api.v1.transfer_learning",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\v1\\transfer_learning.py",
       "classes": [
         {
           "name": "TransferCandidate",
@@ -42910,16 +42910,16 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.backtesting.rl_backtester",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\backtesting\\rl_backtester.py",
+      "name": "ml_workbench-service.ml_workbench_service.backtesting.rl_backtester",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\backtesting\\rl_backtester.py",
       "classes": [],
       "functions": [],
       "imports": [],
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.clients.feature_store_client",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\clients\\feature_store_client.py",
+      "name": "ml_workbench-service.ml_workbench_service.clients.feature_store_client",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\clients\\feature_store_client.py",
       "classes": [
         {
           "name": "FeatureStoreClient",
@@ -42947,8 +42947,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.clients.ml_prediction_client",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\clients\\ml_prediction_client.py",
+      "name": "ml_workbench-service.ml_workbench_service.clients.ml_prediction_client",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\clients\\ml_prediction_client.py",
       "classes": [
         {
           "name": "MLPredictionClient",
@@ -42973,8 +42973,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.clients.transfer_learning_client",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\clients\\transfer_learning_client.py",
+      "name": "ml_workbench-service.ml_workbench_service.clients.transfer_learning_client",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\clients\\transfer_learning_client.py",
       "classes": [
         {
           "name": "TransferLearningClient",
@@ -43015,8 +43015,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.config.mlflow_config",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\config\\mlflow_config.py",
+      "name": "ml_workbench-service.ml_workbench_service.config.mlflow_config",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\config\\mlflow_config.py",
       "classes": [
         {
           "name": "MLflowSettings",
@@ -43037,8 +43037,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.core.logging",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\core\\logging.py",
+      "name": "ml_workbench-service.ml_workbench_service.core.logging",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\core\\logging.py",
       "classes": [
         {
           "name": "CorrelationFilter",
@@ -43059,8 +43059,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.effectiveness.rl_tool_effectiveness",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\effectiveness\\rl_tool_effectiveness.py",
+      "name": "ml_workbench-service.ml_workbench_service.effectiveness.rl_tool_effectiveness",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\effectiveness\\rl_tool_effectiveness.py",
       "classes": [
         {
           "name": "EffectivenessMetricType",
@@ -43123,8 +43123,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.explainability.explainability_module",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\explainability\\explainability_module.py",
+      "name": "ml_workbench-service.ml_workbench_service.explainability.explainability_module",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\explainability\\explainability_module.py",
       "classes": [
         {
           "name": "ModelExplainer",
@@ -43249,8 +43249,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.feedback.model_training_feedback",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\feedback\\model_training_feedback.py",
+      "name": "ml_workbench-service.ml_workbench_service.feedback.model_training_feedback",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\feedback\\model_training_feedback.py",
       "classes": [
         {
           "name": "ModelFeedbackConfig",
@@ -43307,8 +43307,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.dataset_models",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\dataset_models.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.dataset_models",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\dataset_models.py",
       "classes": [
         {
           "name": "DatasetSource",
@@ -43379,8 +43379,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.experiment_models",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\experiment_models.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.experiment_models",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\experiment_models.py",
       "classes": [
         {
           "name": "ExperimentStatus",
@@ -43458,8 +43458,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.forex_lstm_model",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\forex_lstm_model.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.forex_lstm_model",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\forex_lstm_model.py",
       "classes": [
         {
           "name": "ForexLSTMModel",
@@ -43502,8 +43502,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.model_models",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\model_models.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.model_models",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\model_models.py",
       "classes": [
         {
           "name": "ModelType",
@@ -43556,8 +43556,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.schemas",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\schemas.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.schemas",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\schemas.py",
       "classes": [
         {
           "name": "ExperimentStatus",
@@ -43693,8 +43693,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.multitask.multitask_model",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\multitask\\multitask_model.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.multitask.multitask_model",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\multitask\\multitask_model.py",
       "classes": [
         {
           "name": "TaskType",
@@ -43744,8 +43744,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.curriculum_learning",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\curriculum_learning.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.curriculum_learning",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\curriculum_learning.py",
       "classes": [
         {
           "name": "TrainingStage",
@@ -43818,8 +43818,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.enhanced_rl_env",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\enhanced_rl_env.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.enhanced_rl_env",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\enhanced_rl_env.py",
       "classes": [
         {
           "name": "RewardComponent",
@@ -43862,8 +43862,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.enhanced_rl_env_compat",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\enhanced_rl_env_compat.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.enhanced_rl_env_compat",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\enhanced_rl_env_compat.py",
       "classes": [
         {
           "name": "EnhancedForexTradingEnv",
@@ -43881,8 +43881,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.rl_agent",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\rl_agent.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.rl_agent",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\rl_agent.py",
       "classes": [
         {
           "name": "ForexTradingEnvironment",
@@ -43954,8 +43954,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.rl_risk_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\rl_risk_optimizer.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.rl_risk_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\rl_risk_optimizer.py",
       "classes": [
         {
           "name": "RLRiskParameterOptimizer",
@@ -43977,8 +43977,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.base_environment",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\base_environment.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.base_environment",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\base_environment.py",
       "classes": [
         {
           "name": "BaseRLEnvironment",
@@ -44015,8 +44015,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.forex_environment",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\forex_environment.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.forex_environment",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\forex_environment.py",
       "classes": [
         {
           "name": "ForexTradingEnvironment",
@@ -44046,8 +44046,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.reward.base_reward",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\base_reward.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.reward.base_reward",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\base_reward.py",
       "classes": [
         {
           "name": "RewardComponent",
@@ -44085,8 +44085,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.reward.custom_reward",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\custom_reward.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.reward.custom_reward",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\custom_reward.py",
       "classes": [
         {
           "name": "CustomReward",
@@ -44116,8 +44116,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.reward.pnl_reward",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\pnl_reward.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.reward.pnl_reward",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\pnl_reward.py",
       "classes": [
         {
           "name": "PnLReward",
@@ -44138,8 +44138,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.reward.risk_adjusted_reward",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\risk_adjusted_reward.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.reward.risk_adjusted_reward",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\risk_adjusted_reward.py",
       "classes": [
         {
           "name": "RiskAdjustedReward",
@@ -44169,8 +44169,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.state.feature_extractors",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\feature_extractors.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.state.feature_extractors",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\feature_extractors.py",
       "classes": [
         {
           "name": "FeatureExtractor",
@@ -44248,8 +44248,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.state.observation_space",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\observation_space.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.state.observation_space",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\observation_space.py",
       "classes": [
         {
           "name": "ObservationSpaceBuilder",
@@ -44286,8 +44286,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.models.reinforcement.environment.state.state_representation",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\state_representation.py",
+      "name": "ml_workbench-service.ml_workbench_service.models.reinforcement.environment.state.state_representation",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\state_representation.py",
       "classes": [
         {
           "name": "StateRepresentation",
@@ -44315,8 +44315,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.model_registry.model_metadata",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\model_metadata.py",
+      "name": "ml_workbench-service.ml_workbench_service.model_registry.model_metadata",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\model_metadata.py",
       "classes": [
         {
           "name": "ModelMetadata",
@@ -44338,8 +44338,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.model_registry.model_metrics",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\model_metrics.py",
+      "name": "ml_workbench-service.ml_workbench_service.model_registry.model_metrics",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\model_metrics.py",
       "classes": [
         {
           "name": "ModelMetrics",
@@ -44367,8 +44367,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.model_registry.model_registry_service",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\model_registry_service.py",
+      "name": "ml_workbench-service.ml_workbench_service.model_registry.model_registry_service",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\model_registry_service.py",
       "classes": [
         {
           "name": "ModelRegistryService",
@@ -44429,8 +44429,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.model_registry.model_stage",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\model_stage.py",
+      "name": "ml_workbench-service.ml_workbench_service.model_registry.model_stage",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\model_stage.py",
       "classes": [
         {
           "name": "ModelStage",
@@ -44444,8 +44444,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.model_registry.model_version",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\model_version.py",
+      "name": "ml_workbench-service.ml_workbench_service.model_registry.model_version",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\model_version.py",
       "classes": [
         {
           "name": "ModelVersion",
@@ -44464,8 +44464,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.model_registry.registry",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\registry.py",
+      "name": "ml_workbench-service.ml_workbench_service.model_registry.registry",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\registry.py",
       "classes": [
         {
           "name": "ModelStatus",
@@ -44595,8 +44595,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.model_registry.registry_exceptions",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\registry_exceptions.py",
+      "name": "ml_workbench-service.ml_workbench_service.model_registry.registry_exceptions",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\registry_exceptions.py",
       "classes": [
         {
           "name": "ModelRegistryException",
@@ -44628,8 +44628,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.cli",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\cli.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.cli",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\cli.py",
       "classes": [
         {
           "name": "NumpyDataset",
@@ -44668,8 +44668,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.feature_engineering_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\feature_engineering_optimizer.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.feature_engineering_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\feature_engineering_optimizer.py",
       "classes": [
         {
           "name": "FeatureEngineeringOptimizer",
@@ -44700,8 +44700,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.hardware_specific_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\hardware_specific_optimizer.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.hardware_specific_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\hardware_specific_optimizer.py",
       "classes": [
         {
           "name": "HardwareSpecificOptimizer",
@@ -44747,8 +44747,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.ml_pipeline_integrator",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\ml_pipeline_integrator.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.ml_pipeline_integrator",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\ml_pipeline_integrator.py",
       "classes": [
         {
           "name": "MLPipelineIntegrator",
@@ -44788,8 +44788,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.ml_profiling_monitor",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\ml_profiling_monitor.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.ml_profiling_monitor",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\ml_profiling_monitor.py",
       "classes": [
         {
           "name": "MLProfilingMonitor",
@@ -44823,8 +44823,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.model_inference_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\model_inference_optimizer.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.model_inference_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\model_inference_optimizer.py",
       "classes": [
         {
           "name": "ModelInferenceOptimizer",
@@ -44864,8 +44864,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.model_quantization",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\model_quantization.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.model_quantization",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\model_quantization.py",
       "classes": [
         {
           "name": "QuantizationError",
@@ -44904,8 +44904,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.model_serving_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\model_serving_optimizer.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.model_serving_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\model_serving_optimizer.py",
       "classes": [
         {
           "name": "ModelServingOptimizer",
@@ -44942,8 +44942,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.optimization.model_training_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\model_training_optimizer.py",
+      "name": "ml_workbench-service.ml_workbench_service.optimization.model_training_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\model_training_optimizer.py",
       "classes": [
         {
           "name": "ModelTrainingOptimizer",
@@ -44992,8 +44992,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.performance.rl_performance",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\performance\\rl_performance.py",
+      "name": "ml_workbench-service.ml_workbench_service.performance.rl_performance",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\performance\\rl_performance.py",
       "classes": [
         {
           "name": "InferenceBenchmark",
@@ -45081,8 +45081,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.reinforcement.distributed_curriculum_trainer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\reinforcement\\distributed_curriculum_trainer.py",
+      "name": "ml_workbench-service.ml_workbench_service.reinforcement.distributed_curriculum_trainer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\reinforcement\\distributed_curriculum_trainer.py",
       "classes": [
         {
           "name": "CurriculumProgressionCallback",
@@ -45122,8 +45122,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.reinforcement.simulation_rl_adapter",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\reinforcement\\simulation_rl_adapter.py",
+      "name": "ml_workbench-service.ml_workbench_service.reinforcement.simulation_rl_adapter",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\reinforcement\\simulation_rl_adapter.py",
       "classes": [
         {
           "name": "SimulationRLAdapter",
@@ -45163,8 +45163,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.repositories.experiment_repository",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\repositories\\experiment_repository.py",
+      "name": "ml_workbench-service.ml_workbench_service.repositories.experiment_repository",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\repositories\\experiment_repository.py",
       "classes": [
         {
           "name": "ExperimentRepository",
@@ -45180,8 +45180,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.scripts.train_forex_lstm_model",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\scripts\\train_forex_lstm_model.py",
+      "name": "ml_workbench-service.ml_workbench_service.scripts.train_forex_lstm_model",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\scripts\\train_forex_lstm_model.py",
       "classes": [],
       "functions": [
         {
@@ -45198,8 +45198,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.auto_model_selector",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\auto_model_selector.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.auto_model_selector",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\auto_model_selector.py",
       "classes": [
         {
           "name": "MarketCondition",
@@ -45248,8 +45248,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.auto_optimization_framework",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\auto_optimization_framework.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.auto_optimization_framework",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\auto_optimization_framework.py",
       "classes": [
         {
           "name": "OptimizationAlgorithm",
@@ -45362,8 +45362,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.dataset_preparation",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\dataset_preparation.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.dataset_preparation",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\dataset_preparation.py",
       "classes": [
         {
           "name": "DatasetPreparation",
@@ -45394,8 +45394,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.dataset_service",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\dataset_service.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.dataset_service",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\dataset_service.py",
       "classes": [
         {
           "name": "DatasetService",
@@ -45411,8 +45411,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.experiment_service",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\experiment_service.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.experiment_service",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\experiment_service.py",
       "classes": [
         {
           "name": "ExperimentService",
@@ -45428,8 +45428,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.experiment_tracker",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\experiment_tracker.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.experiment_tracker",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\experiment_tracker.py",
       "classes": [
         {
           "name": "ExperimentTracker",
@@ -45481,8 +45481,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.feature_importance_analyzer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\feature_importance_analyzer.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.feature_importance_analyzer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\feature_importance_analyzer.py",
       "classes": [
         {
           "name": "FeatureImportance",
@@ -45533,8 +45533,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.model_drift_detector",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\model_drift_detector.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.model_drift_detector",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\model_drift_detector.py",
       "classes": [
         {
           "name": "DriftMetrics",
@@ -45580,8 +45580,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.model_registry_service",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\model_registry_service.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.model_registry_service",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\model_registry_service.py",
       "classes": [
         {
           "name": "ModelRegistryService",
@@ -45597,8 +45597,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.model_retraining_service",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\model_retraining_service.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.model_retraining_service",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\model_retraining_service.py",
       "classes": [
         {
           "name": "RetrainingStatus",
@@ -45637,8 +45637,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.model_serving_engine",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\model_serving_engine.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.model_serving_engine",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\model_serving_engine.py",
       "classes": [
         {
           "name": "ModelServingEngine",
@@ -45678,8 +45678,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.monte_carlo_simulation",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\monte_carlo_simulation.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.monte_carlo_simulation",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\monte_carlo_simulation.py",
       "classes": [
         {
           "name": "SimulationType",
@@ -45729,8 +45729,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.stress_testing",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\stress_testing.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.stress_testing",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\stress_testing.py",
       "classes": [
         {
           "name": "ScenarioType",
@@ -45830,8 +45830,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.training_pipeline_orchestrator",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\training_pipeline_orchestrator.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.training_pipeline_orchestrator",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\training_pipeline_orchestrator.py",
       "classes": [
         {
           "name": "TrainingPipelineOrchestrator",
@@ -45856,8 +45856,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.transfer_learning_service",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\transfer_learning_service.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.transfer_learning_service",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\transfer_learning_service.py",
       "classes": [
         {
           "name": "TransferLearningService",
@@ -45891,8 +45891,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.services.walk_forward_optimization",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\services\\walk_forward_optimization.py",
+      "name": "ml_workbench-service.ml_workbench_service.services.walk_forward_optimization",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\services\\walk_forward_optimization.py",
       "classes": [
         {
           "name": "WalkForwardMethod",
@@ -45951,8 +45951,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.transfer_learning.model",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\transfer_learning\\model.py",
+      "name": "ml_workbench-service.ml_workbench_service.transfer_learning.model",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\transfer_learning\\model.py",
       "classes": [
         {
           "name": "ModelFeatureTransformer",
@@ -46012,8 +46012,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.ml_workbench_service.visualization.advanced_learning_ui",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\visualization\\advanced_learning_ui.py",
+      "name": "ml_workbench-service.ml_workbench_service.visualization.advanced_learning_ui",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\visualization\\advanced_learning_ui.py",
       "classes": [
         {
           "name": "RewardVisualization",
@@ -46106,8 +46106,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.integration.test_news_rl_integration",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\integration\\test_news_rl_integration.py",
+      "name": "ml_workbench-service.tests.integration.test_news_rl_integration",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\integration\\test_news_rl_integration.py",
       "classes": [
         {
           "name": "TestNewsRLIntegration",
@@ -46137,8 +46137,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.models.reinforcement.test_news_sentiment_integration",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\models\\reinforcement\\test_news_sentiment_integration.py",
+      "name": "ml_workbench-service.tests.models.reinforcement.test_news_sentiment_integration",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\models\\reinforcement\\test_news_sentiment_integration.py",
       "classes": [
         {
           "name": "MockForexBrokerSimulator",
@@ -46217,8 +46217,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.models.reinforcement.test_rl_env_integration",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\models\\reinforcement\\test_rl_env_integration.py",
+      "name": "ml_workbench-service.tests.models.reinforcement.test_rl_env_integration",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\models\\reinforcement\\test_rl_env_integration.py",
       "classes": [
         {
           "name": "MockNewsSentimentSimulator",
@@ -46261,8 +46261,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.optimization.test_feature_engineering_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\test_feature_engineering_optimizer.py",
+      "name": "ml_workbench-service.tests.optimization.test_feature_engineering_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\test_feature_engineering_optimizer.py",
       "classes": [
         {
           "name": "TestFeatureEngineeringOptimizer",
@@ -46334,8 +46334,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.optimization.test_hardware_specific_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\test_hardware_specific_optimizer.py",
+      "name": "ml_workbench-service.tests.optimization.test_hardware_specific_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\test_hardware_specific_optimizer.py",
       "classes": [
         {
           "name": "SimpleModel",
@@ -46392,8 +46392,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.optimization.test_ml_pipeline_integrator",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\test_ml_pipeline_integrator.py",
+      "name": "ml_workbench-service.tests.optimization.test_ml_pipeline_integrator",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\test_ml_pipeline_integrator.py",
       "classes": [
         {
           "name": "TestMLPipelineIntegrator",
@@ -46447,8 +46447,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.optimization.test_ml_profiling_monitor",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\test_ml_profiling_monitor.py",
+      "name": "ml_workbench-service.tests.optimization.test_ml_profiling_monitor",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\test_ml_profiling_monitor.py",
       "classes": [
         {
           "name": "TestMLProfilingMonitor",
@@ -46493,8 +46493,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.optimization.test_model_inference_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\test_model_inference_optimizer.py",
+      "name": "ml_workbench-service.tests.optimization.test_model_inference_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\test_model_inference_optimizer.py",
       "classes": [
         {
           "name": "TestModelInferenceOptimizer",
@@ -46536,8 +46536,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.optimization.test_model_serving_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\test_model_serving_optimizer.py",
+      "name": "ml_workbench-service.tests.optimization.test_model_serving_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\test_model_serving_optimizer.py",
       "classes": [
         {
           "name": "TestModelServingOptimizer",
@@ -46579,8 +46579,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.optimization.test_model_training_optimizer",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\test_model_training_optimizer.py",
+      "name": "ml_workbench-service.tests.optimization.test_model_training_optimizer",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\test_model_training_optimizer.py",
       "classes": [
         {
           "name": "TestModelTrainingOptimizer",
@@ -46634,8 +46634,8 @@
       "imported_by": []
     },
     {
-      "name": "ml-workbench-service.tests.unit.test_experiment_service",
-      "file_path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\unit\\test_experiment_service.py",
+      "name": "ml_workbench-service.tests.unit.test_experiment_service",
+      "file_path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\unit\\test_experiment_service.py",
       "classes": [
         {
           "name": "TestExperimentService",

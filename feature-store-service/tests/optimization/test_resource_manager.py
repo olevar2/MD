@@ -62,6 +62,14 @@ class TestResourceManagement(unittest.TestCase):
         load_balancer = LoadBalancer()
         
         def task_func(x):
+    """
+    Task func.
+    
+    Args:
+        x: Description of x
+    
+    """
+
             return x * 2
             
         # Submit CPU-bound task
@@ -153,6 +161,14 @@ class TestResourceManagement(unittest.TestCase):
         cache_manager = CacheManager(cache_dir=self.temp_dir)
         
         def worker(worker_id):
+    """
+    Worker.
+    
+    Args:
+        worker_id: Description of worker_id
+    
+    """
+
             for i in range(10):
                 key = f"worker_{worker_id}_key_{i}"
                 cache_manager.put(key, i)
@@ -175,6 +191,14 @@ class TestResourceManagement(unittest.TestCase):
     def test_calculation_caching(self):
         """Test calculation result caching."""
         def expensive_calculation(x):
+    """
+    Expensive calculation.
+    
+    Args:
+        x: Description of x
+    
+    """
+
             time.sleep(0.2)  # Simulate expensive computation
             return x * 2
             
@@ -222,10 +246,20 @@ class TestResourceManagement(unittest.TestCase):
         load_balancer = LoadBalancer()
         
         def io_task():
+    """
+    Io task.
+    
+    """
+
             time.sleep(0.1)
             return "io_result"
             
         def cpu_task():
+    """
+    Cpu task.
+    
+    """
+
             result = 0
             for i in range(1000000):
                 result += i

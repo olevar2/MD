@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ml-workbench-service
+  name: ml-workbench-service
+spec:
+  ports:
+  - name: http
+    port: 8007
+    targetPort: 8007
+  selector:
+    app: ml-workbench-service

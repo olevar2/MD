@@ -48,6 +48,13 @@ class UnifiedSignalGenerator:
         Generate trading signals for any asset class
         
         Args:
+    """
+    Args class.
+    
+    Attributes:
+        Add attributes here
+    """
+
             data: Price data DataFrame
             symbol: Symbol for the asset
             timeframe: Timeframe of the data
@@ -99,45 +106,45 @@ class UnifiedSignalGenerator:
         df = data.copy()
         
         # Apply moving averages
-        ma_config = config.get("moving_averages", {})
-        if ma_config.get("enabled", True):
-            for period in ma_config.get("periods", [20, 50, 200]):
-                for ma_type in ma_config.get("types", ["sma"]):
+        ma_config = config_manager.get('moving_averages', {})
+        if ma_config_manager.get('enabled', True):
+            for period in ma_config_manager.get('periods', [20, 50, 200]):
+                for ma_type in ma_config_manager.get('types', ["sma"]):
                     df = self.indicator_adapter.moving_average(
                         df, symbol, period=period, ma_type=ma_type
                     )
         
         # Apply RSI
-        rsi_config = config.get("rsi", {})
-        if rsi_config.get("enabled", True):
+        rsi_config = config_manager.get('rsi', {})
+        if rsi_config_manager.get('enabled', True):
             df = self.indicator_adapter.relative_strength_index(
-                df, symbol, period=rsi_config.get("period", 14)
+                df, symbol, period=rsi_config_manager.get('period', 14)
             )
         
         # Apply Bollinger Bands
-        bb_config = config.get("bollinger_bands", {})
-        if bb_config.get("enabled", True):
+        bb_config = config_manager.get('bollinger_bands', {})
+        if bb_config_manager.get('enabled', True):
             df = self.indicator_adapter.bollinger_bands(
                 df, symbol, 
-                period=bb_config.get("period", 20),
-                std_dev=bb_config.get("std_dev", 2.0)
+                period=bb_config_manager.get('period', 20),
+                std_dev=bb_config_manager.get('std_dev', 2.0)
             )
         
         # Apply ATR
-        atr_config = config.get("atr", {})
-        if atr_config.get("enabled", True):
+        atr_config = config_manager.get('atr', {})
+        if atr_config_manager.get('enabled', True):
             df = self.indicator_adapter.average_true_range(
-                df, symbol, period=atr_config.get("period", 14)
+                df, symbol, period=atr_config_manager.get('period', 14)
             )
         
         # Apply MACD
-        macd_config = config.get("macd", {})
-        if macd_config.get("enabled", True):
+        macd_config = config_manager.get('macd', {})
+        if macd_config_manager.get('enabled', True):
             df = self.indicator_adapter.macd(
                 df, symbol,
-                fast_period=macd_config.get("fast_period", 12),
-                slow_period=macd_config.get("slow_period", 26),
-                signal_period=macd_config.get("signal_period", 9)
+                fast_period=macd_config_manager.get('fast_period', 12),
+                slow_period=macd_config_manager.get('slow_period', 26),
+                signal_period=macd_config_manager.get('signal_period', 9)
             )
             
         return df

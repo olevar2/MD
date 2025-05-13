@@ -30,6 +30,15 @@ async def test_bulkhead_pattern():
     
     @bulkhead(name="test-bulkhead", max_concurrent=2, max_waiting=1)
     async def guarded_operation(id, duration):
+    """
+    Guarded operation.
+    
+    Args:
+        id: Description of id
+        duration: Description of duration
+    
+    """
+
         nonlocal execution_count, max_concurrent_observed
         execution_count += 1
         max_concurrent_observed = max(max_concurrent_observed, execution_count)

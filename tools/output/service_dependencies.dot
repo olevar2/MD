@@ -1,0 +1,28 @@
+digraph "Service Dependencies" {
+  rankdir=LR;
+  node [shape=box, style=filled, fillcolor=lightblue];
+  edge [color=black];
+  "analysis-engine-service" [label="analysis-engine-service"];
+  "api-gateway" [label="api-gateway"];
+  "data-management-service" [label="data-management-service"];
+  "data-pipeline-service" [label="data-pipeline-service"];
+  "feature_store_service" [label="feature_store_service"];
+  "ml-integration-service" [label="ml-integration-service"];
+  "ml-workbench-service" [label="ml-workbench-service"];
+  "model-registry-service" [label="model-registry-service"];
+  "monitoring-alerting-service" [label="monitoring-alerting-service"];
+  "portfolio-management-service" [label="portfolio-management-service"];
+  "risk-management-service" [label="risk-management-service"];
+  "strategy-execution-engine" [label="strategy-execution-engine"];
+  "trading-gateway-service" [label="trading-gateway-service"];
+  "ui-service" [label="ui-service"];
+  "analysis-engine-service" -> "risk-management-service";
+  "analysis-engine-service" -> "trading-gateway-service";
+  "analysis-engine-service" -> "ml-workbench-service";
+  "analysis-engine-service" -> "ml-integration-service";
+  "ml-integration-service" -> "data-pipeline-service";
+  "ml-workbench-service" -> "risk-management-service";
+  "ml-workbench-service" -> "trading-gateway-service";
+  "monitoring-alerting-service" -> "strategy-execution-engine";
+  "trading-gateway-service" -> "risk-management-service";
+}

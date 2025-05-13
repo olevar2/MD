@@ -1,3 +1,9 @@
+"""
+Test db connection module.
+
+This module provides functionality for...
+"""
+
 import sys
 import os
 

@@ -8,18 +8,22 @@ import json
 import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple, Union
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-
-from ml_workbench_service.models.experiment_models import (
-    Dataset,
-    DatasetCreate
-)
+from ml_workbench_service.models.experiment_models import Dataset, DatasetCreate
 from ml_workbench_service.repositories.experiment_repository import ExperimentRepository
 from ml_workbench_service.clients.feature_store_client import FeatureStoreClient
 
+
+from ml_workbench_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class DatasetService:
     """
@@ -28,8 +32,9 @@ class DatasetService:
     This service provides methods for creating, retrieving, and processing
     datasets for machine learning experiments.
     """
-    
-    def __init__(self, repository: ExperimentRepository, feature_store: FeatureStoreClient):
+
+    def __init__(self, repository: ExperimentRepository, feature_store:
+        FeatureStoreClient):
         """
         Initialize the dataset service.
         
@@ -39,14 +44,10 @@ class DatasetService:
         """
         self.repository = repository
         self.feature_store = feature_store
-        
-        # Create a directory for storing dataset files
-        self.dataset_dir = os.environ.get("DATASET_DIR", "./datasets")
+        self.dataset_dir = os.environ.get('DATASET_DIR', './datasets')
         os.makedirs(self.dataset_dir, exist_ok=True)
-    
-    async def create_dataset(
-        self, dataset_data: DatasetCreate
-    ) -> Dataset:
+
+    async def create_dataset(self, dataset_data: DatasetCreate) ->Dataset:
         """
         Create a new dataset.
         
@@ -56,22 +57,13 @@ class DatasetService:
         Returns:
             Created dataset
         """
-        # Convert to dict
         dataset_dict = dataset_data.dict()
-        
-        # Generate a unique ID
-        dataset_dict["id"] = str(uuid.uuid4())
-        
-        # Set timestamp
-        dataset_dict["created_at"] = datetime.utcnow()
-        
-        # Create in repository
+        dataset_dict['id'] = str(uuid.uuid4())
+        dataset_dict['created_at'] = datetime.utcnow()
         dataset_id = await self.repository.create_dataset(dataset_dict)
-        
-        # Return as Dataset object
         return Dataset(**dataset_dict)
-    
-    async def get_dataset(self, dataset_id: str) -> Optional[Dataset]:
+
+    async def get_dataset(self, dataset_id: str) ->Optional[Dataset]:
         """
         Get a dataset by ID.
         
@@ -82,21 +74,13 @@ class DatasetService:
             Dataset or None if not found
         """
         dataset_data = await self.repository.get_dataset(dataset_id)
-        
         if dataset_data:
             return Dataset(**dataset_data)
-            
         return None
-    
-    async def list_datasets(
-        self,
-        skip: int = 0,
-        limit: int = 100,
-        symbol: Optional[str] = None,
-        timeframe: Optional[str] = None,
-        sort_by: str = "created_at",
-        sort_order: str = "desc"
-    ) -> List[Dataset]:
+
+    async def list_datasets(self, skip: int=0, limit: int=100, symbol:
+        Optional[str]=None, timeframe: Optional[str]=None, sort_by: str=
+        'created_at', sort_order: str='desc') ->List[Dataset]:
         """
         List datasets with optional filtering.
         
@@ -111,20 +95,13 @@ class DatasetService:
         Returns:
             List of datasets
         """
-        datasets_data = await self.repository.list_datasets(
-            skip=skip,
-            limit=limit,
-            symbol=symbol,
-            timeframe=timeframe,
-            sort_by=sort_by,
-            sort_order=sort_order
-        )
-        
+        datasets_data = await self.repository.list_datasets(skip=skip,
+            limit=limit, symbol=symbol, timeframe=timeframe, sort_by=
+            sort_by, sort_order=sort_order)
         return [Dataset(**ds) for ds in datasets_data]
-    
-    async def generate_dataset_from_features(
-        self, dataset_create: DatasetCreate
-    ) -> Tuple[Dataset, str]:
+
+    async def generate_dataset_from_features(self, dataset_create:
+        DatasetCreate) ->Tuple[Dataset, str]:
         """
         Generate a new dataset from feature store data.
         
@@ -137,34 +114,27 @@ class DatasetService:
         Returns:
             Tuple of (created dataset object, path to dataset file)
         """
-        # Get feature data from feature store
-        df = await self.feature_store.create_dataset_from_features(
-            symbol=dataset_create.symbol,
-            timeframe=dataset_create.timeframe,
-            feature_ids=dataset_create.features,
-            target_feature=dataset_create.target,
-            start_date=dataset_create.start_date,
-            end_date=dataset_create.end_date,
-            lookback_periods=dataset_create.preprocessing.get("lookback_periods", 0) if dataset_create.preprocessing else 0,
-            forecast_periods=dataset_create.preprocessing.get("forecast_periods", 1) if dataset_create.preprocessing else 1,
-            include_ohlcv=dataset_create.preprocessing.get("include_ohlcv", True) if dataset_create.preprocessing else True
-        )
-        
+        df = await self.feature_store.create_dataset_from_features(symbol=
+            dataset_create.symbol, timeframe=dataset_create.timeframe,
+            feature_ids=dataset_create.features, target_feature=
+            dataset_create.target, start_date=dataset_create.start_date,
+            end_date=dataset_create.end_date, lookback_periods=
+            dataset_create.preprocessing.get('lookback_periods', 0) if
+            dataset_create.preprocessing else 0, forecast_periods=
+            dataset_create.preprocessing.get('forecast_periods', 1) if
+            dataset_create.preprocessing else 1, include_ohlcv=
+            dataset_create.preprocessing.get('include_ohlcv', True) if
+            dataset_create.preprocessing else True)
         if df.empty:
-            raise ValueError("No data retrieved from feature store")
-        
-        # Create the dataset in the repository
+            raise ValueError('No data retrieved from feature store')
         dataset = await self.create_dataset(dataset_create)
-        
-        # Save the dataset to a file
-        dataset_path = os.path.join(self.dataset_dir, f"{dataset.id}.parquet")
+        dataset_path = os.path.join(self.dataset_dir, f'{dataset.id}.parquet')
         df.to_parquet(dataset_path)
-        
         return dataset, dataset_path
-    
-    async def load_dataset(
-        self, dataset_id: str, as_train_test_split: bool = True
-    ) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]]:
+
+    async def load_dataset(self, dataset_id: str, as_train_test_split: bool
+        =True) ->Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame, pd.
+        DataFrame, pd.DataFrame]]:
         """
         Load a dataset from file.
         
@@ -175,81 +145,49 @@ class DatasetService:
         Returns:
             Either the full DataFrame or a tuple of (X_train, X_test, y_train, y_test)
         """
-        # Get the dataset metadata
         dataset = await self.get_dataset(dataset_id)
-        
         if not dataset:
-            raise ValueError(f"Dataset {dataset_id} not found")
-        
-        # Load the dataset file
-        dataset_path = os.path.join(self.dataset_dir, f"{dataset_id}.parquet")
-        
+            raise ValueError(f'Dataset {dataset_id} not found')
+        dataset_path = os.path.join(self.dataset_dir, f'{dataset_id}.parquet')
         if not os.path.exists(dataset_path):
-            # If the file doesn't exist, try to regenerate it
             _, dataset_path = await self.generate_dataset_from_features(
-                DatasetCreate(
-                    name=dataset.name,
-                    symbol=dataset.symbol,
-                    timeframe=dataset.timeframe,
-                    features=dataset.features,
-                    target=dataset.target,
-                    start_date=dataset.start_date,
-                    end_date=dataset.end_date,
-                    split_ratio=dataset.split_ratio,
-                    description=dataset.description,
-                    preprocessing=dataset.preprocessing
-                )
-            )
-        
-        # Load the dataset
+                DatasetCreate(name=dataset.name, symbol=dataset.symbol,
+                timeframe=dataset.timeframe, features=dataset.features,
+                target=dataset.target, start_date=dataset.start_date,
+                end_date=dataset.end_date, split_ratio=dataset.split_ratio,
+                description=dataset.description, preprocessing=dataset.
+                preprocessing))
         df = pd.read_parquet(dataset_path)
-        
         if not as_train_test_split:
             return df
-        
-        # Identify target column (usually has "_target" suffix)
         target_col = None
         for col in df.columns:
-            if col.endswith("_target") or col == dataset.target:
+            if col.endswith('_target') or col == dataset.target:
                 target_col = col
                 break
-                
         if not target_col:
-            raise ValueError(f"Target column not found in dataset")
-        
-        # Split into features and target
+            raise ValueError(f'Target column not found in dataset')
         X = df.drop(columns=[target_col])
         y = df[target_col]
-        
-        # Get split ratios
-        train_ratio = dataset.split_ratio.get("train", 0.7)
-        val_ratio = dataset.split_ratio.get("validation", 0.15)
-        test_ratio = dataset.split_ratio.get("test", 0.15)
-        
-        # Adjust to make sure they sum to 1
+        train_ratio = dataset.split_ratio.get('train', 0.7)
+        val_ratio = dataset.split_ratio.get('validation', 0.15)
+        test_ratio = dataset.split_ratio.get('test', 0.15)
         total = train_ratio + val_ratio + test_ratio
         if total != 1.0:
             train_ratio /= total
             val_ratio /= total
             test_ratio /= total
-        
-        # Calculate test_size for train_test_split
-        test_val_ratio = (val_ratio + test_ratio) / (train_ratio + val_ratio + test_ratio)
+        test_val_ratio = (val_ratio + test_ratio) / (train_ratio +
+            val_ratio + test_ratio)
         val_test_ratio = test_ratio / (val_ratio + test_ratio)
-        
-        # First split into train and temp (val+test)
-        X_train, X_temp, y_train, y_temp = train_test_split(
-            X, y, test_size=test_val_ratio, random_state=42
-        )
-        
-        # Then split temp into val and test
-        X_val, X_test, y_val, y_test = train_test_split(
-            X_temp, y_temp, test_size=val_test_ratio, random_state=42
-        )
-        
+        X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size
+            =test_val_ratio, random_state=42)
+        X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp,
+            test_size=val_test_ratio, random_state=42)
         return X_train, X_val, X_test, y_train, y_val, y_test
-    
-    async def get_feature_statistics(self, dataset_id: str) -> Dict[str, Dict[str, Any]]:
+
+    async def get_feature_statistics(self, dataset_id: str) ->Dict[str,
+        Dict[str, Any]]:
         """
         Calculate statistics for features in a dataset.
         
@@ -259,29 +197,25 @@ class DatasetService:
         Returns:
             Dictionary of feature statistics
         """
-        # Load the dataset
         df = await self.load_dataset(dataset_id, as_train_test_split=False)
-        
-        # Calculate statistics for each feature
         stats = {}
         for column in df.columns:
-            col_stats = {
-                "mean": float(df[column].mean()) if pd.api.types.is_numeric_dtype(df[column]) else None,
-                "std": float(df[column].std()) if pd.api.types.is_numeric_dtype(df[column]) else None,
-                "min": float(df[column].min()) if pd.api.types.is_numeric_dtype(df[column]) else None,
-                "max": float(df[column].max()) if pd.api.types.is_numeric_dtype(df[column]) else None,
-                "median": float(df[column].median()) if pd.api.types.is_numeric_dtype(df[column]) else None,
-                "missing": int(df[column].isna().sum()),
-                "count": int(df[column].count()),
-                "type": str(df[column].dtype)
-            }
+            col_stats = {'mean': float(df[column].mean()) if pd.api.types.
+                is_numeric_dtype(df[column]) else None, 'std': float(df[
+                column].std()) if pd.api.types.is_numeric_dtype(df[column])
+                 else None, 'min': float(df[column].min()) if pd.api.types.
+                is_numeric_dtype(df[column]) else None, 'max': float(df[
+                column].max()) if pd.api.types.is_numeric_dtype(df[column])
+                 else None, 'median': float(df[column].median()) if pd.api.
+                types.is_numeric_dtype(df[column]) else None, 'missing':
+                int(df[column].isna().sum()), 'count': int(df[column].count
+                ()), 'type': str(df[column].dtype)}
             stats[column] = col_stats
-        
         return stats
-    
-    async def get_available_features(
-        self, symbol: Optional[str] = None, timeframe: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+
+    @async_with_exception_handling
+    async def get_available_features(self, symbol: Optional[str]=None,
+        timeframe: Optional[str]=None) ->List[Dict[str, Any]]:
         """
         Get a list of available features from the feature store.
         
@@ -292,20 +226,14 @@ class DatasetService:
         Returns:
             List of available features with metadata
         """
-        # Get feature IDs from feature store
-        feature_ids = await self.feature_store.get_available_features(
-            symbol=symbol,
-            timeframe=timeframe
-        )
-        
-        # Get metadata for each feature
+        feature_ids = await self.feature_store.get_available_features(symbol
+            =symbol, timeframe=timeframe)
         features = []
         for feature_id in feature_ids:
             try:
-                metadata = await self.feature_store.get_feature_metadata(feature_id)
+                metadata = await self.feature_store.get_feature_metadata(
+                    feature_id)
                 features.append(metadata)
             except Exception:
-                # Skip features with errors
                 pass
-        
         return features

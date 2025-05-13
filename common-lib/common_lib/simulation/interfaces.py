@@ -221,6 +221,22 @@ class NewsEvent:
         previous_value: Optional[float] = None,
         description: Optional[str] = None
     ):
+    """
+      init  .
+    
+    Args:
+        event_id: Description of event_id
+        title: Description of title
+        timestamp: Description of timestamp
+        impact_level: Description of impact_level
+        affected_currencies: Description of affected_currencies
+        expected_value: Description of expected_value
+        actual_value: Description of actual_value
+        previous_value: Description of previous_value
+        description: Description of description
+    
+    """
+
         self.event_id = event_id
         self.title = title
         self.timestamp = timestamp

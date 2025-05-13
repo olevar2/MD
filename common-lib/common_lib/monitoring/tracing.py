@@ -216,6 +216,14 @@ def trace_function(
         Decorated function
     """
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         # Get function name
         func_name = name or func.__name__
         
@@ -225,6 +233,15 @@ def trace_function(
         if is_async:
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
                 # Get tracing manager
                 tracing_manager = TracingManager()
                 
@@ -260,6 +277,15 @@ def trace_function(
         else:
             @functools.wraps(func)
             def sync_wrapper(*args, **kwargs):
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
                 # Get tracing manager
                 tracing_manager = TracingManager()
                 

@@ -3,7 +3,7 @@
     "title": "Adaptation Metrics Dashboard",
     "description": "Monitors key adaptation metrics including rolling Sharpe ratio, hit rate, and other performance indicators over time",
     "refreshRate": "5m",
-    "tags": ["adaptation", "feedback-loop", "performance"],
+    "tags": ["adaptation", "feedback_loop", "performance"],
     "uid": "adaptation-metrics",
     "version": 1
   },

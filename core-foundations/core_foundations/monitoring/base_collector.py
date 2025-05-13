@@ -27,8 +27,30 @@ class BaseMetricsCollector(ABC):
     # Add other metric types as needed (e.g., gauge, histogram)
     # @abstractmethod
     # def gauge(self, metric_name: str, value: float, labels: Optional[Dict[str, str]] = None):
+    """
+    Gauge.
+    
+    Args:
+        metric_name: Description of metric_name
+        value: Description of value
+        labels: Description of labels
+        str]]: Description of str]]
+    
+    """
+
     #     pass
     #
     # @abstractmethod
     # def histogram(self, metric_name: str, value: float, labels: Optional[Dict[str, str]] = None):
+    """
+    Histogram.
+    
+    Args:
+        metric_name: Description of metric_name
+        value: Description of value
+        labels: Description of labels
+        str]]: Description of str]]
+    
+    """
+
     #     pass

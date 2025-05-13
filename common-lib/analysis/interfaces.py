@@ -7,6 +7,13 @@ from datetime import datetime
 import pandas as pd
 
 class IAnalysisProvider(ABC):
+    """
+    IAnalysisProvider class that inherits from ABC.
+    
+    Attributes:
+        Add attributes here
+    """
+
     @abstractmethod
     async def get_market_analysis(
         self,

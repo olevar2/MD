@@ -5,15 +5,21 @@ This module provides the base classes and abstractions for the analysis engine s
 It defines the fundamental interfaces and base implementations that all analyzers
 and services should extend.
 """
-
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 import logging
 import time
 from datetime import datetime
-
 logger = logging.getLogger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 @dataclass
 class AnalysisResult:
@@ -34,16 +40,12 @@ class AnalysisResult:
         if self.timestamp is None:
             self.timestamp = datetime.utcnow().isoformat()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) ->Dict[str, Any]:
         """Convert to dictionary representation"""
-        return {
-            "analyzer_name": self.analyzer_name,
-            "result": self.result,
-            "metadata": self.metadata,
-            "is_valid": self.is_valid,
-            "execution_time": self.execution_time,
-            "timestamp": self.timestamp
-        }
+        return {'analyzer_name': self.analyzer_name, 'result': self.result,
+            'metadata': self.metadata, 'is_valid': self.is_valid,
+            'execution_time': self.execution_time, 'timestamp': self.timestamp}
+
 
 class BaseComponent(ABC):
     """
@@ -55,8 +57,8 @@ class BaseComponent(ABC):
     - Logging setup
     - Error handling patterns
     """
-    
-    def __init__(self, name: str, parameters: Optional[Dict[str, Any]] = None):
+
+    def __init__(self, name: str, parameters: Optional[Dict[str, Any]]=None):
         """
         Initialize base component
         
@@ -66,31 +68,27 @@ class BaseComponent(ABC):
         """
         self.name = name
         self.parameters = parameters or {}
-        self.logger = logging.getLogger(f"{__name__}.{name}")
+        self.logger = logging.getLogger(f'{__name__}.{name}')
         self._execution_count = 0
         self._total_execution_time = 0.0
         self._last_execution_time = None
-        
-    def get_performance_metrics(self) -> Dict[str, Any]:
+
+    @with_resilience('get_performance_metrics')
+    def get_performance_metrics(self) ->Dict[str, Any]:
         """Get component performance metrics"""
-        avg_execution_time = (
-            self._total_execution_time / self._execution_count 
-            if self._execution_count > 0 else 0
-        )
-        
-        return {
-            "name": self.name,
-            "execution_count": self._execution_count,
-            "total_execution_time": self._total_execution_time,
-            "average_execution_time": avg_execution_time,
-            "last_execution_time": self._last_execution_time
-        }
-    
+        avg_execution_time = (self._total_execution_time / self.
+            _execution_count if self._execution_count > 0 else 0)
+        return {'name': self.name, 'execution_count': self._execution_count,
+            'total_execution_time': self._total_execution_time,
+            'average_execution_time': avg_execution_time,
+            'last_execution_time': self._last_execution_time}
+
     def _update_metrics(self, execution_time: float):
         """Update performance metrics"""
         self._execution_count += 1
         self._total_execution_time += execution_time
         self._last_execution_time = execution_time
+
 
 class BaseAnalyzer(BaseComponent):
     """
@@ -102,9 +100,9 @@ class BaseAnalyzer(BaseComponent):
     - Result validation
     - Error handling
     """
-    
+
     @abstractmethod
-    async def analyze(self, data: Dict[str, Any]) -> AnalysisResult:
+    async def analyze(self, data: Dict[str, Any]) ->AnalysisResult:
         """
         Perform analysis on input data
         
@@ -115,8 +113,9 @@ class BaseAnalyzer(BaseComponent):
             AnalysisResult containing analysis output
         """
         pass
-    
-    async def execute(self, data: Dict[str, Any]) -> AnalysisResult:
+
+    @async_with_exception_handling
+    async def execute(self, data: Dict[str, Any]) ->AnalysisResult:
         """
         Execute analysis with performance monitoring
         
@@ -127,33 +126,21 @@ class BaseAnalyzer(BaseComponent):
             AnalysisResult with execution metrics
         """
         start_time = time.time()
-        
         try:
             result = await self.analyze(data)
             execution_time = time.time() - start_time
-            
             self._update_metrics(execution_time)
             result.execution_time = execution_time
-            
             return result
-            
         except Exception as e:
-            self.logger.error(
-                f"Error in analyzer {self.name}: {str(e)}", 
-                exc_info=True
-            )
+            self.logger.error(f'Error in analyzer {self.name}: {str(e)}',
+                exc_info=True)
             execution_time = time.time() - start_time
-            
-            return AnalysisResult(
-                analyzer_name=self.name,
-                result={"error": str(e)},
-                is_valid=False,
-                execution_time=execution_time,
-                metadata={
-                    "error_type": type(e).__name__,
-                    "input_data_keys": list(data.keys())
-                }
-            )
+            return AnalysisResult(analyzer_name=self.name, result={'error':
+                str(e)}, is_valid=False, execution_time=execution_time,
+                metadata={'error_type': type(e).__name__, 'input_data_keys':
+                list(data.keys())})
+
 
 class BaseService(BaseComponent):
     """
@@ -165,13 +152,9 @@ class BaseService(BaseComponent):
     - Health check capabilities
     - Dependency injection support
     """
-    
-    def __init__(
-        self,
-        name: str,
-        parameters: Optional[Dict[str, Any]] = None,
-        dependencies: Optional[Dict[str, Any]] = None
-    ):
+
+    def __init__(self, name: str, parameters: Optional[Dict[str, Any]]=None,
+        dependencies: Optional[Dict[str, Any]]=None):
         """
         Initialize service
         
@@ -184,28 +167,26 @@ class BaseService(BaseComponent):
         self.dependencies = dependencies or {}
         self._is_healthy = True
         self._health_check_errors = []
-        
+
     async def initialize(self):
         """Initialize service resources"""
         pass
-    
+
     async def cleanup(self):
         """Cleanup service resources"""
         pass
-    
-    def get_health_status(self) -> Dict[str, Any]:
+
+    @with_resilience('get_health_status')
+    def get_health_status(self) ->Dict[str, Any]:
         """Get service health status"""
-        return {
-            "name": self.name,
-            "is_healthy": self._is_healthy,
-            "errors": self._health_check_errors,
-            "metrics": self.get_performance_metrics()
-        }
-    
-    async def health_check(self) -> bool:
+        return {'name': self.name, 'is_healthy': self._is_healthy, 'errors':
+            self._health_check_errors, 'metrics': self.
+            get_performance_metrics()}
+
+    @async_with_exception_handling
+    async def health_check(self) ->bool:
         """Perform service health check"""
         try:
-            # Basic health check
             self._is_healthy = True
             self._health_check_errors = []
             return True
@@ -213,6 +194,7 @@ class BaseService(BaseComponent):
             self._is_healthy = False
             self._health_check_errors.append(str(e))
             return False
+
 
 class AnalysisService(BaseService):
     """
@@ -224,31 +206,26 @@ class AnalysisService(BaseService):
     - Result aggregation
     - Error handling and recovery
     """
-    
-    def __init__(
-        self,
-        name: str = "AnalysisService",
-        parameters: Optional[Dict[str, Any]] = None,
-        dependencies: Optional[Dict[str, Any]] = None
-    ):
+
+    def __init__(self, name: str='AnalysisService', parameters: Optional[
+        Dict[str, Any]]=None, dependencies: Optional[Dict[str, Any]]=None):
         """Initialize analysis service"""
         super().__init__(name, parameters, dependencies)
         self.analyzers: Dict[str, BaseAnalyzer] = {}
-        
+
     def register_analyzer(self, analyzer: BaseAnalyzer):
         """Register an analyzer with the service"""
         self.analyzers[analyzer.name] = analyzer
-        self.logger.info(f"Registered analyzer: {analyzer.name}")
-        
-    def get_analyzer(self, name: str) -> Optional[BaseAnalyzer]:
+        self.logger.info(f'Registered analyzer: {analyzer.name}')
+
+    @with_analysis_resilience('get_analyzer')
+    def get_analyzer(self, name: str) ->Optional[BaseAnalyzer]:
         """Get analyzer by name"""
         return self.analyzers.get(name)
-        
-    async def execute_analysis(
-        self,
-        analyzer_name: str,
-        data: Dict[str, Any]
-    ) -> AnalysisResult:
+
+    @with_resilience('execute_analysis')
+    async def execute_analysis(self, analyzer_name: str, data: Dict[str, Any]
+        ) ->AnalysisResult:
         """
         Execute specific analyzer
         
@@ -261,19 +238,14 @@ class AnalysisService(BaseService):
         """
         analyzer = self.get_analyzer(analyzer_name)
         if not analyzer:
-            return AnalysisResult(
-                analyzer_name=analyzer_name,
-                result={"error": f"Analyzer {analyzer_name} not found"},
-                is_valid=False
-            )
-            
+            return AnalysisResult(analyzer_name=analyzer_name, result={
+                'error': f'Analyzer {analyzer_name} not found'}, is_valid=False
+                )
         return await analyzer.execute(data)
-        
-    async def execute_multiple(
-        self,
-        analyzer_names: List[str],
-        data: Dict[str, Any]
-    ) -> List[AnalysisResult]:
+
+    @with_resilience('execute_multiple')
+    async def execute_multiple(self, analyzer_names: List[str], data: Dict[
+        str, Any]) ->List[AnalysisResult]:
         """
         Execute multiple analyzers in parallel
         
@@ -285,49 +257,29 @@ class AnalysisService(BaseService):
             List of analysis results
         """
         import asyncio
-        
-        tasks = [
-            self.execute_analysis(name, data)
-            for name in analyzer_names
-        ]
-        
+        tasks = [self.execute_analysis(name, data) for name in analyzer_names]
         return await asyncio.gather(*tasks)
-        
-    async def health_check(self) -> bool:
+
+    @async_with_exception_handling
+    async def health_check(self) ->bool:
         """Perform health check on service and all analyzers"""
         try:
-            # Check base service health
             service_healthy = await super().health_check()
-            
-            # Check all analyzers
             analyzer_status = []
             for name, analyzer in self.analyzers.items():
                 try:
-                    # Basic analyzer health check
                     metrics = analyzer.get_performance_metrics()
-                    analyzer_status.append({
-                        "name": name,
-                        "healthy": True,
-                        "metrics": metrics
-                    })
+                    analyzer_status.append({'name': name, 'healthy': True,
+                        'metrics': metrics})
                 except Exception as e:
-                    analyzer_status.append({
-                        "name": name,
-                        "healthy": False,
-                        "error": str(e)
-                    })
-            
+                    analyzer_status.append({'name': name, 'healthy': False,
+                        'error': str(e)})
             self._health_check_errors = [
-                f"Analyzer {status['name']} unhealthy: {status['error']}"
-                for status in analyzer_status
-                if not status["healthy"]
-            ]
-            
-            return service_healthy and all(
-                status["healthy"] for status in analyzer_status
-            )
-            
+                f"Analyzer {status['name']} unhealthy: {status['error']}" for
+                status in analyzer_status if not status['healthy']]
+            return service_healthy and all(status['healthy'] for status in
+                analyzer_status)
         except Exception as e:
             self._is_healthy = False
             self._health_check_errors.append(str(e))
-            return False 
+            return False

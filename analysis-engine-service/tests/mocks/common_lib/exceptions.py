@@ -16,6 +16,17 @@ class ForexTradingPlatformError(Exception):
     """
 
     def __init__(self, message: str = None, error_code: str = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        error_code: Description of error_code
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         self.message = message or "An error occurred in the Forex Trading Platform"
         self.error_code = error_code or "FOREX_PLATFORM_ERROR"
         super().__init__(self.message, *args)
@@ -40,6 +51,17 @@ class ConfigurationError(ForexTradingPlatformError):
     """Exception raised for configuration-related errors."""
 
     def __init__(self, message: str = None, error_code: str = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        error_code: Description of error_code
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or "Configuration error"
         error_code = error_code or "CONFIG_ERROR"
         super().__init__(message, error_code, *args, **kwargs)
@@ -49,6 +71,17 @@ class DataError(ForexTradingPlatformError):
     """Base exception for data-related errors."""
 
     def __init__(self, message: str = None, error_code: str = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        error_code: Description of error_code
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or "Data error"
         error_code = error_code or "DATA_ERROR"
         super().__init__(message, error_code, *args, **kwargs)
@@ -58,6 +91,18 @@ class DataValidationError(DataError):
     """Exception raised for data validation failures."""
 
     def __init__(self, message: str = None, validation_errors: Dict[str, Any] = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        validation_errors: Description of validation_errors
+        Any]: Description of Any]
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or "Data validation error"
         # Pass validation_errors to details via kwargs
         if validation_errors:
@@ -69,6 +114,18 @@ class DataFetchError(DataError):
     """Exception raised when data cannot be fetched from a source."""
 
     def __init__(self, message: str = None, source: str = None, status_code: int = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        source: Description of source
+        status_code: Description of status_code
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or f"Failed to fetch data from {source or 'unknown source'}"
         # Pass source and status_code to details via kwargs
         kwargs['source'] = source
@@ -81,6 +138,18 @@ class ServiceError(ForexTradingPlatformError):
     """Base exception for service-related errors."""
 
     def __init__(self, message: str = None, service_name: str = None, error_code: str = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        service_name: Description of service_name
+        error_code: Description of error_code
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or f"Error in service: {service_name or 'unknown'}"
         error_code = error_code or "SERVICE_ERROR"
         # Pass service_name to details via kwargs
@@ -93,6 +162,16 @@ class ServiceUnavailableError(ServiceError):
     """Exception raised when a dependent service is unavailable."""
 
     def __init__(self, service_name: str, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        service_name: Description of service_name
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = f"Service unavailable: {service_name}"
         # Pass service_name explicitly to parent and set specific error code
         super().__init__(message, service_name=service_name, error_code="SERVICE_UNAVAILABLE", *args, **kwargs)
@@ -102,6 +181,18 @@ class ModelError(ForexTradingPlatformError):
     """Base exception for ML model-related errors."""
 
     def __init__(self, message: str = None, model_id: str = None, error_code: str = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        model_id: Description of model_id
+        error_code: Description of error_code
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or f"Model error for {model_id or 'unknown model'}"
         error_code = error_code or "MODEL_ERROR"
         # Pass model_id to details via kwargs
@@ -113,6 +204,17 @@ class ModelTrainingError(ModelError):
     """Exception raised when model training fails."""
 
     def __init__(self, message: str = None, model_id: str = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        model_id: Description of model_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or f"Training failed for model {model_id or 'unknown'}"
         super().__init__(message, model_id=model_id, error_code="MODEL_TRAINING_ERROR", *args, **kwargs)
 
@@ -121,6 +223,17 @@ class ModelPredictionError(ModelError):
     """Exception raised when model prediction fails."""
 
     def __init__(self, message: str = None, model_id: str = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        model_id: Description of model_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         message = message or f"Prediction failed for model {model_id or 'unknown'}"
         super().__init__(message, model_id=model_id, error_code="MODEL_PREDICTION_ERROR", *args, **kwargs)
 

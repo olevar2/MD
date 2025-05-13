@@ -290,6 +290,14 @@ def cache_feature_vector(
         Decorated function
     """
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         def wrapper(
             self,
             model_name: str,
@@ -300,6 +308,20 @@ def cache_feature_vector(
             end_time: Optional[datetime] = None,
             **kwargs
         ):
+    """
+    Wrapper.
+    
+    Args:
+        model_name: Description of model_name
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        features: Description of features
+        start_time: Description of start_time
+        end_time: Description of end_time
+        kwargs: Description of kwargs
+    
+    """
+
             # Get feature vector cache
             feature_vector_cache = getattr(self, "_feature_vector_cache", None)
             if feature_vector_cache is None:

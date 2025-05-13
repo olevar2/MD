@@ -9,6 +9,13 @@ from pydantic import BaseModel
 
 
 class PerformanceMetric(BaseModel):
+    """
+    PerformanceMetric class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     metric_name: str
     value: float
     timestamp: datetime
@@ -16,6 +23,13 @@ class PerformanceMetric(BaseModel):
 
 
 class ModelPerformance(BaseModel):
+    """
+    ModelPerformance class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     model_id: str
     version: str
     metrics: List[PerformanceMetric]
@@ -24,7 +38,22 @@ class ModelPerformance(BaseModel):
 
 
 class FeedbackAnalyzer:
+    """
+    FeedbackAnalyzer class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, min_sample_size: int = 1000):
+    """
+      init  .
+    
+    Args:
+        min_sample_size: Description of min_sample_size
+    
+    """
+
         self.min_sample_size = min_sample_size
         self._performance_history: Dict[str, List[ModelPerformance]] = {}
 

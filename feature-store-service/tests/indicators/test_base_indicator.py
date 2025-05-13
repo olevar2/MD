@@ -25,9 +25,27 @@ class TestBaseIndicator(unittest.TestCase):
     def test_required_columns(self):
         """Test validation of required columns."""
         class TestIndicator(BaseIndicator):
+    """
+    TestIndicator class that inherits from BaseIndicator.
+    
+    Attributes:
+        Add attributes here
+    """
+
             required_columns = ["close", "volume"]
             
             def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
                 return data
         
         # Should work with all required columns
@@ -43,12 +61,30 @@ class TestBaseIndicator(unittest.TestCase):
     def test_parameter_validation(self):
         """Test parameter validation."""
         class TestIndicator(BaseIndicator):
+    """
+    TestIndicator class that inherits from BaseIndicator.
+    
+    Attributes:
+        Add attributes here
+    """
+
             params = {
                 "period": {"type": "int", "min": 1, "max": 100, "default": 14},
                 "price": {"type": "str", "options": ["close", "open"], "default": "close"}
             }
             
             def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
                 return data
         
         # Test valid parameters
@@ -67,7 +103,25 @@ class TestBaseIndicator(unittest.TestCase):
     def test_empty_data_handling(self):
         """Test handling of empty DataFrames."""
         class TestIndicator(BaseIndicator):
+    """
+    TestIndicator class that inherits from BaseIndicator.
+    
+    Attributes:
+        Add attributes here
+    """
+
             def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
                 return data
         
         indicator = TestIndicator()
@@ -78,7 +132,25 @@ class TestBaseIndicator(unittest.TestCase):
     def test_nan_handling(self):
         """Test handling of NaN values."""
         class TestIndicator(BaseIndicator):
+    """
+    TestIndicator class that inherits from BaseIndicator.
+    
+    Attributes:
+        Add attributes here
+    """
+
             def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
                 result = data.copy()
                 result["indicator"] = data["close"].rolling(window=2).mean()
                 return result

@@ -15,6 +15,14 @@ class EnvironmentConfig:
     """
 
     def __init__(self, config_path: str = DEFAULT_CONFIG_PATH):
+    """
+      init  .
+    
+    Args:
+        config_path: Description of config_path
+    
+    """
+
         self.config_path = config_path
         self.config = self._load_config()
         logger.info(f"Stress test configuration loaded from: {self.config_path}")

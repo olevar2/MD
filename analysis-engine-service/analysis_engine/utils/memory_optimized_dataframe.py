@@ -10,13 +10,19 @@ Features:
 - Memory-efficient views instead of copies
 - Reduced memory footprint
 """
-
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Any, Optional, Tuple, Callable, Union, Set
 import logging
-
 logger = logging.getLogger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class MemoryOptimizedDataFrame:
     """
@@ -29,7 +35,8 @@ class MemoryOptimizedDataFrame:
     - Reduced memory footprint
     """
 
-    def __init__(self, data: Union[pd.DataFrame, Dict, List], copy: bool = False):
+    def __init__(self, data: Union[pd.DataFrame, Dict, List], copy: bool=False
+        ):
         """
         Initialize the optimized DataFrame.
 
@@ -41,14 +48,14 @@ class MemoryOptimizedDataFrame:
             self._data = data.copy() if copy else data
         else:
             self._data = pd.DataFrame(data)
-
         self._views = {}
         self._computed_columns = set()
-        self._max_views_cache = 10  # Limit the number of cached views to prevent memory leaks
+        self._max_views_cache = 10
+        logger.debug(
+            f'MemoryOptimizedDataFrame initialized with shape {self._data.shape}'
+            )
 
-        logger.debug(f"MemoryOptimizedDataFrame initialized with shape {self._data.shape}")
-
-    def optimize_dtypes(self) -> 'MemoryOptimizedDataFrame':
+    def optimize_dtypes(self) ->'MemoryOptimizedDataFrame':
         """
         Optimize data types to reduce memory usage.
 
@@ -56,14 +63,10 @@ class MemoryOptimizedDataFrame:
             Self for method chaining
         """
         start_mem = self._data.memory_usage(deep=True).sum()
-
         for col in self._data.columns:
             col_data = self._data[col]
-
-            # Optimize integers
             if pd.api.types.is_integer_dtype(col_data):
                 c_min, c_max = col_data.min(), col_data.max()
-
                 if c_min >= 0:
                     if c_max < 256:
                         self._data[col] = col_data.astype(np.uint8)
@@ -71,29 +74,27 @@ class MemoryOptimizedDataFrame:
                         self._data[col] = col_data.astype(np.uint16)
                     elif c_max < 4294967296:
                         self._data[col] = col_data.astype(np.uint32)
-                else:
-                    if c_min > -128 and c_max < 128:
-                        self._data[col] = col_data.astype(np.int8)
-                    elif c_min > -32768 and c_max < 32768:
-                        self._data[col] = col_data.astype(np.int16)
-                    elif c_min > -2147483648 and c_max < 2147483648:
-                        self._data[col] = col_data.astype(np.int32)
-
-            # Optimize floats
+                elif c_min > -128 and c_max < 128:
+                    self._data[col] = col_data.astype(np.int8)
+                elif c_min > -32768 and c_max < 32768:
+                    self._data[col] = col_data.astype(np.int16)
+                elif c_min > -2147483648 and c_max < 2147483648:
+                    self._data[col] = col_data.astype(np.int32)
             elif pd.api.types.is_float_dtype(col_data):
-                # Check if we can use float32 instead of float64
-                if col_data.min() > np.finfo(np.float32).min and col_data.max() < np.finfo(np.float32).max:
+                if col_data.min() > np.finfo(np.float32).min and col_data.max(
+                    ) < np.finfo(np.float32).max:
                     self._data[col] = col_data.astype(np.float32)
-
-        # Log memory savings
         end_mem = self._data.memory_usage(deep=True).sum()
         reduction = (start_mem - end_mem) / start_mem
-
-        logger.debug(f"Memory usage reduced from {start_mem} to {end_mem} bytes ({reduction:.2%} reduction)")
-
+        logger.debug(
+            f'Memory usage reduced from {start_mem} to {end_mem} bytes ({reduction:.2%} reduction)'
+            )
         return self
 
-    def get_view(self, columns: Optional[List[str]] = None, rows: Optional[slice] = None) -> pd.DataFrame:
+    @with_resilience('get_view')
+    @with_exception_handling
+    def get_view(self, columns: Optional[List[str]]=None, rows: Optional[
+        slice]=None) ->pd.DataFrame:
         """
         Get a view of the data without copying.
 
@@ -104,11 +105,9 @@ class MemoryOptimizedDataFrame:
         Returns:
             DataFrame view
         """
-        key = (tuple(columns) if columns else None, rows)
-
+        key = tuple(columns) if columns else None, rows
         if key in self._views:
             return self._views[key]
-
         if columns is None and rows is None:
             view = self._data
         elif columns is None:
@@ -117,20 +116,17 @@ class MemoryOptimizedDataFrame:
             view = self._data[columns]
         else:
             view = self._data.loc[rows, columns]
-
-        # Limit the number of cached views to prevent memory leaks
         if len(self._views) >= self._max_views_cache:
-            # Remove the oldest view (first item in the dictionary)
             try:
                 oldest_key = next(iter(self._views))
                 del self._views[oldest_key]
             except (StopIteration, KeyError):
-                pass  # Dictionary might be empty or key might be gone
-
+                pass
         self._views[key] = view
         return view
 
-    def add_computed_column(self, name: str, func: Callable, *args, **kwargs) -> 'MemoryOptimizedDataFrame':
+    def add_computed_column(self, name: str, func: Callable, *args, **kwargs
+        ) ->'MemoryOptimizedDataFrame':
         """
         Add a computed column with lazy evaluation.
 
@@ -145,17 +141,14 @@ class MemoryOptimizedDataFrame:
         """
         if name in self._computed_columns:
             return self
-
-        # Add as property with lazy evaluation
-        setattr(self.__class__, name, property(lambda self: func(self._data, *args, **kwargs)))
+        setattr(self.__class__, name, property(lambda self: func(self._data,
+            *args, **kwargs)))
         self._computed_columns.add(name)
-
         logger.debug(f"Added computed column '{name}'")
-
         return self
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def shape(self) ->Tuple[int, int]:
         """Get the shape of the DataFrame."""
         return self._data.shape
 
@@ -169,7 +162,7 @@ class MemoryOptimizedDataFrame:
             return self.__dict__[name]
         return getattr(self._data, name)
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def to_dataframe(self) ->pd.DataFrame:
         """
         Convert to a standard pandas DataFrame.
 
@@ -180,20 +173,21 @@ class MemoryOptimizedDataFrame:
 
     def __repr__(self):
         """String representation."""
-        return f"MemoryOptimizedDataFrame(shape={self.shape}, columns={list(self._data.columns)})"
+        return (
+            f'MemoryOptimizedDataFrame(shape={self.shape}, columns={list(self._data.columns)})'
+            )
 
     def __len__(self):
         """Get the length of the DataFrame."""
         return len(self._data)
-        
+
     def clear_cache(self):
         """Clear the view cache to free memory."""
         self._views.clear()
-        
+
     def __del__(self):
         """Destructor to ensure proper cleanup."""
         self.clear_cache()
-        # Remove references to large objects
         if hasattr(self, '_data'):
             self._data = None
         if hasattr(self, '_views'):

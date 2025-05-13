@@ -42,10 +42,10 @@ class MLIntegrationMonitoringAdapter:
         
         # Create service client configuration
         service_config = ServiceClientConfig(
-            base_url=self.config.get("ml_integration_api_url", "http://ml-integration-service:8000/api/v1"),
-            timeout=self.config.get("timeout", 30),
-            retry_attempts=self.config.get("retry_attempts", 3),
-            retry_backoff=self.config.get("retry_backoff", 1.5)
+            base_url=self.config_manager.get('ml_integration_api_url', "http://ml-integration-service:8000/api/v1"),
+            timeout=self.config_manager.get('timeout', 30),
+            retry_attempts=self.config_manager.get('retry_attempts', 3),
+            retry_backoff=self.config_manager.get('retry_backoff', 1.5)
         )
         
         # Create adapter factory

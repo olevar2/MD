@@ -21,6 +21,20 @@ class CacheKey:
         start_time: datetime,
         end_time: datetime
     ):
+    """
+      init  .
+    
+    Args:
+        indicator_type: Description of indicator_type
+        params: Description of params
+        Any]: Description of Any]
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        start_time: Description of start_time
+        end_time: Description of end_time
+    
+    """
+
         self.indicator_type = indicator_type
         self.params = params
         self.symbol = symbol
@@ -54,9 +68,22 @@ class CacheKey:
         )
 
     def __eq__(self, other):
+    """
+      eq  .
+    
+    Args:
+        other: Description of other
+    
+    """
+
         if not isinstance(other, CacheKey):
             return False
         return self.to_string() == other.to_string()
     
     def __hash__(self):
+    """
+      hash  .
+    
+    """
+
         return hash(self.to_string())

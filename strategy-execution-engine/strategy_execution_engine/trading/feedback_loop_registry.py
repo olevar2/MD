@@ -54,22 +54,22 @@ class FeedbackLoopRegistry:
     
     def _create_statistical_validator(self) -> None:
         """Create the statistical validator component."""
-        validator_config = self.config.get("statistical_validator", {})
+        validator_config = self.config_manager.get('statistical_validator', {})
         
         self._statistical_validator = StatisticalValidator(
-            min_samples=validator_config.get("min_samples", 20),
-            significance_level=validator_config.get("significance_level", 0.05),
-            correlation_thresholds=validator_config.get("correlation_thresholds")
+            min_samples=validator_config_manager.get('min_samples', 20),
+            significance_level=validator_config_manager.get('significance_level', 0.05),
+            correlation_thresholds=validator_config_manager.get('correlation_thresholds')
         )
         
         self.logger.debug("Statistical validator created")
     
     def _create_strategy_mutator_factory(self) -> None:
         """Create the strategy mutator factory component."""
-        factory_config = self.config.get("strategy_mutator_factory", {})
+        factory_config = self.config_manager.get('strategy_mutator_factory', {})
         
         self._strategy_mutator_factory = StrategyMutatorFactory(
-            config_path=factory_config.get("config_path"),
+            config_path=factory_config_manager.get('config_path'),
             statistical_validator=self._statistical_validator
         )
         
@@ -77,7 +77,7 @@ class FeedbackLoopRegistry:
     
     def _create_feedback_collector(self) -> None:
         """Create the feedback collector component."""
-        collector_config = self.config.get("feedback_collector", {})
+        collector_config = self.config_manager.get('feedback_collector', {})
         
         self._feedback_collector = FeedbackCollector(
             config=collector_config
@@ -88,7 +88,7 @@ class FeedbackLoopRegistry:
     def _create_timeframe_feedback_service(self) -> None:
         """Create the timeframe feedback service component."""
         # This assumes TimeframeFeedbackService is already implemented in your codebase
-        timeframe_config = self.config.get("timeframe_feedback_service", {})
+        timeframe_config = self.config_manager.get('timeframe_feedback_service', {})
         
         # Initialize with appropriate configuration from your existing system
         self._timeframe_feedback_service = TimeframeFeedbackService(

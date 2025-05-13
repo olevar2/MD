@@ -8,7 +8,6 @@ including TTL-based expiration, serialization, and monitoring.
 import os
 import time
 import logging
-import pickle
 import functools
 import threading
 import hashlib
@@ -16,6 +15,9 @@ import json
 from typing import Dict, Any, Optional, Union, Callable, TypeVar, cast, List, Tuple
 from datetime import datetime, timedelta
 import inspect
+
+# Import secure serialization instead of pickle
+from common_lib.caching.secure_serialization import SecureSerializer
 
 # Redis imports
 try:
@@ -165,7 +167,8 @@ class CacheService:
                 serialized_value = self.redis_client.get(redis_key)
 
                 if serialized_value is not None:
-                    value = pickle.loads(serialized_value)
+                    # Use secure deserialization instead of pickle
+                    value = SecureSerializer.deserialize(serialized_value)
 
                     # Update local cache if enabled
                     if self.enable_local_cache:
@@ -184,7 +187,7 @@ class CacheService:
                     ).observe(time.time() - start_time)
 
                     return value
-            except (RedisError, pickle.PickleError) as e:
+            except (RedisError, json.JSONDecodeError) as e:
                 logger.warning(f"Error getting value from Redis for key '{key}': {e}")
 
                 CACHE_ERROR_COUNTER.labels(
@@ -234,7 +237,8 @@ class CacheService:
         if self.redis_client:
             try:
                 redis_key = f"cache:{key}"
-                serialized_value = pickle.dumps(value)
+                # Use secure serialization instead of pickle
+                serialized_value = SecureSerializer.serialize(value)
 
                 if ttl_seconds is None:
                     success = self.redis_client.set(redis_key, serialized_value)
@@ -246,7 +250,7 @@ class CacheService:
                     service=self.service_name,
                     operation="set"
                 ).observe(time.time() - start_time)
-            except (RedisError, pickle.PickleError) as e:
+            except (RedisError, json.JSONDecodeError) as e:
                 logger.warning(f"Error setting value in Redis for key '{key}': {e}")
 
                 CACHE_ERROR_COUNTER.labels(

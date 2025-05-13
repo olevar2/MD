@@ -275,8 +275,31 @@ def with_degraded_mode(
     manager.register_dependency(dependency_name) # Ensure dependency is registered
 
     def decorator(func: F) -> F:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    Returns:
+        F: Description of return value
+    
+    """
+
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
             if manager.is_dependency_available(dependency_name):
                 try:
                     result = func(*args, **kwargs)
@@ -412,6 +435,11 @@ def create_health_check_dependency_monitor(
     stop_event = threading.Event()
     
     def monitoring_loop():
+    """
+    Monitoring loop.
+    
+    """
+
         while not stop_event.is_set():
             try:
                 check_dependencies()

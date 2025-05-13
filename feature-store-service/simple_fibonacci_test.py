@@ -73,6 +73,15 @@ class SimpleFibonacciRetracement(SimpleFibonacciBase, IFibonacciRetracement):
     """Simple implementation of IFibonacciRetracement for testing."""
     
     def __init__(self, levels=None, **kwargs):
+    """
+      init  .
+    
+    Args:
+        levels: Description of levels
+        kwargs: Description of kwargs
+    
+    """
+
         super().__init__(name="SimpleFibonacciRetracement", **kwargs)
         self.levels = levels or [0.0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0]
     
@@ -116,6 +125,15 @@ class SimpleFibonacciExtension(SimpleFibonacciBase, IFibonacciExtension):
     """Simple implementation of IFibonacciExtension for testing."""
     
     def __init__(self, levels=None, **kwargs):
+    """
+      init  .
+    
+    Args:
+        levels: Description of levels
+        kwargs: Description of kwargs
+    
+    """
+
         super().__init__(name="SimpleFibonacciExtension", **kwargs)
         self.levels = levels or [0.0, 0.618, 1.0, 1.618, 2.618, 3.618]
     

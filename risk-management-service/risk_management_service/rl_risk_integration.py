@@ -376,6 +376,11 @@ class MockRiskOrchestrator:
     """Mock implementation of RiskCheckOrchestrator for testing."""
 
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         self.risk_parameters = {
             'position_sizing': {
                 'max_position_size': 1.0,  # in lots
@@ -390,9 +395,22 @@ class MockRiskOrchestrator:
         }
 
     def get_risk_parameters(self):
+    """
+    Get risk parameters.
+    
+    """
+
         return self.risk_parameters
 
     def update_risk_parameters(self, params):
+    """
+    Update risk parameters.
+    
+    Args:
+        params: Description of params
+    
+    """
+
         self.risk_parameters = params
         print(f"Updated risk parameters: {self.risk_parameters}")
 

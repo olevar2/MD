@@ -29,6 +29,13 @@ MODEL_DRIFT = Gauge(
 
 
 class MetricTimeWindow(BaseModel):
+    """
+    MetricTimeWindow class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     start_time: datetime
     end_time: datetime
     sample_count: int
@@ -39,6 +46,13 @@ class MetricTimeWindow(BaseModel):
 
 
 class PerformanceTracker:
+    """
+    PerformanceTracker class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, window_size: timedelta = timedelta(hours=1)):
         self.window_size = window_size
         self._metrics: Dict[str, List[float]] = {}

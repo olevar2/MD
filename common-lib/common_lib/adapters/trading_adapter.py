@@ -20,10 +20,10 @@ from common_lib.service_client.http_client import AsyncHTTPServiceClient
 class TradingProviderAdapter(ITradingProvider):
     """
     Adapter implementation for the Trading Provider interface.
-    
+
     This adapter uses the HTTP service client to communicate with the Trading Service.
     """
-    
+
     def __init__(
         self,
         config: ServiceClientConfig,
@@ -31,14 +31,14 @@ class TradingProviderAdapter(ITradingProvider):
     ):
         """
         Initialize the Trading Provider adapter.
-        
+
         Args:
             config: Configuration for the service client
             logger: Logger to use (if None, creates a new logger)
         """
         self.client = AsyncHTTPServiceClient(config)
         self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-    
+
     async def place_order(
         self,
         symbol: str,
@@ -53,7 +53,7 @@ class TradingProviderAdapter(ITradingProvider):
     ) -> Dict[str, Any]:
         """
         Place a trading order.
-        
+
         Args:
             symbol: Trading symbol (e.g., "EUR/USD")
             order_type: Type of order (e.g., "MARKET", "LIMIT", "STOP")
@@ -64,7 +64,7 @@ class TradingProviderAdapter(ITradingProvider):
             take_profit: Take profit price
             time_in_force: Time in force (e.g., "GTC", "IOC", "FOK")
             parameters: Optional additional parameters
-            
+
         Returns:
             Dictionary containing the order details
         """
@@ -77,7 +77,7 @@ class TradingProviderAdapter(ITradingProvider):
                 "quantity": quantity,
                 "time_in_force": time_in_force
             }
-            
+
             # Add optional parameters
             if price is not None:
                 request_body["price"] = price
@@ -87,30 +87,30 @@ class TradingProviderAdapter(ITradingProvider):
                 request_body["take_profit"] = take_profit
             if parameters:
                 request_body.update(parameters)
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "POST",
                 "path": "api/v1/orders",
                 "json": request_body
             })
-            
+
             # Return order details
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error placing order: {str(e)}")
             raise
-    
+
     async def cancel_order(
         self,
         order_id: str
     ) -> Dict[str, Any]:
         """
         Cancel a trading order.
-        
+
         Args:
             order_id: ID of the order to cancel
-            
+
         Returns:
             Dictionary containing the cancellation details
         """
@@ -120,13 +120,13 @@ class TradingProviderAdapter(ITradingProvider):
                 "method": "DELETE",
                 "path": f"api/v1/orders/{order_id}"
             })
-            
+
             # Return cancellation details
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error cancelling order: {str(e)}")
             raise
-    
+
     async def modify_order(
         self,
         order_id: str,
@@ -138,7 +138,7 @@ class TradingProviderAdapter(ITradingProvider):
     ) -> Dict[str, Any]:
         """
         Modify a trading order.
-        
+
         Args:
             order_id: ID of the order to modify
             price: New order price
@@ -146,14 +146,14 @@ class TradingProviderAdapter(ITradingProvider):
             stop_loss: New stop loss price
             take_profit: New take profit price
             parameters: Optional additional parameters
-            
+
         Returns:
             Dictionary containing the modified order details
         """
         try:
             # Prepare request body
             request_body = {}
-            
+
             # Add optional parameters
             if price is not None:
                 request_body["price"] = price
@@ -165,30 +165,30 @@ class TradingProviderAdapter(ITradingProvider):
                 request_body["take_profit"] = take_profit
             if parameters:
                 request_body.update(parameters)
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "PATCH",
                 "path": f"api/v1/orders/{order_id}",
                 "json": request_body
             })
-            
+
             # Return modified order details
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error modifying order: {str(e)}")
             raise
-    
+
     async def get_order(
         self,
         order_id: str
     ) -> Dict[str, Any]:
         """
         Get details of a trading order.
-        
+
         Args:
             order_id: ID of the order
-            
+
         Returns:
             Dictionary containing the order details
         """
@@ -198,13 +198,13 @@ class TradingProviderAdapter(ITradingProvider):
                 "method": "GET",
                 "path": f"api/v1/orders/{order_id}"
             })
-            
+
             # Return order details
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error retrieving order: {str(e)}")
             raise
-    
+
     async def get_orders(
         self,
         symbol: Optional[str] = None,
@@ -215,14 +215,14 @@ class TradingProviderAdapter(ITradingProvider):
     ) -> List[Dict[str, Any]]:
         """
         Get a list of trading orders.
-        
+
         Args:
             symbol: Trading symbol to filter by
             status: Order status to filter by
             start_time: Start time for filtering
             end_time: End time for filtering
             limit: Maximum number of orders to return
-            
+
         Returns:
             List of dictionaries containing order details
         """
@@ -239,30 +239,30 @@ class TradingProviderAdapter(ITradingProvider):
                 params["start_time"] = start_time.isoformat()
             if end_time:
                 params["end_time"] = end_time.isoformat()
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "GET",
                 "path": "api/v1/orders",
                 "params": params
             })
-            
+
             # Return orders
             return response.get("data", [])
         except Exception as e:
             self.logger.error(f"Error retrieving orders: {str(e)}")
             raise
-    
+
     async def get_positions(
         self,
         symbol: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get a list of open positions.
-        
+
         Args:
             symbol: Trading symbol to filter by
-            
+
         Returns:
             List of dictionaries containing position details
         """
@@ -271,20 +271,20 @@ class TradingProviderAdapter(ITradingProvider):
             params = {}
             if symbol:
                 params["symbol"] = symbol
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "GET",
                 "path": "api/v1/positions",
                 "params": params
             })
-            
+
             # Return positions
             return response.get("data", [])
         except Exception as e:
             self.logger.error(f"Error retrieving positions: {str(e)}")
             raise
-    
+
     async def close_position(
         self,
         position_id: str,
@@ -292,11 +292,11 @@ class TradingProviderAdapter(ITradingProvider):
     ) -> Dict[str, Any]:
         """
         Close a trading position.
-        
+
         Args:
             position_id: ID of the position to close
             quantity: Quantity to close (if None, closes the entire position)
-            
+
         Returns:
             Dictionary containing the closure details
         """
@@ -305,24 +305,24 @@ class TradingProviderAdapter(ITradingProvider):
             request_body = {}
             if quantity is not None:
                 request_body["quantity"] = quantity
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "POST",
                 "path": f"api/v1/positions/{position_id}/close",
                 "json": request_body
             })
-            
+
             # Return closure details
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error closing position: {str(e)}")
             raise
-    
+
     async def get_account_info(self) -> Dict[str, Any]:
         """
         Get account information.
-        
+
         Returns:
             Dictionary containing account information
         """
@@ -332,13 +332,13 @@ class TradingProviderAdapter(ITradingProvider):
                 "method": "GET",
                 "path": "api/v1/account"
             })
-            
+
             # Return account information
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error retrieving account information: {str(e)}")
             raise
-    
+
     async def get_trade_history(
         self,
         symbol: Optional[str] = None,
@@ -348,13 +348,13 @@ class TradingProviderAdapter(ITradingProvider):
     ) -> List[Dict[str, Any]]:
         """
         Get trade history.
-        
+
         Args:
             symbol: Trading symbol to filter by
             start_time: Start time for filtering
             end_time: End time for filtering
             limit: Maximum number of trades to return
-            
+
         Returns:
             List of dictionaries containing trade details
         """
@@ -369,14 +369,14 @@ class TradingProviderAdapter(ITradingProvider):
                 params["start_time"] = start_time.isoformat()
             if end_time:
                 params["end_time"] = end_time.isoformat()
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "GET",
                 "path": "api/v1/trades",
                 "params": params
             })
-            
+
             # Return trades
             return response.get("data", [])
         except Exception as e:
@@ -387,10 +387,10 @@ class TradingProviderAdapter(ITradingProvider):
 class OrderBookProviderAdapter(IOrderBookProvider):
     """
     Adapter implementation for the Order Book Provider interface.
-    
+
     This adapter uses the HTTP service client to communicate with the Trading Service.
     """
-    
+
     def __init__(
         self,
         config: ServiceClientConfig,
@@ -398,7 +398,7 @@ class OrderBookProviderAdapter(IOrderBookProvider):
     ):
         """
         Initialize the Order Book Provider adapter.
-        
+
         Args:
             config: Configuration for the service client
             logger: Logger to use (if None, creates a new logger)
@@ -406,7 +406,7 @@ class OrderBookProviderAdapter(IOrderBookProvider):
         self.client = AsyncHTTPServiceClient(config)
         self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._subscriptions = {}
-    
+
     async def get_order_book(
         self,
         symbol: str,
@@ -414,11 +414,11 @@ class OrderBookProviderAdapter(IOrderBookProvider):
     ) -> Dict[str, Any]:
         """
         Get the order book for a symbol.
-        
+
         Args:
             symbol: Trading symbol (e.g., "EUR/USD")
             depth: Depth of the order book
-            
+
         Returns:
             Dictionary containing the order book data
         """
@@ -427,34 +427,34 @@ class OrderBookProviderAdapter(IOrderBookProvider):
             params = {
                 "depth": depth
             }
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "GET",
                 "path": f"api/v1/orderbook/{symbol}",
                 "params": params
             })
-            
+
             # Return order book data
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error retrieving order book: {str(e)}")
             raise
-    
+
     async def subscribe_to_order_book(
         self,
         symbol: str,
-        depth: int = 10,
-        callback: Callable  # TODO: Fix parameter order manually  # TODO: Fix parameter order manually  # TODO: Fix parameter order manually
+        callback: Callable,
+        depth: int = 10
     ) -> str:
         """
         Subscribe to order book updates.
-        
+
         Args:
             symbol: Trading symbol (e.g., "EUR/USD")
-            depth: Depth of the order book
             callback: Callback function to be called when the order book is updated
-            
+            depth: Depth of the order book
+
         Returns:
             Subscription ID
         """
@@ -468,29 +468,29 @@ class OrderBookProviderAdapter(IOrderBookProvider):
                     "depth": depth
                 }
             })
-            
+
             # Extract subscription ID
             subscription_id = response.get("subscription_id", "")
-            
+
             # Store callback
             if subscription_id:
                 self._subscriptions[subscription_id] = callback
-            
+
             return subscription_id
         except Exception as e:
             self.logger.error(f"Error subscribing to order book: {str(e)}")
             raise
-    
+
     async def unsubscribe_from_order_book(
         self,
         subscription_id: str
     ) -> bool:
         """
         Unsubscribe from order book updates.
-        
+
         Args:
             subscription_id: Subscription ID returned by subscribe_to_order_book
-            
+
         Returns:
             True if unsubscribed successfully, False otherwise
         """
@@ -503,11 +503,11 @@ class OrderBookProviderAdapter(IOrderBookProvider):
                     "subscription_id": subscription_id
                 }
             })
-            
+
             # Remove callback
             if subscription_id in self._subscriptions:
                 del self._subscriptions[subscription_id]
-            
+
             # Return success status
             return response.get("success", False)
         except Exception as e:
@@ -518,10 +518,10 @@ class OrderBookProviderAdapter(IOrderBookProvider):
 class RiskManagerAdapter(IRiskManager):
     """
     Adapter implementation for the Risk Manager interface.
-    
+
     This adapter uses the HTTP service client to communicate with the Trading Service.
     """
-    
+
     def __init__(
         self,
         config: ServiceClientConfig,
@@ -529,14 +529,14 @@ class RiskManagerAdapter(IRiskManager):
     ):
         """
         Initialize the Risk Manager adapter.
-        
+
         Args:
             config: Configuration for the service client
             logger: Logger to use (if None, creates a new logger)
         """
         self.client = AsyncHTTPServiceClient(config)
         self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-    
+
     async def validate_order(
         self,
         symbol: str,
@@ -548,7 +548,7 @@ class RiskManagerAdapter(IRiskManager):
     ) -> Dict[str, Any]:
         """
         Validate a trading order against risk rules.
-        
+
         Args:
             symbol: Trading symbol (e.g., "EUR/USD")
             order_type: Type of order (e.g., "MARKET", "LIMIT", "STOP")
@@ -556,7 +556,7 @@ class RiskManagerAdapter(IRiskManager):
             quantity: Order quantity
             price: Order price
             account_info: Account information
-            
+
         Returns:
             Dictionary containing validation results
         """
@@ -568,36 +568,36 @@ class RiskManagerAdapter(IRiskManager):
                 "side": side,
                 "quantity": quantity
             }
-            
+
             # Add optional parameters
             if price is not None:
                 request_body["price"] = price
             if account_info:
                 request_body["account_info"] = account_info
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "POST",
                 "path": "api/v1/risk/validate-order",
                 "json": request_body
             })
-            
+
             # Return validation results
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error validating order: {str(e)}")
             raise
-    
+
     async def calculate_position_risk(
         self,
         position: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Calculate risk metrics for a position.
-        
+
         Args:
             position: Position details
-            
+
         Returns:
             Dictionary containing risk metrics
         """
@@ -608,13 +608,13 @@ class RiskManagerAdapter(IRiskManager):
                 "path": "api/v1/risk/position",
                 "json": position
             })
-            
+
             # Return risk metrics
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error calculating position risk: {str(e)}")
             raise
-    
+
     async def calculate_portfolio_risk(
         self,
         positions: List[Dict[str, Any]],
@@ -622,11 +622,11 @@ class RiskManagerAdapter(IRiskManager):
     ) -> Dict[str, Any]:
         """
         Calculate risk metrics for the entire portfolio.
-        
+
         Args:
             positions: List of position details
             account_info: Account information
-            
+
         Returns:
             Dictionary containing risk metrics
         """
@@ -640,23 +640,23 @@ class RiskManagerAdapter(IRiskManager):
                     "account_info": account_info
                 }
             })
-            
+
             # Return risk metrics
             return response.get("data", {})
         except Exception as e:
             self.logger.error(f"Error calculating portfolio risk: {str(e)}")
             raise
-    
+
     async def get_risk_limits(
         self,
         symbol: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Get risk limits.
-        
+
         Args:
             symbol: Trading symbol to get limits for, or None for global limits
-            
+
         Returns:
             Dictionary containing risk limits
         """
@@ -665,14 +665,14 @@ class RiskManagerAdapter(IRiskManager):
             params = {}
             if symbol:
                 params["symbol"] = symbol
-            
+
             # Send request to the Trading Service
             response = await self.client.send_request({
                 "method": "GET",
                 "path": "api/v1/risk/limits",
                 "params": params
             })
-            
+
             # Return risk limits
             return response.get("data", {})
         except Exception as e:

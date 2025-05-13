@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: feature-store-service
+  name: feature-store-service
+spec:
+  ports:
+  - name: http
+    port: 8005
+    targetPort: 8005
+  selector:
+    app: feature-store-service

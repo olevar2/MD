@@ -18,7 +18,7 @@ Analysis Date: 2025-05-10 03:47:43
 | analysis-engine-service | 426 |
 | feature-store-service | 264 |
 | strategy-execution-engine | 102 |
-| ml-workbench-service | 101 |
+| ml_workbench-service | 101 |
 | common-lib | 89 |
 | trading-gateway-service | 76 |
 | data-pipeline-service | 71 |
@@ -95,7 +95,7 @@ Analysis Date: 2025-05-10 03:47:43
 | Module | Class Count |
 |--------|-------------|
 | common-lib.common_lib.exceptions | 23 |
-| ml-workbench-service.ml_workbench_service.models.schemas | 22 |
+| ml_workbench-service.ml_workbench_service.models.schemas | 22 |
 | common-lib.common_lib.error.exceptions | 20 |
 | core-foundations.core_foundations.events.event_schema | 20 |
 | strategy-execution-engine.strategy_execution_engine.error.exceptions | 18 |
@@ -126,7 +126,7 @@ Analysis Date: 2025-05-10 03:47:43
 | trading-gateway-service.trading_gateway_service.simulation.forex_broker_simulator | 32 |
 | feature-store-service.feature_store_service.optimization.advanced_calculation | 31 |
 | ml-integration-service.tests.test_ml_integration | 31 |
-| ml-workbench-service.ml_workbench_service.explainability.explainability_module | 30 |
+| ml_workbench-service.ml_workbench_service.explainability.explainability_module | 30 |
 | ui-service.components.custom_dashboards | 30 |
 | core-foundations.core_foundations.resilience.service_registry | 29 |
 | monitoring-alerting-service.alerts.indicator_alerts | 29 |

@@ -80,6 +80,13 @@ class IndicatorResponse(BaseModel):
     indicators: Dict[str, Any]
     
     class Config:
+    """
+    Config class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }

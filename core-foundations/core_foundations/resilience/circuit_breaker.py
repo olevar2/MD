@@ -106,6 +106,17 @@ class CircuitBreaker:
         config: Optional[CircuitBreakerConfig] = None,
         fallback_function: Optional[Callable[..., Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        name: Description of name
+        config: Description of config
+        fallback_function: Description of fallback_function
+        Any]]: Description of Any]]
+    
+    """
+
         self.name = name
         self.config = config or CircuitBreakerConfig()
         self.fallback_function = fallback_function

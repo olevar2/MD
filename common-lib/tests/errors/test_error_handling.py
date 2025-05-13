@@ -119,6 +119,11 @@ def test_error_handler_decorator():
     # Define a function that raises an error
     @handle_exceptions()
     def function_with_error():
+    """
+    Function with error.
+    
+    """
+
         raise ValidationError(
             message="Invalid value",
             field="username",
@@ -145,6 +150,11 @@ def test_error_handler_class():
     # Define a function that raises an error
     @handler.handle
     def function_with_error():
+    """
+    Function with error.
+    
+    """
+
         raise ValidationError(
             message="Invalid value",
             field="username",

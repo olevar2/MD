@@ -1,0 +1,37 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "chart.fullname" . }}-config
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    # Service configuration
+    service:
+      name: {{ .Values.config.service.name }}
+      port: {{ .Values.config.service.port }}
+      environment: {{ .Values.config.service.environment }}
+
+    # Logging configuration
+    logging:
+      level: {{ .Values.config.logging.level }}
+      format: {{ .Values.config.logging.format }}
+
+    # Database configuration
+    database:
+      host: {{ .Values.config.database.host }}
+      port: {{ .Values.config.database.port }}
+      name: {{ .Values.config.database.name }}
+      user: {{ .Values.config.database.user }}
+      # password is stored in a secret
+
+    # Metrics configuration
+    metrics:
+      enabled: {{ .Values.config.metrics.enabled }}
+      path: {{ .Values.config.metrics.path }}
+
+    # Tracing configuration
+    tracing:
+      enabled: {{ .Values.config.tracing.enabled }}
+      endpoint: {{ .Values.config.tracing.endpoint }}

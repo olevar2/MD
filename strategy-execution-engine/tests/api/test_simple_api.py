@@ -15,14 +15,29 @@ def create_test_app():
     
     @app.get("/")
     async def root():
+    """
+    Root.
+    
+    """
+
         return {"message": "Strategy Execution Engine is running", "version": "0.1.0"}
     
     @app.get("/health")
     async def health():
+    """
+    Health.
+    
+    """
+
         return {"status": "healthy", "version": "0.1.0"}
     
     @app.get("/api/v1/strategies")
     async def list_strategies():
+    """
+    List strategies.
+    
+    """
+
         return {
             "strategies": [
                 {

@@ -313,6 +313,17 @@ def create_visualization(structure, output_path, max_depth=2, width=3000, height
 
     # Extract nodes and connections
     def extract_nodes(node, parent=None, depth=0, path=""):
+    """
+    Extract nodes.
+    
+    Args:
+        node: Description of node
+        parent: Description of parent
+        depth: Description of depth
+        path: Description of path
+    
+    """
+
         if depth > max_depth:
             return
 
@@ -394,6 +405,16 @@ def calculate_force_directed_layout(nodes, connections, width, height, iteration
 
     # Define forces
     def repulsive_force(pos1, pos2, strength=5000):
+    """
+    Repulsive force.
+    
+    Args:
+        pos1: Description of pos1
+        pos2: Description of pos2
+        strength: Description of strength
+    
+    """
+
         dx = pos1[0] - pos2[0]
         dy = pos1[1] - pos2[1]
         distance = max(1, math.sqrt(dx * dx + dy * dy))
@@ -401,6 +422,16 @@ def calculate_force_directed_layout(nodes, connections, width, height, iteration
         return force * dx / distance, force * dy / distance
 
     def attractive_force(pos1, pos2, strength=0.2):
+    """
+    Attractive force.
+    
+    Args:
+        pos1: Description of pos1
+        pos2: Description of pos2
+        strength: Description of strength
+    
+    """
+
         dx = pos1[0] - pos2[0]
         dy = pos1[1] - pos2[1]
         distance = max(1, math.sqrt(dx * dx + dy * dy))

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Card, DataTable, Chart } from '../../components/ui-library';
+import { Card, DataTable, Chart } from '../../components/ui_library';
 import SignalConfidenceChart from '../../components/visualization/SignalConfidenceChart';
 import RegimeIndicator from '../../components/dashboard/RegimeIndicator';
 import useResponsiveLayout from '../../hooks/useResponsiveLayout';

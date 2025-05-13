@@ -249,6 +249,11 @@ def test_thread_isolation():
     thread_result = {}
 
     def thread_func():
+    """
+    Thread func.
+    
+    """
+
         # Initially, no correlation ID should be set in the thread
         thread_result["initial"] = get_correlation_id()
 

@@ -176,7 +176,22 @@ def test_register_strategy(client, mock_strategy_loader):
         "instruments": ["EUR/USD", "GBP/USD"],
         "timeframe": "1h",
         "parameters": {"param1": 10, "param2": "value"},
-        "code": "class NewStrategy(Strategy):\n    def analyze(self, data):\n        return {}\n"
+        "code": "class NewStrategy(Strategy):
+    """
+    NewStrategy class that inherits from Strategy.
+    
+    Attributes:
+        Add attributes here
+    """
+\n    def analyze(self, data):
+    """
+    Analyze.
+    
+    Args:
+        data: Description of data
+    
+    """
+\n        return {}\n"
     }
 
     response = client.post("/api/v1/strategies/register", json=strategy_data)

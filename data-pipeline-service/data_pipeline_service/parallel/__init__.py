@@ -13,7 +13,7 @@ Components:
 - error_handling: Utilities for error handling in parallel processing
 """
 
-from data_pipeline_service.parallel.parallel_processing_framework import (
+from common_lib.parallel import ParallelProcessor, ParallelizationMethod, ResourceManager, TaskDefinition, TaskPriority, TaskResult, get_parallel_processor
     ParallelExecutor,
     ParallelizationMethod,
     ResourceManager,
@@ -22,16 +22,16 @@ from data_pipeline_service.parallel.parallel_processing_framework import (
     TaskResult,
 )
 
-from data_pipeline_service.parallel.multi_instrument_processor import (
+from common_lib.parallel import MultiInstrumentProcessor, get_multi_instrument_processor
     MultiInstrumentProcessor,
 )
 
-from data_pipeline_service.parallel.multi_timeframe_processor import (
+from common_lib.parallel import TimeframeHierarchy
     MultiTimeframeProcessor,
     TimeframeHierarchy,
 )
 
-from data_pipeline_service.parallel.batch_feature_processor import (
+from common_lib.parallel import FeatureSpec
     BatchFeatureProcessor,
     FeatureSpec,
 )

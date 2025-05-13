@@ -65,7 +65,7 @@ PATCH /versions/{version_id}/stage
 
 The Model Registry Service eliminates circular dependencies by providing a central service that other services can depend on:
 
-- ml-workbench-service: Uses for model training and experimentation
+- ml_workbench-service: Uses for model training and experimentation
 - ml-integration-service: Uses for model deployment and serving
 - analysis-engine-service: Uses for retrieving production models
 - strategy-execution-engine: Uses for loading trading strategy models

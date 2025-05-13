@@ -17,6 +17,11 @@ from analysis_engine.adaptive_layer.strategy_mutation import (
 
 @pytest.fixture
 def sample_strategy_config():
+    """
+    Sample strategy config.
+    
+    """
+
     return {
         'id': 'SMA_Cross_1',
         'version': 1.0,

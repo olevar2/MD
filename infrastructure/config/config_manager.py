@@ -14,6 +14,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ConfigAuditEntry:
+    """
+    ConfigAuditEntry class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     timestamp: datetime
     user: str
     component: str
@@ -21,7 +28,22 @@ class ConfigAuditEntry:
     previous_values: Dict[str, Any]
 
 class ConfigManager:
+    """
+    ConfigManager class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, base_config_path: str):
+    """
+      init  .
+    
+    Args:
+        base_config_path: Description of base_config_path
+    
+    """
+
         self.base_config_path = Path(base_config_path)
         self.config_cache = {}
         self.audit_log: List[ConfigAuditEntry] = []

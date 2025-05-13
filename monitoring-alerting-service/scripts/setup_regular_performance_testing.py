@@ -139,6 +139,11 @@ logging.basicConfig(
 logger = logging.getLogger("performance-test-runner")
 
 def load_config():
+    """
+    Load config.
+    
+    """
+
     \"\"\"Load the configuration file.\"\"\"
     config_file = Path("monitoring-alerting-service/config/regular_performance_testing.yml")
     
@@ -150,6 +155,11 @@ def load_config():
         return yaml.safe_load(f)
 
 def load_baseline():
+    """
+    Load baseline.
+    
+    """
+
     \"\"\"Load the baseline document.\"\"\"
     baseline_file = Path("monitoring-alerting-service/docs/performance_baselines.json")
     
@@ -161,6 +171,15 @@ def load_baseline():
         return json.load(f)
 
 def run_performance_test(test_type, services="all"):
+    """
+    Run performance test.
+    
+    Args:
+        test_type: Description of test_type
+        services: Description of services
+    
+    """
+
     \"\"\"Run a performance test.\"\"\"
     logger.info(f"Running {test_type} performance test for {services}")
     
@@ -226,6 +245,15 @@ def run_performance_test(test_type, services="all"):
     return results
 
 def compare_to_baseline(results, baseline):
+    """
+    Compare to baseline.
+    
+    Args:
+        results: Description of results
+        baseline: Description of baseline
+    
+    """
+
     \"\"\"Compare test results to baseline.\"\"\"
     logger.info("Comparing results to baseline")
     
@@ -316,6 +344,16 @@ def compare_to_baseline(results, baseline):
     return comparison
 
 def generate_report(results, baseline, comparison):
+    """
+    Generate report.
+    
+    Args:
+        results: Description of results
+        baseline: Description of baseline
+        comparison: Description of comparison
+    
+    """
+
     \"\"\"Generate a performance test report.\"\"\"
     logger.info("Generating performance test report")
     
@@ -399,6 +437,15 @@ def generate_report(results, baseline, comparison):
     return report_file
 
 def check_for_regressions(comparison, alerting_config):
+    """
+    Check for regressions.
+    
+    Args:
+        comparison: Description of comparison
+        alerting_config: Description of alerting_config
+    
+    """
+
     \"\"\"Check for performance regressions and trigger alerts if necessary.\"\"\"
     logger.info("Checking for performance regressions")
     
@@ -484,6 +531,11 @@ def check_for_regressions(comparison, alerting_config):
         logger.info("No performance regressions found")
 
 def main():
+    """
+    Main.
+    
+    """
+
     \"\"\"Main function.\"\"\"
     parser = argparse.ArgumentParser(description="Run performance tests")
     parser.add_argument("--type", choices=["normal", "comprehensive", "full"], default="normal", help="Test type")

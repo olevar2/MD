@@ -4,7 +4,6 @@ Transfer Learning Module
 This module provides transfer learning capabilities for financial models,
 enabling knowledge transfer between instruments and timeframes.
 """
-
 import logging
 from typing import Dict, List, Optional, Any, Union, Tuple
 import numpy as np
@@ -12,27 +11,33 @@ import pandas as pd
 from datetime import datetime
 import os
 import json
-
 logger = logging.getLogger(__name__)
 
+
+from ml_workbench_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class ModelFeatureTransformer:
     """
     Transforms features between different instruments or timeframes
     to enable transfer learning.
     """
-    
+
     def __init__(self):
         """Initialize the feature transformer"""
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(f'{__name__}.{self.__class__.__name__}'
+            )
         self.transformation_cache = {}
-    
-    def fit_transform_mapping(
-        self,
-        source_features: pd.DataFrame,
-        target_features: pd.DataFrame,
-        feature_subset: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+
+    def fit_transform_mapping(self, source_features: pd.DataFrame,
+        target_features: pd.DataFrame, feature_subset: Optional[List[str]]=None
+        ) ->Dict[str, Any]:
         """
         Learn a transformation mapping from source to target features.
         
@@ -45,75 +50,47 @@ class ModelFeatureTransformer:
             Transformation parameters
         """
         if source_features.empty or target_features.empty:
-            self.logger.warning("Empty features provided for mapping")
+            self.logger.warning('Empty features provided for mapping')
             return {}
-        
-        # Ensure indices are aligned
         source_features = source_features.copy()
         target_features = target_features.copy()
-        
-        # Use only specified features if provided
         if feature_subset:
-            source_cols = [col for col in feature_subset if col in source_features.columns]
-            target_cols = [col for col in feature_subset if col in target_features.columns]
+            source_cols = [col for col in feature_subset if col in
+                source_features.columns]
+            target_cols = [col for col in feature_subset if col in
+                target_features.columns]
             common_cols = list(set(source_cols).intersection(target_cols))
-            
             if not common_cols:
-                self.logger.warning("No common features found in subset")
+                self.logger.warning('No common features found in subset')
                 return {}
-                
             source_features = source_features[common_cols]
             target_features = target_features[common_cols]
         else:
-            # Find common features
-            common_cols = list(set(source_features.columns).intersection(target_features.columns))
+            common_cols = list(set(source_features.columns).intersection(
+                target_features.columns))
             source_features = source_features[common_cols]
             target_features = target_features[common_cols]
-        
-        # Calculate transformation parameters for each feature
-        transformation = {
-            "features": {},
-            "metadata": {
-                "source_shape": source_features.shape,
-                "target_shape": target_features.shape,
-                "timestamp": datetime.now().isoformat(),
-                "common_features": common_cols
-            }
-        }
-        
+        transformation = {'features': {}, 'metadata': {'source_shape':
+            source_features.shape, 'target_shape': target_features.shape,
+            'timestamp': datetime.now().isoformat(), 'common_features':
+            common_cols}}
         for col in common_cols:
-            if source_features[col].std() == 0 or target_features[col].std() == 0:
-                # Skip features with no variance
+            if source_features[col].std() == 0 or target_features[col].std(
+                ) == 0:
                 continue
-                
-            # Calculate simple linear transformation parameters
-            # target = a * source + b
             s_mean = source_features[col].mean()
             s_std = source_features[col].std()
             t_mean = target_features[col].mean()
             t_std = target_features[col].std()
-            
-            # Calculate scaling factor and offset
             a = t_std / s_std if s_std > 0 else 1.0
             b = t_mean - a * s_mean
-            
-            # Store parameters
-            transformation["features"][col] = {
-                "scale": a,
-                "offset": b,
-                "source_mean": s_mean,
-                "source_std": s_std,
-                "target_mean": t_mean,
-                "target_std": t_std
-            }
-        
+            transformation['features'][col] = {'scale': a, 'offset': b,
+                'source_mean': s_mean, 'source_std': s_std, 'target_mean':
+                t_mean, 'target_std': t_std}
         return transformation
-    
-    def transform_features(
-        self,
-        features: pd.DataFrame,
-        transformation: Dict[str, Any]
-    ) -> pd.DataFrame:
+
+    def transform_features(self, features: pd.DataFrame, transformation:
+        Dict[str, Any]) ->pd.DataFrame:
         """
         Apply transformation to source features to map them to target domain.
         
@@ -124,25 +101,18 @@ class ModelFeatureTransformer:
         Returns:
             Transformed features
         """
-        if not transformation or "features" not in transformation:
-            self.logger.warning("Invalid transformation provided")
+        if not transformation or 'features' not in transformation:
+            self.logger.warning('Invalid transformation provided')
             return features
-        
         result = features.copy()
-        
-        for col, params in transformation["features"].items():
+        for col, params in transformation['features'].items():
             if col in result.columns:
-                # Apply linear transformation
-                result[col] = params["scale"] * result[col] + params["offset"]
-        
+                result[col] = params['scale'] * result[col] + params['offset']
         return result
-    
-    def get_transfer_similarity(
-        self,
-        source_features: pd.DataFrame,
-        target_features: pd.DataFrame,
-        feature_subset: Optional[List[str]] = None
-    ) -> float:
+
+    def get_transfer_similarity(self, source_features: pd.DataFrame,
+        target_features: pd.DataFrame, feature_subset: Optional[List[str]]=None
+        ) ->float:
         """
         Calculate how similar two sets of features are for transfer learning.
         Higher similarity score means better transfer learning potential.
@@ -155,36 +125,27 @@ class ModelFeatureTransformer:
         Returns:
             Similarity score (0-1)
         """
-        # Use only specified features if provided
         if feature_subset:
-            source_cols = [col for col in feature_subset if col in source_features.columns]
-            target_cols = [col for col in feature_subset if col in target_features.columns]
+            source_cols = [col for col in feature_subset if col in
+                source_features.columns]
+            target_cols = [col for col in feature_subset if col in
+                target_features.columns]
             common_cols = list(set(source_cols).intersection(target_cols))
         else:
-            # Find common features
-            common_cols = list(set(source_features.columns).intersection(target_features.columns))
-        
+            common_cols = list(set(source_features.columns).intersection(
+                target_features.columns))
         if not common_cols:
             return 0.0
-        
         source_subset = source_features[common_cols]
         target_subset = target_features[common_cols]
-        
-        # Calculate correlation matrix between source and target
         correlations = []
         for col in common_cols:
-            corr = np.corrcoef(
-                source_subset[col].values,
-                target_subset[col].values
-            )[0, 1]
-            
+            corr = np.corrcoef(source_subset[col].values, target_subset[col
+                ].values)[0, 1]
             if not np.isnan(corr):
                 correlations.append(abs(corr))
-        
         if not correlations:
             return 0.0
-            
-        # Average absolute correlation as similarity score
         return sum(correlations) / len(correlations)
 
 
@@ -197,10 +158,9 @@ class TransferLearningModel:
     2. Different timeframes (e.g., 1h -> 15m)
     3. Different market regimes (e.g., trending -> ranging)
     """
-    
-    def __init__(self, 
-                 source_model_path: Optional[str] = None,
-                 feature_transformer: Optional[ModelFeatureTransformer] = None):
+
+    def __init__(self, source_model_path: Optional[str]=None,
+        feature_transformer: Optional[ModelFeatureTransformer]=None):
         """
         Initialize transfer learning model
         
@@ -208,14 +168,17 @@ class TransferLearningModel:
             source_model_path: Path to source model weights/parameters
             feature_transformer: Transformer for feature adaptation
         """
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(f'{__name__}.{self.__class__.__name__}'
+            )
         self.source_model_path = source_model_path
-        self.feature_transformer = feature_transformer or ModelFeatureTransformer()
+        self.feature_transformer = (feature_transformer or
+            ModelFeatureTransformer())
         self.transfer_params = {}
         self.model_params = {}
         self.is_transfer_model = False
-        
-    def load_source_model(self, model_path: Optional[str] = None) -> bool:
+
+    @with_exception_handling
+    def load_source_model(self, model_path: Optional[str]=None) ->bool:
         """
         Load source model for transfer learning
         
@@ -227,27 +190,20 @@ class TransferLearningModel:
         """
         path = model_path or self.source_model_path
         if not path or not os.path.exists(path):
-            self.logger.error(f"Source model path does not exist: {path}")
+            self.logger.error(f'Source model path does not exist: {path}')
             return False
-            
         try:
-            # Implementation depends on model type (could be scikit-learn, PyTorch, TensorFlow)
-            # For this POC, we'll implement a simple JSON parameter loading
             with open(path, 'r') as f:
                 params = json.load(f)
-                
             self.model_params = params
             self.is_transfer_model = True
             return True
-            
         except Exception as e:
-            self.logger.error(f"Failed to load source model: {e}")
+            self.logger.error(f'Failed to load source model: {e}')
             return False
-    
-    def adapt_layers(self, 
-                     source_data: pd.DataFrame,
-                     target_data: pd.DataFrame,
-                     layers_to_adapt: List[str] = None) -> Dict[str, Any]:
+
+    def adapt_layers(self, source_data: pd.DataFrame, target_data: pd.
+        DataFrame, layers_to_adapt: List[str]=None) ->Dict[str, Any]:
         """
         Adapt specific layers from source to target domain
         
@@ -259,28 +215,18 @@ class TransferLearningModel:
         Returns:
             Parameters for layer adaptation
         """
-        # This is a simplified implementation for the POC
-        # A real implementation would adapt network layers or model parameters
-        
-        # For the POC, we'll focus on feature transformations
         feature_mapping = self.feature_transformer.fit_transform_mapping(
             source_data, target_data)
-        
-        # Calculate similarity score
         similarity = self.feature_transformer.get_transfer_similarity(
             source_data, target_data)
-            
-        adaptation_params = {
-            "feature_mapping": feature_mapping,
-            "similarity_score": similarity,
-            "layers_adapted": layers_to_adapt or [],
-            "timestamp": datetime.now().isoformat()
-        }
-        
+        adaptation_params = {'feature_mapping': feature_mapping,
+            'similarity_score': similarity, 'layers_adapted': 
+            layers_to_adapt or [], 'timestamp': datetime.now().isoformat()}
         self.transfer_params = adaptation_params
         return adaptation_params
-    
-    def save_transfer_model(self, path: str) -> bool:
+
+    @with_exception_handling
+    def save_transfer_model(self, path: str) ->bool:
         """
         Save the transfer-adapted model
         
@@ -291,28 +237,18 @@ class TransferLearningModel:
             Success flag
         """
         try:
-            # Create combined parameters
-            params = {
-                "model_params": self.model_params,
-                "transfer_params": self.transfer_params,
-                "is_transfer_model": True,
-                "metadata": {
-                    "created_at": datetime.now().isoformat(),
-                    "source_model": self.source_model_path
-                }
-            }
-            
-            # Save as JSON (simplified for POC)
+            params = {'model_params': self.model_params, 'transfer_params':
+                self.transfer_params, 'is_transfer_model': True, 'metadata':
+                {'created_at': datetime.now().isoformat(), 'source_model':
+                self.source_model_path}}
             with open(path, 'w') as f:
                 json.dump(params, f, indent=2)
-                
             return True
-            
         except Exception as e:
-            self.logger.error(f"Failed to save transfer model: {e}")
+            self.logger.error(f'Failed to save transfer model: {e}')
             return False
-    
-    def transform_input_features(self, features: pd.DataFrame) -> pd.DataFrame:
+
+    def transform_input_features(self, features: pd.DataFrame) ->pd.DataFrame:
         """
         Transform input features to match the source model's expected format
         
@@ -324,12 +260,11 @@ class TransferLearningModel:
         """
         if not self.is_transfer_model or not self.transfer_params:
             return features
-            
-        feature_mapping = self.transfer_params.get("feature_mapping", {})
+        feature_mapping = self.transfer_params.get('feature_mapping', {})
         if not feature_mapping:
             return features
-            
-        return self.feature_transformer.transform_features(features, feature_mapping)
+        return self.feature_transformer.transform_features(features,
+            feature_mapping)
 
 
 class TransferLearningFactory:
@@ -341,19 +276,16 @@ class TransferLearningFactory:
     2. Create transfer learning models
     3. Evaluate transfer learning effectiveness
     """
-    
+
     def __init__(self):
         """Initialize the transfer learning factory"""
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(f'{__name__}.{self.__class__.__name__}'
+            )
         self.feature_transformer = ModelFeatureTransformer()
-    
-    def find_transfer_candidates(
-        self,
-        target_symbol: str,
-        target_timeframe: str,
-        source_data: Dict[str, pd.DataFrame],
-        min_similarity: float = 0.7
-    ) -> List[Dict[str, Any]]:
+
+    def find_transfer_candidates(self, target_symbol: str, target_timeframe:
+        str, source_data: Dict[str, pd.DataFrame], min_similarity: float=0.7
+        ) ->List[Dict[str, Any]]:
         """
         Find suitable source models for transfer learning
         
@@ -367,45 +299,28 @@ class TransferLearningFactory:
             List of transfer candidates with similarity scores
         """
         candidates = []
-        target_key = f"{target_symbol}_{target_timeframe}"
-        
+        target_key = f'{target_symbol}_{target_timeframe}'
         if target_key not in source_data:
-            self.logger.warning(f"No target data found for {target_key}")
+            self.logger.warning(f'No target data found for {target_key}')
             return candidates
-            
         target_features = source_data[target_key]
-        
-        # Compare with each source
         for source_key, source_features in source_data.items():
             if source_key == target_key:
                 continue
-                
-            # Calculate similarity score
             similarity = self.feature_transformer.get_transfer_similarity(
                 source_features, target_features)
-                
-            # If above threshold, add as candidate
             if similarity >= min_similarity:
                 source_parts = source_key.split('_')
-                candidates.append({
-                    "source_symbol": source_parts[0],
-                    "source_timeframe": source_parts[1],
-                    "similarity": similarity,
-                    "key": source_key
-                })
-        
-        # Sort by similarity (descending)
-        candidates.sort(key=lambda x: x["similarity"], reverse=True)
+                candidates.append({'source_symbol': source_parts[0],
+                    'source_timeframe': source_parts[1], 'similarity':
+                    similarity, 'key': source_key})
+        candidates.sort(key=lambda x: x['similarity'], reverse=True)
         return candidates
-    
-    def create_transfer_model(
-        self,
-        source_model_path: str,
-        source_data: pd.DataFrame,
-        target_data: pd.DataFrame,
-        adapt_layers: List[str] = None,
-        output_path: Optional[str] = None
-    ) -> Tuple[TransferLearningModel, Dict[str, Any]]:
+
+    def create_transfer_model(self, source_model_path: str, source_data: pd
+        .DataFrame, target_data: pd.DataFrame, adapt_layers: List[str]=None,
+        output_path: Optional[str]=None) ->Tuple[TransferLearningModel,
+        Dict[str, Any]]:
         """
         Create a transfer learning model from source to target
         
@@ -419,40 +334,25 @@ class TransferLearningFactory:
         Returns:
             Transfer model and adaptation metrics
         """
-        # Create transfer model
-        model = TransferLearningModel(
-            source_model_path=source_model_path,
-            feature_transformer=self.feature_transformer
-        )
-        
-        # Load source model
+        model = TransferLearningModel(source_model_path=source_model_path,
+            feature_transformer=self.feature_transformer)
         if not model.load_source_model():
-            self.logger.error("Failed to load source model")
-            return model, {"success": False, "error": "Failed to load source model"}
-        
-        # Adapt layers
-        adaptation_params = model.adapt_layers(
-            source_data, target_data, adapt_layers)
-            
-        # Save if path provided
+            self.logger.error('Failed to load source model')
+            return model, {'success': False, 'error':
+                'Failed to load source model'}
+        adaptation_params = model.adapt_layers(source_data, target_data,
+            adapt_layers)
         if output_path:
             model.save_transfer_model(output_path)
-            
-        metrics = {
-            "success": True,
-            "similarity": adaptation_params.get("similarity_score", 0),
-            "adapted_features": len(adaptation_params.get("feature_mapping", {}).get("features", {})),
-            "source_model": source_model_path
-        }
-        
+        metrics = {'success': True, 'similarity': adaptation_params.get(
+            'similarity_score', 0), 'adapted_features': len(
+            adaptation_params.get('feature_mapping', {}).get('features', {}
+            )), 'source_model': source_model_path}
         return model, metrics
-    
-    def evaluate_transfer_effectiveness(
-        self,
-        transfer_model: TransferLearningModel,
-        target_data: pd.DataFrame,
-        target_labels: pd.Series
-    ) -> Dict[str, Any]:
+
+    def evaluate_transfer_effectiveness(self, transfer_model:
+        TransferLearningModel, target_data: pd.DataFrame, target_labels: pd
+        .Series) ->Dict[str, Any]:
         """
         Evaluate how well the transfer learning worked
         
@@ -464,21 +364,9 @@ class TransferLearningFactory:
         Returns:
             Evaluation metrics
         """
-        # This is a simplified implementation
-        # In a real system, this would perform model evaluation
-        
-        # Transform features
         transformed_data = transfer_model.transform_input_features(target_data)
-        
-        # In a real implementation, we would:
-        # 1. Use the transfer model to make predictions
-        # 2. Calculate metrics (accuracy, F1, RMSE, etc.)
-        # 3. Compare with baseline without transfer learning
-        
-        # For the POC, return placeholder metrics
-        return {
-            "transfer_similarity": transfer_model.transfer_params.get("similarity_score", 0),
-            "features_adapted": len(transfer_model.transfer_params.get("feature_mapping", {}).get("features", {})),
-            "data_shape_before": target_data.shape,
-            "data_shape_after": transformed_data.shape
-        }
+        return {'transfer_similarity': transfer_model.transfer_params.get(
+            'similarity_score', 0), 'features_adapted': len(transfer_model.
+            transfer_params.get('feature_mapping', {}).get('features', {})),
+            'data_shape_before': target_data.shape, 'data_shape_after':
+            transformed_data.shape}

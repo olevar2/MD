@@ -2,7 +2,8 @@
 Resilience Utilities for Analysis Engine Service
 
 This module provides utility functions for applying resilience patterns
-in the Analysis Engine Service.
+in the Analysis Engine Service, including specialized decorators for
+different types of operations.
 """
 
 import logging
@@ -12,7 +13,8 @@ from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, Co
 
 from common_lib.resilience import (
     create_circuit_breaker, CircuitBreaker, CircuitBreakerConfig,
-    retry_with_policy, bulkhead, timeout_handler
+    retry_with_policy, bulkhead, timeout_handler,
+    register_common_retryable_exceptions, register_database_retryable_exceptions
 )
 
 from analysis_engine.resilience.config import (
@@ -82,6 +84,21 @@ def with_resilience(
         Decorated function with resilience patterns applied
     """
     def decorator(func: Callable[..., Union[T, Coroutine[Any, Any, R]]]) -> Callable[..., Union[T, Coroutine[Any, Any, R]]]:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+        Union[T: Description of Union[T
+        Coroutine[Any: Description of Coroutine[Any
+        Any: Description of Any
+        R]]]: Description of R]]]
+    
+    Returns:
+        Callable[..., Union[T, Coroutine[Any, Any, R]]]: Description of return value
+    
+    """
+
         # Start with the original function
         result = func
 
@@ -122,10 +139,34 @@ def with_resilience(
 
             @functools.wraps(result)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
                 return await cb.execute(lambda: result(*args, **kwargs))
 
             @functools.wraps(result)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
                 return cb.execute(lambda: result(*args, **kwargs))
 
             # Check if the function is a coroutine function
@@ -137,3 +178,97 @@ def with_resilience(
         return result
 
     return decorator
+
+
+def with_analysis_resilience(
+    operation_name: str,
+    exceptions: Optional[List[Type[Exception]]] = None
+) -> Callable[[Callable[..., Union[T, Coroutine[Any, Any, R]]]],
+             Callable[..., Union[T, Coroutine[Any, Any, R]]]]:
+    """
+    Decorator that applies resilience patterns for analysis operations.
+
+    Args:
+        operation_name: Name of the operation
+        exceptions: List of exceptions to retry on (None for default)
+
+    Returns:
+        Decorated function with resilience patterns applied
+    """
+    return with_resilience(
+        service_name="analysis_engine",
+        operation_name=operation_name,
+        service_type="analysis",
+        exceptions=exceptions
+    )
+
+
+def with_database_resilience(
+    operation_name: str,
+    exceptions: Optional[List[Type[Exception]]] = None
+) -> Callable[[Callable[..., Union[T, Coroutine[Any, Any, R]]]],
+             Callable[..., Union[T, Coroutine[Any, Any, R]]]]:
+    """
+    Decorator that applies resilience patterns for database operations.
+
+    Args:
+        operation_name: Name of the operation
+        exceptions: List of exceptions to retry on (None for default)
+
+    Returns:
+        Decorated function with resilience patterns applied
+    """
+    return with_resilience(
+        service_name="analysis_engine",
+        operation_name=operation_name,
+        service_type="database",
+        exceptions=exceptions or register_database_retryable_exceptions()
+    )
+
+
+def with_ml_model_resilience(
+    operation_name: str,
+    exceptions: Optional[List[Type[Exception]]] = None
+) -> Callable[[Callable[..., Union[T, Coroutine[Any, Any, R]]]],
+             Callable[..., Union[T, Coroutine[Any, Any, R]]]]:
+    """
+    Decorator that applies resilience patterns for ML model operations.
+
+    Args:
+        operation_name: Name of the operation
+        exceptions: List of exceptions to retry on (None for default)
+
+    Returns:
+        Decorated function with resilience patterns applied
+    """
+    return with_resilience(
+        service_name="analysis_engine",
+        operation_name=operation_name,
+        service_type="ml_model",
+        exceptions=exceptions
+    )
+
+
+def with_external_api_resilience(
+    operation_name: str,
+    exceptions: Optional[List[Type[Exception]]] = None
+) -> Callable[[Callable[..., Union[T, Coroutine[Any, Any, R]]]],
+             Callable[..., Union[T, Coroutine[Any, Any, R]]]]:
+    """
+    Decorator that applies resilience patterns for external API operations.
+
+    Args:
+        operation_name: Name of the operation
+        exceptions: List of exceptions to retry on (None for default)
+
+    Returns:
+        Decorated function with resilience patterns applied
+    """
+    import requests
+
+    return with_resilience(
+        service_name="analysis_engine",
+        operation_name=operation_name,
+        service_type="external_api",
+        exceptions=exceptions or [requests.RequestException, requests.Timeout]
+    )

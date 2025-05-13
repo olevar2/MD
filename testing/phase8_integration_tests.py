@@ -37,6 +37,11 @@ class EventBusIntegrationTest(TestCase):
     """Test case for validating event bus integration across services"""
     
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         super().__init__(
             name="event_bus_integration_test",
             description="Validates that events are properly published and consumed across services",
@@ -117,6 +122,11 @@ class HealthMonitoringTest(TestCase):
     """Test case for validating health monitoring system"""
     
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         super().__init__(
             name="health_monitoring_test",
             description="Validates the enhanced health monitoring system across services",
@@ -202,6 +212,11 @@ class DegradedModeTest(TestCase):
     """Test case for validating degraded mode operations"""
     
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         super().__init__(
             name="degraded_mode_test",
             description="Tests the trading gateway's behavior in degraded mode",
@@ -223,6 +238,14 @@ class DegradedModeTest(TestCase):
         self.received_events = []
         
         def event_handler(event):
+    """
+    Event handler.
+    
+    Args:
+        event: Description of event
+    
+    """
+
             if event.event_type == EventType.SERVICE_STATUS_CHANGED:
                 self.received_events.append(event)
                 
@@ -326,6 +349,11 @@ class EndToEndTradingTest(TestCase):
     """Test case for full trading lifecycle with resilience features"""
     
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         super().__init__(
             name="end_to_end_trading_test",
             description="Tests the complete trading lifecycle with Phase 8 resilience features",
@@ -552,6 +580,14 @@ class TestKafkaFeedbackIntegration(TestCase):
         # Mock the feedback handling in FeedbackLoop
         original_add_feedback = feedback_loop.add_feedback
         async def patched_add_feedback(feedback):
+    """
+    Patched add feedback.
+    
+    Args:
+        feedback: Description of feedback
+    
+    """
+
             await original_add_feedback(feedback)
             # Simulate the adaptation decision to retrain model
             adaptation_context = {
@@ -571,6 +607,14 @@ class TestKafkaFeedbackIntegration(TestCase):
         
         # Mock the AdaptationEngine.evaluate_and_adapt method to trigger model retraining
         async def mock_evaluate_and_adapt(context):
+    """
+    Mock evaluate and adapt.
+    
+    Args:
+        context: Description of context
+    
+    """
+
             model_id = context.get('model_id', 'default-model')
             # Trigger retraining for the model
             feedback_items = []  # In a real scenario, we'd collect relevant feedback
@@ -697,6 +741,14 @@ class TestKafkaFeedbackIntegration(TestCase):
         # Patch the adaptation engine to handle the failed job
         original_evaluate = services['adaptation_engine'].evaluate_and_adapt
         async def mock_failed_retraining(context):
+    """
+    Mock failed retraining.
+    
+    Args:
+        context: Description of context
+    
+    """
+
             result = await original_evaluate(context)
             # Simulate job failure notification
             job_id = "failed-job-123"
@@ -732,12 +784,25 @@ class TestKafkaFeedbackIntegration(TestCase):
 
 
 def register_kafka_feedback_tests(suite: TestSuite):
+    """
+    Register kafka feedback tests.
+    
+    Args:
+        suite: Description of suite
+    
+    """
+
     suite.add_test_case(TestKafkaFeedbackIntegration())
 
 
 # When this module is run directly
 if __name__ == "__main__":
     async def run_tests():
+    """
+    Run tests.
+    
+    """
+
         suite = TestSuite("Phase 8 - Kafka Feedback Integration Tests")
         register_kafka_feedback_tests(suite)
         report = await suite.run()

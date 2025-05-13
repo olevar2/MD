@@ -236,6 +236,14 @@ class RabbitMQBroker(MessageBroker):
             
             # Create message handler
             async def message_handler(message: AbstractIncomingMessage):
+    """
+    Message handler.
+    
+    Args:
+        message: Description of message
+    
+    """
+
                 async with message.process():
                     try:
                         # Parse event

@@ -14,6 +14,11 @@ class SignalExecutionValidator:
     """
 
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         # TODO: Initialize clients needed to check state (DB, Kafka consumer, etc.)
         # self.db_client = DatabaseClient()
         # self.kafka_consumer = KafkaConsumer('execution_events_topic')

@@ -61,14 +61,14 @@ SERVICE_CONFIGS = {
     },
     
     # ML Workbench Service
-    "ml-workbench-service": {
-        "base_url": os.environ.get("ML_WORKBENCH_API_URL", "http://ml-workbench-service:8000/api/v1"),
+    "ml_workbench-service": {
+        "base_url": os.environ.get("ML_WORKBENCH_API_URL", "http://ml_workbench-service:8000/api/v1"),
         "timeout_seconds": float(os.environ.get("ML_WORKBENCH_TIMEOUT", "30.0")),
         "max_retries": int(os.environ.get("ML_WORKBENCH_MAX_RETRIES", "3")),
         "circuit_breaker_failure_threshold": int(os.environ.get("ML_WORKBENCH_CB_THRESHOLD", "5")),
         "circuit_breaker_reset_timeout_seconds": int(os.environ.get("ML_WORKBENCH_CB_RESET", "60")),
         "bulkhead_max_concurrent": int(os.environ.get("ML_WORKBENCH_MAX_CONCURRENT", "20")),
-        "service_name": "ml-workbench-service"
+        "service_name": "ml_workbench-service"
     },
     
     # Monitoring & Alerting Service

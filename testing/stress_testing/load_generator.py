@@ -1,3 +1,9 @@
+"""
+Load generator module.
+
+This module provides functionality for...
+"""
+
 \
 import asyncio
 import httpx
@@ -20,6 +26,15 @@ class LoadGenerator(ABC):
     """Abstract base class for different types of load generators."""
 
     def __init__(self, config: Dict[str, Any]):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        Any]: Description of Any]
+    
+    """
+
         self.config = config
         self.running = False
         # Added latency_stats
@@ -72,6 +87,15 @@ class MarketDataGenerator(LoadGenerator):
     """Generates synthetic market data (ticks or bars) with support for high volumes and scenarios."""
 
     def __init__(self, config: Dict[str, Any]):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        Any]: Description of Any]
+    
+    """
+
         super().__init__(config)
         self.data_type = config.get("data_type", "tick") # 'tick' or 'bar'
         self.symbols = config.get("symbols", ["EURUSD", "GBPUSD"])
@@ -340,6 +364,15 @@ class ApiRequestGenerator(LoadGenerator):
     """Generates concurrent API requests."""
 
     def __init__(self, config: Dict[str, Any]):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        Any]: Description of Any]
+    
+    """
+
         super().__init__(config)
         self.base_url = config.get("base_url", "http://localhost:8000") # Example API base URL
         self.endpoints = config.get("endpoints", [
@@ -419,6 +452,15 @@ class UserActionSimulator(LoadGenerator):
     """Simulates realistic user actions (e.g., placing orders, checking portfolio)."""
 
     def __init__(self, config: Dict[str, Any]):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        Any]: Description of Any]
+    
+    """
+
         super().__init__(config)
         # Example config: sequence of actions, probabilities, user IDs
         self.user_count = config.get("user_count", 5)
@@ -431,12 +473,28 @@ class UserActionSimulator(LoadGenerator):
         ]
 
     async def _check_portfolio(self, user_id: int):
+    """
+     check portfolio.
+    
+    Args:
+        user_id: Description of user_id
+    
+    """
+
         logger.info(f"User {user_id}: Checking portfolio")
         # TODO: Implement API call to portfolio service
         await asyncio.sleep(random.uniform(0.1, 0.5)) # Simulate action time
         self._metrics["generated_count"] += 1
 
     async def _place_market_order(self, user_id: int):
+    """
+     place market order.
+    
+    Args:
+        user_id: Description of user_id
+    
+    """
+
         symbol = random.choice(["EURUSD", "USDJPY", "AUDUSD"])
         amount = random.randint(1, 10) * 1000
         side = random.choice(["BUY", "SELL"])
@@ -446,6 +504,14 @@ class UserActionSimulator(LoadGenerator):
         self._metrics["generated_count"] += 1
 
     async def _check_market_data(self, user_id: int):
+    """
+     check market data.
+    
+    Args:
+        user_id: Description of user_id
+    
+    """
+
         symbol = random.choice(["EURUSD", "USDJPY", "AUDUSD"])
         logger.info(f"User {user_id}: Checking market data for {symbol}")
         # TODO: Implement API call to data service or simulate interaction
@@ -496,6 +562,11 @@ class UserActionSimulator(LoadGenerator):
 
 # --- Example Usage ---
 async def main():
+    """
+    Main.
+    
+    """
+
     # Example configurations
     market_data_config = {
         "data_type": "tick",

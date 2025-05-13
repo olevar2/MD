@@ -40,6 +40,21 @@ class StandardDeviationIndicator(BaseIndicator):
         confidence_levels: Optional[List[float]] = None,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        window: Description of window
+        column: Description of column
+        bands: Description of bands
+        moving_average_type: Description of moving_average_type
+        include_probability: Description of include_probability
+        distribution: Description of distribution
+        confidence_levels: Description of confidence_levels
+        kwargs: Description of kwargs
+    
+    """
+
         self.window = window
         self.column = column
         self.bands = bands if bands is not None else [1.0, 2.0, 3.0]
@@ -67,6 +82,17 @@ class StandardDeviationIndicator(BaseIndicator):
             raise ValueError(f"Unsupported moving average type: {self.moving_average_type}")
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.column])
         result = data.copy()
 
@@ -106,6 +132,16 @@ class LinearRegressionIndicator(BaseIndicator):
     default_params = {'window': 14, 'column': 'close'}
 
     def __init__(self, window: int = 14, column: str = "close", **kwargs):
+    """
+      init  .
+    
+    Args:
+        window: Description of window
+        column: Description of column
+        kwargs: Description of kwargs
+    
+    """
+
         self.window = window
         self.column = column
         self.name_base = f"linreg_{column}_{window}"
@@ -115,6 +151,14 @@ class LinearRegressionIndicator(BaseIndicator):
         super().__init__(**kwargs)
 
     def _calculate_rolling_regression(self, y_values):
+    """
+     calculate rolling regression.
+    
+    Args:
+        y_values: Description of y_values
+    
+    """
+
         # x values are simply the sequence 0, 1, ..., window-1
         x_values = np.arange(self.window)
         # Use scipy's linregress for efficiency
@@ -124,6 +168,17 @@ class LinearRegressionIndicator(BaseIndicator):
         return slope, intercept, predicted_value
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.column])
         result = data.copy()
 
@@ -165,6 +220,16 @@ class LinearRegressionChannel(BaseIndicator):
     default_params = {'window': 14, 'column': 'close'}
 
     def __init__(self, window: int = 14, column: str = "close", **kwargs):
+    """
+      init  .
+    
+    Args:
+        window: Description of window
+        column: Description of column
+        kwargs: Description of kwargs
+    
+    """
+
         self.window = window
         self.column = column
         self.name_base = f"linregchannel_{column}_{window}"
@@ -174,6 +239,14 @@ class LinearRegressionChannel(BaseIndicator):
         super().__init__(**kwargs)
 
     def _calculate_rolling_channel(self, y_values):
+    """
+     calculate rolling channel.
+    
+    Args:
+        y_values: Description of y_values
+    
+    """
+
         x_values = np.arange(self.window)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x_values, y_values)
 
@@ -194,6 +267,17 @@ class LinearRegressionChannel(BaseIndicator):
         return upper_value, lower_value, center_value
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.column])
         result = data.copy()
 
@@ -234,17 +318,46 @@ class RSquaredIndicator(BaseIndicator):
     default_params = {'window': 14, 'column': 'close'}
 
     def __init__(self, window: int = 14, column: str = "close", **kwargs):
+    """
+      init  .
+    
+    Args:
+        window: Description of window
+        column: Description of column
+        kwargs: Description of kwargs
+    
+    """
+
         self.window = window
         self.column = column
         self.name = f"rsquared_{column}_{window}"
         super().__init__(**kwargs)
 
     def _calculate_rolling_r_squared(self, y_values):
+    """
+     calculate rolling r squared.
+    
+    Args:
+        y_values: Description of y_values
+    
+    """
+
         x_values = np.arange(self.window)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x_values, y_values)
         return r_value**2 # R-squared is the square of the correlation coefficient (r_value)
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.column])
         result = data.copy()
 

@@ -95,6 +95,17 @@ class VersionResponse(BaseModel):
 
     @classmethod
     def from_domain(cls, version: ModelVersion) -> "VersionResponse":
+    """
+    From domain.
+    
+    Args:
+        version: Description of version
+    
+    Returns:
+        "VersionResponse": Description of return value
+    
+    """
+
         data = version.dict()
         if data.get("metrics"):
             data["metrics"] = MetricsResponse.from_domain(version.metrics)

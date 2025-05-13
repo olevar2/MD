@@ -71,6 +71,15 @@ class DataValidationError(Exception):
     """Exception raised for data validation errors."""
     
     def __init__(self, message: str, data: Any = None):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        data: Description of data
+    
+    """
+
         self.message = message
         self.data = data
         super().__init__(self.message)

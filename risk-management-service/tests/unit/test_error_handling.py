@@ -38,6 +38,15 @@ def test_risk_limit_breach_error(test_client, monkeypatch):
     """Test that risk limit breach errors return 403 status code."""
     # Mock the risk adjuster to raise a RiskLimitBreachError
     def mock_monitor_risk_thresholds(*args, **kwargs):
+    """
+    Mock monitor risk thresholds.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         raise RiskLimitBreachError(
             message="Risk limit breached",
             limit_type="drawdown",
@@ -82,6 +91,15 @@ def test_service_unavailable_error(test_client, monkeypatch):
     """Test that service unavailable errors return 503 status code."""
     # Mock the risk adjuster to raise a ServiceUnavailableError
     def mock_process_ml_risk_feedback(*args, **kwargs):
+    """
+    Mock process ml risk feedback.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         raise ServiceUnavailableError("ML service is currently unavailable")
     
     # Apply the mock
@@ -113,6 +131,15 @@ def test_model_error(test_client, monkeypatch):
     """Test that model errors return 500 status code."""
     # Mock the risk adjuster to raise a ModelError
     def mock_analyze_strategy_weaknesses(*args, **kwargs):
+    """
+    Mock analyze strategy weaknesses.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         raise ModelError("Failed to load risk model")
     
     # Apply the mock

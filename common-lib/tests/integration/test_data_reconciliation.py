@@ -70,9 +70,25 @@ class TestDataReconciliationIntegration:
         
         # Define data fetchers
         async def fetch_from_source1(**kwargs):
+    """
+    Fetch from source1.
+    
+    Args:
+        kwargs: Description of kwargs
+    
+    """
+
             return df1
             
         async def fetch_from_source2(**kwargs):
+    """
+    Fetch from source2.
+    
+    Args:
+        kwargs: Description of kwargs
+    
+    """
+
             return df2
             
         reconciliation.data_fetchers = {
@@ -134,9 +150,25 @@ class TestDataReconciliationIntegration:
         
         # Define data fetchers
         async def fetch_from_source1(**kwargs):
+    """
+    Fetch from source1.
+    
+    Args:
+        kwargs: Description of kwargs
+    
+    """
+
             return dict1
             
         async def fetch_from_source2(**kwargs):
+    """
+    Fetch from source2.
+    
+    Args:
+        kwargs: Description of kwargs
+    
+    """
+
             return dict2
             
         reconciliation.data_fetchers = {

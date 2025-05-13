@@ -34,7 +34,7 @@ SERVICE_DIRS = {
     'feature-store-service',
     'feature_store_service',
     'ml-integration-service',
-    'ml-workbench-service',
+    'ml_workbench-service',
     'model-registry-service',
     'monitoring-alerting-service',
     'portfolio-management-service',
@@ -45,7 +45,22 @@ SERVICE_DIRS = {
 }
 
 class ArchitectureAnalyzer:
+    """
+    ArchitectureAnalyzer class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, root_dir: str):
+    """
+      init  .
+    
+    Args:
+        root_dir: Description of root_dir
+    
+    """
+
         self.root_dir = Path(root_dir)
         self.dependencies = defaultdict(set)
         self.imports = defaultdict(list)
@@ -143,6 +158,14 @@ class ArchitectureAnalyzer:
         path = []
         
         def dfs(module):
+    """
+    Dfs.
+    
+    Args:
+        module: Description of module
+    
+    """
+
             if module in path:
                 # Found a cycle
                 cycle_start = path.index(module)
@@ -271,6 +294,11 @@ class ArchitectureAnalyzer:
         }
 
 def main():
+    """
+    Main.
+    
+    """
+
     if len(sys.argv) > 1:
         root_dir = sys.argv[1]
     else:

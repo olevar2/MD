@@ -14,13 +14,13 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 try:
-    from analysis_engine.utils.adaptive_cache_manager import AdaptiveCacheManager
+    from common_lib.caching import AdaptiveCacheManager, cached, get_cache_manager
 except ImportError as e:
     print(f"Error importing modules: {e}")
     try:
         # Try with the full path
         sys.path.insert(0, "D:\\MD\\forex_trading_platform")
-        from analysis_engine.utils.adaptive_cache_manager import AdaptiveCacheManager
+        from common_lib.caching import AdaptiveCacheManager, cached, get_cache_manager
     except ImportError as e:
         print(f"Error importing modules with full path: {e}")
         sys.exit(1)
@@ -134,6 +134,11 @@ class TestAdaptiveCacheManager(unittest.TestCase):
         
         # Thread function
         def worker():
+    """
+    Worker.
+    
+    """
+
             nonlocal successful_ops
             for i in range(num_ops):
                 # Set a value

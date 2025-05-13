@@ -36,7 +36,7 @@ SERVICE_DIRS = {
     'feature-store-service',
     'feature_store_service',
     'ml-integration-service',
-    'ml-workbench-service',
+    'ml_workbench-service',
     'model-registry-service',
     'monitoring-alerting-service',
     'portfolio-management-service',

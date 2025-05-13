@@ -145,10 +145,20 @@ async def test_initialize_order(service_container, mock_service, mock_analyzer):
     init_order = []
     
     def mock_init():
+    """
+    Mock init.
+    
+    """
+
         init_order.append("service")
         return None
     
     def mock_analyzer_init():
+    """
+    Mock analyzer init.
+    
+    """
+
         init_order.append("analyzer")
         return None
     

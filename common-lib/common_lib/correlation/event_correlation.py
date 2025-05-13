@@ -92,6 +92,16 @@ def with_event_correlation(func: Callable) -> Callable:
     """
     @with_correlation_id
     def wrapper(event, *args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        event: Description of event
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         # Extract correlation ID from event
         correlation_id = extract_correlation_id_from_event(event)
 
@@ -121,6 +131,16 @@ def with_async_event_correlation(func: Callable) -> Callable:
     """
     @with_async_correlation_id
     async def wrapper(event, *args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        event: Description of event
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         # Extract correlation ID from event
         correlation_id = extract_correlation_id_from_event(event)
 

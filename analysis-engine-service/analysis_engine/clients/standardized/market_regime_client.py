@@ -3,20 +3,25 @@ Standardized Market Regime Client
 
 This module provides a client for interacting with the standardized Market Regime API.
 """
-
 import logging
 import aiohttp
 import asyncio
 import pandas as pd
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
-
 from analysis_engine.core.config import get_settings
 from analysis_engine.core.resilience import retry_with_backoff, circuit_breaker
 from analysis_engine.monitoring.structured_logging import get_structured_logger
 from analysis_engine.core.exceptions_bridge import ServiceUnavailableError, ServiceTimeoutError
-
 logger = get_structured_logger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class MarketRegimeClient:
     """
@@ -29,7 +34,7 @@ class MarketRegimeClient:
     It includes resilience patterns like retry with backoff and circuit breaking.
     """
 
-    def __init__(self, base_url: Optional[str] = None, timeout: int = 30):
+    def __init__(self, base_url: Optional[str]=None, timeout: int=30):
         """
         Initialize the Market Regime client.
 
@@ -40,24 +45,15 @@ class MarketRegimeClient:
         settings = get_settings()
         self.base_url = base_url or settings.analysis_engine_url
         self.timeout = timeout
-        self.api_prefix = "/api/v1/analysis/market-regimes"
+        self.api_prefix = '/api/v1/analysis/market-regimes'
+        self.circuit_breaker = circuit_breaker(failure_threshold=5,
+            recovery_timeout=30, name='market_regime_client')
+        logger.info(
+            f'Initialized Market Regime client with base URL: {self.base_url}')
 
-        # Configure circuit breaker
-        self.circuit_breaker = circuit_breaker(
-            failure_threshold=5,
-            recovery_timeout=30,
-            name="market_regime_client"
-        )
-
-        logger.info(f"Initialized Market Regime client with base URL: {self.base_url}")
-
-    async def _make_request(
-        self,
-        method: str,
-        endpoint: str,
-        data: Optional[Dict] = None,
-        params: Optional[Dict] = None
-    ) -> Dict:
+    @async_with_exception_handling
+    async def _make_request(self, method: str, endpoint: str, data:
+        Optional[Dict]=None, params: Optional[Dict]=None) ->Dict:
         """
         Make a request to the Market Regime API with resilience patterns.
 
@@ -75,50 +71,53 @@ class MarketRegimeClient:
             ServiceTimeoutError: If the request times out
             Exception: For other errors
         """
-        url = f"{self.base_url}{self.api_prefix}{endpoint}"
+        url = f'{self.base_url}{self.api_prefix}{endpoint}'
 
-        @retry_with_backoff(
-            max_retries=3,
-            backoff_factor=1.5,
-            retry_exceptions=[aiohttp.ClientError, TimeoutError]
-        )
+        @retry_with_backoff(max_retries=3, backoff_factor=1.5,
+            retry_exceptions=[aiohttp.ClientError, TimeoutError])
         @self.circuit_breaker
+        @async_with_exception_handling
         async def _request():
+    """
+     request.
+    
+    """
+
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.request(
-                        method=method,
-                        url=url,
-                        json=data,
-                        params=params,
-                        timeout=self.timeout
-                    ) as response:
+                    async with session.request(method=method, url=url, json
+                        =data, params=params, timeout=self.timeout
+                        ) as response:
                         if response.status >= 500:
                             error_text = await response.text()
-                            logger.error(f"Server error from Market Regime API: {error_text}")
-                            raise ServiceUnavailableError(f"Market Regime API server error: {response.status}")
-
+                            logger.error(
+                                f'Server error from Market Regime API: {error_text}'
+                                )
+                            raise ServiceUnavailableError(
+                                f'Market Regime API server error: {response.status}'
+                                )
                         if response.status >= 400:
                             error_text = await response.text()
-                            logger.error(f"Client error from Market Regime API: {error_text}")
-                            raise Exception(f"Market Regime API client error: {response.status} - {error_text}")
-
+                            logger.error(
+                                f'Client error from Market Regime API: {error_text}'
+                                )
+                            raise Exception(
+                                f'Market Regime API client error: {response.status} - {error_text}'
+                                )
                         return await response.json()
             except aiohttp.ClientError as e:
-                logger.error(f"Connection error to Market Regime API: {str(e)}")
-                raise ServiceUnavailableError(f"Failed to connect to Market Regime API: {str(e)}")
+                logger.error(f'Connection error to Market Regime API: {str(e)}'
+                    )
+                raise ServiceUnavailableError(
+                    f'Failed to connect to Market Regime API: {str(e)}')
             except asyncio.TimeoutError:
-                logger.error(f"Timeout connecting to Market Regime API")
-                raise ServiceTimeoutError(f"Timeout connecting to Market Regime API")
-
+                logger.error(f'Timeout connecting to Market Regime API')
+                raise ServiceTimeoutError(
+                    f'Timeout connecting to Market Regime API')
         return await _request()
 
-    async def detect_market_regime(
-        self,
-        symbol: str,
-        timeframe: str,
-        ohlc_data: Union[List[Dict], pd.DataFrame]
-    ) -> Dict:
+    async def detect_market_regime(self, symbol: str, timeframe: str,
+        ohlc_data: Union[List[Dict], pd.DataFrame]) ->Dict:
         """
         Detect the current market regime based on price data.
 
@@ -130,28 +129,21 @@ class MarketRegimeClient:
         Returns:
             Detected market regime
         """
-        # Convert DataFrame to list of dicts if needed
         if isinstance(ohlc_data, pd.DataFrame):
-            if 'timestamp' not in ohlc_data.columns and ohlc_data.index.name != 'timestamp':
+            if ('timestamp' not in ohlc_data.columns and ohlc_data.index.
+                name != 'timestamp'):
                 ohlc_data = ohlc_data.reset_index()
-
             ohlc_data = ohlc_data.to_dict('records')
+        data = {'symbol': symbol, 'timeframe': timeframe, 'ohlc_data':
+            ohlc_data}
+        logger.info(
+            f'Detecting market regime for symbol {symbol}, timeframe {timeframe}'
+            )
+        return await self._make_request('POST', '/detect', data=data)
 
-        data = {
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "ohlc_data": ohlc_data
-        }
-
-        logger.info(f"Detecting market regime for symbol {symbol}, timeframe {timeframe}")
-        return await self._make_request("POST", "/detect", data=data)
-
-    async def get_regime_history(
-        self,
-        symbol: str,
-        timeframe: str,
-        limit: int = 10
-    ) -> List[Dict]:
+    @with_resilience('get_regime_history')
+    async def get_regime_history(self, symbol: str, timeframe: str, limit:
+        int=10) ->List[Dict]:
         """
         Get historical regime data for a specific symbol and timeframe.
 
@@ -163,23 +155,16 @@ class MarketRegimeClient:
         Returns:
             List of historical regime data
         """
-        params = {
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "limit": limit
-        }
+        params = {'symbol': symbol, 'timeframe': timeframe, 'limit': limit}
+        logger.info(
+            f'Getting regime history for symbol {symbol}, timeframe {timeframe}'
+            )
+        return await self._make_request('GET', '/history', params=params)
 
-        logger.info(f"Getting regime history for symbol {symbol}, timeframe {timeframe}")
-        return await self._make_request("GET", "/history", params=params)
-
-    async def analyze_tool_regime_performance(
-        self,
-        tool_id: str,
-        timeframe: Optional[str] = None,
-        instrument: Optional[str] = None,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None
-    ) -> Dict:
+    @with_analysis_resilience('analyze_tool_regime_performance')
+    async def analyze_tool_regime_performance(self, tool_id: str, timeframe:
+        Optional[str]=None, instrument: Optional[str]=None, from_date:
+        Optional[datetime]=None, to_date: Optional[datetime]=None) ->Dict:
         """
         Get the performance metrics of a tool across different market regimes.
 
@@ -193,30 +178,20 @@ class MarketRegimeClient:
         Returns:
             Performance metrics across different market regimes
         """
-        params = {
-            "tool_id": tool_id,
-            "timeframe": timeframe,
-            "instrument": instrument
-        }
-
+        params = {'tool_id': tool_id, 'timeframe': timeframe, 'instrument':
+            instrument}
         if from_date:
-            params["from_date"] = from_date.isoformat()
-
+            params['from_date'] = from_date.isoformat()
         if to_date:
-            params["to_date"] = to_date.isoformat()
+            params['to_date'] = to_date.isoformat()
+        logger.info(f'Analyzing tool regime performance for tool {tool_id}')
+        return await self._make_request('GET', '/tools/regime-analysis',
+            params=params)
 
-        logger.info(f"Analyzing tool regime performance for tool {tool_id}")
-        return await self._make_request("GET", "/tools/regime-analysis", params=params)
-
-    async def find_optimal_market_conditions(
-        self,
-        tool_id: str,
-        min_sample_size: int = 10,
-        timeframe: Optional[str] = None,
-        instrument: Optional[str] = None,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None
-    ) -> Dict:
+    async def find_optimal_market_conditions(self, tool_id: str,
+        min_sample_size: int=10, timeframe: Optional[str]=None, instrument:
+        Optional[str]=None, from_date: Optional[datetime]=None, to_date:
+        Optional[datetime]=None) ->Dict:
         """
         Find the optimal market conditions for a specific tool.
 
@@ -231,30 +206,21 @@ class MarketRegimeClient:
         Returns:
             Optimal market conditions for the tool
         """
-        params = {
-            "tool_id": tool_id,
-            "min_sample_size": min_sample_size,
-            "timeframe": timeframe,
-            "instrument": instrument
-        }
-
+        params = {'tool_id': tool_id, 'min_sample_size': min_sample_size,
+            'timeframe': timeframe, 'instrument': instrument}
         if from_date:
-            params["from_date"] = from_date.isoformat()
-
+            params['from_date'] = from_date.isoformat()
         if to_date:
-            params["to_date"] = to_date.isoformat()
+            params['to_date'] = to_date.isoformat()
+        logger.info(f'Finding optimal market conditions for tool {tool_id}')
+        return await self._make_request('GET', '/tools/optimal-conditions',
+            params=params)
 
-        logger.info(f"Finding optimal market conditions for tool {tool_id}")
-        return await self._make_request("GET", "/tools/optimal-conditions", params=params)
-
-    async def analyze_tool_complementarity(
-        self,
-        tool_ids: List[str],
-        timeframe: Optional[str] = None,
-        instrument: Optional[str] = None,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None
-    ) -> Dict:
+    @with_analysis_resilience('analyze_tool_complementarity')
+    async def analyze_tool_complementarity(self, tool_ids: List[str],
+        timeframe: Optional[str]=None, instrument: Optional[str]=None,
+        from_date: Optional[datetime]=None, to_date: Optional[datetime]=None
+        ) ->Dict:
         """
         Analyze how well different tools complement each other across market regimes.
 
@@ -268,28 +234,20 @@ class MarketRegimeClient:
         Returns:
             Complementarity analysis for the tools
         """
-        params = {
-            "tool_ids": ",".join(tool_ids),
-            "timeframe": timeframe,
-            "instrument": instrument
-        }
-
+        params = {'tool_ids': ','.join(tool_ids), 'timeframe': timeframe,
+            'instrument': instrument}
         if from_date:
-            params["from_date"] = from_date.isoformat()
-
+            params['from_date'] = from_date.isoformat()
         if to_date:
-            params["to_date"] = to_date.isoformat()
+            params['to_date'] = to_date.isoformat()
+        logger.info(f'Analyzing tool complementarity for {len(tool_ids)} tools'
+            )
+        return await self._make_request('GET', '/tools/complementarity',
+            params=params)
 
-        logger.info(f"Analyzing tool complementarity for {len(tool_ids)} tools")
-        return await self._make_request("GET", "/tools/complementarity", params=params)
-
-    async def generate_performance_report(
-        self,
-        timeframe: Optional[str] = None,
-        instrument: Optional[str] = None,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None
-    ) -> Dict:
+    async def generate_performance_report(self, timeframe: Optional[str]=
+        None, instrument: Optional[str]=None, from_date: Optional[datetime]
+        =None, to_date: Optional[datetime]=None) ->Dict:
         """
         Generate a comprehensive performance report for all tools across market regimes.
 
@@ -302,29 +260,20 @@ class MarketRegimeClient:
         Returns:
             Comprehensive performance report
         """
-        params = {
-            "timeframe": timeframe,
-            "instrument": instrument
-        }
-
+        params = {'timeframe': timeframe, 'instrument': instrument}
         if from_date:
-            params["from_date"] = from_date.isoformat()
-
+            params['from_date'] = from_date.isoformat()
         if to_date:
-            params["to_date"] = to_date.isoformat()
+            params['to_date'] = to_date.isoformat()
+        logger.info(
+            f'Generating performance report for {instrument}/{timeframe}')
+        return await self._make_request('GET', '/performance-report',
+            params=params)
 
-        logger.info(f"Generating performance report for {instrument}/{timeframe}")
-        return await self._make_request("GET", "/performance-report", params=params)
-
-    async def recommend_tools_for_regime(
-        self,
-        current_regime: str,
-        instrument: Optional[str] = None,
-        timeframe: Optional[str] = None,
-        min_sample_size: int = 10,
-        min_win_rate: float = 50.0,
-        top_n: int = 3
-    ) -> Dict:
+    async def recommend_tools_for_regime(self, current_regime: str,
+        instrument: Optional[str]=None, timeframe: Optional[str]=None,
+        min_sample_size: int=10, min_win_rate: float=50.0, top_n: int=3
+        ) ->Dict:
         """
         Recommend the best trading tools for the current market regime.
 
@@ -339,26 +288,17 @@ class MarketRegimeClient:
         Returns:
             Recommended tools for the current regime
         """
-        params = {
-            "current_regime": current_regime,
-            "instrument": instrument,
-            "timeframe": timeframe,
-            "min_sample_size": min_sample_size,
-            "min_win_rate": min_win_rate,
-            "top_n": top_n
-        }
+        params = {'current_regime': current_regime, 'instrument':
+            instrument, 'timeframe': timeframe, 'min_sample_size':
+            min_sample_size, 'min_win_rate': min_win_rate, 'top_n': top_n}
+        logger.info(f'Recommending tools for {current_regime} regime')
+        return await self._make_request('GET', '/tools/recommendations',
+            params=params)
 
-        logger.info(f"Recommending tools for {current_regime} regime")
-        return await self._make_request("GET", "/tools/recommendations", params=params)
-
-    async def analyze_effectiveness_trends(
-        self,
-        tool_id: str,
-        timeframe: Optional[str] = None,
-        instrument: Optional[str] = None,
-        period_days: int = 30,
-        look_back_periods: int = 6
-    ) -> Dict:
+    @with_analysis_resilience('analyze_effectiveness_trends')
+    async def analyze_effectiveness_trends(self, tool_id: str, timeframe:
+        Optional[str]=None, instrument: Optional[str]=None, period_days:
+        int=30, look_back_periods: int=6) ->Dict:
         """
         Analyze how the effectiveness of a tool has changed over time across market regimes.
 
@@ -372,26 +312,18 @@ class MarketRegimeClient:
         Returns:
             Effectiveness trend analysis
         """
-        params = {
-            "tool_id": tool_id,
-            "timeframe": timeframe,
-            "instrument": instrument,
-            "period_days": period_days,
-            "look_back_periods": look_back_periods
-        }
+        params = {'tool_id': tool_id, 'timeframe': timeframe, 'instrument':
+            instrument, 'period_days': period_days, 'look_back_periods':
+            look_back_periods}
+        logger.info(f'Analyzing effectiveness trends for tool {tool_id}')
+        return await self._make_request('GET',
+            '/tools/effectiveness-trends', params=params)
 
-        logger.info(f"Analyzing effectiveness trends for tool {tool_id}")
-        return await self._make_request("GET", "/tools/effectiveness-trends", params=params)
-
-    async def get_underperforming_tools(
-        self,
-        win_rate_threshold: float = 50.0,
-        min_sample_size: int = 20,
-        timeframe: Optional[str] = None,
-        instrument: Optional[str] = None,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None
-    ) -> Dict:
+    @with_resilience('get_underperforming_tools')
+    async def get_underperforming_tools(self, win_rate_threshold: float=
+        50.0, min_sample_size: int=20, timeframe: Optional[str]=None,
+        instrument: Optional[str]=None, from_date: Optional[datetime]=None,
+        to_date: Optional[datetime]=None) ->Dict:
         """
         Identify underperforming trading tools that may need optimization or retirement.
 
@@ -406,18 +338,14 @@ class MarketRegimeClient:
         Returns:
             Underperforming tools analysis
         """
-        params = {
-            "win_rate_threshold": win_rate_threshold,
-            "min_sample_size": min_sample_size,
-            "timeframe": timeframe,
-            "instrument": instrument
-        }
-
+        params = {'win_rate_threshold': win_rate_threshold,
+            'min_sample_size': min_sample_size, 'timeframe': timeframe,
+            'instrument': instrument}
         if from_date:
-            params["from_date"] = from_date.isoformat()
-
+            params['from_date'] = from_date.isoformat()
         if to_date:
-            params["to_date"] = to_date.isoformat()
-
-        logger.info(f"Getting underperforming tools for {instrument}/{timeframe}")
-        return await self._make_request("GET", "/tools/underperforming", params=params)
+            params['to_date'] = to_date.isoformat()
+        logger.info(
+            f'Getting underperforming tools for {instrument}/{timeframe}')
+        return await self._make_request('GET', '/tools/underperforming',
+            params=params)

@@ -1,4 +1,4 @@
-// RLTrainingDashboard.tsx
+// rl-training-dashboard.tsx
 // Advanced Learning UI Component for visualizing RL training progress and model explainability
 
 import React, { useState, useEffect } from 'react';

@@ -21,6 +21,9 @@ from api_gateway.middleware.auth import AuthMiddleware
 from api_gateway.middleware.logging import LoggingMiddleware
 from api_gateway.middleware.rate_limit import RateLimitMiddleware
 from api_gateway.middleware.correlation import CorrelationMiddleware
+from api_gateway.middleware.xss_protection import XSSProtectionMiddleware
+from api_gateway.middleware.csrf_protection import CSRFProtectionMiddleware
+from api_gateway.middleware.security_headers import SecurityHeadersMiddleware
 
 
 # Create logger
@@ -50,6 +53,9 @@ app.add_middleware(CorrelationMiddleware)
 app.add_middleware(LoggingMiddleware)
 app.add_middleware(AuthMiddleware)
 app.add_middleware(RateLimitMiddleware)
+app.add_middleware(XSSProtectionMiddleware)
+app.add_middleware(CSRFProtectionMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 # Include routers
@@ -67,11 +73,11 @@ error_handler = ErrorHandler(logger=logger)
 async def global_exception_handler(request: Request, exc: Exception):
     """
     Global exception handler.
-    
+
     Args:
         request: FastAPI request
         exc: Exception
-        
+
     Returns:
         JSON response with error details
     """
@@ -86,10 +92,10 @@ async def global_exception_handler(request: Request, exc: Exception):
         request_params=dict(request.query_params),
         user_id=request.headers.get("X-User-ID", "")
     )
-    
+
     # Handle error
     error_response = error_handler.handle_error(exc, context)
-    
+
     # Return JSON response
     return JSONResponse(
         status_code=_get_status_code(error_response),
@@ -100,10 +106,10 @@ async def global_exception_handler(request: Request, exc: Exception):
 def _get_status_code(error_response: ErrorResponse) -> int:
     """
     Get HTTP status code for an error response.
-    
+
     Args:
         error_response: Error response
-        
+
     Returns:
         HTTP status code
     """
@@ -119,7 +125,7 @@ def _get_status_code(error_response: ErrorResponse) -> int:
         1006: 401,  # AUTHENTICATION_FAILED
         1007: 429,  # RATE_LIMIT_EXCEEDED
         1008: 504,  # TIMEOUT
-        
+
         # Service errors
         2000: 503,  # SERVICE_UNAVAILABLE
         2001: 504,  # SERVICE_TIMEOUT
@@ -129,7 +135,7 @@ def _get_status_code(error_response: ErrorResponse) -> int:
         2005: 404,  # SERVICE_RESOURCE_NOT_FOUND
         2006: 409,  # SERVICE_RESOURCE_CONFLICT
         2007: 500,  # SERVICE_INTERNAL_ERROR
-        
+
         # Data errors
         3000: 400,  # DATA_VALIDATION_FAILED
         3001: 404,  # DATA_NOT_FOUND
@@ -137,7 +143,7 @@ def _get_status_code(error_response: ErrorResponse) -> int:
         3003: 500,  # DATA_CORRUPTION
         3004: 500,  # DATA_PROCESSING_FAILED
     }
-    
+
     # Get status code from map, or default to 500
     return code_map.get(error_response.code, 500)
 
@@ -149,18 +155,18 @@ async def startup():
     """
     # Load configuration
     config_manager = ConfigManager()
-    
+
     try:
         # Load configuration from file
         config_manager.load_config("config/api-gateway.yaml")
-        
+
         # Configure logging
         logging_config = config_manager.get_logging_config()
         logging.basicConfig(
             level=getattr(logging, logging_config.level),
             format=logging_config.format
         )
-        
+
         logger.info("API Gateway started")
     except Exception as e:
         logger.error(f"Error during startup: {str(e)}")
@@ -179,7 +185,7 @@ async def shutdown():
 async def health_check():
     """
     Health check endpoint.
-    
+
     Returns:
         Health status
     """

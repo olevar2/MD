@@ -151,7 +151,22 @@ def test_full_backtest_flow(mock_backtester_class, mock_loader_class, client):
         "instruments": ["EUR/USD"],
         "timeframe": "1h",
         "parameters": {},
-        "code": "class TestStrategy(Strategy):\n    def analyze(self, data):\n        return {}\n"
+        "code": "class TestStrategy(Strategy):
+    """
+    TestStrategy class that inherits from Strategy.
+    
+    Attributes:
+        Add attributes here
+    """
+\n    def analyze(self, data):
+    """
+    Analyze.
+    
+    Args:
+        data: Description of data
+    
+    """
+\n        return {}\n"
     }
     
     response = client.post("/api/v1/strategies/register", json=strategy_data)

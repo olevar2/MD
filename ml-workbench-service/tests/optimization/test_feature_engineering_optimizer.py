@@ -13,6 +13,13 @@ from pathlib import Path
 
 # Import the FeatureEngineeringOptimizer class
 try:
+    """
+    try class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     from ml_workbench_service.optimization.feature_engineering_optimizer import FeatureEngineeringOptimizer
     OPTIMIZER_AVAILABLE = True
 except ImportError:
@@ -52,6 +59,14 @@ class TestFeatureEngineeringOptimizer(unittest.TestCase):
         """Test cached feature computation."""
         # Define a simple feature function
         def compute_mean(data):
+    """
+    Compute mean.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.mean(axis=0)
         
         # First computation (cache miss)
@@ -100,15 +115,47 @@ class TestFeatureEngineeringOptimizer(unittest.TestCase):
         """Test parallel feature computation."""
         # Define multiple feature functions
         def compute_mean(data):
+    """
+    Compute mean.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.mean(axis=0)
             
         def compute_std(data):
+    """
+    Compute std.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.std(axis=0)
             
         def compute_min(data):
+    """
+    Compute min.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.min(axis=0)
             
         def compute_max(data):
+    """
+    Compute max.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.max(axis=0)
         
         feature_funcs = [compute_mean, compute_std, compute_min, compute_max]
@@ -150,19 +197,55 @@ class TestFeatureEngineeringOptimizer(unittest.TestCase):
         """Test incremental feature computation."""
         # Define feature functions
         def compute_mean(data):
+    """
+    Compute mean.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.mean(axis=0)
             
         def compute_std(data):
+    """
+    Compute std.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.std(axis=0)
         
         feature_funcs = [compute_mean, compute_std]
         
         # Define incremental functions
         def incremental_mean(prev_data, new_data, prev_result):
+    """
+    Incremental mean.
+    
+    Args:
+        prev_data: Description of prev_data
+        new_data: Description of new_data
+        prev_result: Description of prev_result
+    
+    """
+
             combined_count = len(prev_data) + len(new_data)
             return (prev_result * len(prev_data) + new_data.mean(axis=0) * len(new_data)) / combined_count
             
         def incremental_std(prev_data, new_data, prev_result):
+    """
+    Incremental std.
+    
+    Args:
+        prev_data: Description of prev_data
+        new_data: Description of new_data
+        prev_result: Description of prev_result
+    
+    """
+
             # This is a simplified approach - in practice, you'd need a more sophisticated algorithm
             # to incrementally update standard deviation
             combined_data = pd.concat([prev_data, new_data], ignore_index=True)
@@ -222,15 +305,47 @@ class TestFeatureEngineeringOptimizer(unittest.TestCase):
         """Test benchmarking feature pipeline."""
         # Define feature functions
         def compute_mean(data):
+    """
+    Compute mean.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.mean(axis=0)
             
         def compute_std(data):
+    """
+    Compute std.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.std(axis=0)
             
         def compute_min(data):
+    """
+    Compute min.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.min(axis=0)
             
         def compute_max(data):
+    """
+    Compute max.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return data.max(axis=0)
         
         feature_funcs = [compute_mean, compute_std, compute_min, compute_max]

@@ -5,16 +5,12 @@ This module provides optimized JSON parsing functions for the feature store clie
 """
 import logging
 from typing import Any, Dict, List, Optional, Union
-
-# Try to import ujson for faster JSON parsing
 try:
     import ujson as json
     has_ujson = True
 except ImportError:
     import json
     has_ujson = False
-
-# Try to import orjson for even faster JSON parsing
 try:
     import orjson
     has_orjson = True
@@ -22,7 +18,17 @@ except ImportError:
     has_orjson = False
 
 
-async def parse_json_response(response) -> Any:
+from strategy_execution_engine.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
+@async_with_exception_handling
+async def parse_json_response(response) ->Any:
     """
     Parse a JSON response using the fastest available JSON parser.
     
@@ -33,7 +39,6 @@ async def parse_json_response(response) -> Any:
         Parsed JSON data
     """
     try:
-        # Use the fastest available JSON parser
         if has_orjson:
             return orjson.loads(await response.read())
         elif has_ujson:
@@ -41,12 +46,12 @@ async def parse_json_response(response) -> Any:
         else:
             return await response.json()
     except Exception as e:
-        logging.error(f"Error parsing JSON response: {str(e)}")
-        # Fall back to standard json parser
+        logging.error(f'Error parsing JSON response: {str(e)}')
         return await response.json()
 
 
-def dumps(data: Any) -> str:
+@with_exception_handling
+def dumps(data: Any) ->str:
     """
     Serialize data to JSON string using the fastest available JSON serializer.
     
@@ -64,12 +69,12 @@ def dumps(data: Any) -> str:
         else:
             return json.dumps(data)
     except Exception as e:
-        logging.error(f"Error serializing JSON: {str(e)}")
-        # Fall back to standard json serializer
+        logging.error(f'Error serializing JSON: {str(e)}')
         return json.dumps(data)
 
 
-def loads(data: str) -> Any:
+@with_exception_handling
+def loads(data: str) ->Any:
     """
     Parse a JSON string using the fastest available JSON parser.
     
@@ -87,6 +92,5 @@ def loads(data: str) -> Any:
         else:
             return json.loads(data)
     except Exception as e:
-        logging.error(f"Error parsing JSON: {str(e)}")
-        # Fall back to standard json parser
+        logging.error(f'Error parsing JSON: {str(e)}')
         return json.loads(data)

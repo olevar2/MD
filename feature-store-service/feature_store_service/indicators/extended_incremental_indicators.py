@@ -21,6 +21,15 @@ class RSIState(IndicatorState):
     RS = Average Gain / Average Loss
     """
     def __init__(self, window_size: int = 14, price_type: str = 'close'):
+    """
+      init  .
+    
+    Args:
+        window_size: Description of window_size
+        price_type: Description of price_type
+    
+    """
+
         super().__init__(
             name=f"RSI_{window_size}",
             parameters={"window_size": window_size, "price_type": price_type}
@@ -34,6 +43,18 @@ class RSIState(IndicatorState):
         self.avg_loss = None
     
     def update(self, new_data: Dict[str, float]) -> Optional[float]:
+    """
+    Update.
+    
+    Args:
+        new_data: Description of new_data
+        float]: Description of float]
+    
+    Returns:
+        Optional[float]: Description of return value
+    
+    """
+
         if self.price_type not in new_data:
             logging.warning(f"Price type {self.price_type} not found in data: {new_data}")
             return self.last_value
@@ -87,6 +108,11 @@ class RSIState(IndicatorState):
         return rsi
     
     def reset(self) -> None:
+    """
+    Reset.
+    
+    """
+
         self.gains = []
         self.losses = []
         self.prev_price = None
@@ -105,6 +131,16 @@ class BollingerBandsState(IndicatorState):
     Lower Band = Middle Band - (Standard Deviation * Multiplier)
     """
     def __init__(self, window_size: int = 20, num_std: float = 2.0, price_type: str = 'close'):
+    """
+      init  .
+    
+    Args:
+        window_size: Description of window_size
+        num_std: Description of num_std
+        price_type: Description of price_type
+    
+    """
+
         super().__init__(
             name=f"BBANDS_{window_size}_{num_std}",
             parameters={"window_size": window_size, "num_std": num_std, "price_type": price_type}
@@ -118,6 +154,18 @@ class BollingerBandsState(IndicatorState):
         self.lower_band = None
     
     def update(self, new_data: Dict[str, float]) -> Optional[Dict[str, float]]:
+    """
+    Update.
+    
+    Args:
+        new_data: Description of new_data
+        float]: Description of float]
+    
+    Returns:
+        Optional[Dict[str, float]]: Description of return value
+    
+    """
+
         if self.price_type not in new_data:
             logging.warning(f"Price type {self.price_type} not found in data: {new_data}")
             return None
@@ -154,6 +202,11 @@ class BollingerBandsState(IndicatorState):
         return result
     
     def reset(self) -> None:
+    """
+    Reset.
+    
+    """
+
         self.prices.clear()
         self.sma = None
         self.upper_band = None
@@ -177,6 +230,17 @@ class MACDState(IndicatorState):
         signal_period: int = 9, 
         price_type: str = 'close'
     ):
+    """
+      init  .
+    
+    Args:
+        fast_period: Description of fast_period
+        slow_period: Description of slow_period
+        signal_period: Description of signal_period
+        price_type: Description of price_type
+    
+    """
+
         super().__init__(
             name=f"MACD_{fast_period}_{slow_period}_{signal_period}",
             parameters={
@@ -209,6 +273,18 @@ class MACDState(IndicatorState):
         self.signal_line = None
     
     def update(self, new_data: Dict[str, float]) -> Optional[Dict[str, float]]:
+    """
+    Update.
+    
+    Args:
+        new_data: Description of new_data
+        float]: Description of float]
+    
+    Returns:
+        Optional[Dict[str, float]]: Description of return value
+    
+    """
+
         if self.price_type not in new_data:
             logging.warning(f"Price type {self.price_type} not found in data: {new_data}")
             return None
@@ -271,6 +347,11 @@ class MACDState(IndicatorState):
         return result
     
     def reset(self) -> None:
+    """
+    Reset.
+    
+    """
+
         self.fast_count = 0
         self.fast_values = []
         self.fast_ema = None
@@ -294,6 +375,15 @@ class ATRState(IndicatorState):
     ATR = SMA or EMA of True Range values
     """
     def __init__(self, window_size: int = 14, use_ema: bool = False):
+    """
+      init  .
+    
+    Args:
+        window_size: Description of window_size
+        use_ema: Description of use_ema
+    
+    """
+
         super().__init__(
             name=f"ATR_{window_size}{'_EMA' if use_ema else ''}",
             parameters={"window_size": window_size, "use_ema": use_ema}
@@ -306,6 +396,18 @@ class ATRState(IndicatorState):
         self.multiplier = 2.0 / (window_size + 1) if use_ema else None
     
     def update(self, new_data: Dict[str, float]) -> Optional[float]:
+    """
+    Update.
+    
+    Args:
+        new_data: Description of new_data
+        float]: Description of float]
+    
+    Returns:
+        Optional[float]: Description of return value
+    
+    """
+
         # ATR requires high, low, and close prices
         if not all(k in new_data for k in ('high', 'low', 'close')):
             logging.warning("Missing required price data for ATR calculation")
@@ -378,6 +480,16 @@ class StochasticState(IndicatorState):
         d_period: int = 3, 
         slowing: int = 3
     ):
+    """
+      init  .
+    
+    Args:
+        k_period: Description of k_period
+        d_period: Description of d_period
+        slowing: Description of slowing
+    
+    """
+
         super().__init__(
             name=f"STOCH_{k_period}_{d_period}_{slowing}",
             parameters={"k_period": k_period, "d_period": d_period, "slowing": slowing}
@@ -392,6 +504,18 @@ class StochasticState(IndicatorState):
         self.k_values = deque(maxlen=d_period)
     
     def update(self, new_data: Dict[str, float]) -> Optional[Dict[str, float]]:
+    """
+    Update.
+    
+    Args:
+        new_data: Description of new_data
+        float]: Description of float]
+    
+    Returns:
+        Optional[Dict[str, float]]: Description of return value
+    
+    """
+
         # Stochastic requires high, low, and close prices
         if not all(k in new_data for k in ('high', 'low', 'close')):
             logging.warning("Missing required price data for Stochastic calculation")
@@ -450,6 +574,11 @@ class StochasticState(IndicatorState):
         return result
     
     def reset(self) -> None:
+    """
+    Reset.
+    
+    """
+
         self.highs.clear()
         self.lows.clear()
         self.closes.clear()

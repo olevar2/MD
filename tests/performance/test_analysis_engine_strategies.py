@@ -67,6 +67,11 @@ class TestAnalysisEngineStrategiesPerformance:
         # Test performance
         @time_it("trend_following_strategy_execution")
         async def execute_strategy():
+    """
+    Execute strategy.
+    
+    """
+
             return await strategy.execute(
                 market_data=mock_market_data,
                 indicators_data=mock_indicators_data,
@@ -115,6 +120,11 @@ class TestAnalysisEngineStrategiesPerformance:
         # Test performance
         @time_it("mean_reversion_strategy_execution")
         async def execute_strategy():
+    """
+    Execute strategy.
+    
+    """
+
             return await strategy.execute(
                 market_data=mock_market_data,
                 indicators_data=mock_indicators_data,
@@ -162,6 +172,11 @@ class TestAnalysisEngineStrategiesPerformance:
         # Test performance
         @time_it("breakout_strategy_execution")
         async def execute_strategy():
+    """
+    Execute strategy.
+    
+    """
+
             return await strategy.execute(
                 market_data=mock_market_data,
                 indicators_data=mock_indicators_data,
@@ -209,6 +224,11 @@ class TestAnalysisEngineStrategiesPerformance:
         # Test performance
         @time_it("multiple_strategies_execution")
         async def execute_multiple_strategies():
+    """
+    Execute multiple strategies.
+    
+    """
+
             # Execute strategies in parallel
             tasks = [
                 trend_following_strategy.execute(

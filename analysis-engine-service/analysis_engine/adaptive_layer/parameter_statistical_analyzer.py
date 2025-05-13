@@ -3,9 +3,15 @@ Performs statistical analysis on trading feedback to validate parameter adjustme
 """
 import logging
 import numpy as np
-# TODO: Import necessary statistical libraries (e.g., scipy.stats, statsmodels)
-
 logger = logging.getLogger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class ParameterStatisticalAnalyzer:
     """
@@ -13,11 +19,18 @@ class ParameterStatisticalAnalyzer:
     """
 
     def __init__(self):
-        logger.info("Initializing ParameterStatisticalAnalyzer...")
-        # TODO: Initialize any required state or configurations
+    """
+      init  .
+    
+    """
+
+        logger.info('Initializing ParameterStatisticalAnalyzer...')
         pass
 
-    def analyze_parameter_impact(self, feedback_data: list, parameter_name: str) -> dict:
+    @with_analysis_resilience('analyze_parameter_impact')
+    @with_exception_handling
+    def analyze_parameter_impact(self, feedback_data: list, parameter_name: str
+        ) ->dict:
         """
         Analyzes the impact of a specific parameter on performance metrics.
 
@@ -28,27 +41,19 @@ class ParameterStatisticalAnalyzer:
         Returns:
             A dictionary containing analysis results (e.g., correlation, significance, confidence intervals).
         """
-        logger.debug(f"Analyzing impact for parameter: {parameter_name}")
+        logger.debug(f'Analyzing impact for parameter: {parameter_name}')
         try:
-            # TODO: Extract relevant data points (parameter values, performance metrics)
-            # TODO: Perform statistical tests (e.g., t-test, ANOVA, regression)
-            # TODO: Calculate confidence intervals for performance differences or effect sizes
-            # Example: Calculate mean performance for different parameter value ranges
-            # Example: Use scipy.stats.ttest_ind for comparing two groups
-            results = {
-                "parameter": parameter_name,
-                "message": "Analysis not yet implemented."
-                # "confidence_interval": (lower, upper),
-                # "p_value": p_value,
-                # "effect_size": effect_size,
-            }
-            # TODO: Add metrics for analysis performed
+            results = {'parameter': parameter_name, 'message':
+                'Analysis not yet implemented.'}
             return results
         except Exception as e:
-            logger.error(f"Error analyzing parameter {parameter_name}: {e}", exc_info=True)
-            raise # Or return an error indicator
+            logger.error(f'Error analyzing parameter {parameter_name}: {e}',
+                exc_info=True)
+            raise
 
-    def compare_ab_test_groups(self, group_a_feedback: list, group_b_feedback: list) -> dict:
+    @with_exception_handling
+    def compare_ab_test_groups(self, group_a_feedback: list,
+        group_b_feedback: list) ->dict:
         """
         Compares the performance of two groups in an A/B test.
 
@@ -59,20 +64,11 @@ class ParameterStatisticalAnalyzer:
         Returns:
             A dictionary with comparison results (e.g., winner, confidence).
         """
-        logger.debug("Comparing A/B test groups...")
+        logger.debug('Comparing A/B test groups...')
         try:
-            # TODO: Extract relevant performance metrics for each group
-            # TODO: Perform statistical comparison (e.g., t-test, Mann-Whitney U test)
-            # TODO: Determine statistical significance and practical significance
-            results = {
-                "message": "A/B test comparison not yet implemented."
-                # "winner": "A" or "B" or "Inconclusive",
-                # "p_value": p_value,
-                # "confidence": confidence_level,
-            }
-            # TODO: Add metrics for A/B test analysis
+            results = {'message': 'A/B test comparison not yet implemented.'}
             return results
         except Exception as e:
-            logger.error(f"Error comparing A/B test groups: {e}", exc_info=True)
-            raise # Or return an error indicator
-
+            logger.error(f'Error comparing A/B test groups: {e}', exc_info=True
+                )
+            raise

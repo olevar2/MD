@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: 0.1.0
+description: Helm chart for trading-gateway-service
+name: trading-gateway-service
+type: application
+version: 0.1.0

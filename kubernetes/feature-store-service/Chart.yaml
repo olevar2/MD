@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: 0.1.0
+description: Helm chart for feature-store-service
+name: feature-store-service
+type: application
+version: 0.1.0

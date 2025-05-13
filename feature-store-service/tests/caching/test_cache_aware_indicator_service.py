@@ -11,7 +11,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
-from feature_store_service.caching.cache_manager import CacheManager
+from common_lib.caching import AdaptiveCacheManager, cached, get_cache_manager
 from feature_store_service.caching.cache_aware_indicator_service import CacheAwareIndicatorService
 from feature_store_service.caching.cache_key import CacheKey
 
@@ -194,6 +194,15 @@ class TestCacheAwareIndicatorService(unittest.TestCase):
             mock_indicator2.calculate.return_value = expected_result2
             
             def mock_create(indicator_type, **params):
+    """
+    Mock create.
+    
+    Args:
+        indicator_type: Description of indicator_type
+        params: Description of params
+    
+    """
+
                 if indicator_type == 'SMA' and params.get('window') == 10:
                     return mock_indicator1
                 elif indicator_type == 'EMA' and params.get('window') == 20:

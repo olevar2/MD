@@ -323,7 +323,7 @@ With the implementation of error handling in the Strategy Execution Engine and O
 | **e2e** | ✅ Completed | Custom exceptions implemented. Test failure handlers improved for better test diagnostics. |
 | **feature-store-service** | ✅ Completed | Custom exceptions from common-lib implemented. FastAPI error handlers registered. Added exception handlers for indicator calculations. |
 | **ml-integration-service** | ✅ Completed | Custom exceptions from common-lib implemented. FastAPI error handlers registered. Specialized handlers for ML-related errors (ModelTrainingError, ModelPredictionError). |
-| **ml-workbench-service** | ✅ Completed | Custom exceptions from common-lib implemented. FastAPI error handlers registered. Error handling for experiment management and model operations. |
+| **ml_workbench-service** | ✅ Completed | Custom exceptions from common-lib implemented. FastAPI error handlers registered. Error handling for experiment management and model operations. |
 | **monitoring-alerting-service** | ✅ Completed | Custom exceptions from common-lib implemented. FastAPI error handlers registered. Specialized handlers for monitoring-specific errors. |
 | **optimization** | ✅ Completed | Custom exceptions module created with specialized exceptions (OptimizationError, ParameterValidationError, etc.). Error handling decorators implemented. ResourceAllocator updated with comprehensive error handling. |
 | **portfolio-management-service** | ✅ Completed | Custom exceptions from common-lib implemented. FastAPI error handlers registered. Error handling for portfolio operations. |

@@ -144,7 +144,7 @@ def get_service_config() -> FeatureStoreServiceConfig:
     Returns:
         Service-specific configuration
     """
-    return config_manager.get_service_specific_config()
+    return config_manager.settings
 
 
 def get_database_config():
@@ -154,7 +154,7 @@ def get_database_config():
     Returns:
         Database configuration
     """
-    return config_manager.get_database_config()
+    return config_manager.settings
 
 
 def get_logging_config():
@@ -164,7 +164,7 @@ def get_logging_config():
     Returns:
         Logging configuration
     """
-    return config_manager.get_logging_config()
+    return config_manager.settings
 
 
 def get_service_client_config(service_name: str):

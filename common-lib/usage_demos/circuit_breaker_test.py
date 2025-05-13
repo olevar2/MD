@@ -43,10 +43,20 @@ async def test_circuit_breaker_simple():
     
     # Create a test function that fails
     async def fail_func():
+    """
+    Fail func.
+    
+    """
+
         raise ValueError("Test failure")
     
     # Create a test function that succeeds
     async def success_func():
+    """
+    Success func.
+    
+    """
+
         return "success"
     
     # Make it fail twice to trigger OPEN state

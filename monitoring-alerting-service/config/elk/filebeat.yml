@@ -1,0 +1,121 @@
+filebeat.inputs:
+  # Collect logs from all services
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/forex-platform/*.log
+      - /var/log/forex-platform/*/*.log
+    fields:
+      platform: forex
+    fields_under_root: true
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+
+  # Collect Docker logs
+  - type: docker
+    enabled: true
+    containers.ids:
+      - "*"
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+
+  # Collect Kubernetes logs
+  - type: kubernetes
+    enabled: true
+    paths:
+      - /var/log/containers/*.log
+    processors:
+      - add_kubernetes_metadata:
+          host: ${NODE_NAME}
+          matchers:
+            - logs_path:
+                logs_path: "/var/log/containers/"
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+
+processors:
+  # Add host metadata
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  
+  # Add cloud metadata
+  - add_cloud_metadata: ~
+  
+  # Add Docker metadata
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+  
+  # Add Kubernetes metadata
+  - add_kubernetes_metadata:
+      host: ${NODE_NAME}
+      matchers:
+        - logs_path:
+            logs_path: "/var/log/containers/"
+  
+  # Drop debug logs
+  - drop_event:
+      when:
+        equals:
+          log.level: DEBUG
+  
+  # Rename fields
+  - rename:
+      fields:
+        - from: "log.level"
+          to: "level"
+        - from: "log.logger"
+          to: "logger"
+        - from: "log.origin.file.name"
+          to: "file.name"
+        - from: "log.origin.file.line"
+          to: "file.line"
+  
+  # Add tags
+  - add_tags:
+      tags: ["forex-platform"]
+      target: "tags"
+  
+  # Add fields
+  - add_fields:
+      target: ""
+      fields:
+        platform: "forex"
+        environment: "${ENVIRONMENT:production}"
+
+# Output to Logstash
+output.logstash:
+  hosts: ["logstash:5044"]
+  ssl.enabled: false
+  # For SSL:
+  # ssl.certificate_authorities: ["/etc/filebeat/certs/ca.pem"]
+  # ssl.certificate: "/etc/filebeat/certs/cert.pem"
+  # ssl.key: "/etc/filebeat/certs/key.pem"
+
+# Output to Elasticsearch (alternative)
+#output.elasticsearch:
+#  hosts: ["elasticsearch:9200"]
+#  username: "${ELASTICSEARCH_USERNAME:elastic}"
+#  password: "${ELASTICSEARCH_PASSWORD}"
+#  index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+
+# Logging
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+
+# Monitoring
+monitoring.enabled: true
+monitoring.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  username: "${ELASTICSEARCH_USERNAME:elastic}"
+  password: "${ELASTICSEARCH_PASSWORD}"

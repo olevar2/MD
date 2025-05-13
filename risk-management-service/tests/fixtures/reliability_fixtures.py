@@ -207,7 +207,19 @@ def mock_risk_service():
 def mock_circuit_breaker():
     """Create a mock circuit breaker for testing."""
     class MockCircuitBreaker:
+    """
+    MockCircuitBreaker class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self):
+    """
+      init  .
+    
+    """
+
             self.state = "closed"  # closed, open, half-open
             self.failure_count = 0
             self.last_failure_time = None

@@ -1,119 +1,80 @@
 """
-Adapter Factory Module
+Adapter Factory
 
-This module provides a factory for creating adapter instances for various services.
+This module provides a factory for creating adapters for external services.
 """
-
-import logging
-from typing import Optional, Dict, Any, Type, TypeVar, cast
-
-from common_lib.interfaces.analysis_engine import IAnalysisProvider, IIndicatorProvider, IPatternRecognizer
-
-from analysis_engine.adapters.analysis_adapter import AnalysisProviderAdapter
-from analysis_engine.adapters.indicator_adapter import IndicatorProviderAdapter
-from analysis_engine.adapters.pattern_adapter import PatternRecognizerAdapter
-from analysis_engine.services.analysis_service import AnalysisService
-from analysis_engine.services.indicator_service import IndicatorService
-from analysis_engine.services.pattern_service import PatternService
-
-# Configure logging
-logger = logging.getLogger(__name__)
-
-# Type variable for interface types
+from typing import Dict, Any, Type, TypeVar, cast
+from common_lib.interfaces.data_interfaces import IFeatureProvider, IDataPipeline
+from common_lib.interfaces.ml_interfaces import IModelProvider, IModelRegistry
+from common_lib.interfaces.trading_interfaces import IRiskManager, ITradingGateway
+from analysis_engine.adapters.data_adapters import FeatureStoreAdapter, DataPipelineAdapter
+from analysis_engine.adapters.ml_adapters import MLWorkbenchAdapter, ModelRegistryAdapter
+from analysis_engine.adapters.trading_adapters import RiskManagementAdapter, TradingGatewayAdapter
 T = TypeVar('T')
 
 
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
+
 class AdapterFactory:
-    """
-    Factory for creating adapter instances for various services.
-    
-    This factory provides methods for creating adapter instances that implement
-    the standardized interfaces defined in common-lib, enabling better service
-    integration and reducing circular dependencies.
-    """
-    
-    _instance: Optional['AdapterFactory'] = None
-    _adapters: Dict[Type, Any] = {}
-    
+    """Factory for creating adapters for external services."""
+    _instance = None
+
     def __new__(cls):
-        """Implement singleton pattern."""
+        """Singleton pattern."""
         if cls._instance is None:
             cls._instance = super(AdapterFactory, cls).__new__(cls)
-            cls._instance._adapters = {}
+            cls._instance._initialize()
         return cls._instance
-    
-    def get_analysis_provider(self) -> IAnalysisProvider:
+
+    def _initialize(self):
+        """Initialize the factory."""
+        self._adapters = {}
+
+    @with_resilience('get_adapter')
+    def get_adapter(self, interface_type: Type[T]) ->T:
         """
-        Get an instance of IAnalysisProvider.
-        
-        Returns:
-            An instance of IAnalysisProvider
-        """
-        if IAnalysisProvider not in self._adapters:
-            self._adapters[IAnalysisProvider] = AnalysisProviderAdapter()
-        return cast(IAnalysisProvider, self._adapters[IAnalysisProvider])
-    
-    def get_indicator_provider(self) -> IIndicatorProvider:
-        """
-        Get an instance of IIndicatorProvider.
-        
-        Returns:
-            An instance of IIndicatorProvider
-        """
-        if IIndicatorProvider not in self._adapters:
-            self._adapters[IIndicatorProvider] = IndicatorProviderAdapter()
-        return cast(IIndicatorProvider, self._adapters[IIndicatorProvider])
-    
-    def get_pattern_recognizer(self) -> IPatternRecognizer:
-        """
-        Get an instance of IPatternRecognizer.
-        
-        Returns:
-            An instance of IPatternRecognizer
-        """
-        if IPatternRecognizer not in self._adapters:
-            self._adapters[IPatternRecognizer] = PatternRecognizerAdapter()
-        return cast(IPatternRecognizer, self._adapters[IPatternRecognizer])
-    
-    def get_adapter(self, interface_type: Type[T]) -> T:
-        """
-        Get an adapter instance for the specified interface type.
+        Get an adapter for the specified interface type.
         
         Args:
-            interface_type: The interface type to get an adapter for
+            interface_type: Type of the interface
             
         Returns:
-            An instance of the specified interface type
-            
-        Raises:
-            ValueError: If no adapter is available for the specified interface type
+            Adapter instance
         """
-        if interface_type == IAnalysisProvider:
-            return cast(T, self.get_analysis_provider())
-        elif interface_type == IIndicatorProvider:
-            return cast(T, self.get_indicator_provider())
-        elif interface_type == IPatternRecognizer:
-            return cast(T, self.get_pattern_recognizer())
-        # Add more interface types as they are implemented
+        if interface_type not in self._adapters:
+            self._adapters[interface_type] = self._create_adapter(
+                interface_type)
+        return cast(T, self._adapters[interface_type])
+
+    def _create_adapter(self, interface_type: Type[T]) ->T:
+        """
+        Create an adapter for the specified interface type.
+        
+        Args:
+            interface_type: Type of the interface
+            
+        Returns:
+            Adapter instance
+        """
+        if interface_type == IFeatureProvider:
+            return FeatureStoreAdapter()
+        elif interface_type == IDataPipeline:
+            return DataPipelineAdapter()
+        elif interface_type == IModelProvider:
+            return MLWorkbenchAdapter()
+        elif interface_type == IModelRegistry:
+            return ModelRegistryAdapter()
+        elif interface_type == IRiskManager:
+            return RiskManagementAdapter()
+        elif interface_type == ITradingGateway:
+            return TradingGatewayAdapter()
         else:
-            raise ValueError(f"No adapter available for interface type: {interface_type.__name__}")
-    
-    def register_adapter(self, interface_type: Type, adapter_instance: Any) -> None:
-        """
-        Register an adapter instance for the specified interface type.
-        
-        Args:
-            interface_type: The interface type to register an adapter for
-            adapter_instance: The adapter instance to register
-        """
-        self._adapters[interface_type] = adapter_instance
-        logger.info(f"Registered adapter for interface type: {interface_type.__name__}")
-    
-    def clear_adapters(self) -> None:
-        """Clear all registered adapters."""
-        self._adapters.clear()
-        logger.info("Cleared all registered adapters")
+            raise ValueError(
+                f'No adapter available for interface type {interface_type}')
 
 
-# Create a singleton instance
 adapter_factory = AdapterFactory()

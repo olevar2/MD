@@ -45,6 +45,11 @@ class TestFeatureStoreIndicatorsPerformance:
         # Test performance
         @time_it("sma_calculation")
         async def calculate_sma():
+    """
+    Calculate sma.
+    
+    """
+
             return indicator.calculate(
                 mock_ohlcv_data,
                 {"period": 14, "price": "close"}
@@ -82,6 +87,11 @@ class TestFeatureStoreIndicatorsPerformance:
         # Test performance
         @time_it("rsi_calculation")
         async def calculate_rsi():
+    """
+    Calculate rsi.
+    
+    """
+
             return indicator.calculate(
                 mock_ohlcv_data,
                 {"period": 14, "price": "close"}
@@ -119,6 +129,11 @@ class TestFeatureStoreIndicatorsPerformance:
         # Test performance
         @time_it("macd_calculation")
         async def calculate_macd():
+    """
+    Calculate macd.
+    
+    """
+
             return indicator.calculate(
                 mock_ohlcv_data,
                 {"fast_period": 12, "slow_period": 26, "signal_period": 9, "price": "close"}
@@ -156,6 +171,11 @@ class TestFeatureStoreIndicatorsPerformance:
         # Test performance
         @time_it("bollinger_bands_calculation")
         async def calculate_bollinger_bands():
+    """
+    Calculate bollinger bands.
+    
+    """
+
             return indicator.calculate(
                 mock_ohlcv_data,
                 {"period": 20, "std_dev": 2, "price": "close"}
@@ -196,6 +216,11 @@ class TestFeatureStoreIndicatorsPerformance:
         # Test performance
         @time_it("multiple_indicators_calculation")
         async def calculate_multiple_indicators():
+    """
+    Calculate multiple indicators.
+    
+    """
+
             # Calculate indicators in parallel
             tasks = [
                 sma_indicator.calculate(mock_ohlcv_data, {"period": 14, "price": "close"}),

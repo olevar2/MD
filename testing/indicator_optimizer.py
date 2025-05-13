@@ -242,6 +242,16 @@ class IndicatorOptimizer:
         
         # Wrapper function for SMA that handles pandas input
         def optimized_sma_wrapper(data, period=20, price_column='close'):
+    """
+    Optimized sma wrapper.
+    
+    Args:
+        data: Description of data
+        period: Description of period
+        price_column: Description of price_column
+    
+    """
+
             if isinstance(data, pd.DataFrame):
                 prices = data[price_column].values
             else:
@@ -256,6 +266,16 @@ class IndicatorOptimizer:
         
         # Wrapper function for EMA that handles pandas input
         def optimized_ema_wrapper(data, period=20, price_column='close'):
+    """
+    Optimized ema wrapper.
+    
+    Args:
+        data: Description of data
+        period: Description of period
+        price_column: Description of price_column
+    
+    """
+
             if isinstance(data, pd.DataFrame):
                 prices = data[price_column].values
             else:
@@ -324,6 +344,16 @@ class IndicatorOptimizer:
         
         # Wrapper function for RSI that handles pandas input
         def optimized_rsi_wrapper(data, period=14, price_column='close'):
+    """
+    Optimized rsi wrapper.
+    
+    Args:
+        data: Description of data
+        period: Description of period
+        price_column: Description of price_column
+    
+    """
+
             if isinstance(data, pd.DataFrame):
                 prices = data[price_column].values
             else:
@@ -368,6 +398,17 @@ class IndicatorOptimizer:
         
         # Wrapper function for Bollinger Bands that handles pandas input
         def optimized_bollinger_wrapper(data, period=20, deviations=2.0, price_column='close'):
+    """
+    Optimized bollinger wrapper.
+    
+    Args:
+        data: Description of data
+        period: Description of period
+        deviations: Description of deviations
+        price_column: Description of price_column
+    
+    """
+
             if isinstance(data, pd.DataFrame):
                 prices = data[price_column].values
             else:

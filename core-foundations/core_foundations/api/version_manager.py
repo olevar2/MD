@@ -10,12 +10,26 @@ from pydantic import BaseModel
 
 
 class VersionStatus(str, Enum):
+    """
+    VersionStatus class that inherits from str, Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     CURRENT = "current"
     DEPRECATED = "deprecated"
     SUNSET = "sunset"
 
 
 class ApiVersion(BaseModel):
+    """
+    ApiVersion class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     version: str
     status: VersionStatus
     released_date: datetime

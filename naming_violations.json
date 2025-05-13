@@ -1,0 +1,1650 @@
+{
+  "file_violations": [
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\analyzers\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\collectors\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\processors\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\adaptive_layer\\feedback\\utils\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\advanced_ta\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\advanced_ta\\elliott_wave\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\advanced_ta\\fibonacci\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\confluence\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\indicators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\market_regime\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\nlp\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\sentiment\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\sentiment\\analyzers\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\analysis\\sentiment\\models\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\middleware\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\v1\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\api\\v1\\standardized\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\caching\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\data\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\detection\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\feedback\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\graph\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\inference\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\integration\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\prediction\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\testing\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\causal\\visualization\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\chat\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\clients\\standardized\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\core\\base\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\db\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\events\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\learning_from_mistakes\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\repositories\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\resilience\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\services\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\tools\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\common_lib\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\mocks\\common_lib\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\unit\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis-engine-service\\tests\\unit\\db\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis_engine\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\advanced_ta\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\advanced_ta\\base\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\advanced_ta\\elliott_wave\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\market_regime\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\analysis_engine\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\adaptive\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\analysis\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\api\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\caching\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\clients\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\correlation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\database\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\data_reconciliation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\dependency_injection\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\effectiveness\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\errors\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\events\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\indicators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\indicators\\moving_averages\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\indicators\\oscillators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\indicators\\volatility\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\interfaces\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\ml\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\monitoring\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\parallel\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\resilience\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\risk\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\security\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\service_client\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\templates\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\templates\\service_template\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\common_lib\\utils\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\docs\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\templates\\service_template\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\correlation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\errors\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\indicators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\integration\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\service_client\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\tests\\templates\\service_template\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\common-lib\\usage_demos\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\core-foundations\\core_foundations\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\core-foundations\\core_foundations\\resilience\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\core-foundations\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\correlation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\feature_extraction\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\alternative\\trading\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\data_management_service\\historical\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-management-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\api\\v1\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\monitoring\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\optimization\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\parallel\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\reconciliation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\services\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\transformers\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\transformers\\asset_specific\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\transformers\\operations\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\data_pipeline_service\\validation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\tests\\mocks\\common_lib\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\tests\\mocks\\common_lib\\monitoring\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\data-pipeline-service\\tests\\services\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\e2e\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\caching\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\computation\\incremental\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\db\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\heikin_ashi\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\ichimoku\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\renko\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\vsa\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\advanced_patterns\\wyckoff\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\candlestick\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\classic\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\chart_patterns\\harmonic\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\degraded\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\fibonacci\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\gann\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\gann\\squares\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\harmonic_patterns\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\harmonic_patterns\\detectors\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\indicators\\volatility\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\reconciliation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\reliability\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\utils\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\tests\\indicators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\tests\\recovery\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature-store-service\\tests\\verification\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature_store_service_backup\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature_store_service_backup\\indicators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature_store_service_backup\\indicators\\harmonic_patterns\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature_store_service_backup\\indicators\\harmonic_patterns\\detectors\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\feature_store_service_backup\\indicators\\volatility\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\caching\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\parallel\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\reconciliation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-integration-service\\ml_integration_service\\tracing\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-integration-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\v1\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\multitask\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\api\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\api\\v1\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\error\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\metrics\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\monitoring_alerting_service\\notifications\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\monitoring-alerting-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\optimization\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\optimization\\error\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\controllers\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\metrics\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\policies\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\resource_allocation\\utils\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\optimization\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\error\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\services\\account_reconciliation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\services\\reconciliation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\portfolio_management_service\\tax_reporting\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\portfolio-management-service\\tests\\services\\account_reconciliation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\calculators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\clients\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\error\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\managers\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\risk_management_service\\pipelines\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\tests\\fixtures\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\tests\\integration\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\risk-management-service\\tests\\unit\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\security\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\adapters\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\analysis\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\api\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\backtesting\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\clients\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\core\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\error\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\risk\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\signal\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\strategy_execution_engine\\strategies\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\strategy-execution-engine\\tests\\unit\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\testing\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\testing\\stress_testing\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\analysis_engine\\analysis\\market_regime\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\integration\\service_interactions\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\performance\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\analysis\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\analysis\\advanced_ta\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\analysis_engine\\analysis\\advanced_ta\\elliott_wave\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\indicators\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\indicators\\harmonic_patterns\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tests\\unit\\feature_store_service\\indicators\\volatility\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\tools\\naming_checker\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\api\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\error\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\execution_algorithms\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\incidents\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\interfaces\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\monitoring\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\resilience\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\services\\execution\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\simulation\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\trading-gateway-service\\trading_gateway_service\\simulation\\reinforcement_learning\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ui-service\\tests\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    },
+    {
+      "file": "d:\\MD\\forex_trading_platform\\ui-service\\ui\\config\\__init__.py",
+      "current_name": "__init__",
+      "suggested_name": "__init__",
+      "type": "file"
+    }
+  ],
+  "directory_violations": [
+    {
+      "directory": "d:\\MD\\forex_trading_platform\\analysis_engine",
+      "current_name": "analysis_engine",
+      "suggested_name": "analysis-engine",
+      "type": "directory"
+    },
+    {
+      "directory": "d:\\MD\\forex_trading_platform\\assessment_results",
+      "current_name": "assessment_results",
+      "suggested_name": "assessment-results",
+      "type": "directory"
+    },
+    {
+      "directory": "d:\\MD\\forex_trading_platform\\chat_interface_template",
+      "current_name": "chat_interface_template",
+      "suggested_name": "chat-interface-template",
+      "type": "directory"
+    },
+    {
+      "directory": "d:\\MD\\forex_trading_platform\\code_quality_report",
+      "current_name": "code_quality_report",
+      "suggested_name": "code-quality-report",
+      "type": "directory"
+    },
+    {
+      "directory": "d:\\MD\\forex_trading_platform\\feature_store_service_backup",
+      "current_name": "feature_store_service_backup",
+      "suggested_name": "feature-store-service-backup",
+      "type": "directory"
+    }
+  ],
+  "stats": {
+    "total_files_checked": 2259,
+    "total_directories_checked": 38,
+    "file_violations_found": 268,
+    "directory_violations_found": 5
+  }
+}

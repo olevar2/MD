@@ -3,14 +3,12 @@ Distributed tracing for the ML Integration Service.
 
 This module provides functionality for distributed tracing using OpenTelemetry.
 """
-
 from typing import Dict, Any, Optional, Callable, TypeVar, Generic, Union, List
 import logging
 import functools
 import inspect
 import asyncio
 from contextvars import ContextVar
-
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -19,35 +17,26 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from opentelemetry.trace.status import Status, StatusCode
 from opentelemetry.context.context import Context
-
 from ml_integration_service.config.enhanced_settings import enhanced_settings
-
-# Setup logger
 logger = logging.getLogger(__name__)
-
-# Create a tracer provider
-tracer_provider = TracerProvider(
-    resource=Resource.create({SERVICE_NAME: "ml-integration-service"})
-)
-
-# Create a Jaeger exporter
-jaeger_exporter = JaegerExporter(
-    agent_host_name=enhanced_settings.JAEGER_AGENT_HOST,
-    agent_port=enhanced_settings.JAEGER_AGENT_PORT,
-)
-
-# Add the exporter to the tracer provider
+tracer_provider = TracerProvider(resource=Resource.create({SERVICE_NAME:
+    'ml-integration-service'}))
+jaeger_exporter = JaegerExporter(agent_host_name=enhanced_settings.
+    JAEGER_AGENT_HOST, agent_port=enhanced_settings.JAEGER_AGENT_PORT)
 tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
-
-# Set the tracer provider
 trace.set_tracer_provider(tracer_provider)
-
-# Create a tracer
 tracer = trace.get_tracer(__name__)
+current_span_var = ContextVar('current_span', default=None)
 
-# Create a context variable for the current span
-current_span_var = ContextVar("current_span", default=None)
 
+from ml_integration_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 def get_current_span():
     """
@@ -69,7 +58,9 @@ def set_current_span(span):
     current_span_var.set(span)
 
 
-def trace_method(name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None):
+@with_exception_handling
+def trace_method(name: Optional[str]=None, attributes: Optional[Dict[str,
+    Any]]=None):
     """
     Decorator for tracing methods.
     
@@ -80,121 +71,99 @@ def trace_method(name: Optional[str] = None, attributes: Optional[Dict[str, Any]
     Returns:
         Decorated method
     """
+
+    @with_exception_handling
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
+
         @functools.wraps(func)
+        @async_with_exception_handling
         async def async_wrapper(self, *args, **kwargs):
-            # Get the method name
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             method_name = name or func.__name__
-            
-            # Get the class name
             class_name = self.__class__.__name__
-            
-            # Create a span name
-            span_name = f"{class_name}.{method_name}"
-            
-            # Get the method parameters
+            span_name = f'{class_name}.{method_name}'
             sig = inspect.signature(func)
             bound_args = sig.bind(self, *args, **kwargs)
             bound_args.apply_defaults()
-            
-            # Create span attributes
             span_attributes = {}
-            
-            # Add method parameters to span attributes
             for param_name, param_value in bound_args.arguments.items():
-                if param_name != "self":
-                    # Convert param_value to string to avoid serialization issues
-                    span_attributes[f"method.{param_name}"] = str(param_value)
-            
-            # Add custom attributes
+                if param_name != 'self':
+                    span_attributes[f'method.{param_name}'] = str(param_value)
             if attributes:
                 span_attributes.update(attributes)
-            
-            # Start a span
-            with tracer.start_as_current_span(span_name, attributes=span_attributes) as span:
-                # Set the current span
+            with tracer.start_as_current_span(span_name, attributes=
+                span_attributes) as span:
                 set_current_span(span)
-                
                 try:
-                    # Call the method
                     result = await func(self, *args, **kwargs)
-                    
-                    # Set the span status
                     span.set_status(Status(StatusCode.OK))
-                    
                     return result
                 except Exception as e:
-                    # Set the span status
                     span.set_status(Status(StatusCode.ERROR, str(e)))
-                    
-                    # Record the exception
                     span.record_exception(e)
-                    
-                    # Re-raise the exception
                     raise
-        
+
         @functools.wraps(func)
+        @with_exception_handling
         def sync_wrapper(self, *args, **kwargs):
-            # Get the method name
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             method_name = name or func.__name__
-            
-            # Get the class name
             class_name = self.__class__.__name__
-            
-            # Create a span name
-            span_name = f"{class_name}.{method_name}"
-            
-            # Get the method parameters
+            span_name = f'{class_name}.{method_name}'
             sig = inspect.signature(func)
             bound_args = sig.bind(self, *args, **kwargs)
             bound_args.apply_defaults()
-            
-            # Create span attributes
             span_attributes = {}
-            
-            # Add method parameters to span attributes
             for param_name, param_value in bound_args.arguments.items():
-                if param_name != "self":
-                    # Convert param_value to string to avoid serialization issues
-                    span_attributes[f"method.{param_name}"] = str(param_value)
-            
-            # Add custom attributes
+                if param_name != 'self':
+                    span_attributes[f'method.{param_name}'] = str(param_value)
             if attributes:
                 span_attributes.update(attributes)
-            
-            # Start a span
-            with tracer.start_as_current_span(span_name, attributes=span_attributes) as span:
-                # Set the current span
+            with tracer.start_as_current_span(span_name, attributes=
+                span_attributes) as span:
                 set_current_span(span)
-                
                 try:
-                    # Call the method
                     result = func(self, *args, **kwargs)
-                    
-                    # Set the span status
                     span.set_status(Status(StatusCode.OK))
-                    
                     return result
                 except Exception as e:
-                    # Set the span status
                     span.set_status(Status(StatusCode.ERROR, str(e)))
-                    
-                    # Record the exception
                     span.record_exception(e)
-                    
-                    # Re-raise the exception
                     raise
-        
-        # Check if the method is async
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         else:
             return sync_wrapper
-    
     return decorator
 
 
-def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None):
+@with_exception_handling
+def trace_function(name: Optional[str]=None, attributes: Optional[Dict[str,
+    Any]]=None):
     """
     Decorator for tracing functions.
     
@@ -205,101 +174,85 @@ def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, An
     Returns:
         Decorated function
     """
+
+    @with_exception_handling
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
+
         @functools.wraps(func)
+        @async_with_exception_handling
         async def async_wrapper(*args, **kwargs):
-            # Get the function name
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             function_name = name or func.__name__
-            
-            # Get the function parameters
             sig = inspect.signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
-            
-            # Create span attributes
             span_attributes = {}
-            
-            # Add function parameters to span attributes
             for param_name, param_value in bound_args.arguments.items():
-                # Convert param_value to string to avoid serialization issues
-                span_attributes[f"function.{param_name}"] = str(param_value)
-            
-            # Add custom attributes
+                span_attributes[f'function.{param_name}'] = str(param_value)
             if attributes:
                 span_attributes.update(attributes)
-            
-            # Start a span
-            with tracer.start_as_current_span(function_name, attributes=span_attributes) as span:
-                # Set the current span
+            with tracer.start_as_current_span(function_name, attributes=
+                span_attributes) as span:
                 set_current_span(span)
-                
                 try:
-                    # Call the function
                     result = await func(*args, **kwargs)
-                    
-                    # Set the span status
                     span.set_status(Status(StatusCode.OK))
-                    
                     return result
                 except Exception as e:
-                    # Set the span status
                     span.set_status(Status(StatusCode.ERROR, str(e)))
-                    
-                    # Record the exception
                     span.record_exception(e)
-                    
-                    # Re-raise the exception
                     raise
-        
+
         @functools.wraps(func)
+        @with_exception_handling
         def sync_wrapper(*args, **kwargs):
-            # Get the function name
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             function_name = name or func.__name__
-            
-            # Get the function parameters
             sig = inspect.signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
-            
-            # Create span attributes
             span_attributes = {}
-            
-            # Add function parameters to span attributes
             for param_name, param_value in bound_args.arguments.items():
-                # Convert param_value to string to avoid serialization issues
-                span_attributes[f"function.{param_name}"] = str(param_value)
-            
-            # Add custom attributes
+                span_attributes[f'function.{param_name}'] = str(param_value)
             if attributes:
                 span_attributes.update(attributes)
-            
-            # Start a span
-            with tracer.start_as_current_span(function_name, attributes=span_attributes) as span:
-                # Set the current span
+            with tracer.start_as_current_span(function_name, attributes=
+                span_attributes) as span:
                 set_current_span(span)
-                
                 try:
-                    # Call the function
                     result = func(*args, **kwargs)
-                    
-                    # Set the span status
                     span.set_status(Status(StatusCode.OK))
-                    
                     return result
                 except Exception as e:
-                    # Set the span status
                     span.set_status(Status(StatusCode.ERROR, str(e)))
-                    
-                    # Record the exception
                     span.record_exception(e)
-                    
-                    # Re-raise the exception
                     raise
-        
-        # Check if the function is async
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         else:
             return sync_wrapper
-    
     return decorator

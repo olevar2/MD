@@ -328,6 +328,14 @@ class TestEnvironment:
             start_order = []
             
             def visit(node):
+    """
+    Visit.
+    
+    Args:
+        node: Description of node
+    
+    """
+
                 if node in visited:
                     return
                 visited.add(node)

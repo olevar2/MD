@@ -1,3 +1,9 @@
+"""
+Test timeframe optimization service module.
+
+This module provides functionality for...
+"""
+
 import unittest
 import pandas as pd
 import os

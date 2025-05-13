@@ -1,3 +1,9 @@
+"""
+Trading module.
+
+This module provides functionality for...
+"""
+
 
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Any, Union
@@ -5,12 +11,26 @@ from datetime import datetime
 from enum import Enum
 
 class OrderType(Enum):
+    """
+    OrderType class that inherits from Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     MARKET = "market"
     LIMIT = "limit"
     STOP = "stop"
     STOP_LIMIT = "stop_limit"
 
 class OrderSide(Enum):
+    """
+    OrderSide class that inherits from Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     BUY = "buy"
     SELL = "sell"
 

@@ -11,12 +11,26 @@ import json
 logger = logging.getLogger(__name__)
 
 class IncidentSeverity(Enum):
+    """
+    IncidentSeverity class that inherits from Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
 
 class IncidentStatus(Enum):
+    """
+    IncidentStatus class that inherits from Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     DETECTED = "detected"
     INVESTIGATING = "investigating"
     MITIGATING = "mitigating"
@@ -24,7 +38,22 @@ class IncidentStatus(Enum):
     CLOSED = "closed"
 
 class PlatformIncidentManager:
+    """
+    PlatformIncidentManager class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, config: Dict):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+    
+    """
+
         self.config = config
         self.active_incidents: Dict[str, Dict] = {}
         self.notification_channels = self._setup_notification_channels()

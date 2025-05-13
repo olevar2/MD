@@ -11,7 +11,7 @@ interface ErrorStateProps {
 /**
  * Loading Error component for displaying when data fails to load
  */
-export const LoadingError: React.FC<ErrorStateProps> = ({ 
+export const LoadingError: React.FC<ErrorStateProps> = ({
   message = 'Failed to load data. Please try again.',
   onRetry,
   onBack
@@ -28,9 +28,10 @@ export const LoadingError: React.FC<ErrorStateProps> = ({
     }}
   >
     <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
-      {message}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof message === 'string' ? message : 'An error occurred'}
     </Alert>
-    
+
     <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
       {onRetry && (
         <Button
@@ -41,7 +42,7 @@ export const LoadingError: React.FC<ErrorStateProps> = ({
           Retry
         </Button>
       )}
-      
+
       {onBack && (
         <Button
           variant="outlined"
@@ -75,11 +76,12 @@ export const NetworkError: React.FC<ErrorStateProps> = ({
     <Typography variant="h6" color="error" gutterBottom>
       Connection Error
     </Typography>
-    
+
     <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
-      {message}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof message === 'string' ? message : 'An error occurred'}
     </Alert>
-    
+
     {onRetry && (
       <Button
         variant="contained"
@@ -114,11 +116,12 @@ export const AuthenticationError: React.FC<ErrorStateProps> = ({
     <Typography variant="h6" color="warning.main" gutterBottom>
       Authentication Required
     </Typography>
-    
+
     <Alert severity="warning" sx={{ mb: 2, width: '100%' }}>
-      {message}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof message === 'string' ? message : 'An error occurred'}
     </Alert>
-    
+
     {onRetry && (
       <Button
         variant="contained"
@@ -153,11 +156,12 @@ export const AuthorizationError: React.FC<ErrorStateProps> = ({
     <Typography variant="h6" color="warning.main" gutterBottom>
       Access Denied
     </Typography>
-    
+
     <Alert severity="warning" sx={{ mb: 2, width: '100%' }}>
-      {message}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof message === 'string' ? message : 'An error occurred'}
     </Alert>
-    
+
     {onBack && (
       <Button
         variant="outlined"
@@ -192,11 +196,12 @@ export const ServiceError: React.FC<ErrorStateProps> = ({
     <Typography variant="h6" color="error" gutterBottom>
       Service Unavailable
     </Typography>
-    
+
     <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
-      {message}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof message === 'string' ? message : 'An error occurred'}
     </Alert>
-    
+
     <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
       {onRetry && (
         <Button
@@ -207,7 +212,7 @@ export const ServiceError: React.FC<ErrorStateProps> = ({
           Retry
         </Button>
       )}
-      
+
       {onBack && (
         <Button
           variant="outlined"
@@ -246,13 +251,15 @@ export const EmptyState: React.FC<{
     }}
   >
     <Typography variant="h6" gutterBottom>
-      {title}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof title === 'string' ? title : 'No Data Available'}
     </Typography>
-    
+
     <Typography variant="body1" color="text.secondary" paragraph>
-      {message}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof message === 'string' ? message : 'There is no data to display at this time.'}
     </Typography>
-    
+
     {actionLabel && onAction && (
       <Button
         variant="outlined"
@@ -285,7 +292,8 @@ export const LoadingState: React.FC<{
   >
     <CircularProgress size={40} sx={{ mb: 2 }} />
     <Typography variant="body1" color="text.secondary">
-      {message}
+      {/* Use a safe text content to prevent XSS */}
+      {typeof message === 'string' ? message : 'Loading data...'}
     </Typography>
   </Box>
 );
@@ -302,24 +310,24 @@ export const ErrorStateFactory: React.FC<{
   switch (errorType) {
     case ErrorType.AUTHENTICATION_ERROR:
       return <AuthenticationError message={message} onRetry={onRetry} />;
-      
+
     case ErrorType.AUTHORIZATION_ERROR:
       return <AuthorizationError message={message} onBack={onBack} />;
-      
+
     case ErrorType.NETWORK_ERROR:
       return <NetworkError message={message} onRetry={onRetry} />;
-      
+
     case ErrorType.SERVICE_ERROR:
     case ErrorType.SERVICE_UNAVAILABLE_ERROR:
     case ErrorType.SERVICE_TIMEOUT_ERROR:
       return <ServiceError message={message} onRetry={onRetry} onBack={onBack} />;
-      
+
     case ErrorType.DATA_FETCH_ERROR:
     case ErrorType.DATA_VALIDATION_ERROR:
     case ErrorType.DATA_STORAGE_ERROR:
     case ErrorType.DATA_TRANSFORMATION_ERROR:
       return <LoadingError message={message} onRetry={onRetry} onBack={onBack} />;
-      
+
     default:
       return <LoadingError message={message || 'An unexpected error occurred'} onRetry={onRetry} onBack={onBack} />;
   }

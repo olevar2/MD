@@ -16,7 +16,7 @@ The ML Workbench Service is a specialized environment for developing, training, 
 1. Clone the repository
 2. Navigate to the service directory:
 ```bash
-cd ml-workbench-service
+cd ml_workbench-service
 ```
 3. Install dependencies using Poetry:
 ```bash

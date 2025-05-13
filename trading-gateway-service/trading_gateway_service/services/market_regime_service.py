@@ -44,7 +44,7 @@ class MarketRegimeService:
         self.last_regime_update: Dict[str, float] = {}
 
         # Cache expiration (in seconds)
-        self.regime_cache_ttl = self.config.get('regime_cache_ttl', 3600)  # 1 hour
+        self.regime_cache_ttl = self.config_manager.get('regime_cache_ttl', 3600)  # 1 hour
 
         # Analysis Engine URL
         self.analysis_engine_url = self.config.get(

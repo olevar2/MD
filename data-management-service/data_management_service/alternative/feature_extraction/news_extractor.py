@@ -164,6 +164,14 @@ class NewsFeatureExtractor(BaseFeatureExtractor):
         
         # Function to calculate simple sentiment score
         def calculate_sentiment(text):
+    """
+    Calculate sentiment.
+    
+    Args:
+        text: Description of text
+    
+    """
+
             if not isinstance(text, str):
                 return 0.0
             

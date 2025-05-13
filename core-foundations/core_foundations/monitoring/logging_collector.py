@@ -28,9 +28,31 @@ class LoggingMetricsCollector(BaseMetricsCollector):
 
     # Implement other methods if added to BaseMetricsCollector
     # def gauge(self, metric_name: str, value: float, labels: Optional[Dict[str, str]] = None):
+    """
+    Gauge.
+    
+    Args:
+        metric_name: Description of metric_name
+        value: Description of value
+        labels: Description of labels
+        str]]: Description of str]]
+    
+    """
+
     #     label_str = "" if not labels else "{" + ", ".join(f'{k}="{v}"' for k, v in labels.items()) + "}"
     #     logging.info(f"GAUGE {metric_name}{label_str} = {value}")
     #
     # def histogram(self, metric_name: str, value: float, labels: Optional[Dict[str, str]] = None):
+    """
+    Histogram.
+    
+    Args:
+        metric_name: Description of metric_name
+        value: Description of value
+        labels: Description of labels
+        str]]: Description of str]]
+    
+    """
+
     #     label_str = "" if not labels else "{" + ", ".join(f'{k}="{v}"' for k, v in labels.items()) + "}"
     #     logging.info(f"HISTOGRAM {metric_name}{label_str} observed {value}")

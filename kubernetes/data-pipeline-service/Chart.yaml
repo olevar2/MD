@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: 0.1.0
+description: Helm chart for data-pipeline-service
+name: data-pipeline-service
+type: application
+version: 0.1.0

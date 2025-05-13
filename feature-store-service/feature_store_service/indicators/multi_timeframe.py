@@ -1077,7 +1077,7 @@ class TimeframeConfluenceScanner(BaseIndicator):
                         continue
 
                     # Check if signal is bullish or bearish based on configuration
-                    direction = config.get('direction', 1)  # Default to 1 (higher is bullish)
+                    direction = config_manager.get('direction', 1)  # Default to 1 (higher is bullish)
 
                     if (direction > 0 and signal_value > 0) or (direction < 0 and signal_value < 0):
                         bullish_signals += 1

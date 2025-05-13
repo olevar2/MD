@@ -1,70 +1,103 @@
 """
 Simple tests for error handling in the Strategy Execution Engine.
 """
-
 import pytest
 from unittest.mock import MagicMock
 
+
+from strategy_execution_engine.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
 class TestError(Exception):
     """Test error class."""
+
     def __init__(self, message):
         self.message = message
         super().__init__(message)
 
+
 def test_error_handling():
     """Test basic error handling."""
-    # Create a function that raises an error
+
     def function_with_error():
-        raise TestError("Test error")
+    """
+    Function with error.
     
-    # Verify that the function raises an error
+    """
+
+        raise TestError('Test error')
     with pytest.raises(TestError) as excinfo:
         function_with_error()
-    
-    # Verify the error message
-    assert str(excinfo.value) == "Test error"
+    assert str(excinfo.value) == 'Test error'
 
+
+@with_exception_handling
 def test_error_handling_with_try_except():
     """Test error handling with try/except."""
-    # Create a function that catches an error
-    def function_with_try_except():
-        try:
-            raise TestError("Test error")
-        except TestError as e:
-            return f"Caught error: {e}"
-    
-    # Verify that the function returns the expected message
-    result = function_with_try_except()
-    assert result == "Caught error: Test error"
 
+    @with_exception_handling
+    def function_with_try_except():
+    """
+    Function with try except.
+    
+    """
+
+        try:
+            raise TestError('Test error')
+        except TestError as e:
+            return f'Caught error: {e}'
+    result = function_with_try_except()
+    assert result == 'Caught error: Test error'
+
+
+@with_exception_handling
 def test_error_handling_with_decorator():
     """Test error handling with a decorator."""
-    # Create a decorator that catches errors
+
+    @with_exception_handling
     def error_handler(func):
+    """
+    Error handler.
+    
+    Args:
+        func: Description of func
+    
+    """
+
+
+        @with_exception_handling
         def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                return f"Caught error: {e}"
+                return f'Caught error: {e}'
         return wrapper
-    
-    # Create a function that raises an error
+
     @error_handler
     def function_with_error():
-        raise TestError("Test error")
-    
-    # Verify that the function returns the expected message
+        raise TestError('Test error')
     result = function_with_error()
-    assert result == "Caught error: Test error"
+    assert result == 'Caught error: Test error'
+
 
 def test_error_handling_with_mock():
     """Test error handling with a mock."""
-    # Create a mock function that raises an error
-    mock_function = MagicMock(side_effect=TestError("Test error"))
-    
-    # Verify that the function raises an error
+    mock_function = MagicMock(side_effect=TestError('Test error'))
     with pytest.raises(TestError) as excinfo:
         mock_function()
-    
-    # Verify the error message
-    assert str(excinfo.value) == "Test error"
+    assert str(excinfo.value) == 'Test error'

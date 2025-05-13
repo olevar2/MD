@@ -1,3 +1,9 @@
+"""
+Adaptive cache module.
+
+This module provides functionality for...
+"""
+
 import time
 import threading
 import pickle # Added for Redis serialization
@@ -359,6 +365,15 @@ class AdaptiveCache:
 # Example Usage & Event-based Invalidation Callback
 
 # def invalidate_user_cache(cache_instance: AdaptiveCache, user_id: int):
+    """
+    Invalidate user cache.
+    
+    Args:
+        cache_instance: Description of cache_instance
+        user_id: Description of user_id
+    
+    """
+
 #     """Callback function to invalidate cache entries related to a user."""
 #     print(f"Event received: Invalidating cache for user_id: {user_id}")
 #     # Example: Invalidate specific keys based on the event payload

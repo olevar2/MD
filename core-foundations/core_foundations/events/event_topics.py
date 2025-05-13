@@ -6,6 +6,13 @@ from enum import Enum
 from typing import Dict, Any
 
 class EventTopics:
+    """
+    EventTopics class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     # Core trading events
     TRADING_ORDERS = "forex.trading.orders"
     TRADING_EXECUTIONS = "forex.trading.executions"
@@ -24,6 +31,13 @@ class EventTopics:
     DEAD_LETTER_QUEUE = "forex.system.dlq"
 
 class TopicConfig:
+    """
+    TopicConfig class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     DEFAULT_CONFIG = {
         "num_partitions": 6,
         "replication_factor": 3,

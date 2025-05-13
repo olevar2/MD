@@ -36,10 +36,10 @@ class SignalAggregator:
         }
         
         # Load weights from config or use defaults
-        self.signal_weights = self.config.get("signal_weights", self.default_weights)
-        self.regime_adjustments = self.config.get("regime_adjustments", {})
-        self.confidence_threshold = self.config.get("confidence_threshold", 0.5)
-        self.use_adaptive_weights = self.config.get("use_adaptive_weights", True)
+        self.signal_weights = self.config_manager.get('signal_weights', self.default_weights)
+        self.regime_adjustments = self.config_manager.get('regime_adjustments', {})
+        self.confidence_threshold = self.config_manager.get('confidence_threshold', 0.5)
+        self.use_adaptive_weights = self.config_manager.get('use_adaptive_weights', True)
         
     def set_adaptive_weights(self, weights: Dict[str, float]) -> None:
         """
@@ -156,7 +156,7 @@ class SignalAggregator:
             return pd.Series(0, index=index)
         
         # Get tool effectiveness weights if available in config
-        tool_weights = self.config.get("technical_tool_weights", {})
+        tool_weights = self.config_manager.get('technical_tool_weights', {})
         
         # Sum all signals with their respective weights
         combined = pd.Series(0, index=index)
@@ -242,8 +242,8 @@ class SignalAggregator:
                 event_time = pd.Timestamp(event['timestamp'])
                 
                 # Define window (default: 15 minutes before, 30 minutes after)
-                before_window = self.config.get('news_window_before', 15)  # minutes
-                after_window = self.config.get('news_window_after', 30)  # minutes
+                before_window = self.config_manager.get('news_window_before', 15)  # minutes
+                after_window = self.config_manager.get('news_window_after', 30)  # minutes
                 
                 start_window = event_time - pd.Timedelta(minutes=before_window)
                 end_window = event_time + pd.Timedelta(minutes=after_window)
@@ -258,4 +258,4 @@ class SignalAggregator:
         """
         Reset the signal aggregator to initial state
         """
-        self.signal_weights = self.config.get("signal_weights", self.default_weights)
+        self.signal_weights = self.config_manager.get('signal_weights', self.default_weights)

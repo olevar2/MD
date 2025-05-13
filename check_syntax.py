@@ -1,7 +1,21 @@
+"""
+Check syntax module.
+
+This module provides functionality for...
+"""
+
 import os
 import sys
 
 def check_syntax(directory):
+    """
+    Check syntax.
+    
+    Args:
+        directory: Description of directory
+    
+    """
+
     errors = []
     for root, dirs, files in os.walk(directory):
         for file in files:

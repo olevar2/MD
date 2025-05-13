@@ -38,6 +38,14 @@ class StressTestingEngine:
     """
     
     def __init__(self, risk_manager: RiskManager):
+    """
+      init  .
+    
+    Args:
+        risk_manager: Description of risk_manager
+    
+    """
+
         self.risk_manager = risk_manager
         self.historical_scenarios = self._initialize_historical_scenarios()
         self.hypothetical_scenarios = self._initialize_hypothetical_scenarios()

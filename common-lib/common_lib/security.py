@@ -20,7 +20,24 @@ except ImportError:
     # Create mock classes for when FastAPI is not installed
     # This allows the module to be imported even if FastAPI is not a dependency
     class HTTPException(Exception):
+    """
+    HTTPException class that inherits from Exception.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self, status_code=None, detail=None, headers=None):
+    """
+      init  .
+    
+    Args:
+        status_code: Description of status_code
+        detail: Description of detail
+        headers: Description of headers
+    
+    """
+
             # This is a mock class for when FastAPI is not installed.
             # It allows the module to be imported without FastAPI as a hard dependency.
             # No specific initialization logic is needed for the mock.
@@ -29,10 +46,33 @@ except ImportError:
             self.headers = headers
 
     class Request:
+    """
+    Request class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         pass
         
     class Depends:
+    """
+    Depends class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             # This is a mock implementation that intentionally does nothing
             # It exists solely to allow imports without FastAPI dependency
             pass

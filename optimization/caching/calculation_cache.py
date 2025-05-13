@@ -16,11 +16,11 @@ class CalculationCache:
     """
     A cache for expensive calculations with time-to-live support.
     """
-    
+
     def __init__(self, ttl: int = 3600):
         """
         Initialize a new calculation cache.
-        
+
         Args:
             ttl: Time-to-live in seconds for cached items (default: 1 hour)
         """
@@ -28,14 +28,14 @@ class CalculationCache:
         self.ttl = ttl
         self.hits = 0
         self.misses = 0
-        
+
     def get(self, key: str) -> Optional[Any]:
         """
         Get a value from cache if it exists and is not expired.
-        
+
         Args:
             key: The cache key
-            
+
         Returns:
             The cached value or None if not found or expired
         """
@@ -44,27 +44,27 @@ class CalculationCache:
             if (time.time() - timestamp) < self.ttl:
                 self.hits += 1
                 return value
-        
+
         self.misses += 1
         return None
-        
+
     def set(self, key: str, value: Any) -> None:
         """
         Store a value in the cache.
-        
+
         Args:
             key: The cache key
             value: The value to cache
         """
         self.cache[key] = (value, time.time())
-        
+
     def invalidate(self, key: str) -> bool:
         """
         Remove a specific item from cache.
-        
+
         Args:
             key: The cache key to invalidate
-            
+
         Returns:
             True if the item was in cache and removed, False otherwise
         """
@@ -72,33 +72,33 @@ class CalculationCache:
             del self.cache[key]
             return True
         return False
-        
+
     def clear(self) -> None:
         """Clear the entire cache."""
         self.cache.clear()
-        
+
     def clean_expired(self) -> int:
         """
         Remove all expired entries from the cache.
-        
+
         Returns:
             Number of expired entries removed
         """
         current_time = time.time()
         expired_keys = [
-            k for k, (_, timestamp) in self.cache.items() 
+            k for k, (_, timestamp) in self.cache.items()
             if (current_time - timestamp) >= self.ttl
         ]
-        
+
         for key in expired_keys:
             del self.cache[key]
-            
+
         return len(expired_keys)
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """
         Get cache statistics.
-        
+
         Returns:
             Dictionary with cache statistics
         """
@@ -114,56 +114,72 @@ class CalculationCache:
 def memoize_with_ttl(ttl: int = 300):
     """
     Function decorator that caches results with a time-to-live.
-    
+
     Args:
         ttl: Time-to-live in seconds for cached results (default: 5 minutes)
-        
+
     Returns:
         Decorated function with caching capability
     """
     cache = {}
-    
+
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             # Create a hashable key from the function arguments
             key = str(hash((func.__name__, args, frozenset(kwargs.items()))))
-            
+
             # Check if result is in cache and still valid
             if key in cache:
                 result, timestamp = cache[key]
                 if (time.time() - timestamp) < ttl:
                     return result
-            
+
             # Calculate the result and cache it
             result = func(*args, **kwargs)
             cache[key] = (result, time.time())
             return result
-            
+
         # Add helper methods to the wrapper function
         wrapper.cache_clear = lambda: cache.clear()
         wrapper.cache_info = lambda: {
             "size": len(cache),
             "ttl": ttl
         }
-        
+
         return wrapper
     return decorator
 
 
 # Global calculation cache instance for shared use
 global_calculation_cache = CalculationCache(ttl=1800)  # 30 minutes default TTL
-"""
+
 
 def create_calculation_key(*args) -> str:
     """
     Create a consistent cache key from arbitrary arguments.
-    
+
     Args:
         *args: Arguments to include in the key
-        
+
     Returns:
         A string hash key
     """
     return str(hash(tuple(str(arg) for arg in args)))
-"""

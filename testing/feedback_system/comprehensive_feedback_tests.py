@@ -116,6 +116,14 @@ class TestFeedbackSystemE2E:
         market_conditions = ["normal", "volatile", "trending"]
         
         async def stress_test_model(model_id: str):
+    """
+    Stress test model.
+    
+    Args:
+        model_id: Description of model_id
+    
+    """
+
             for condition in market_conditions:
                 market_state = await self.simulate_market_conditions(condition)
                 

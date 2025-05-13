@@ -4,25 +4,25 @@ Analysis Engine Adapter Module
 This module implements the adapter pattern for the analysis engine service,
 using the interfaces defined in common-lib.
 """
-
 import logging
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
 import pandas as pd
-
 from common_lib.interfaces.analysis_engine import IAnalysisProvider, IIndicatorProvider, IPatternRecognizer
-from common_lib.errors.base_exceptions import (
-    BaseError, ErrorCode, ValidationError, DataError, ServiceError
-)
-
+from common_lib.errors.base_exceptions import BaseError, ErrorCode, ValidationError, DataError, ServiceError
 from analysis_engine.services.analysis_service import AnalysisService
 from analysis_engine.services.indicator_service import IndicatorService
 from analysis_engine.services.pattern_service import PatternService
 from analysis_engine.config.settings import get_settings
-
-# Configure logging
 logger = logging.getLogger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
 
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class AnalysisProviderAdapter(IAnalysisProvider):
     """
@@ -32,8 +32,8 @@ class AnalysisProviderAdapter(IAnalysisProvider):
     IAnalysisProvider interface, enabling better service integration and
     reducing circular dependencies.
     """
-    
-    def __init__(self, analysis_service: Optional[AnalysisService] = None):
+
+    def __init__(self, analysis_service: Optional[AnalysisService]=None):
         """
         Initialize the AnalysisProviderAdapter.
         
@@ -43,17 +43,14 @@ class AnalysisProviderAdapter(IAnalysisProvider):
         """
         self._analysis_service = analysis_service or AnalysisService()
         self._settings = get_settings()
-        logger.info("AnalysisProviderAdapter initialized")
-    
-    async def analyze_market_data(
-        self,
-        symbol: str,
-        timeframe: str,
-        start_time: datetime,
-        end_time: Optional[datetime] = None,
-        indicators: Optional[List[str]] = None,
-        patterns: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        logger.info('AnalysisProviderAdapter initialized')
+
+    @with_analysis_resilience('analyze_market_data')
+    @async_with_exception_handling
+    async def analyze_market_data(self, symbol: str, timeframe: str,
+        start_time: datetime, end_time: Optional[datetime]=None, indicators:
+        Optional[List[str]]=None, patterns: Optional[List[str]]=None) ->Dict[
+        str, Any]:
         """
         Analyze market data for a symbol.
         
@@ -74,72 +71,48 @@ class AnalysisProviderAdapter(IAnalysisProvider):
             ServiceError: If there's a service-related error
         """
         try:
-            # Validate inputs
             if not symbol:
-                raise ValidationError("Symbol cannot be empty", field="symbol")
-            
+                raise ValidationError('Symbol cannot be empty', field='symbol')
             if not timeframe:
-                raise ValidationError("Timeframe cannot be empty", field="timeframe")
-            
+                raise ValidationError('Timeframe cannot be empty', field=
+                    'timeframe')
             if not start_time:
-                raise ValidationError("Start time cannot be empty", field="start_time")
-            
-            # Prepare parameters for the analysis service
-            parameters = {
-                "indicators": indicators or [],
-                "patterns": patterns or []
-            }
-            
-            # Call the service method
-            result = await self._analysis_service.analyze_market(
-                symbol=symbol,
-                timeframe=timeframe,
-                analysis_type="comprehensive",
-                start_time=start_time,
-                end_time=end_time,
-                parameters=parameters
-            )
-            
+                raise ValidationError('Start time cannot be empty', field=
+                    'start_time')
+            parameters = {'indicators': indicators or [], 'patterns': 
+                patterns or []}
+            result = await self._analysis_service.analyze_market(symbol=
+                symbol, timeframe=timeframe, analysis_type='comprehensive',
+                start_time=start_time, end_time=end_time, parameters=parameters
+                )
             return result
         except ValidationError:
-            # Re-raise validation errors
             raise
         except Exception as e:
-            # Convert other exceptions to appropriate error types
-            if "not found" in str(e).lower():
+            if 'not found' in str(e).lower():
                 raise DataError(
-                    f"No data found for {symbol} with timeframe {timeframe}",
-                    error_code=ErrorCode.DATA_MISSING_ERROR,
-                    data_source="market_data",
-                    data_type="historical",
-                    cause=e
-                )
-            elif "database" in str(e).lower():
+                    f'No data found for {symbol} with timeframe {timeframe}',
+                    error_code=ErrorCode.DATA_MISSING_ERROR, data_source=
+                    'market_data', data_type='historical', cause=e)
+            elif 'database' in str(e).lower():
                 raise ServiceError(
-                    f"Database error while analyzing data for {symbol}",
+                    f'Database error while analyzing data for {symbol}',
                     error_code=ErrorCode.SERVICE_DEPENDENCY_ERROR,
-                    service_name="analysis_service",
-                    operation="analyze_market_data",
-                    cause=e
-                )
+                    service_name='analysis_service', operation=
+                    'analyze_market_data', cause=e)
             else:
                 raise ServiceError(
-                    f"Error analyzing data for {symbol}: {str(e)}",
-                    error_code=ErrorCode.SERVICE_UNAVAILABLE,
-                    service_name="analysis_service",
-                    operation="analyze_market_data",
-                    cause=e
-                )
-    
-    async def get_technical_indicators(
-        self,
-        symbol: str,
-        timeframe: str,
-        indicators: List[str],
-        start_time: datetime,
-        end_time: Optional[datetime] = None,
-        params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, pd.DataFrame]:
+                    f'Error analyzing data for {symbol}: {str(e)}',
+                    error_code=ErrorCode.SERVICE_UNAVAILABLE, service_name=
+                    'analysis_service', operation='analyze_market_data',
+                    cause=e)
+
+    @with_resilience('get_technical_indicators')
+    @async_with_exception_handling
+    async def get_technical_indicators(self, symbol: str, timeframe: str,
+        indicators: List[str], start_time: datetime, end_time: Optional[
+        datetime]=None, params: Optional[Dict[str, Any]]=None) ->Dict[str,
+        pd.DataFrame]:
         """
         Get technical indicators for a symbol.
         
@@ -160,66 +133,42 @@ class AnalysisProviderAdapter(IAnalysisProvider):
             ServiceError: If there's a service-related error
         """
         try:
-            # Validate inputs
             if not symbol:
-                raise ValidationError("Symbol cannot be empty", field="symbol")
-            
+                raise ValidationError('Symbol cannot be empty', field='symbol')
             if not timeframe:
-                raise ValidationError("Timeframe cannot be empty", field="timeframe")
-            
+                raise ValidationError('Timeframe cannot be empty', field=
+                    'timeframe')
             if not indicators:
-                raise ValidationError("Indicators list cannot be empty", field="indicators")
-            
+                raise ValidationError('Indicators list cannot be empty',
+                    field='indicators')
             if not start_time:
-                raise ValidationError("Start time cannot be empty", field="start_time")
-            
-            # Prepare parameters for the analysis service
-            parameters = {
-                "indicators": indicators,
-                "params": params or {}
-            }
-            
-            # Call the service method
-            result = await self._analysis_service.get_indicators(
-                symbol=symbol,
-                timeframe=timeframe,
-                start_time=start_time,
-                end_time=end_time,
-                parameters=parameters
-            )
-            
+                raise ValidationError('Start time cannot be empty', field=
+                    'start_time')
+            parameters = {'indicators': indicators, 'params': params or {}}
+            result = await self._analysis_service.get_indicators(symbol=
+                symbol, timeframe=timeframe, start_time=start_time,
+                end_time=end_time, parameters=parameters)
             return result
         except ValidationError:
-            # Re-raise validation errors
             raise
         except Exception as e:
-            # Convert other exceptions to appropriate error types
-            if "not found" in str(e).lower():
+            if 'not found' in str(e).lower():
                 raise DataError(
-                    f"No data found for {symbol} with timeframe {timeframe}",
-                    error_code=ErrorCode.DATA_MISSING_ERROR,
-                    data_source="market_data",
-                    data_type="historical",
-                    cause=e
-                )
+                    f'No data found for {symbol} with timeframe {timeframe}',
+                    error_code=ErrorCode.DATA_MISSING_ERROR, data_source=
+                    'market_data', data_type='historical', cause=e)
             else:
                 raise ServiceError(
-                    f"Error calculating indicators for {symbol}: {str(e)}",
-                    error_code=ErrorCode.SERVICE_UNAVAILABLE,
-                    service_name="analysis_service",
-                    operation="get_technical_indicators",
-                    cause=e
-                )
-    
-    async def detect_patterns(
-        self,
-        symbol: str,
-        timeframe: str,
-        patterns: List[str],
-        start_time: datetime,
-        end_time: Optional[datetime] = None,
-        params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, List[Dict[str, Any]]]:
+                    f'Error calculating indicators for {symbol}: {str(e)}',
+                    error_code=ErrorCode.SERVICE_UNAVAILABLE, service_name=
+                    'analysis_service', operation=
+                    'get_technical_indicators', cause=e)
+
+    @async_with_exception_handling
+    async def detect_patterns(self, symbol: str, timeframe: str, patterns:
+        List[str], start_time: datetime, end_time: Optional[datetime]=None,
+        params: Optional[Dict[str, Any]]=None) ->Dict[str, List[Dict[str, Any]]
+        ]:
         """
         Detect patterns in market data.
         
@@ -240,58 +189,39 @@ class AnalysisProviderAdapter(IAnalysisProvider):
             ServiceError: If there's a service-related error
         """
         try:
-            # Validate inputs
             if not symbol:
-                raise ValidationError("Symbol cannot be empty", field="symbol")
-            
+                raise ValidationError('Symbol cannot be empty', field='symbol')
             if not timeframe:
-                raise ValidationError("Timeframe cannot be empty", field="timeframe")
-            
+                raise ValidationError('Timeframe cannot be empty', field=
+                    'timeframe')
             if not patterns:
-                raise ValidationError("Patterns list cannot be empty", field="patterns")
-            
+                raise ValidationError('Patterns list cannot be empty',
+                    field='patterns')
             if not start_time:
-                raise ValidationError("Start time cannot be empty", field="start_time")
-            
-            # Prepare parameters for the analysis service
-            parameters = {
-                "pattern_types": patterns,
-                "params": params or {}
-            }
-            
-            # Call the service method
-            result = await self._analysis_service.detect_patterns(
-                symbol=symbol,
-                timeframe=timeframe,
-                start_time=start_time,
-                end_time=end_time,
-                parameters=parameters
-            )
-            
+                raise ValidationError('Start time cannot be empty', field=
+                    'start_time')
+            parameters = {'pattern_types': patterns, 'params': params or {}}
+            result = await self._analysis_service.detect_patterns(symbol=
+                symbol, timeframe=timeframe, start_time=start_time,
+                end_time=end_time, parameters=parameters)
             return result
         except ValidationError:
-            # Re-raise validation errors
             raise
         except Exception as e:
-            # Convert other exceptions to appropriate error types
-            if "not found" in str(e).lower():
+            if 'not found' in str(e).lower():
                 raise DataError(
-                    f"No data found for {symbol} with timeframe {timeframe}",
-                    error_code=ErrorCode.DATA_MISSING_ERROR,
-                    data_source="market_data",
-                    data_type="historical",
-                    cause=e
-                )
+                    f'No data found for {symbol} with timeframe {timeframe}',
+                    error_code=ErrorCode.DATA_MISSING_ERROR, data_source=
+                    'market_data', data_type='historical', cause=e)
             else:
                 raise ServiceError(
-                    f"Error detecting patterns for {symbol}: {str(e)}",
-                    error_code=ErrorCode.SERVICE_UNAVAILABLE,
-                    service_name="analysis_service",
-                    operation="detect_patterns",
-                    cause=e
-                )
-    
-    async def get_available_indicators(self) -> List[Dict[str, Any]]:
+                    f'Error detecting patterns for {symbol}: {str(e)}',
+                    error_code=ErrorCode.SERVICE_UNAVAILABLE, service_name=
+                    'analysis_service', operation='detect_patterns', cause=e)
+
+    @with_resilience('get_available_indicators')
+    @async_with_exception_handling
+    async def get_available_indicators(self) ->List[Dict[str, Any]]:
         """
         Get a list of available indicators.
         
@@ -302,21 +232,17 @@ class AnalysisProviderAdapter(IAnalysisProvider):
             ServiceError: If there's a service-related error
         """
         try:
-            # Call the service method
             result = await self._analysis_service.get_available_indicators()
-            
             return result
         except Exception as e:
-            # Convert exceptions to appropriate error types
-            raise ServiceError(
-                f"Error getting available indicators: {str(e)}",
-                error_code=ErrorCode.SERVICE_UNAVAILABLE,
-                service_name="analysis_service",
-                operation="get_available_indicators",
-                cause=e
-            )
-    
-    async def get_available_patterns(self) -> List[Dict[str, Any]]:
+            raise ServiceError(f'Error getting available indicators: {str(e)}',
+                error_code=ErrorCode.SERVICE_UNAVAILABLE, service_name=
+                'analysis_service', operation='get_available_indicators',
+                cause=e)
+
+    @with_resilience('get_available_patterns')
+    @async_with_exception_handling
+    async def get_available_patterns(self) ->List[Dict[str, Any]]:
         """
         Get a list of available patterns.
         
@@ -327,16 +253,10 @@ class AnalysisProviderAdapter(IAnalysisProvider):
             ServiceError: If there's a service-related error
         """
         try:
-            # Call the service method
             result = await self._analysis_service.get_available_patterns()
-            
             return result
         except Exception as e:
-            # Convert exceptions to appropriate error types
-            raise ServiceError(
-                f"Error getting available patterns: {str(e)}",
-                error_code=ErrorCode.SERVICE_UNAVAILABLE,
-                service_name="analysis_service",
-                operation="get_available_patterns",
-                cause=e
-            )
+            raise ServiceError(f'Error getting available patterns: {str(e)}',
+                error_code=ErrorCode.SERVICE_UNAVAILABLE, service_name=
+                'analysis_service', operation='get_available_patterns', cause=e
+                )

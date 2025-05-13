@@ -1,3 +1,9 @@
+"""
+Trading workflows module.
+
+This module provides functionality for...
+"""
+
 \
 import pytest
 import logging
@@ -169,6 +175,14 @@ class TestTradingWorkflows(BaseE2ETest):
 # --- Helper Functions (if needed) ---
 # Example:
 # async def _simulate_market_data_feed(duration_seconds):
+    """
+     simulate market data feed.
+    
+    Args:
+        duration_seconds: Description of duration_seconds
+    
+    """
+
 #     logger.info("Simulating market data feed...")
 #     await asyncio.sleep(duration_seconds)
 #     logger.info("Market data feed simulation complete.")

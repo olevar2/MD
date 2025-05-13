@@ -300,6 +300,18 @@ async def test_multi_timeframe_analysis_with_market_data_integration(mock_analys
     # Mock get_historical_data on the injected client to handle different timeframes
     original_side_effect = mock_market_data_client.get_historical_data.side_effect
     async def mock_get_historical_data_multi_tf(symbol, timeframe, count=100, from_date=None, to_date=None):
+    """
+    Mock get historical data multi tf.
+    
+    Args:
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        count: Description of count
+        from_date: Description of from_date
+        to_date: Description of to_date
+    
+    """
+
         # Generate base data or use original side effect if needed
         base_data = await original_side_effect(symbol, "M15", count, from_date, to_date)
         

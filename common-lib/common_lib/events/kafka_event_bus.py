@@ -19,16 +19,58 @@ except ImportError:
     KAFKA_AVAILABLE = False
     # Define stub classes for type hints to work without the dependency
     class Producer:
+    """
+    Producer class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         pass
     class Consumer:
+    """
+    Consumer class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         pass
     class AdminClient:
+    """
+    AdminClient class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         pass
     class NewTopic:
+    """
+    NewTopic class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         pass
     class KafkaError:
+    """
+    KafkaError class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         pass
     class KafkaException(Exception):
+    """
+    KafkaException class that inherits from Exception.
+    
+    Attributes:
+        Add attributes here
+    """
+
         pass
 
 from .event_bus import EventBus, EventFilter, EventHandler

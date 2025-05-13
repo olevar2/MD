@@ -52,12 +52,27 @@ class AwesomeOscillator(BaseIndicator):
     default_params = {'fast_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 5}, 'slow_period': {'type': 'int', 'min': 10, 'max': 100, 'default': 34}}
 
     def __init__(self, fast_period: int=5, slow_period: int=34, **kwargs):
+    """
+      init  .
+    
+    Args:
+        fast_period: Description of fast_period
+        slow_period: Description of slow_period
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'AO_{fast_period}_{slow_period}'
         self.fast_period = fast_period
         self.slow_period = slow_period
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.fast_period, int) or self.fast_period <= 0:
             raise ValueError(f'Fast period must be positive integer, got {self.fast_period}')
         if not isinstance(self.slow_period, int) or self.slow_period <= self.fast_period:
@@ -112,6 +127,17 @@ class AcceleratorOscillator(BaseIndicator):
     default_params = {'ao_fast_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 5}, 'ao_slow_period': {'type': 'int', 'min': 10, 'max': 100, 'default': 34}, 'sma_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 5}}
 
     def __init__(self, ao_fast_period: int=5, ao_slow_period: int=34, sma_period: int=5, **kwargs):
+    """
+      init  .
+    
+    Args:
+        ao_fast_period: Description of ao_fast_period
+        ao_slow_period: Description of ao_slow_period
+        sma_period: Description of sma_period
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'AC_{ao_fast_period}_{ao_slow_period}_{sma_period}'
         self.ao_fast_period = ao_fast_period
         self.ao_slow_period = ao_slow_period
@@ -119,6 +145,11 @@ class AcceleratorOscillator(BaseIndicator):
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.ao_fast_period, int) or self.ao_fast_period <= 0:
             raise ValueError(f'AO Fast period must be positive integer, got {self.ao_fast_period}')
         if not isinstance(self.ao_slow_period, int) or self.ao_slow_period <= self.ao_fast_period:
@@ -175,6 +206,17 @@ class UltimateOscillatorIndicator(BaseIndicator):
     default_params = {'short_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 7}, 'medium_period': {'type': 'int', 'min': 5, 'max': 100, 'default': 14}, 'long_period': {'type': 'int', 'min': 10, 'max': 200, 'default': 28}}
 
     def __init__(self, short_period: int=7, medium_period: int=14, long_period: int=28, **kwargs):
+    """
+      init  .
+    
+    Args:
+        short_period: Description of short_period
+        medium_period: Description of medium_period
+        long_period: Description of long_period
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'UO_{short_period}_{medium_period}_{long_period}'
         self.short_period = short_period
         self.medium_period = medium_period
@@ -182,6 +224,11 @@ class UltimateOscillatorIndicator(BaseIndicator):
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.short_period, int) or self.short_period <= 0:
             raise ValueError(f'Short period must be positive integer, got {self.short_period}')
         if not isinstance(self.medium_period, int) or self.medium_period <= self.short_period:
@@ -242,11 +289,25 @@ class DeMarker(BaseIndicator):
     default_params = {'period': {'type': 'int', 'min': 2, 'max': 200, 'default': 14}}
 
     def __init__(self, period: int=14, **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'DeM_{period}'
         self.period = period
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f'Period must be an integer greater than 1, got {self.period}')
 
@@ -304,6 +365,17 @@ class TRIXIndicatorImpl(BaseIndicator):
     default_params = {'period': {'type': 'int', 'min': 2, 'max': 200, 'default': 15}, 'signal_period': {'type': 'int', 'min': 2, 'max': 100, 'default': 9}, 'source_col': {'type': 'str', 'options': ['open', 'high', 'low', 'close'], 'default': 'close'}}
 
     def __init__(self, period: int=15, signal_period: int=9, source_col: str='close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        signal_period: Description of signal_period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'TRIX_{source_col}_{period}_{signal_period}'
         self.period = period
         self.signal_period = signal_period
@@ -311,6 +383,11 @@ class TRIXIndicatorImpl(BaseIndicator):
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f'Period must be an integer greater than 1, got {self.period}')
         if not isinstance(self.signal_period, int) or self.signal_period <= 1:
@@ -366,6 +443,24 @@ class KSTIndicatorImpl(BaseIndicator):
     default_params = {'roc_period1': {'type': 'int', 'min': 1, 'max': 50, 'default': 10}, 'roc_period2': {'type': 'int', 'min': 1, 'max': 50, 'default': 15}, 'roc_period3': {'type': 'int', 'min': 1, 'max': 50, 'default': 20}, 'roc_period4': {'type': 'int', 'min': 1, 'max': 50, 'default': 30}, 'sma_period1': {'type': 'int', 'min': 1, 'max': 50, 'default': 10}, 'sma_period2': {'type': 'int', 'min': 1, 'max': 50, 'default': 10}, 'sma_period3': {'type': 'int', 'min': 1, 'max': 50, 'default': 10}, 'sma_period4': {'type': 'int', 'min': 1, 'max': 50, 'default': 15}, 'signal_period': {'type': 'int', 'min': 1, 'max': 50, 'default': 9}, 'source_col': {'type': 'str', 'options': ['open', 'high', 'low', 'close'], 'default': 'close'}}
 
     def __init__(self, roc_period1: int=10, roc_period2: int=15, roc_period3: int=20, roc_period4: int=30, sma_period1: int=10, sma_period2: int=10, sma_period3: int=10, sma_period4: int=15, signal_period: int=9, source_col: str='close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        roc_period1: Description of roc_period1
+        roc_period2: Description of roc_period2
+        roc_period3: Description of roc_period3
+        roc_period4: Description of roc_period4
+        sma_period1: Description of sma_period1
+        sma_period2: Description of sma_period2
+        sma_period3: Description of sma_period3
+        sma_period4: Description of sma_period4
+        signal_period: Description of signal_period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'KST_{source_col}_{roc_period1}_{roc_period2}_{roc_period3}_{roc_period4}_{sma_period1}_{sma_period2}_{sma_period3}_{sma_period4}_{signal_period}'
         self.roc_period1 = roc_period1
         self.roc_period2 = roc_period2
@@ -380,6 +475,11 @@ class KSTIndicatorImpl(BaseIndicator):
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         periods = [self.roc_period1, self.roc_period2, self.roc_period3, self.roc_period4, self.sma_period1, self.sma_period2, self.sma_period3, self.sma_period4, self.signal_period]
         for p in periods:
             if not isinstance(p, int) or p <= 0:
@@ -437,11 +537,25 @@ class ElderForceIndex(BaseIndicator):
     default_params = {'period': {'type': 'int', 'min': 2, 'max': 200, 'default': 13}}
 
     def __init__(self, period: int=13, **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'EFI_{period}'
         self.period = period
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f'Period must be an integer greater than 1, got {self.period}')
 
@@ -490,12 +604,27 @@ class RelativeVigorIndex(BaseIndicator):
     default_params = {'period': {'type': 'int', 'min': 2, 'max': 200, 'default': 10}, 'signal_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 4}}
 
     def __init__(self, period: int=10, signal_period: int=4, **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        signal_period: Description of signal_period
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'RVI_{period}_{signal_period}'
         self.period = period
         self.signal_period = signal_period
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f'Period must be an integer greater than 1, got {self.period}')
         if not isinstance(self.signal_period, int) or self.signal_period <= 1:
@@ -562,12 +691,27 @@ class FisherTransform(BaseIndicator):
     default_params = {'period': {'type': 'int', 'min': 2, 'max': 200, 'default': 9}, 'source_col': {'type': 'str', 'options': ['open', 'high', 'low', 'close', 'hl2'], 'default': 'hl2'}}
 
     def __init__(self, period: int=9, source_col: str='hl2', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'Fisher_{source_col}_{period}'
         self.period = period
         self.source_col = source_col
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f'Period must be an integer greater than 1, got {self.period}')
         if self.source_col not in ['open', 'high', 'low', 'close', 'hl2']:
@@ -632,6 +776,18 @@ class CoppockCurveIndicatorImpl(BaseIndicator):
     default_params = {'long_roc_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 14}, 'short_roc_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 11}, 'wma_period': {'type': 'int', 'min': 2, 'max': 50, 'default': 10}, 'source_col': {'type': 'str', 'options': ['open', 'high', 'low', 'close'], 'default': 'close'}}
 
     def __init__(self, long_roc_period: int=14, short_roc_period: int=11, wma_period: int=10, source_col: str='close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        long_roc_period: Description of long_roc_period
+        short_roc_period: Description of short_roc_period
+        wma_period: Description of wma_period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'Coppock_{source_col}_{long_roc_period}_{short_roc_period}_{wma_period}'
         self.long_roc_period = long_roc_period
         self.short_roc_period = short_roc_period
@@ -640,6 +796,11 @@ class CoppockCurveIndicatorImpl(BaseIndicator):
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.long_roc_period, int) or self.long_roc_period <= 1:
             raise ValueError(f'Long ROC period must be > 1, got {self.long_roc_period}')
         if not isinstance(self.short_roc_period, int) or self.short_roc_period <= 1:
@@ -696,12 +857,27 @@ class ChandeMomentumOscillator(BaseIndicator):
     default_params = {'period': {'type': 'int', 'min': 2, 'max': 200, 'default': 9}, 'source_col': {'type': 'str', 'options': ['open', 'high', 'low', 'close'], 'default': 'close'}}
 
     def __init__(self, period: int=9, source_col: str='close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f'CMO_{source_col}_{period}'
         self.period = period
         self.source_col = source_col
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f'Period must be an integer greater than 1, got {self.period}')
         if not isinstance(self.source_col, str) or not self.source_col:

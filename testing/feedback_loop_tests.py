@@ -97,6 +97,11 @@ class MockModelRegistry:
     """Mock implementation of the model registry for testing"""
     
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         self.models = {
             "lstm_model_v1": {
                 "id": "lstm_model_v1",

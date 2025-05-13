@@ -37,6 +37,14 @@ class MockBrokerAdapter:
     """Mock broker adapter for testing."""
     
     def __init__(self, name: str):
+    """
+      init  .
+    
+    Args:
+        name: Description of name
+    
+    """
+
         self.name = name
         self.orders = []
         self.connected = True
@@ -119,6 +127,16 @@ class TestOrderExecutionService(unittest.TestCase):
         original_method = self.service._execute_with_algorithm
         
         async def mock_execute_with_algorithm(order, algorithm, algorithm_config):
+    """
+    Mock execute with algorithm.
+    
+    Args:
+        order: Description of order
+        algorithm: Description of algorithm
+        algorithm_config: Description of algorithm_config
+    
+    """
+
             # Create a mock execution result
             return ExecutionReport(
                 order_id="algo-1",
@@ -156,6 +174,16 @@ class TestOrderExecutionService(unittest.TestCase):
         original_method = self.service._execute_with_algorithm
         
         async def mock_execute_with_algorithm(order, algorithm, algorithm_config):
+    """
+    Mock execute with algorithm.
+    
+    Args:
+        order: Description of order
+        algorithm: Description of algorithm
+        algorithm_config: Description of algorithm_config
+    
+    """
+
             # Create a mock execution result
             return ExecutionReport(
                 order_id="algo-1",
@@ -193,6 +221,16 @@ class TestOrderExecutionService(unittest.TestCase):
         original_method = self.service._execute_with_algorithm
         
         async def mock_execute_with_algorithm(order, algorithm, algorithm_config):
+    """
+    Mock execute with algorithm.
+    
+    Args:
+        order: Description of order
+        algorithm: Description of algorithm
+        algorithm_config: Description of algorithm_config
+    
+    """
+
             # Create a mock execution result
             return ExecutionReport(
                 order_id="algo-1",
@@ -230,6 +268,16 @@ class TestOrderExecutionService(unittest.TestCase):
         original_method = self.service._execute_with_algorithm
         
         async def mock_execute_with_algorithm(order, algorithm, algorithm_config):
+    """
+    Mock execute with algorithm.
+    
+    Args:
+        order: Description of order
+        algorithm: Description of algorithm
+        algorithm_config: Description of algorithm_config
+    
+    """
+
             # Create a mock execution result
             return ExecutionReport(
                 order_id="algo-1",
@@ -301,6 +349,14 @@ class TestOrderExecutionService(unittest.TestCase):
         callback_data = {}
         
         def callback(data):
+    """
+    Callback.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             callback_data[data["event"]] = data
             
         self.service.register_callback("algorithm_started", callback)

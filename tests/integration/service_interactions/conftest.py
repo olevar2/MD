@@ -80,6 +80,14 @@ def config_manager():
     }
     
     def get_service_client_config(service_name):
+    """
+    Get service client config.
+    
+    Args:
+        service_name: Description of service_name
+    
+    """
+
         return mock_service_client_configs.get(service_name)
     
     mock_config_manager.get_service_client_config.side_effect = get_service_client_config

@@ -53,12 +53,21 @@ The service is built with a layered architecture:
    ```bash
    # Create the database
    createdb forex_platform
-   
+
    # Install TimescaleDB extension (optional but recommended)
    psql -d forex_platform -c "CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;"
    ```
 
-4. Run the service:
+4. Set up environment variables:
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+
+   # Edit the .env file with your configuration
+   # Replace the placeholder values with your actual configuration
+   ```
+
+5. Run the service:
    ```bash
    python -m data_management_service.main
    ```

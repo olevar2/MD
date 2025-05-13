@@ -10,6 +10,14 @@ from feature_store_service.indicators.statistical_regression_indicators import S
 
 @pytest.fixture
 def sample_data_stat() -> pd.DataFrame:
+    """
+    Sample data stat.
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     periods = 100
     index = pd.date_range(start='2023-01-01', periods=periods, freq='D')
     np.random.seed(44)
@@ -28,10 +36,29 @@ def sample_data_stat() -> pd.DataFrame:
 
 @pytest.fixture
 def short_data_stat(sample_data_stat) -> pd.DataFrame:
+    """
+    Short data stat.
+    
+    Args:
+        sample_data_stat: Description of sample_data_stat
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     return sample_data_stat.head(15)
 
 @pytest.fixture
 def constant_data_stat() -> pd.DataFrame:
+    """
+    Constant data stat.
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     periods = 100
     index = pd.date_range(start='2023-01-01', periods=periods, freq='D')
     data = pd.DataFrame({'open': 100.0, 'high': 100.5, 'low': 99.5, 'close': 100.0, 'volume': 100.0}, index=index)
@@ -92,6 +119,15 @@ def test_stddev_indicator_edge_cases(short_data_stat, constant_data_stat):
     assert_series_equal(result_const[lower_1_name].iloc[window - 1:], pd.Series(100.0, index=result_const.index[window - 1:], name=lower_1_name), check_dtype=False, atol=1e-06)
 
 def rolling_linregress(y, window):
+    """
+    Rolling linregress.
+    
+    Args:
+        y: Description of y
+        window: Description of window
+    
+    """
+
     if not isinstance(y, pd.Series):
         y = pd.Series(y)
     x = np.arange(len(y))

@@ -12,6 +12,13 @@ from pathlib import Path
 
 # Import the MLProfilingMonitor class
 try:
+    """
+    try class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     from ml_workbench_service.optimization.ml_profiling_monitor import MLProfilingMonitor
     MONITOR_AVAILABLE = True
 except ImportError:
@@ -89,7 +96,19 @@ class TestMLProfilingMonitor(unittest.TestCase):
         """Create a simple PyTorch model for testing."""
         # Create a simple model
         class SimpleModel(torch.nn.Module):
+    """
+    SimpleModel class that inherits from torch.nn.Module.
+    
+    Attributes:
+        Add attributes here
+    """
+
             def __init__(self):
+    """
+      init  .
+    
+    """
+
                 super().__init__()
                 self.layers = torch.nn.Sequential(
                     torch.nn.Linear(10, 32),
@@ -101,6 +120,14 @@ class TestMLProfilingMonitor(unittest.TestCase):
                 )
                 
             def forward(self, x):
+    """
+    Forward.
+    
+    Args:
+        x: Description of x
+    
+    """
+
                 return self.layers(x)
         
         model = SimpleModel()

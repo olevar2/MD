@@ -45,6 +45,19 @@ class AnalysisEngineError(ForexTradingPlatformError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        error_code: Description of error_code
+        details: Description of details
+        Any]]: Description of Any]]
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         super().__init__(message, error_code, *args, **kwargs)
         # Store status_code for FastAPI response handling
         self.status_code = kwargs.get('status_code', status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -58,6 +71,18 @@ class ValidationError(CommonDataValidationError, AnalysisEngineError):
     error handling.
     """
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         kwargs['status_code'] = status.HTTP_400_BAD_REQUEST
         super().__init__(message, details=details, *args, **kwargs)
         self.error_code = "VALIDATION_ERROR"
@@ -71,6 +96,19 @@ class DataFetchError(CommonDataFetchError, AnalysisEngineError):
     error handling.
     """
     def __init__(self, message: str, source: str = None, details: Optional[Dict[str, Any]] = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        source: Description of source
+        details: Description of details
+        Any]]: Description of Any]]
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         kwargs['status_code'] = status.HTTP_503_SERVICE_UNAVAILABLE
         super().__init__(message, source=source, *args, **kwargs)
         # Ensure details are properly set
@@ -84,6 +122,18 @@ class AnalysisError(AnalysisEngineError):
     Extends AnalysisEngineError to provide specific error handling for analysis operations.
     """
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         kwargs['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
         super().__init__(message, error_code="ANALYSIS_ERROR", details=details, *args, **kwargs)
 
@@ -96,6 +146,18 @@ class ConfigurationError(CommonConfigurationError, AnalysisEngineError):
     error handling.
     """
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         kwargs['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
         super().__init__(message, *args, **kwargs)
         # Ensure details are properly set
@@ -111,6 +173,18 @@ class ServiceUnavailableError(CommonServiceUnavailableError, AnalysisEngineError
     error handling.
     """
     def __init__(self, service_name: str, details: Optional[Dict[str, Any]] = None, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        service_name: Description of service_name
+        details: Description of details
+        Any]]: Description of Any]]
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         kwargs['status_code'] = status.HTTP_503_SERVICE_UNAVAILABLE
         super().__init__(service_name, *args, **kwargs)
         # Ensure details are properly set

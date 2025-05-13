@@ -1,3 +1,9 @@
+"""
+Cache service module.
+
+This module provides functionality for...
+"""
+
 import redis
 import json
 import functools
@@ -8,9 +14,20 @@ from datetime import timedelta
 from analysis_engine.core.config import settings
 from analysis_engine.core.logging import logger
 
+
+from analysis_engine.core.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
 class CachingService:
     """Provides caching functionality using Redis."""
 
+    @with_exception_handling
     def __init__(self, redis_url: str=settings.REDIS_URL):
         """Initializes the CachingService.
 
@@ -18,32 +35,40 @@ class CachingService:
             redis_url: The connection URL for the Redis instance.
         """
         try:
-            self.redis_client = redis.from_url(redis_url, decode_responses=True)
+            self.redis_client = redis.from_url(redis_url, decode_responses=True
+                )
             self.redis_client.ping()
             logger.info(f'Successfully connected to Redis at {redis_url}')
         except redis.exceptions.ConnectionError as e:
             logger.error(f'Failed to connect to Redis at {redis_url}: {e}')
             self.redis_client = None
 
-    def _serialize(self, value: Any) -> str:
+    @with_exception_handling
+    def _serialize(self, value: Any) ->str:
         """Serializes a Python object to a JSON string for storage in Redis."""
         try:
             return json.dumps(value)
         except TypeError as e:
-            logger.warning(f'Could not serialize value for caching: {e}. Value type: {type(value)}')
+            logger.warning(
+                f'Could not serialize value for caching: {e}. Value type: {type(value)}'
+                )
             raise
 
-    def _deserialize(self, value: Optional[str]) -> Any:
+    @with_exception_handling
+    def _deserialize(self, value: Optional[str]) ->Any:
         """Deserializes a JSON string from Redis back into a Python object."""
         if value is None:
             return None
         try:
             return json.loads(value)
         except json.JSONDecodeError as e:
-            logger.error(f'Could not deserialize cached value: {e}. Value: {value[:100]}...', exc_info=True)
+            logger.error(
+                f'Could not deserialize cached value: {e}. Value: {value[:100]}...'
+                , exc_info=True)
             return None
 
-    def get(self, key: str) -> Any:
+    @with_exception_handling
+    def get(self, key: str) ->Any:
         """Retrieves an item from the cache.
 
         Args:
@@ -64,10 +89,13 @@ class CachingService:
                 logger.debug(f'Cache MISS for key: {key}')
                 return None
         except redis.exceptions.RedisError as e:
-            logger.error(f"Redis error getting key '{key}': {e}", exc_info=True)
+            logger.error(f"Redis error getting key '{key}': {e}", exc_info=True
+                )
             return None
 
-    def set(self, key: str, value: Any, ttl: Optional[Union[int, timedelta]]=None) -> bool:
+    @with_exception_handling
+    def set(self, key: str, value: Any, ttl: Optional[Union[int, timedelta]
+        ]=None) ->bool:
         """Stores an item in the cache.
 
         Args:
@@ -89,11 +117,14 @@ class CachingService:
                 result = self.redis_client.set(key, serialized_value)
             logger.debug(f'Cache SET for key: {key} with TTL: {ttl}')
             return result
-        except (redis.exceptions.RedisError, TypeError, json.JSONDecodeError) as e:
-            logger.error(f"Redis error setting key '{key}': {e}", exc_info=True)
+        except (redis.exceptions.RedisError, TypeError, json.JSONDecodeError
+            ) as e:
+            logger.error(f"Redis error setting key '{key}': {e}", exc_info=True
+                )
             return False
 
-    def delete(self, key: str) -> bool:
+    @with_exception_handling
+    def delete(self, key: str) ->bool:
         """Deletes an item from the cache.
 
         Args:
@@ -103,17 +134,20 @@ class CachingService:
             True if the key was deleted, False otherwise.
         """
         if not self.redis_client:
-            logger.warning('Redis client not available. Skipping cache delete.')
+            logger.warning('Redis client not available. Skipping cache delete.'
+                )
             return False
         try:
             result = self.redis_client.delete(key)
             logger.debug(f'Cache DELETE for key: {key}')
             return bool(result)
         except redis.exceptions.RedisError as e:
-            logger.error(f"Redis error deleting key '{key}': {e}", exc_info=True)
+            logger.error(f"Redis error deleting key '{key}': {e}", exc_info
+                =True)
             return False
 
-    def clear_prefix(self, prefix: str) -> int:
+    @with_exception_handling
+    def clear_prefix(self, prefix: str) ->int:
         """Deletes all keys matching a given prefix.
 
         Args:
@@ -123,7 +157,8 @@ class CachingService:
             The number of keys deleted.
         """
         if not self.redis_client:
-            logger.warning('Redis client not available. Skipping cache clear_prefix.')
+            logger.warning(
+                'Redis client not available. Skipping cache clear_prefix.')
             return 0
         deleted_count = 0
         try:
@@ -132,16 +167,23 @@ class CachingService:
             keys_to_delete = list(self.redis_client.scan_iter(match=prefix))
             if keys_to_delete:
                 deleted_count = self.redis_client.delete(*keys_to_delete)
-                logger.info(f'Cleared {deleted_count} cache keys with prefix: {prefix}')
+                logger.info(
+                    f'Cleared {deleted_count} cache keys with prefix: {prefix}'
+                    )
             else:
                 logger.debug(f'No cache keys found with prefix: {prefix}')
             return deleted_count
         except redis.exceptions.RedisError as e:
-            logger.error(f"Redis error clearing prefix '{prefix}': {e}", exc_info=True)
+            logger.error(f"Redis error clearing prefix '{prefix}': {e}",
+                exc_info=True)
             return 0
+
+
 caching_service = CachingService()
 
-def generate_cache_key(func: Callable, args: tuple, kwargs: dict) -> str:
+
+@with_exception_handling
+def generate_cache_key(func: Callable, args: tuple, kwargs: dict) ->str:
     """Generates a unique cache key based on function and arguments."""
     sig = inspect.signature(func)
     bound_args = sig.bind(*args, **kwargs)
@@ -154,7 +196,10 @@ def generate_cache_key(func: Callable, args: tuple, kwargs: dict) -> str:
             arg_repr = str(v)
         key_parts.append(f'{k}={arg_repr}')
     key_string = ':'.join(key_parts)
-    return f'cache:{func.__module__}.{func.__name__}:{hashlib.sha256(key_string.encode()).hexdigest()}'
+    return (
+        f'cache:{func.__module__}.{func.__name__}:{hashlib.sha256(key_string.encode()).hexdigest()}'
+        )
+
 
 def cache_result(ttl: Optional[Union[int, timedelta]]=None):
     """Decorator to cache the result of a function.
@@ -165,11 +210,30 @@ def cache_result(ttl: Optional[Union[int, timedelta]]=None):
     """
 
     def decorator(func: Callable):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             if not caching_service.redis_client:
-                logger.debug(f'Caching disabled for {func.__name__}, executing function directly.')
+                logger.debug(
+                    f'Caching disabled for {func.__name__}, executing function directly.'
+                    )
                 return func(*args, **kwargs)
             cache_key = generate_cache_key(func, args, kwargs)
             cached_result = caching_service.get(cache_key)

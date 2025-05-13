@@ -8,7 +8,7 @@ Fixed Files (10):
   - D:\MD\forex_trading_platform\e2e\framework\environments.py
   - D:\MD\forex_trading_platform\feature-store-service\feature_store_service\services\enhanced_indicator_service.py
   - D:\MD\forex_trading_platform\ml-integration-service\ml_integration_service\examples\feature_extraction_example.py
-  - D:\MD\forex_trading_platform\ml-workbench-service\ml_workbench_service\models\experiment_models.py
+  - D:\MD\forex_trading_platform\ml_workbench-service\ml_workbench_service\models\experiment_models.py
   - D:\MD\forex_trading_platform\monitoring-alerting-service\metrics_exporters\tool_effectiveness_exporter.py
   - D:\MD\forex_trading_platform\optimization\caching\adaptive_strategy.py
   - D:\MD\forex_trading_platform\strategy-execution-engine\strategy_execution_engine\strategies\gann_strategy.py

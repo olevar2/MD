@@ -15,7 +15,7 @@
 2. **feature-store-service** (186 files, 63,107 lines) - Feature management and indicators
 3. **ui-service** (141 files, 39,357 lines) - Frontend interface
 4. **trading-gateway-service** (82 files, 35,684 lines) - Trading execution
-5. **ml-workbench-service** (74 files, 35,226 lines) - ML model development
+5. **ml_workbench-service** (74 files, 35,226 lines) - ML model development
 6. **strategy-execution-engine** (70 files, 26,437 lines) - Strategy execution
 7. **data-pipeline-service** (45 files, 12,735 lines) - Data processing
 8. **risk-management-service** (62 files, 17,130 lines) - Risk controls
@@ -33,7 +33,7 @@ The platform follows a microservice architecture with 28 services handling diffe
 - **Framework Distribution:** FastAPI (94.22%), Express (5.49%), NestJS (0.29%)
 - **Primary Languages:** Python (1,134 files, 392,692 lines), TypeScript React (103 files, 29,439 lines)
 - **Service Distribution:**
-  - Analysis Layer: 4 services (analysis-engine-service, ml-integration-service, ml-workbench-service, analysis-engine)
+  - Analysis Layer: 4 services (analysis-engine-service, ml-integration-service, ml_workbench-service, analysis-engine)
   - Cross-cutting Layer: 1 service (monitoring-alerting-service)
   - Data Layer: 2 services (data-pipeline-service, feature-store-service)
   - Execution Layer: 4 services (portfolio-management-service, risk-management-service, strategy-execution-engine, trading-gateway-service)
@@ -57,7 +57,7 @@ While this microservice approach provides modularity and separation of concerns,
 Our vision is to create a more maintainable, scalable, and resilient platform by:
 
 1. **Clarifying Service Boundaries**: Each service should have clear responsibilities aligned with domain concepts. Based on our analysis, we need to:
-   - Extract a dedicated model-registry-service from ml-integration-service and ml-workbench-service
+   - Extract a dedicated model-registry-service from ml-integration-service and ml_workbench-service
    - Split analysis-engine-service into specialized services (technical-analysis, pattern-recognition, market-regime)
    - Consolidate feature calculation logic in feature-store-service
    - Clarify signal flow between analysis services and strategy-execution-engine
@@ -93,11 +93,11 @@ Our vision is to create a more maintainable, scalable, and resilient platform by
 - **Total Circular Dependencies:** 12
 - **Key Cycles:**
   - risk-management-service → trading-gateway-service → trading-gateway-service
-  - ml-workbench-service → risk-management-service → trading-gateway-service → trading-gateway-service
-  - analysis-engine-service → ml-workbench-service → risk-management-service → trading-gateway-service
+  - ml_workbench-service → risk-management-service → trading-gateway-service → trading-gateway-service
+  - analysis-engine-service → ml_workbench-service → risk-management-service → trading-gateway-service
   - analysis-engine-service → strategy-execution-engine → analysis-engine-service
-  - analysis-engine-service → ml-workbench-service → analysis-engine-service
-  - analysis-engine-service → strategy-execution-engine → ml-workbench-service → analysis-engine-service
+  - analysis-engine-service → ml_workbench-service → analysis-engine-service
+  - analysis-engine-service → strategy-execution-engine → ml_workbench-service → analysis-engine-service
   - feature-store-service → ml-integration-service → ml-integration-service
   - analysis-engine-service → feature-store-service → ml-integration-service → strategy-execution-engine
 
@@ -118,7 +118,7 @@ Our vision is to create a more maintainable, scalable, and resilient platform by
 ### 3. Code Quality Issues
 - **Largest Files:**
   - ui-service\package-lock.json (433.22 KB)
-  - ml-workbench-service\poetry.lock (318.42 KB)
+  - ml_workbench-service\poetry.lock (318.42 KB)
   - feature-store-service\feature_store_service\indicators\chart_patterns.py (102.27 KB)
   - feature-store-service\feature_store_service\indicators\gann_tools.py (98.97 KB)
   - feature-store-service\feature_store_service\indicators\fibonacci.py (86.18 KB)
@@ -165,7 +165,7 @@ Our vision is to create a more maintainable, scalable, and resilient platform by
 
 #### 1.5 Specific Dependency Resolutions
 - [x] Resolve risk-management-service → trading-gateway-service cycle
-- [x] Resolve ml-workbench-service → risk-management-service → trading-gateway-service cycle
+- [x] Resolve ml_workbench-service → risk-management-service → trading-gateway-service cycle
 - [x] Resolve analysis-engine-service → strategy-execution-engine cycle
 - [x] Resolve feature-store-service → ml-integration-service cycle
   - Created common interfaces in common-lib for feature providers and consumers
@@ -173,11 +173,11 @@ Our vision is to create a more maintainable, scalable, and resilient platform by
   - Added proper error handling and logging in adapter implementations
   - Created comprehensive tests to verify adapter functionality
   - Updated imports to use interfaces instead of direct dependencies
-- [x] Resolve analysis-engine-service → ml-workbench-service → risk-management-service cycle
+- [x] Resolve analysis-engine-service → ml_workbench-service → risk-management-service cycle
 - [x] Resolve analysis-engine-service → strategy-execution-engine → analysis-engine-service cycle
-- [x] Resolve analysis-engine-service → ml-workbench-service → analysis-engine-service cycle
-- [x] Resolve analysis-engine-service → strategy-execution-engine → ml-workbench-service → analysis-engine-service cycle
-- [x] Resolve analysis-engine-service → ml-integration-service → ml-workbench-service → strategy-execution-engine cycle
+- [x] Resolve analysis-engine-service → ml_workbench-service → analysis-engine-service cycle
+- [x] Resolve analysis-engine-service → strategy-execution-engine → ml_workbench-service → analysis-engine-service cycle
+- [x] Resolve analysis-engine-service → ml-integration-service → ml_workbench-service → strategy-execution-engine cycle
 - [x] Resolve analysis-engine-service → ml-integration-service → strategy-execution-engine cycle
 - [x] Resolve feature-store-service → tests → feature-store-service circular dependency
   - Created indicator interfaces in common-lib/common_lib/indicators/indicator_interfaces.py
@@ -203,7 +203,7 @@ Our vision is to create a more maintainable, scalable, and resilient platform by
   - Established clear handoff points between services
 - [x] Document service boundary decisions and rationales with domain justifications
   - Documented in model-registry-service README.md
-  - Established clear integration points with ml-workbench-service and ml-integration-service
+  - Established clear integration points with ml_workbench-service and ml-integration-service
 
 #### 1.7 Prevent Future Circular Dependencies
 - [x] Set up dependency analysis in CI/CD pipeline
@@ -2060,7 +2060,7 @@ This template ensures consistent documentation of all refactoring work and helps
 - [ ] Organize services into clear functional layers:
   - [ ] Foundation layer: core-foundations, common-lib, common-js-lib, security-service
   - [ ] Data layer: data-pipeline-service, feature-store-service, market-data-service
-  - [ ] Analysis layer: technical-analysis-service, pattern-recognition-service, market-regime-service, ml-workbench-service, ml-integration-service
+  - [ ] Analysis layer: technical-analysis-service, pattern-recognition-service, market-regime-service, ml_workbench-service, ml-integration-service
   - [ ] Execution layer: strategy-execution-engine, risk-management-service, portfolio-management-service, trading-gateway-service, order-management-service
   - [ ] Presentation layer: api-gateway-service, ui-service, notification-service, reporting-service
   - [ ] Cross-cutting layer: monitoring-alerting-service, configuration-service, service-registry, circuit-breaker-service
@@ -2261,10 +2261,10 @@ This template ensures consistent documentation of all refactoring work and helps
 - We've successfully implemented adapters for all identified circular dependencies, including:
   - feature-store-service → tests → feature-store-service
   - analysis-engine-service → strategy-execution-engine → analysis-engine-service
-  - analysis-engine-service → ml-workbench-service → analysis-engine-service
+  - analysis-engine-service → ml_workbench-service → analysis-engine-service
   - risk-management-service → trading-gateway-service → risk-management-service
-  - analysis-engine-service → strategy-execution-engine → ml-workbench-service → analysis-engine-service
-  - analysis-engine-service → ml-integration-service → ml-workbench-service → strategy-execution-engine
+  - analysis-engine-service → strategy-execution-engine → ml_workbench-service → analysis-engine-service
+  - analysis-engine-service → ml-integration-service → ml_workbench-service → strategy-execution-engine
   - analysis-engine-service → ml-integration-service → strategy-execution-engine
 - With Phase 1 now complete, we can proceed to Phase 3 (Code Quality and Maintainability Improvements) since Phase 2 (Comprehensive Error Handling and Resilience) is already 100% complete.
 - Completed:
@@ -2296,15 +2296,15 @@ This template ensures consistent documentation of all refactoring work and helps
   - Set up dependency analysis in CI/CD pipeline
   - Created architectural decision records (ADRs) for key decisions
   - Resolved risk-management-service → trading-gateway-service cycle
-  - Resolved ml-workbench-service → risk-management-service → trading-gateway-service cycle
+  - Resolved ml_workbench-service → risk-management-service → trading-gateway-service cycle
   - Resolved analysis-engine-service → strategy-execution-engine cycle
-  - Resolved analysis-engine-service → ml-workbench-service → analysis-engine-service cycle
-  - Resolved analysis-engine-service → strategy-execution-engine → ml-workbench-service → analysis-engine-service cycle
-  - Resolved analysis-engine-service → ml-integration-service → ml-workbench-service → strategy-execution-engine cycle
+  - Resolved analysis-engine-service → ml_workbench-service → analysis-engine-service cycle
+  - Resolved analysis-engine-service → strategy-execution-engine → ml_workbench-service → analysis-engine-service cycle
+  - Resolved analysis-engine-service → ml-integration-service → ml_workbench-service → strategy-execution-engine cycle
   - Resolved analysis-engine-service → ml-integration-service → strategy-execution-engine cycle
   - Resolved feature-store-service → ml-integration-service cycle
-  - Resolved analysis-engine-service → ml-workbench-service → risk-management-service cycle
-  - Implemented bidirectional feedback loop between analysis-engine-service and ml-workbench-service
+  - Resolved analysis-engine-service → ml_workbench-service → risk-management-service cycle
+  - Implemented bidirectional feedback loop between analysis-engine-service and ml_workbench-service
 - In Progress:
   - None
 - Remaining:
@@ -2613,7 +2613,7 @@ This integrated approach ensures that each phase builds upon the previous ones, 
 #### Current Architecture (May 2025)
 - **Total Services:** 28 services across 7 layers
 - **Service Distribution:**
-  - Analysis Layer: 4 services (analysis-engine-service, ml-integration-service, ml-workbench-service, analysis-engine)
+  - Analysis Layer: 4 services (analysis-engine-service, ml-integration-service, ml_workbench-service, analysis-engine)
   - Cross-cutting Layer: 1 service (monitoring-alerting-service)
   - Data Layer: 2 services (data-pipeline-service, feature-store-service)
   - Execution Layer: 4 services (portfolio-management-service, risk-management-service, strategy-execution-engine, trading-gateway-service)
@@ -2621,7 +2621,7 @@ This integrated approach ensures that each phase builds upon the previous ones, 
   - Presentation Layer: 1 service (ui-service)
   - Unknown Layer: 13 services (various support and testing services)
 - **Key Issues:**
-  - Circular dependencies between analysis-engine-service, strategy-execution-engine, and ml-workbench-service
+  - Circular dependencies between analysis-engine-service, strategy-execution-engine, and ml_workbench-service
   - Monolithic analysis-engine-service (317 files, 113,630 lines)
   - Inconsistent API design (346 endpoints across services)
   - Unclear service boundaries (especially in the "unknown" layer)
@@ -2631,7 +2631,7 @@ This integrated approach ensures that each phase builds upon the previous ones, 
 - **Service Distribution:**
   - Foundation Layer: core-foundations, common-lib, common-js-lib, security-service
   - Data Layer: data-pipeline-service, feature-store-service, market-data-service
-  - Analysis Layer: technical-analysis-service, pattern-recognition-service, market-regime-service, ml-workbench-service, ml-integration-service
+  - Analysis Layer: technical-analysis-service, pattern-recognition-service, market-regime-service, ml_workbench-service, ml-integration-service
   - Execution Layer: strategy-execution-engine, risk-management-service, portfolio-management-service, trading-gateway-service, order-management-service
   - Presentation Layer: api-gateway-service, ui-service, notification-service, reporting-service
   - Cross-cutting Layer: monitoring-alerting-service, configuration-service, service-registry, circuit-breaker-service
@@ -2660,8 +2660,8 @@ Based on the current architecture analysis, we are now focusing on:
 
 3. **Circular Dependency Resolution**: Resolving the remaining circular dependencies identified in the current architecture:
    - ✅ analysis-engine-service → strategy-execution-engine → analysis-engine-service (Resolved by implementing interface-based adapters)
-   - ✅ analysis-engine-service → strategy-execution-engine → ml-workbench-service → analysis-engine-service (Resolved by implementing interface-based adapters)
-   - ✅ analysis-engine-service → ml-integration-service → ml-workbench-service → strategy-execution-engine cycle (Resolved by implementing interface-based adapters)
+   - ✅ analysis-engine-service → strategy-execution-engine → ml_workbench-service → analysis-engine-service (Resolved by implementing interface-based adapters)
+   - ✅ analysis-engine-service → ml-integration-service → ml_workbench-service → strategy-execution-engine cycle (Resolved by implementing interface-based adapters)
    - ✅ analysis-engine-service → ml-integration-service → strategy-execution-engine cycle (Resolved by implementing interface-based adapters)
    - ❌ feature-store-service → tests → feature-store-service (Newly identified, needs resolution)
 
@@ -2701,15 +2701,15 @@ Based on the current architecture analysis, we are now focusing on:
 
 3. **Complete Domain Analysis of Previously Identified Dependencies**: Verify the resolution of previously identified circular dependencies:
    - ✅ analysis-engine-service → strategy-execution-engine → analysis-engine-service (Resolved)
-   - ✅ analysis-engine-service → strategy-execution-engine → ml-workbench-service → analysis-engine-service (Resolved)
-   - ✅ analysis-engine-service → ml-integration-service → ml-workbench-service → strategy-execution-engine cycle (Resolved)
+   - ✅ analysis-engine-service → strategy-execution-engine → ml_workbench-service → analysis-engine-service (Resolved)
+   - ✅ analysis-engine-service → ml-integration-service → ml_workbench-service → strategy-execution-engine cycle (Resolved)
    - ✅ analysis-engine-service → ml-integration-service → strategy-execution-engine cycle (Resolved)
    - ❌ feature-store-service → tests → feature-store-service (Newly identified, needs resolution)
 
 4. **Design Model Registry Service**: Based on our analysis, the highest priority architectural change is:
    - Design a dedicated model-registry-service with clear domain responsibilities
    - Create interfaces in common-lib for model registry operations
-   - Implement adapters in ml-integration-service and ml-workbench-service
+   - Implement adapters in ml-integration-service and ml_workbench-service
    - Plan migration path to extract functionality from existing services
 
 5. **Plan Analysis Engine Service Decomposition**: Begin planning the decomposition of the largest service:
@@ -2763,7 +2763,7 @@ Based on the current architecture analysis, we are now focusing on:
 3. **Integration Test Fixes Plan**: Created detailed plan for resolving integration test configuration issues. See `tools/fixing/integration_test_fixes.md`.
 4. **Fixed pytest-asyncio Configuration**: Resolved the pytest-asyncio configuration warning by setting explicit asyncio_default_fixture_loop_scope in pytest.ini and all service pyproject.toml files.
 5. **Risk Management and Trading Gateway Cycle Resolution**: Implemented interface-based adapters in common-lib to break the circular dependency between risk-management-service and trading-gateway-service.
-6. **ML Workbench, Risk Management, and Trading Gateway Cycle Resolution**: Implemented interface-based adapters for reinforcement learning components to break the circular dependency between ml-workbench-service, risk-management-service, and trading-gateway-service.
+6. **ML Workbench, Risk Management, and Trading Gateway Cycle Resolution**: Implemented interface-based adapters for reinforcement learning components to break the circular dependency between ml_workbench-service, risk-management-service, and trading-gateway-service.
 7. **Analysis Engine and Strategy Execution Engine Cycle Resolution**: Implemented interface-based adapters for strategy execution and analysis components to break the circular dependency between analysis-engine-service and strategy-execution-engine:
    - Created common interfaces in common-lib for adaptive layer services
    - Implemented StatisticalValidatorAdapter in strategy-execution-engine
@@ -2778,13 +2778,13 @@ Based on the current architecture analysis, we are now focusing on:
    - Updated analysis_integration_service.py to use the adapters instead of direct imports
    - Updated ml_integration.py to use the adapters instead of direct imports
 
-9. **Analysis Engine, ML Workbench, and Strategy Execution Engine Cycle Resolution**: Implemented interface-based adapters for ML workbench functionality to break the circular dependency between analysis-engine-service, ml-workbench-service, and strategy-execution-engine:
+9. **Analysis Engine, ML Workbench, and Strategy Execution Engine Cycle Resolution**: Implemented interface-based adapters for ML workbench functionality to break the circular dependency between analysis-engine-service, ml_workbench-service, and strategy-execution-engine:
    - Created common interfaces in common-lib for ML workbench functionality
    - Implemented ModelOptimizationServiceAdapter and ReinforcementLearningServiceAdapter in analysis-engine-service and strategy-execution-engine
-   - Implemented MarketRegimeAnalyzerAdapter, PatternRecognitionServiceAdapter, and TechnicalAnalysisServiceAdapter in ml-workbench-service
+   - Implemented MarketRegimeAnalyzerAdapter, PatternRecognitionServiceAdapter, and TechnicalAnalysisServiceAdapter in ml_workbench-service
    - Updated optimization_integration.py to use the adapters instead of direct imports
 10. **Feature Store and ML Integration Cycle Resolution**: Implemented interface-based adapters for feature extraction and ML integration components to break the circular dependency between feature-store-service and ml-integration-service.
-11. **Analysis Engine, ML Workbench, and Risk Management Cycle Resolution**: Implemented interface-based adapters for analysis engine, ML model providers, and market regime analyzers to break the circular dependency between analysis-engine-service, ml-workbench-service, and risk-management-service.
+11. **Analysis Engine, ML Workbench, and Risk Management Cycle Resolution**: Implemented interface-based adapters for analysis engine, ML model providers, and market regime analyzers to break the circular dependency between analysis-engine-service, ml_workbench-service, and risk-management-service.
 12. **Standardized Error Handling in Risk Management Service**: Implemented comprehensive error handling with custom exceptions, correlation IDs, and standardized error responses in the risk-management-service.
 13. **Standardized Dependency Injection Framework**: Implemented a standardized dependency injection framework in common-lib to provide consistent service management across all services.
 14. **Standardized Event Bus Abstraction**: Implemented a standardized event bus abstraction in common-lib to provide consistent event-driven communication across all services.
@@ -3028,7 +3028,7 @@ This section defines the responsibilities of each service in the Forex Trading P
 - **Key Interfaces Provided**: IMarketAnalyzer, ISignalGenerator, IMarketRegimeDetector
 - **Key Interfaces Consumed**: IMarketDataProvider, IModelPredictionService, IFeatureStore
 
-#### ml-workbench-service
+#### ml_workbench-service
 - **Primary Domain**: Machine Learning
 - **Core Responsibilities**: ML model development, training, evaluation, feature engineering, model versioning
 - **Should NOT be responsible for**: Market data analysis, strategy execution, signal generation
@@ -3081,7 +3081,7 @@ This section defines the responsibilities of each service in the Forex Trading P
 
 ### Identified Misalignments
 
-1. **Model Registry Functionality**: Currently split between ml-integration-service and ml-workbench-service, creating a circular dependency.
+1. **Model Registry Functionality**: Currently split between ml-integration-service and ml_workbench-service, creating a circular dependency.
 
 2. **Strategy Enhancement**: Currently in ml-integration-service but depends on strategy-execution-engine.
 

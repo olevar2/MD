@@ -55,6 +55,16 @@ def backtest_engine(sample_data):
 def mock_strategy_func():
     """Create a mock strategy function."""
     def strategy(data, engine, **params):
+    """
+    Strategy.
+    
+    Args:
+        data: Description of data
+        engine: Description of engine
+        params: Description of params
+    
+    """
+
         # Open a position
         engine.open_position(
             timestamp=data.index[0],
@@ -97,6 +107,16 @@ def test_run_strategy_invalid_strategy_func(backtest_engine):
 def test_run_strategy_execution_error(backtest_engine):
     """Test run_strategy with strategy execution error."""
     def failing_strategy(data, engine, **params):
+    """
+    Failing strategy.
+    
+    Args:
+        data: Description of data
+        engine: Description of engine
+        params: Description of params
+    
+    """
+
         raise ValueError("Strategy execution failed")
     
     with pytest.raises(BacktestExecutionError) as excinfo:

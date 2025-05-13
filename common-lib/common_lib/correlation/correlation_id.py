@@ -161,6 +161,15 @@ def with_correlation_id(func: Callable) -> Callable:
         Decorated function
     """
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         # Check if we already have a correlation ID
         current_id = get_correlation_id()
 
@@ -189,6 +198,15 @@ def with_async_correlation_id(func: Callable) -> Callable:
         Decorated async function
     """
     async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         # Check if we already have a correlation ID
         current_id = get_correlation_id()
 

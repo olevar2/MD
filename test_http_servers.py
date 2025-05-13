@@ -38,18 +38,28 @@ async def start_servers():
 
     logger.info("Starting MCP servers...")
 
-    # Start Sequential Thinking MCP
+    # Start Sequential Thinking MCP with safe path handling
+    sequential_thinking_path = os.path.join("mcp-server", "sequential_thinking.py")
+    if not os.path.exists(sequential_thinking_path):
+        logger.error(f"Sequential Thinking script not found at {sequential_thinking_path}")
+        return
+
     sequential_thinking_process = subprocess.Popen(
-        ["python", "mcp-server/sequential_thinking.py"],
+        [sys.executable, sequential_thinking_path],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env={**os.environ, "PORT": "8000", "USE_HTTP": "true"}
     )
     logger.info("Sequential Thinking MCP started on port 8000")
 
-    # Start Desktop Commander MCP
+    # Start Desktop Commander MCP with safe path handling
+    desktop_commander_path = os.path.join("mcp-server", "desktop_commander.py")
+    if not os.path.exists(desktop_commander_path):
+        logger.error(f"Desktop Commander script not found at {desktop_commander_path}")
+        return
+
     desktop_commander_process = subprocess.Popen(
-        ["python", "mcp-server/desktop_commander.py"],
+        [sys.executable, desktop_commander_path],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env={**os.environ, "PORT": "8001", "USE_HTTP": "true"}

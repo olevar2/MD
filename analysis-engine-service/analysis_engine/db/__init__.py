@@ -1,3 +1,9 @@
+"""
+  init   module.
+
+This module provides functionality for...
+"""
+
 # Database module initialization
 
 from analysis_engine.db.connection import (

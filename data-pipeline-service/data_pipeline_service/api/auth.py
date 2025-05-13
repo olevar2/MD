@@ -1,3 +1,9 @@
+"""
+Auth module.
+
+This module provides functionality for...
+"""
+
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import APIKeyHeader
 from typing import Optional
@@ -43,7 +49,7 @@ async def verify_service_auth(
         "feature-store-service": settings.FEATURE_STORE_API_KEY,
         "strategy-execution-engine": settings.STRATEGY_ENGINE_API_KEY,
         "portfolio-management-service": settings.PORTFOLIO_API_KEY,
-        "ml-workbench-service": settings.ML_WORKBENCH_API_KEY,
+        "ml_workbench-service": settings.ML_WORKBENCH_API_KEY,
     }
     
     if service_name not in valid_services:

@@ -254,11 +254,32 @@ def test_configuration_manager():
 
     # Create a custom ConfigurationManager that uses our test settings
     class TestConfigurationManager:
+    """
+    TestConfigurationManager class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self):
+    """
+      init  .
+    
+    """
+
             self._settings = test_settings
             self._config_cache = {}
 
         def get(self, key, default=None):
+    """
+    Get.
+    
+    Args:
+        key: Description of key
+        default: Description of default
+    
+    """
+
             if key in self._config_cache:
                 return self._config_cache[key]
 
@@ -267,10 +288,24 @@ def test_configuration_manager():
             return value
 
         def set(self, key, value):
+    """
+    Set.
+    
+    Args:
+        key: Description of key
+        value: Description of value
+    
+    """
+
             setattr(self._settings, key, value)
             self._config_cache[key] = value
 
         def reload(self):
+    """
+    Reload.
+    
+    """
+
             # For testing, just reset HOST to "localhost"
             self._settings.HOST = "localhost"
             self._config_cache.clear()

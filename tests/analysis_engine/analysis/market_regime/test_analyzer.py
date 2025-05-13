@@ -192,6 +192,15 @@ class TestMarketRegimeAnalyzer(unittest.TestCase):
         """Test error handling in the _check_regime_change method."""
         # Create a mock subscriber that raises an exception
         def failing_subscriber(new_classification, old_classification):
+    """
+    Failing subscriber.
+    
+    Args:
+        new_classification: Description of new_classification
+        old_classification: Description of old_classification
+    
+    """
+
             raise Exception("Test exception")
         
         # Subscribe the failing subscriber

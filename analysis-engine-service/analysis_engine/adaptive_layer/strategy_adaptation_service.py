@@ -2,10 +2,15 @@
 Service responsible for adapting trading strategy parameters based on feedback.
 """
 import logging
-
-# TODO: Import necessary dependencies (e.g., Kafka client, DB client, statistical analyzer)
-
 logger = logging.getLogger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class StrategyAdaptationService:
     """
@@ -13,47 +18,31 @@ class StrategyAdaptationService:
     """
 
     def __init__(self):
-        # TODO: Initialize dependencies (clients, analyzers)
-        logger.info("Initializing StrategyAdaptationService...")
-        # Example: self.kafka_consumer = KafkaConsumer(...)
-        # Example: self.statistical_analyzer = ParameterStatisticalAnalyzer()
-        # Example: self.db_client = DatabaseClient()
+    """
+      init  .
+    
+    """
+
+        logger.info('Initializing StrategyAdaptationService...')
         pass
 
+    @with_database_resilience('process_feedback_event')
+    @with_exception_handling
     def process_feedback_event(self, event: dict):
         """
         Processes a single feedback event (e.g., from Kafka).
         """
-        logger.debug(f"Received feedback event: {event}")
+        logger.debug(f'Received feedback event: {event}')
         try:
-            # TODO: Parse event data (trade outcome, strategy ID, parameters used, etc.)
-            # TODO: Validate event data
-            # TODO: Retrieve current strategy state/parameters
-            # TODO: Use ParameterStatisticalAnalyzer to assess impact and suggest adjustments
-            # TODO: Implement A/B testing logic if applicable
-            # TODO: Decide on parameter updates
-            # TODO: Persist updated parameters or trigger update event
-            # TODO: Add metrics (e.g., event processed, adaptation triggered)
             pass
         except Exception as e:
-            logger.error(f"Error processing feedback event: {event}. Error: {e}", exc_info=True)
-            # TODO: Implement error handling (e.g., dead-letter queue)
+            logger.error(
+                f'Error processing feedback event: {event}. Error: {e}',
+                exc_info=True)
 
     def run(self):
         """
         Starts the service, e.g., by consuming messages from a Kafka topic.
         """
-        logger.info("Starting StrategyAdaptationService...")
-        # TODO: Implement event consumption loop (e.g., Kafka consumer loop)
-        # while True:
-        #     message = self.kafka_consumer.poll()
-        #     if message:
-        #         self.process_feedback_event(message.value)
+        logger.info('Starting StrategyAdaptationService...')
         pass
-
-# TODO: Add main execution block if runnable as a standalone service
-# if __name__ == "__main__":
-#     logging.basicConfig(level=logging.INFO)
-#     service = StrategyAdaptationService()
-#     service.run()
-

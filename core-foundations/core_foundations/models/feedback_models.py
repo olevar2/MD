@@ -8,12 +8,26 @@ from datetime import datetime
 import uuid
 
 class BaseFeedback(BaseModel):
+    """
+    BaseFeedback class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     feedback_id: uuid.UUID = Field(default_factory=uuid.uuid4)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     source: str # e.g., 'execution_engine', 'model_monitor', 'manual_input'
     feedback_type: Literal['trade', 'model_performance', 'parameter', 'user']
 
 class TradeFeedbackData(BaseModel):
+    """
+    TradeFeedbackData class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     trade_id: str
     strategy_id: str
     symbol: str
@@ -24,10 +38,24 @@ class TradeFeedbackData(BaseModel):
     market_conditions: Optional[Dict[str, Any]] = None # e.g., volatility, regime
 
 class TradeFeedback(BaseFeedback):
+    """
+    TradeFeedback class that inherits from BaseFeedback.
+    
+    Attributes:
+        Add attributes here
+    """
+
     feedback_type: Literal['trade'] = 'trade'
     data: TradeFeedbackData
 
 class ModelPerformanceData(BaseModel):
+    """
+    ModelPerformanceData class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     model_id: str
     strategy_id: Optional[str] = None # Link to strategy if applicable
     metric: str # e.g., 'accuracy', 'precision', 'mae', 'prediction_drift'
@@ -37,10 +65,24 @@ class ModelPerformanceData(BaseModel):
     dimensions: Optional[Dict[str, Any]] = None # e.g., {'symbol': 'EURUSD', 'timeframe': 'H1'}
 
 class ModelPerformanceFeedback(BaseFeedback):
+    """
+    ModelPerformanceFeedback class that inherits from BaseFeedback.
+    
+    Attributes:
+        Add attributes here
+    """
+
     feedback_type: Literal['model_performance'] = 'model_performance'
     data: ModelPerformanceData
 
 class ParameterFeedbackData(BaseModel):
+    """
+    ParameterFeedbackData class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     strategy_id: str
     parameter_name: str
     suggested_change: Optional[Any] = None # e.g., new value, adjustment factor
@@ -48,6 +90,13 @@ class ParameterFeedbackData(BaseModel):
     confidence: Optional[float] = None # Confidence in the suggestion (0-1)
 
 class ParameterFeedback(BaseFeedback):
+    """
+    ParameterFeedback class that inherits from BaseFeedback.
+    
+    Attributes:
+        Add attributes here
+    """
+
     feedback_type: Literal['parameter'] = 'parameter'
     data: ParameterFeedbackData
 

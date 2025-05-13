@@ -77,6 +77,17 @@ class AlertNotFoundError(MonitoringAlertingError):
         alert_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        alert_id: Description of alert_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if alert_id:
             details["alert_id"] = alert_id
@@ -94,6 +105,18 @@ class NotificationError(MonitoringAlertingError):
         alert_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        channel: Description of channel
+        alert_id: Description of alert_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if channel:
             details["channel"] = channel
@@ -112,6 +135,17 @@ class AlertStorageError(MonitoringAlertingError):
         operation: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        operation: Description of operation
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if operation:
             details["operation"] = operation
@@ -128,6 +162,17 @@ class MetricsExporterError(MonitoringAlertingError):
         exporter: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        exporter: Description of exporter
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if exporter:
             details["exporter"] = exporter
@@ -144,6 +189,17 @@ class DashboardError(MonitoringAlertingError):
         dashboard: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        dashboard: Description of dashboard
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if dashboard:
             details["dashboard"] = dashboard
@@ -160,6 +216,17 @@ class AlertRuleError(MonitoringAlertingError):
         rule: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        rule: Description of rule
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if rule:
             details["rule"] = rule
@@ -177,6 +244,18 @@ class ThresholdValidationError(MonitoringAlertingError):
         value: Optional[float] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        threshold_type: Description of threshold_type
+        value: Description of value
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if threshold_type:
             details["threshold_type"] = threshold_type
@@ -266,6 +345,15 @@ def with_exception_handling(func: F) -> F:
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return func(*args, **kwargs)
         except ForexTradingPlatformError as e:
@@ -307,6 +395,15 @@ def async_with_exception_handling(func: F) -> F:
     """
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return await func(*args, **kwargs)
         except ForexTradingPlatformError as e:

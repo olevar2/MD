@@ -3,26 +3,27 @@ Adapter Factory Module
 
 This module provides a factory for creating adapter instances for various services.
 """
-
 import logging
 from typing import Optional, Dict, Any, Type, TypeVar, cast
-
 from common_lib.interfaces.trading import ITradingProvider, IOrderBookProvider
 from common_lib.interfaces.risk_management import IRiskManager
 from common_lib.interfaces.analysis_engine import IAnalysisProvider, IIndicatorProvider, IPatternRecognizer
-
 from trading_gateway_service.adapters.trading_provider_adapter import TradingProviderAdapter
 from trading_gateway_service.adapters.order_book_adapter import OrderBookProviderAdapter
 from trading_gateway_service.adapters.risk_management_adapter import TradingRiskManagementAdapter
 from trading_gateway_service.adapters.analysis_engine_adapter import AnalysisEngineAdapter
 from trading_gateway_service.core.logging import get_logger
-
-# Type variable for generic adapter types
 T = TypeVar('T')
+logger = get_logger('trading-gateway-service.adapter-factory')
 
-# Configure logging
-logger = get_logger("trading-gateway-service.adapter-factory")
 
+from trading_gateway_service.resilience.utils import (
+    with_broker_api_resilience,
+    with_market_data_resilience,
+    with_order_execution_resilience,
+    with_risk_management_resilience,
+    with_database_resilience
+)
 
 class AdapterFactory:
     """
@@ -32,7 +33,6 @@ class AdapterFactory:
     for different service interfaces, helping to break circular dependencies
     between services.
     """
-
     _instance = None
 
     def __new__(cls):
@@ -53,16 +53,12 @@ class AdapterFactory:
         """
         if self._initialized:
             return
-
-        # Initialize adapter instances
         self._trading_provider = None
         self._order_book_provider = None
         self._risk_manager = None
         self._analysis_provider = None
-
-        # Mark as initialized
         self._initialized = True
-        logger.info("AdapterFactory initialized")
+        logger.info('AdapterFactory initialized')
 
     def initialize(self):
         """
@@ -70,13 +66,11 @@ class AdapterFactory:
 
         This method creates adapter instances for all supported interfaces.
         """
-        # Create adapter instances
         self._trading_provider = TradingProviderAdapter(logger=logger)
         self._order_book_provider = OrderBookProviderAdapter(logger=logger)
         self._risk_manager = TradingRiskManagementAdapter()
         self._analysis_provider = AnalysisEngineAdapter(logger=logger)
-
-        logger.info("AdapterFactory adapters initialized")
+        logger.info('AdapterFactory adapters initialized')
 
     def cleanup(self):
         """
@@ -84,15 +78,14 @@ class AdapterFactory:
 
         This method cleans up any resources used by the adapter instances.
         """
-        # Clean up adapter instances
         self._trading_provider = None
         self._order_book_provider = None
         self._risk_manager = None
         self._analysis_provider = None
+        logger.info('AdapterFactory adapters cleaned up')
 
-        logger.info("AdapterFactory adapters cleaned up")
-
-    def get_trading_provider(self) -> TradingProviderAdapter:
+    @with_broker_api_resilience('get_trading_provider')
+    def get_trading_provider(self) ->TradingProviderAdapter:
         """
         Get the Trading Provider adapter.
 
@@ -103,7 +96,8 @@ class AdapterFactory:
             self._trading_provider = TradingProviderAdapter(logger=logger)
         return self._trading_provider
 
-    def get_order_book_provider(self) -> OrderBookProviderAdapter:
+    @with_broker_api_resilience('get_order_book_provider')
+    def get_order_book_provider(self) ->OrderBookProviderAdapter:
         """
         Get the Order Book Provider adapter.
 
@@ -114,7 +108,8 @@ class AdapterFactory:
             self._order_book_provider = OrderBookProviderAdapter(logger=logger)
         return self._order_book_provider
 
-    def get_risk_manager(self) -> TradingRiskManagementAdapter:
+    @with_risk_management_resilience('get_risk_manager')
+    def get_risk_manager(self) ->TradingRiskManagementAdapter:
         """
         Get the Risk Manager adapter.
 
@@ -125,7 +120,8 @@ class AdapterFactory:
             self._risk_manager = TradingRiskManagementAdapter()
         return self._risk_manager
 
-    def get_analysis_provider(self) -> AnalysisEngineAdapter:
+    @with_broker_api_resilience('get_analysis_provider')
+    def get_analysis_provider(self) ->AnalysisEngineAdapter:
         """
         Get the Analysis Provider adapter.
 
@@ -136,7 +132,8 @@ class AdapterFactory:
             self._analysis_provider = AnalysisEngineAdapter(logger=logger)
         return self._analysis_provider
 
-    def get_adapter(self, interface_type: Type[T]) -> T:
+    @with_broker_api_resilience('get_adapter')
+    def get_adapter(self, interface_type: Type[T]) ->T:
         """
         Get an adapter instance for the specified interface type.
 
@@ -161,10 +158,10 @@ class AdapterFactory:
             return cast(T, self.get_analysis_provider())
         elif interface_type == IPatternRecognizer:
             return cast(T, self.get_analysis_provider())
-        # Add more interface types as they are implemented
         else:
-            raise ValueError(f"No adapter available for interface type: {interface_type.__name__}")
+            raise ValueError(
+                f'No adapter available for interface type: {interface_type.__name__}'
+                )
 
 
-# Singleton instance
 adapter_factory = AdapterFactory()

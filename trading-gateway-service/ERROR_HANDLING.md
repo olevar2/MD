@@ -22,7 +22,7 @@ The Trading Gateway Service now has a comprehensive error handling system that:
 
 - **errorBridge.js**: Provides bidirectional error conversion between JavaScript and Python
 - **errors.js**: Defines JavaScript error classes that mirror common-lib exceptions
-- **errorHandler.js**: Express middleware for consistent error responses
+- **error-handler.js**: Express middleware for consistent error responses
 
 ## Using the Error Handling System
 

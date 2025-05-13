@@ -41,7 +41,22 @@ VERSION_USAGE = Counter(
 )
 
 class ApiMetricsCollector:
+    """
+    ApiMetricsCollector class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, service_name: str):
+    """
+      init  .
+    
+    Args:
+        service_name: Description of service_name
+    
+    """
+
         self.service_name = service_name
         self._active_requests: Dict[str, datetime] = {}
 

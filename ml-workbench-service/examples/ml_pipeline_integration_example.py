@@ -52,7 +52,19 @@ def create_sample_project():
 import tensorflow as tf
 
 class PricePredictorModel(tf.keras.Model):
+    """
+    PricePredictorModel class that inherits from tf.keras.Model.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         super().__init__()
         self.dense1 = tf.keras.layers.Dense(64, activation='relu')
         self.dense2 = tf.keras.layers.Dense(32, activation='relu')
@@ -75,6 +87,14 @@ import pandas as pd
 import numpy as np
 
 def compute_technical_features(data):
+    """
+    Compute technical features.
+    
+    Args:
+        data: Description of data
+    
+    """
+
     # Calculate moving averages
     data['ma_5'] = data['close'].rolling(window=5).mean()
     data['ma_20'] = data['close'].rolling(window=20).mean()
@@ -108,6 +128,16 @@ from models.price_predictor_model import create_model
 from features.price_features import compute_technical_features
 
 def train_price_predictor(data, epochs=10, batch_size=32):
+    """
+    Train price predictor.
+    
+    Args:
+        data: Description of data
+        epochs: Description of epochs
+        batch_size: Description of batch_size
+    
+    """
+
     # Prepare features
     data = compute_technical_features(data)
     data = data.dropna()
@@ -149,13 +179,36 @@ from models.price_predictor_model import create_model
 from features.price_features import compute_technical_features
 
 class PricePredictorService:
+    """
+    PricePredictorService class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, model_path=None):
+    """
+      init  .
+    
+    Args:
+        model_path: Description of model_path
+    
+    """
+
         if model_path:
             self.model = tf.keras.models.load_model(model_path)
         else:
             self.model = create_model()
             
     def predict(self, data):
+    """
+    Predict.
+    
+    Args:
+        data: Description of data
+    
+    """
+
         # Prepare features
         data = compute_technical_features(data)
         data = data.dropna()

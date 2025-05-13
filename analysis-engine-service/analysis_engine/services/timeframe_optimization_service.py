@@ -11,7 +11,6 @@ Features:
 - Market regime transition detection
 - Adaptive weighting based on current market conditions
 """
-
 import logging
 import numpy as np
 import pandas as pd
@@ -22,48 +21,54 @@ from enum import Enum
 import asyncio
 from scipy.stats import pearsonr, spearmanr
 from statsmodels.tsa.stattools import grangercausalitytests, coint
-
 from analysis_engine.services.tool_effectiveness import TimeFrame
 from analysis_engine.analysis.advanced_ta.market_regime import MarketRegimeType
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
 
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class SignalOutcome(Enum):
     """Enum for signal outcome classification"""
-    WIN = "win"
-    LOSS = "loss"
-    BREAKEVEN = "breakeven"
-    UNKNOWN = "unknown"
+    WIN = 'win'
+    LOSS = 'loss'
+    BREAKEVEN = 'breakeven'
+    UNKNOWN = 'unknown'
 
 
 class CorrelationType(Enum):
     """Types of correlation relationships"""
-    POSITIVE = "positive"
-    NEGATIVE = "negative"
-    NEUTRAL = "neutral"
-    BREAKDOWN = "breakdown"
-    STRENGTHENING = "strengthening"
-    WEAKENING = "weakening"
+    POSITIVE = 'positive'
+    NEGATIVE = 'negative'
+    NEUTRAL = 'neutral'
+    BREAKDOWN = 'breakdown'
+    STRENGTHENING = 'strengthening'
+    WEAKENING = 'weakening'
 
 
 class PatternType(Enum):
     """Types of patterns that can be detected across timeframes"""
-    CONTINUATION = "continuation"
-    REVERSAL = "reversal"
-    CONSOLIDATION = "consolidation"
-    BREAKOUT = "breakout"
-    DIVERGENCE = "divergence"
-    HARMONIC = "harmonic"
+    CONTINUATION = 'continuation'
+    REVERSAL = 'reversal'
+    CONSOLIDATION = 'consolidation'
+    BREAKOUT = 'breakout'
+    DIVERGENCE = 'divergence'
+    HARMONIC = 'harmonic'
 
 
 class MarketRegime(Enum):
     """Market regime classifications"""
-    TRENDING_UP = "trending_up"
-    TRENDING_DOWN = "trending_down"
-    RANGING = "ranging"
-    VOLATILE = "volatile"
-    BREAKOUT = "breakout"
-    REVERSAL = "reversal"
-    TRANSITION = "transition"
+    TRENDING_UP = 'trending_up'
+    TRENDING_DOWN = 'trending_down'
+    RANGING = 'ranging'
+    VOLATILE = 'volatile'
+    BREAKOUT = 'breakout'
+    REVERSAL = 'reversal'
+    TRANSITION = 'transition'
 
 
 class TimeframeOptimizationService:
@@ -79,24 +84,14 @@ class TimeframeOptimizationService:
     - Provides adaptive weighting based on current market conditions
     """
 
-    def __init__(
-        self,
-        timeframes: List[str],
-        primary_timeframe: str = None,
-        lookback_days: int = 30,
-        min_signals_required: int = 10,
-        weight_decay_factor: float = 0.95,
-        max_weight: float = 3.0,
-        min_weight: float = 0.5,
-        currency_pairs: List[str] = None,
-        correlation_threshold: float = 0.7,
-        pattern_detection_threshold: float = 0.65,
-        regime_change_sensitivity: float = 0.5,
-        enable_correlation_analysis: bool = True,
-        enable_pattern_recognition: bool = True,
-        enable_regime_detection: bool = True,
-        adaptive_weighting: bool = True
-    ):
+    def __init__(self, timeframes: List[str], primary_timeframe: str=None,
+        lookback_days: int=30, min_signals_required: int=10,
+        weight_decay_factor: float=0.95, max_weight: float=3.0, min_weight:
+        float=0.5, currency_pairs: List[str]=None, correlation_threshold:
+        float=0.7, pattern_detection_threshold: float=0.65,
+        regime_change_sensitivity: float=0.5, enable_correlation_analysis:
+        bool=True, enable_pattern_recognition: bool=True,
+        enable_regime_detection: bool=True, adaptive_weighting: bool=True):
         """
         Initialize the enhanced timeframe optimization service.
 
@@ -132,60 +127,37 @@ class TimeframeOptimizationService:
         self.enable_pattern_recognition = enable_pattern_recognition
         self.enable_regime_detection = enable_regime_detection
         self.adaptive_weighting = adaptive_weighting
-
-        # Initialize logger
         self.logger = logging.getLogger(__name__)
-
-        # Initialize performance tracking
         self.performance_history = {tf: [] for tf in timeframes}
-        self.signal_counts = {tf: 0 for tf in timeframes}
-        self.win_rates = {tf: 0.0 for tf in timeframes}
-        self.consistency_scores = {tf: 0.0 for tf in timeframes}
-
-        # Initialize weights (default to 1.0)
-        self.timeframe_weights = {tf: 1.0 for tf in timeframes}
-        self.base_weights = {tf: 1.0 for tf in timeframes}  # Store base weights separately from adaptive weights
-
-        # Set slightly higher initial weight for primary timeframe
+        self.signal_counts = {tf: (0) for tf in timeframes}
+        self.win_rates = {tf: (0.0) for tf in timeframes}
+        self.consistency_scores = {tf: (0.0) for tf in timeframes}
+        self.timeframe_weights = {tf: (1.0) for tf in timeframes}
+        self.base_weights = {tf: (1.0) for tf in timeframes}
         if self.primary_timeframe:
             self.timeframe_weights[self.primary_timeframe] = 1.2
             self.base_weights[self.primary_timeframe] = 1.2
-
-        # Statistics
         self.total_signals_processed = 0
         self.last_optimization_time = None
+        self.correlation_matrices = {}
+        self.correlation_history = {}
+        self.correlation_breakdowns = []
+        self.detected_patterns = {}
+        self.pattern_history = []
+        self.cross_timeframe_patterns = []
+        self.current_regime = MarketRegime.RANGING
+        self.regime_history = []
+        self.regime_transition_indicators = {}
+        self.correlation_weight_adjustments = {tf: (0.0) for tf in timeframes}
+        self.pattern_weight_adjustments = {tf: (0.0) for tf in timeframes}
+        self.regime_weight_adjustments = {tf: (0.0) for tf in timeframes}
+        self.logger.info(
+            f'Enhanced TimeframeOptimizationService initialized with timeframes: {timeframes}'
+            )
 
-        # Currency correlation tracking
-        self.correlation_matrices = {}  # Timeframe -> correlation matrix
-        self.correlation_history = {}   # (pair1, pair2) -> list of correlation values
-        self.correlation_breakdowns = []  # List of recent correlation breakdowns
-
-        # Pattern recognition
-        self.detected_patterns = {}  # Timeframe -> list of patterns
-        self.pattern_history = []    # List of historical patterns
-        self.cross_timeframe_patterns = []  # Patterns that span multiple timeframes
-
-        # Market regime tracking
-        self.current_regime = MarketRegime.RANGING  # Default regime
-        self.regime_history = []  # History of regime changes
-        self.regime_transition_indicators = {}  # Indicators of potential regime transitions
-
-        # Adaptive weighting factors
-        self.correlation_weight_adjustments = {tf: 0.0 for tf in timeframes}
-        self.pattern_weight_adjustments = {tf: 0.0 for tf in timeframes}
-        self.regime_weight_adjustments = {tf: 0.0 for tf in timeframes}
-
-        self.logger.info(f"Enhanced TimeframeOptimizationService initialized with timeframes: {timeframes}")
-
-    def record_timeframe_performance(
-        self,
-        timeframe: str,
-        outcome: SignalOutcome,
-        symbol: str,
-        pips_result: float,
-        confidence: float,
-        timestamp: Optional[datetime] = None
-    ) -> bool:
+    def record_timeframe_performance(self, timeframe: str, outcome:
+        SignalOutcome, symbol: str, pips_result: float, confidence: float,
+        timestamp: Optional[datetime]=None) ->bool:
         """
         Record the performance of a signal from a specific timeframe.
 
@@ -201,35 +173,24 @@ class TimeframeOptimizationService:
             Boolean indicating whether the record was added successfully
         """
         if timeframe not in self.timeframes:
-            self.logger.warning(f"Attempted to record performance for unknown timeframe: {timeframe}")
+            self.logger.warning(
+                f'Attempted to record performance for unknown timeframe: {timeframe}'
+                )
             return False
-
         timestamp = timestamp or datetime.now()
-
-        # Create performance record
-        record = {
-            "timestamp": timestamp,
-            "outcome": outcome.value,
-            "symbol": symbol,
-            "pips_result": pips_result,
-            "confidence": confidence,
-            "weight": self._calculate_record_weight(timestamp, confidence)
-        }
-
-        # Add to performance history
+        record = {'timestamp': timestamp, 'outcome': outcome.value,
+            'symbol': symbol, 'pips_result': pips_result, 'confidence':
+            confidence, 'weight': self._calculate_record_weight(timestamp,
+            confidence)}
         self.performance_history[timeframe].append(record)
         self.signal_counts[timeframe] += 1
         self.total_signals_processed += 1
-
-        # Clean up old records if needed
         self._cleanup_old_records()
-
-        # Recalculate statistics for this timeframe
         self._update_timeframe_statistics(timeframe)
-
         return True
 
-    def _calculate_record_weight(self, timestamp: datetime, confidence: float) -> float:
+    def _calculate_record_weight(self, timestamp: datetime, confidence: float
+        ) ->float:
         """
         Calculate the weight of a performance record based on recency and confidence.
 
@@ -240,29 +201,21 @@ class TimeframeOptimizationService:
         Returns:
             Weight value for this record
         """
-        # Newer signals get higher weight
         now = datetime.now()
-        days_old = (now - timestamp).total_seconds() / 86400  # Convert to days
-
-        # Apply time decay (recent signals matter more)
-        time_factor = self.weight_decay_factor ** min(days_old, self.lookback_days)
-
-        # Apply confidence factor (higher confidence signals matter more)
-        confidence_factor = 0.5 + (confidence * 0.5)  # Scale to 0.5-1.0 range
-
+        days_old = (now - timestamp).total_seconds() / 86400
+        time_factor = self.weight_decay_factor ** min(days_old, self.
+            lookback_days)
+        confidence_factor = 0.5 + confidence * 0.5
         return time_factor * confidence_factor
 
-    def _cleanup_old_records(self) -> None:
+    def _cleanup_old_records(self) ->None:
         """Remove performance records that are older than the lookback period."""
         cutoff_date = datetime.now() - timedelta(days=self.lookback_days)
-
         for tf in self.timeframes:
-            self.performance_history[tf] = [
-                record for record in self.performance_history[tf]
-                if record["timestamp"] > cutoff_date
-            ]
+            self.performance_history[tf] = [record for record in self.
+                performance_history[tf] if record['timestamp'] > cutoff_date]
 
-    def _update_timeframe_statistics(self, timeframe: str) -> None:
+    def _update_timeframe_statistics(self, timeframe: str) ->None:
         """
         Update statistics for a specific timeframe.
 
@@ -272,89 +225,71 @@ class TimeframeOptimizationService:
         records = self.performance_history[timeframe]
         if not records:
             return
-
-        # Calculate win rate
-        wins = sum(1 for r in records if r["outcome"] == SignalOutcome.WIN.value)
+        wins = sum(1 for r in records if r['outcome'] == SignalOutcome.WIN.
+            value)
         total = len(records)
         self.win_rates[timeframe] = wins / total if total > 0 else 0.0
-
-        # Calculate consistency score (lower variance in outcomes is better)
-        if total >= 3:  # Need at least 3 records for meaningful variance
-            pips_results = [r["pips_result"] for r in records]
+        if total >= 3:
+            pips_results = [r['pips_result'] for r in records]
             mean_result = np.mean(pips_results)
-            if mean_result > 0:  # Only calculate consistency for profitable timeframes
+            if mean_result > 0:
                 variance = np.var(pips_results)
-                # Lower variance = higher consistency
-                self.consistency_scores[timeframe] = 1.0 / (1.0 + variance / abs(mean_result))
+                self.consistency_scores[timeframe] = 1.0 / (1.0 + variance /
+                    abs(mean_result))
             else:
                 self.consistency_scores[timeframe] = 0.0
 
-    def optimize_timeframe_weights(self) -> Dict[str, float]:
+    def optimize_timeframe_weights(self) ->Dict[str, float]:
         """
         Calculate optimal weights for timeframes based on historical performance.
 
         Returns:
             Dictionary of timeframe weights
         """
-        # Check if we have enough data for optimization
-        total_signals = sum(len(records) for records in self.performance_history.values())
+        total_signals = sum(len(records) for records in self.
+            performance_history.values())
         if total_signals < self.min_signals_required:
-            self.logger.info(f"Not enough signals for optimization: {total_signals}/{self.min_signals_required}")
+            self.logger.info(
+                f'Not enough signals for optimization: {total_signals}/{self.min_signals_required}'
+                )
             return self.timeframe_weights
-
-        # Update all timeframe statistics
         for tf in self.timeframes:
             self._update_timeframe_statistics(tf)
-
-        # Calculate raw weights based on win rate and consistency
         raw_weights = {}
         for tf in self.timeframes:
-            # Weight formula: win_rate * (1 + consistency_bonus)
             win_rate = self.win_rates[tf]
             consistency = self.consistency_scores[tf]
-
-            # Ensure we don't penalize timeframes with few signals too harshly
             signal_count = len(self.performance_history[tf])
-            confidence_factor = min(1.0, signal_count / self.min_signals_required)
-
-            # Raw weight calculation
+            confidence_factor = min(1.0, signal_count / self.
+                min_signals_required)
             if signal_count > 0:
-                raw_weight = (0.5 + (win_rate * 0.5)) * (1.0 + consistency * 0.5)
-                # Blend with default weight based on confidence
-                raw_weights[tf] = (raw_weight * confidence_factor) + (1.0 * (1.0 - confidence_factor))
+                raw_weight = (0.5 + win_rate * 0.5) * (1.0 + consistency * 0.5)
+                raw_weights[tf] = raw_weight * confidence_factor + 1.0 * (
+                    1.0 - confidence_factor)
             else:
-                raw_weights[tf] = 1.0  # Default weight
-
-        # Normalize weights to ensure they're in a reasonable range
+                raw_weights[tf] = 1.0
         max_raw = max(raw_weights.values()) if raw_weights else 1.0
         min_raw = min(raw_weights.values()) if raw_weights else 1.0
-
         normalized_weights = {}
-        if max_raw > min_raw:  # Avoid division by zero
+        if max_raw > min_raw:
             for tf, raw in raw_weights.items():
-                # Scale to min_weight - max_weight range
-                normalized = self.min_weight + (
-                    (raw - min_raw) * (self.max_weight - self.min_weight) / (max_raw - min_raw)
-                )
+                normalized = self.min_weight + (raw - min_raw) * (self.
+                    max_weight - self.min_weight) / (max_raw - min_raw)
                 normalized_weights[tf] = normalized
         else:
-            # If all weights are the same, keep current weights
             normalized_weights = self.timeframe_weights.copy()
-
-        # Give extra weight to primary timeframe if it's performing well
         if self.primary_timeframe in normalized_weights:
             if normalized_weights[self.primary_timeframe] < 1.0:
-                normalized_weights[self.primary_timeframe] = max(1.0, normalized_weights[self.primary_timeframe])
-
-        # Update weights
+                normalized_weights[self.primary_timeframe] = max(1.0,
+                    normalized_weights[self.primary_timeframe])
         self.timeframe_weights = normalized_weights
         self.last_optimization_time = datetime.now()
-
-        self.logger.info(f"Optimized timeframe weights: {normalized_weights}")
-
+        self.logger.info(f'Optimized timeframe weights: {normalized_weights}')
         return self.timeframe_weights
 
-    def get_timeframe_weights(self, force_optimize: bool = False) -> Dict[str, float]:
+    @with_resilience('get_timeframe_weights')
+    def get_timeframe_weights(self, force_optimize: bool=False) ->Dict[str,
+        float]:
         """
         Get the current timeframe weights.
 
@@ -368,39 +303,30 @@ class TimeframeOptimizationService:
             return self.optimize_timeframe_weights()
         return self.timeframe_weights
 
-    def get_performance_stats(self) -> Dict[str, Any]:
+    @with_resilience('get_performance_stats')
+    def get_performance_stats(self) ->Dict[str, Any]:
         """
         Get performance statistics for all timeframes.
 
         Returns:
             Dictionary with performance statistics
         """
-        stats = {
-            "timeframe_stats": {},
-            "total_signals": self.total_signals_processed,
-            "last_optimization": self.last_optimization_time.isoformat() if self.last_optimization_time else None
-        }
-
+        stats = {'timeframe_stats': {}, 'total_signals': self.
+            total_signals_processed, 'last_optimization': self.
+            last_optimization_time.isoformat() if self.
+            last_optimization_time else None}
         for tf in self.timeframes:
-            tf_stats = {
-                "signals": self.signal_counts[tf],
-                "win_rate": self.win_rates[tf],
-                "consistency": self.consistency_scores[tf],
-                "current_weight": self.timeframe_weights[tf],
-                "recent_outcomes": [
-                    {"outcome": r["outcome"], "pips": r["pips_result"]}
-                    for r in sorted(
-                        self.performance_history[tf],
-                        key=lambda x: x["timestamp"],
-                        reverse=True
-                    )[:5]  # Last 5 outcomes
-                ]
-            }
-            stats["timeframe_stats"][tf] = tf_stats
-
+            tf_stats = {'signals': self.signal_counts[tf], 'win_rate': self
+                .win_rates[tf], 'consistency': self.consistency_scores[tf],
+                'current_weight': self.timeframe_weights[tf],
+                'recent_outcomes': [{'outcome': r['outcome'], 'pips': r[
+                'pips_result']} for r in sorted(self.performance_history[tf
+                ], key=lambda x: x['timestamp'], reverse=True)[:5]]}
+            stats['timeframe_stats'][tf] = tf_stats
         return stats
 
-    def get_recommended_timeframes(self, max_count: int = 3) -> List[str]:
+    @with_resilience('get_recommended_timeframes')
+    def get_recommended_timeframes(self, max_count: int=3) ->List[str]:
         """
         Get the recommended timeframes with the highest weights.
 
@@ -410,25 +336,17 @@ class TimeframeOptimizationService:
         Returns:
             List of timeframe strings, sorted by weight
         """
-        sorted_tfs = sorted(
-            self.timeframes,
-            key=lambda tf: self.timeframe_weights.get(tf, 0.0),
-            reverse=True
-        )
-
-        # Always include primary timeframe
+        sorted_tfs = sorted(self.timeframes, key=lambda tf: self.
+            timeframe_weights.get(tf, 0.0), reverse=True)
         if self.primary_timeframe in sorted_tfs:
             sorted_tfs.remove(self.primary_timeframe)
-            recommended = [self.primary_timeframe] + sorted_tfs[:max_count-1]
+            recommended = [self.primary_timeframe] + sorted_tfs[:max_count - 1]
         else:
             recommended = sorted_tfs[:max_count]
-
         return recommended
 
-    def apply_weighted_score(
-        self,
-        timeframe_scores: Dict[str, float]
-    ) -> Tuple[float, Dict[str, float]]:
+    def apply_weighted_score(self, timeframe_scores: Dict[str, float]) ->Tuple[
+        float, Dict[str, float]]:
         """
         Apply weights to timeframe scores and calculate weighted average.
 
@@ -438,38 +356,31 @@ class TimeframeOptimizationService:
         Returns:
             Tuple of (weighted_average_score, weighted_scores_by_timeframe)
         """
-        # Filter to only include timeframes we're tracking
-        valid_scores = {tf: score for tf, score in timeframe_scores.items() if tf in self.timeframes}
-
+        valid_scores = {tf: score for tf, score in timeframe_scores.items() if
+            tf in self.timeframes}
         if not valid_scores:
-            self.logger.warning("No valid timeframe scores provided for weighting")
+            self.logger.warning(
+                'No valid timeframe scores provided for weighting')
             return 0.0, {}
-
-        # Get current weights
         weights = self.get_timeframe_weights()
-
-        # Apply weights to scores
         weighted_scores = {}
         weight_sum = 0.0
         weighted_score_sum = 0.0
-
         for tf, score in valid_scores.items():
-            weight = weights.get(tf, 1.0)  # Default to 1.0 if not found
+            weight = weights.get(tf, 1.0)
             weighted_score = score * weight
-
             weighted_scores[tf] = weighted_score
             weight_sum += weight
             weighted_score_sum += weighted_score
-
-        # Calculate weighted average
         if weight_sum > 0:
             weighted_average = weighted_score_sum / weight_sum
         else:
-            weighted_average = sum(valid_scores.values()) / len(valid_scores) if valid_scores else 0.0
-
+            weighted_average = sum(valid_scores.values()) / len(valid_scores
+                ) if valid_scores else 0.0
         return weighted_average, weighted_scores
 
-    def save_to_file(self, file_path: str) -> bool:
+    @with_exception_handling
+    def save_to_file(self, file_path: str) ->bool:
         """
         Save optimization state to a file.
 
@@ -480,45 +391,37 @@ class TimeframeOptimizationService:
             Success status
         """
         try:
-            # Convert datetime objects to strings
             serializable_history = {}
             for tf, records in self.performance_history.items():
                 serializable_history[tf] = []
                 for record in records:
                     serializable_record = record.copy()
-                    serializable_record["timestamp"] = record["timestamp"].isoformat()
+                    serializable_record['timestamp'] = record['timestamp'
+                        ].isoformat()
                     serializable_history[tf].append(serializable_record)
-
-            # Create serializable state
-            state = {
-                "timeframes": self.timeframes,
-                "primary_timeframe": self.primary_timeframe,
-                "lookback_days": self.lookback_days,
-                "min_signals_required": self.min_signals_required,
-                "weight_decay_factor": self.weight_decay_factor,
-                "max_weight": self.max_weight,
-                "min_weight": self.min_weight,
-                "performance_history": serializable_history,
-                "signal_counts": self.signal_counts,
-                "win_rates": self.win_rates,
-                "consistency_scores": self.consistency_scores,
-                "timeframe_weights": self.timeframe_weights,
-                "total_signals_processed": self.total_signals_processed,
-                "last_optimization_time": self.last_optimization_time.isoformat() if self.last_optimization_time else None
-            }
-
+            state = {'timeframes': self.timeframes, 'primary_timeframe':
+                self.primary_timeframe, 'lookback_days': self.lookback_days,
+                'min_signals_required': self.min_signals_required,
+                'weight_decay_factor': self.weight_decay_factor,
+                'max_weight': self.max_weight, 'min_weight': self.
+                min_weight, 'performance_history': serializable_history,
+                'signal_counts': self.signal_counts, 'win_rates': self.
+                win_rates, 'consistency_scores': self.consistency_scores,
+                'timeframe_weights': self.timeframe_weights,
+                'total_signals_processed': self.total_signals_processed,
+                'last_optimization_time': self.last_optimization_time.
+                isoformat() if self.last_optimization_time else None}
             with open(file_path, 'w') as f:
                 json.dump(state, f, indent=2)
-
-            self.logger.info(f"Optimization state saved to {file_path}")
+            self.logger.info(f'Optimization state saved to {file_path}')
             return True
-
         except Exception as e:
-            self.logger.error(f"Error saving optimization state: {e}")
+            self.logger.error(f'Error saving optimization state: {e}')
             return False
 
     @classmethod
-    def load_from_file(cls, file_path: str) -> 'TimeframeOptimizationService':
+    @with_exception_handling
+    def load_from_file(cls, file_path: str) ->'TimeframeOptimizationService':
         """
         Load optimization state from a file.
 
@@ -531,37 +434,27 @@ class TimeframeOptimizationService:
         try:
             with open(file_path, 'r') as f:
                 state = json.load(f)
-
-            # Create instance with basic parameters
-            instance = cls(
-                timeframes=state["timeframes"],
-                primary_timeframe=state["primary_timeframe"],
-                lookback_days=state["lookback_days"],
-                min_signals_required=state["min_signals_required"],
-                weight_decay_factor=state["weight_decay_factor"],
-                max_weight=state["max_weight"],
-                min_weight=state["min_weight"]
-            )
-
-            # Restore performance history
-            for tf, records in state["performance_history"].items():
+            instance = cls(timeframes=state['timeframes'],
+                primary_timeframe=state['primary_timeframe'], lookback_days
+                =state['lookback_days'], min_signals_required=state[
+                'min_signals_required'], weight_decay_factor=state[
+                'weight_decay_factor'], max_weight=state['max_weight'],
+                min_weight=state['min_weight'])
+            for tf, records in state['performance_history'].items():
                 for record in records:
-                    # Convert timestamp string back to datetime
-                    record["timestamp"] = datetime.fromisoformat(record["timestamp"])
+                    record['timestamp'] = datetime.fromisoformat(record[
+                        'timestamp'])
                 instance.performance_history[tf] = records
-
-            # Restore other state
-            instance.signal_counts = state["signal_counts"]
-            instance.win_rates = state["win_rates"]
-            instance.consistency_scores = state["consistency_scores"]
-            instance.timeframe_weights = state["timeframe_weights"]
-            instance.total_signals_processed = state["total_signals_processed"]
-            instance.last_optimization_time = datetime.fromisoformat(state["last_optimization_time"]) if state["last_optimization_time"] else None
-
-            instance.logger.info(f"Optimization state loaded from {file_path}")
+            instance.signal_counts = state['signal_counts']
+            instance.win_rates = state['win_rates']
+            instance.consistency_scores = state['consistency_scores']
+            instance.timeframe_weights = state['timeframe_weights']
+            instance.total_signals_processed = state['total_signals_processed']
+            instance.last_optimization_time = datetime.fromisoformat(state[
+                'last_optimization_time']) if state['last_optimization_time'
+                ] else None
+            instance.logger.info(f'Optimization state loaded from {file_path}')
             return instance
-
         except Exception as e:
-            logging.error(f"Error loading optimization state: {e}")
-            return cls([TimeFrame.H1.value])  # Return default instance
-
+            logging.error(f'Error loading optimization state: {e}')
+            return cls([TimeFrame.H1.value])

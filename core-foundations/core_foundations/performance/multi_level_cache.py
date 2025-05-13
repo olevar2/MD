@@ -38,6 +38,18 @@ class MultiLevelCache:
         l3_ttl_hours: int = 24,
         enable_compression: bool = True
     ):
+    """
+      init  .
+    
+    Args:
+        cache_dir: Description of cache_dir
+        l1_max_size_mb: Description of l1_max_size_mb
+        l2_max_size_gb: Description of l2_max_size_gb
+        l3_ttl_hours: Description of l3_ttl_hours
+        enable_compression: Description of enable_compression
+    
+    """
+
         self.cache_dir = Path(cache_dir)
         self.l2_cache_dir = self.cache_dir / "l2_disk"
         self.cache_dir.mkdir(exist_ok=True)
@@ -68,6 +80,11 @@ class MultiLevelCache:
     def _start_monitoring(self):
         """Start background monitoring of cache metrics and health."""
         def monitor():
+    """
+    Monitor.
+    
+    """
+
             while True:
                 try:
                     self._check_cache_health()

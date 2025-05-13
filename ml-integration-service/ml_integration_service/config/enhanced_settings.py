@@ -85,7 +85,7 @@ class EnhancedServiceSettings(BaseSettings):
     
     # Integration settings
     ML_WORKBENCH_API_URL: str = Field(
-        "http://ml-workbench:8000",
+        "http://ml_workbench:8000",
         description="ML Workbench service URL"
     )
     STRATEGY_ENGINE_API_URL: str = Field(
@@ -113,6 +113,13 @@ class EnhancedServiceSettings(BaseSettings):
     stress_testing: StressTestingSettings = StressTestingSettings()
     
     class Config:
+    """
+    Config class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         env_prefix = "ML_INTEGRATION_"
         
 enhanced_settings = EnhancedServiceSettings()

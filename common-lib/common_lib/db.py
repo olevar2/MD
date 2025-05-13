@@ -105,11 +105,23 @@ async def init_db(engine):
 # from sqlalchemy import Column, Integer, String
 #
 # class Item(Base):
+    """
+    Item class that inherits from Base.
+    
+    Attributes:
+        Add attributes here
+    """
+
 #     __tablename__ = 'items'
 #     id = Column(Integer, primary_key=True)
 #     name = Column(String)
 #
 # async def main():
+    """
+    Main.
+    
+    """
+
 #     db_url = "postgresql+asyncpg://user:password@host:port/dbname"
 #     engine = create_async_db_engine(db_url)
 #     configure_session_maker(engine)

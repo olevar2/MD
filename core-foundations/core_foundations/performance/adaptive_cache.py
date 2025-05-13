@@ -438,6 +438,11 @@ class AdaptiveCache:
             return
             
         def invalidation_listener():
+    """
+    Invalidation listener.
+    
+    """
+
             pubsub = self.distributed_client.pubsub()
             pubsub.subscribe('cache_invalidation')
             

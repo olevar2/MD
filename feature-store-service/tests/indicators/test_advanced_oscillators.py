@@ -10,6 +10,14 @@ from feature_store_service.indicators.advanced_oscillators import AwesomeOscilla
 
 @pytest.fixture
 def sample_data_osc() -> pd.DataFrame:
+    """
+    Sample data osc.
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     periods = 100
     index = pd.date_range(start='2023-01-01', periods=periods, freq='D')
     np.random.seed(42)
@@ -30,10 +38,29 @@ def sample_data_osc() -> pd.DataFrame:
 
 @pytest.fixture
 def short_data_osc(sample_data_osc) -> pd.DataFrame:
+    """
+    Short data osc.
+    
+    Args:
+        sample_data_osc: Description of sample_data_osc
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     return sample_data_osc.head(20)
 
 @pytest.fixture
 def constant_data_osc() -> pd.DataFrame:
+    """
+    Constant data osc.
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
     periods = 100
     index = pd.date_range(start='2023-01-01', periods=periods, freq='D')
     data = pd.DataFrame({'open': 100.0, 'high': 100.5, 'low': 99.5, 'close': 100.0, 'volume': 100.0}, index=index)

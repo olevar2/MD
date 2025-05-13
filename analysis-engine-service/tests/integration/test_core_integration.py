@@ -138,6 +138,11 @@ async def test_concurrent_analysis_requests(service_container, mock_market_data)
     
     # Create multiple analysis requests
     async def run_analysis():
+    """
+    Run analysis.
+    
+    """
+
         return await analysis_service.analyze(mock_market_data)
     
     # Run multiple analyses concurrently

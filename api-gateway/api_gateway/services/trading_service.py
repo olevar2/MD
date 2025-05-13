@@ -90,6 +90,11 @@ class TradingService:
             exceptions=[httpx.HTTPError, httpx.TimeoutException]
         )
         async def send_request():
+    """
+    Send request.
+    
+    """
+
             async with AsyncClient(timeout=self.timeout) as client:
                 response = await client.request(
                     method=method,

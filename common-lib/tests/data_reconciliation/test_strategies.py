@@ -181,6 +181,16 @@ class TestResolutionStrategies(unittest.TestCase):
         """Test CustomResolutionStrategy."""
         # Define a custom resolution function
         def custom_resolver(discrepancy, sources, kwargs):
+    """
+    Custom resolver.
+    
+    Args:
+        discrepancy: Description of discrepancy
+        sources: Description of sources
+        kwargs: Description of kwargs
+    
+    """
+
             # Use the minimum value
             return min(discrepancy.sources.values())
             
@@ -252,6 +262,16 @@ class TestResolutionStrategies(unittest.TestCase):
         
         # Test creating custom strategy
         def custom_resolver(discrepancy, sources, kwargs):
+    """
+    Custom resolver.
+    
+    Args:
+        discrepancy: Description of discrepancy
+        sources: Description of sources
+        kwargs: Description of kwargs
+    
+    """
+
             return min(discrepancy.sources.values())
             
         strategy = create_resolution_strategy(

@@ -243,12 +243,26 @@ from datetime import datetime
 from enum import Enum
 
 class OrderType(Enum):
+    """
+    OrderType class that inherits from Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     MARKET = "market"
     LIMIT = "limit"
     STOP = "stop"
     STOP_LIMIT = "stop_limit"
 
 class OrderSide(Enum):
+    """
+    OrderSide class that inherits from Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     BUY = "buy"
     SELL = "sell"
 
@@ -418,6 +432,11 @@ __all__ = [
     print("Interface-based adapter pattern implemented successfully")
 
 def main():
+    """
+    Main.
+    
+    """
+
     implement_interfaces()
 
 if __name__ == "__main__":

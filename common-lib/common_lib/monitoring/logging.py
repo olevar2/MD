@@ -255,8 +255,25 @@ def log_execution(logger: Optional[logging.Logger] = None, level: int = logging.
         Decorated function
     """
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         @wraps(func)
         def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             # Get logger
             nonlocal logger
             if logger is None:

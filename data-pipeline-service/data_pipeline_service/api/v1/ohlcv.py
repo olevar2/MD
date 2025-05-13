@@ -7,19 +7,20 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core_foundations.utils.logger import get_logger
-from data_pipeline_service.db.engine import create_session_factory
+from data_pipeline_service.logging_setup_standardized import get_service_logger
+from data_pipeline_service.database_standardized import database
 from data_pipeline_service.models.schemas import (
-    OHLCVData, 
-    OHLCVRequest, 
+    OHLCVData,
+    OHLCVRequest,
     PaginatedResponse,
     TimeFrame
 )
 from data_pipeline_service.repositories.ohlcv_repository import OHLCVRepository
 from data_pipeline_service.services.ohlcv_service import OHLCVService
+from data_pipeline_service.error_handling_standardized import handle_async_exception
 
 # Initialize logger
-logger = get_logger("data-pipeline-service")
+logger = get_service_logger("ohlcv-api")
 
 # Create API router
 router = APIRouter()
@@ -28,9 +29,7 @@ router = APIRouter()
 # Dependencies
 async def get_db_session() -> AsyncSession:
     """Get database session."""
-    # This is a placeholder. In production, this would use app state
-    # to access the engine and create a session.
-    raise NotImplementedError("Database session dependency not implemented")
+    return await database.get_session()
 
 
 # Endpoints
@@ -40,6 +39,7 @@ async def get_db_session() -> AsyncSession:
     summary="Get historical OHLCV data",
     description="Retrieve historical OHLCV (candlestick) data for a specific instrument and timeframe.",
 )
+@handle_async_exception(operation="get_ohlcv_data")
 async def get_ohlcv_data(
     symbol: str = Query(..., description="Instrument symbol (e.g., 'EUR/USD')"),
     timeframe: TimeFrame = Query(..., description="Candle timeframe"),
@@ -51,34 +51,30 @@ async def get_ohlcv_data(
     db_session: AsyncSession = Depends(get_db_session),
 ):
     """
-    Get historical OHLCV (Open, High, Low, Close, Volume) data for a specific 
+    Get historical OHLCV (Open, High, Low, Close, Volume) data for a specific
     instrument and timeframe.
     """
-    try:
-        # Set default times if not provided
-        if not to_time:
-            to_time = datetime.now(timezone.utc)
-        if not from_time:
-            # Default to 1000 candles based on timeframe
-            from_time = to_time - OHLCVService.get_timeframe_delta(timeframe.value, limit)
-        
-        repository = OHLCVRepository(db_session)
-        service = OHLCVService(repository)
-        
-        result = await service.get_ohlcv_data(
-            symbol=symbol,
-            timeframe=timeframe.value,
-            from_time=from_time,
-            to_time=to_time,
-            limit=limit,
-            page=page,
-            page_size=page_size,
-        )
-        
-        return result
-    except Exception as e:
-        logger.error(f"Error retrieving OHLCV data: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    # Set default times if not provided
+    if not to_time:
+        to_time = datetime.now(timezone.utc)
+    if not from_time:
+        # Default to 1000 candles based on timeframe
+        from_time = to_time - OHLCVService.get_timeframe_delta(timeframe.value, limit)
+
+    repository = OHLCVRepository(db_session)
+    service = OHLCVService(repository)
+
+    result = await service.get_ohlcv_data(
+        symbol=symbol,
+        timeframe=timeframe.value,
+        from_time=from_time,
+        to_time=to_time,
+        limit=limit,
+        page=page,
+        page_size=page_size,
+    )
+
+    return result
 
 
 @router.post(
@@ -87,6 +83,7 @@ async def get_ohlcv_data(
     summary="Validate OHLCV data",
     description="Validate a batch of OHLCV data against data quality rules.",
 )
+@handle_async_exception(operation="validate_ohlcv_data")
 async def validate_ohlcv_data(
     data: List[OHLCVData],
     db_session: AsyncSession = Depends(get_db_session),
@@ -95,15 +92,11 @@ async def validate_ohlcv_data(
     Validate a batch of OHLCV data against data quality rules.
     Returns True if all data passes validation, False otherwise.
     """
-    try:
-        repository = OHLCVRepository(db_session)
-        service = OHLCVService(repository)
-        
-        result = await service.validate_ohlcv_data(data)
-        return result
-    except Exception as e:
-        logger.error(f"Error validating OHLCV data: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    repository = OHLCVRepository(db_session)
+    service = OHLCVService(repository)
+
+    result = await service.validate_ohlcv_data(data)
+    return result
 
 
 @router.post(
@@ -112,6 +105,7 @@ async def validate_ohlcv_data(
     summary="Store OHLCV data",
     description="Store a batch of OHLCV data in the database.",
 )
+@handle_async_exception(operation="store_ohlcv_data")
 async def store_ohlcv_data(
     data: List[OHLCVData],
     db_session: AsyncSession = Depends(get_db_session),
@@ -120,12 +114,8 @@ async def store_ohlcv_data(
     Store a batch of OHLCV data in the database.
     Returns the number of records stored.
     """
-    try:
-        repository = OHLCVRepository(db_session)
-        service = OHLCVService(repository)
-        
-        count = await service.store_ohlcv_data(data)
-        return count
-    except Exception as e:
-        logger.error(f"Error storing OHLCV data: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    repository = OHLCVRepository(db_session)
+    service = OHLCVService(repository)
+
+    count = await service.store_ohlcv_data(data)
+    return count

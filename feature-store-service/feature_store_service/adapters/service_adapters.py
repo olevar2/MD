@@ -4,17 +4,23 @@ Service Adapters Module
 This module provides adapter implementations for service interfaces,
 helping to break circular dependencies between services.
 """
-
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
-
 import pandas as pd
-
 from common_lib.interfaces.feature_store import IFeatureProvider, IFeatureStore, IFeatureGenerator
 from common_lib.interfaces.market_data import IMarketDataProvider
 from common_lib.adapters import AdapterFactory
 
+
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class FeatureProviderAdapter(IFeatureProvider):
     """
@@ -23,28 +29,22 @@ class FeatureProviderAdapter(IFeatureProvider):
     This adapter implements the Feature Provider interface using the
     feature store service's internal components.
     """
-    
-    def __init__(self, logger: Optional[logging.Logger] = None):
+
+    def __init__(self, logger: Optional[logging.Logger]=None):
         """
         Initialize the Feature Provider adapter.
         
         Args:
             logger: Logger to use (if None, creates a new logger)
         """
-        self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        
-        # Import feature store components
+        self.logger = logger or logging.getLogger(
+            f'{__name__}.{self.__class__.__name__}')
         from feature_store_service.services.feature_service import FeatureService
         self.feature_service = FeatureService()
-    
-    async def get_feature(
-        self,
-        feature_name: str,
-        symbol: str,
-        timeframe: str,
-        start_time: datetime,
-        end_time: datetime
-    ) -> pd.DataFrame:
+
+    @async_with_exception_handling
+    async def get_feature(self, feature_name: str, symbol: str, timeframe:
+        str, start_time: datetime, end_time: datetime) ->pd.DataFrame:
         """
         Retrieve a feature for the specified parameters.
         
@@ -59,29 +59,18 @@ class FeatureProviderAdapter(IFeatureProvider):
             DataFrame containing the feature data
         """
         try:
-            # Use the feature service to get the feature
-            feature_data = await self.feature_service.get_feature(
-                feature_name=feature_name,
-                symbol=symbol,
-                timeframe=timeframe,
-                start_time=start_time,
-                end_time=end_time
-            )
-            
+            feature_data = await self.feature_service.get_feature(feature_name
+                =feature_name, symbol=symbol, timeframe=timeframe,
+                start_time=start_time, end_time=end_time)
             return feature_data
         except Exception as e:
-            self.logger.error(f"Error retrieving feature: {str(e)}")
-            # Return empty DataFrame on error
+            self.logger.error(f'Error retrieving feature: {str(e)}')
             return pd.DataFrame(columns=[feature_name])
-    
-    async def get_features(
-        self,
-        feature_names: List[str],
-        symbol: str,
-        timeframe: str,
-        start_time: datetime,
-        end_time: datetime
-    ) -> pd.DataFrame:
+
+    @async_with_exception_handling
+    async def get_features(self, feature_names: List[str], symbol: str,
+        timeframe: str, start_time: datetime, end_time: datetime
+        ) ->pd.DataFrame:
         """
         Retrieve multiple features for the specified parameters.
         
@@ -96,22 +85,16 @@ class FeatureProviderAdapter(IFeatureProvider):
             DataFrame containing the feature data
         """
         try:
-            # Use the feature service to get multiple features
             features_data = await self.feature_service.get_features(
-                feature_names=feature_names,
-                symbol=symbol,
-                timeframe=timeframe,
-                start_time=start_time,
-                end_time=end_time
-            )
-            
+                feature_names=feature_names, symbol=symbol, timeframe=
+                timeframe, start_time=start_time, end_time=end_time)
             return features_data
         except Exception as e:
-            self.logger.error(f"Error retrieving features: {str(e)}")
-            # Return empty DataFrame on error
+            self.logger.error(f'Error retrieving features: {str(e)}')
             return pd.DataFrame(columns=feature_names)
-    
-    async def get_available_features(self) -> List[str]:
+
+    @async_with_exception_handling
+    async def get_available_features(self) ->List[str]:
         """
         Get the list of available features.
         
@@ -119,19 +102,15 @@ class FeatureProviderAdapter(IFeatureProvider):
             List of available feature names
         """
         try:
-            # Use the feature service to get available features
-            available_features = await self.feature_service.get_available_features()
-            
+            available_features = (await self.feature_service.
+                get_available_features())
             return available_features
         except Exception as e:
-            self.logger.error(f"Error retrieving available features: {str(e)}")
-            # Return empty list on error
+            self.logger.error(f'Error retrieving available features: {str(e)}')
             return []
-    
-    async def get_feature_metadata(
-        self,
-        feature_name: str
-    ) -> Dict[str, Any]:
+
+    @async_with_exception_handling
+    async def get_feature_metadata(self, feature_name: str) ->Dict[str, Any]:
         """
         Get metadata about the specified feature.
         
@@ -142,13 +121,11 @@ class FeatureProviderAdapter(IFeatureProvider):
             Dictionary containing metadata about the feature
         """
         try:
-            # Use the feature service to get feature metadata
-            metadata = await self.feature_service.get_feature_metadata(feature_name)
-            
+            metadata = await self.feature_service.get_feature_metadata(
+                feature_name)
             return metadata
         except Exception as e:
-            self.logger.error(f"Error retrieving feature metadata: {str(e)}")
-            # Return empty dictionary on error
+            self.logger.error(f'Error retrieving feature metadata: {str(e)}')
             return {}
 
 
@@ -159,28 +136,23 @@ class FeatureStoreAdapter(IFeatureStore):
     This adapter implements the Feature Store interface using the
     feature store service's internal components.
     """
-    
-    def __init__(self, logger: Optional[logging.Logger] = None):
+
+    def __init__(self, logger: Optional[logging.Logger]=None):
         """
         Initialize the Feature Store adapter.
         
         Args:
             logger: Logger to use (if None, creates a new logger)
         """
-        self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        
-        # Import feature store components
+        self.logger = logger or logging.getLogger(
+            f'{__name__}.{self.__class__.__name__}')
         from feature_store_service.services.feature_service import FeatureService
         self.feature_service = FeatureService()
-    
-    async def store_feature(
-        self,
-        feature_name: str,
-        symbol: str,
-        timeframe: str,
-        data: pd.DataFrame,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+
+    @async_with_exception_handling
+    async def store_feature(self, feature_name: str, symbol: str, timeframe:
+        str, data: pd.DataFrame, metadata: Optional[Dict[str, Any]]=None
+        ) ->bool:
         """
         Store a feature in the feature store.
         
@@ -195,27 +167,17 @@ class FeatureStoreAdapter(IFeatureStore):
             True if stored successfully, False otherwise
         """
         try:
-            # Use the feature service to store the feature
-            success = await self.feature_service.store_feature(
-                feature_name=feature_name,
-                symbol=symbol,
-                timeframe=timeframe,
-                data=data,
-                metadata=metadata
-            )
-            
+            success = await self.feature_service.store_feature(feature_name
+                =feature_name, symbol=symbol, timeframe=timeframe, data=
+                data, metadata=metadata)
             return success
         except Exception as e:
-            self.logger.error(f"Error storing feature: {str(e)}")
-            # Return False on error
+            self.logger.error(f'Error storing feature: {str(e)}')
             return False
-    
-    async def delete_feature(
-        self,
-        feature_name: str,
-        symbol: Optional[str] = None,
-        timeframe: Optional[str] = None
-    ) -> bool:
+
+    @async_with_exception_handling
+    async def delete_feature(self, feature_name: str, symbol: Optional[str]
+        =None, timeframe: Optional[str]=None) ->bool:
         """
         Delete a feature from the feature store.
         
@@ -228,24 +190,16 @@ class FeatureStoreAdapter(IFeatureStore):
             True if deleted successfully, False otherwise
         """
         try:
-            # Use the feature service to delete the feature
-            success = await self.feature_service.delete_feature(
-                feature_name=feature_name,
-                symbol=symbol,
-                timeframe=timeframe
-            )
-            
+            success = await self.feature_service.delete_feature(feature_name
+                =feature_name, symbol=symbol, timeframe=timeframe)
             return success
         except Exception as e:
-            self.logger.error(f"Error deleting feature: {str(e)}")
-            # Return False on error
+            self.logger.error(f'Error deleting feature: {str(e)}')
             return False
-    
-    async def update_feature_metadata(
-        self,
-        feature_name: str,
-        metadata: Dict[str, Any]
-    ) -> bool:
+
+    @async_with_exception_handling
+    async def update_feature_metadata(self, feature_name: str, metadata:
+        Dict[str, Any]) ->bool:
         """
         Update metadata for a feature.
         
@@ -257,16 +211,11 @@ class FeatureStoreAdapter(IFeatureStore):
             True if updated successfully, False otherwise
         """
         try:
-            # Use the feature service to update feature metadata
             success = await self.feature_service.update_feature_metadata(
-                feature_name=feature_name,
-                metadata=metadata
-            )
-            
+                feature_name=feature_name, metadata=metadata)
             return success
         except Exception as e:
-            self.logger.error(f"Error updating feature metadata: {str(e)}")
-            # Return False on error
+            self.logger.error(f'Error updating feature metadata: {str(e)}')
             return False
 
 
@@ -277,29 +226,23 @@ class FeatureGeneratorAdapter(IFeatureGenerator):
     This adapter implements the Feature Generator interface using the
     feature store service's internal components.
     """
-    
-    def __init__(self, logger: Optional[logging.Logger] = None):
+
+    def __init__(self, logger: Optional[logging.Logger]=None):
         """
         Initialize the Feature Generator adapter.
         
         Args:
             logger: Logger to use (if None, creates a new logger)
         """
-        self.logger = logger or logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        
-        # Import feature store components
+        self.logger = logger or logging.getLogger(
+            f'{__name__}.{self.__class__.__name__}')
         from feature_store_service.services.feature_service import FeatureService
         self.feature_service = FeatureService()
-    
-    async def generate_feature(
-        self,
-        feature_name: str,
-        symbol: str,
-        timeframe: str,
-        start_time: datetime,
-        end_time: datetime,
-        parameters: Optional[Dict[str, Any]] = None
-    ) -> pd.DataFrame:
+
+    @async_with_exception_handling
+    async def generate_feature(self, feature_name: str, symbol: str,
+        timeframe: str, start_time: datetime, end_time: datetime,
+        parameters: Optional[Dict[str, Any]]=None) ->pd.DataFrame:
         """
         Generate a feature for the specified parameters.
         
@@ -315,23 +258,17 @@ class FeatureGeneratorAdapter(IFeatureGenerator):
             DataFrame containing the generated feature data
         """
         try:
-            # Use the feature service to generate the feature
             feature_data = await self.feature_service.generate_feature(
-                feature_name=feature_name,
-                symbol=symbol,
-                timeframe=timeframe,
-                start_time=start_time,
-                end_time=end_time,
-                parameters=parameters
-            )
-            
+                feature_name=feature_name, symbol=symbol, timeframe=
+                timeframe, start_time=start_time, end_time=end_time,
+                parameters=parameters)
             return feature_data
         except Exception as e:
-            self.logger.error(f"Error generating feature: {str(e)}")
-            # Return empty DataFrame on error
+            self.logger.error(f'Error generating feature: {str(e)}')
             return pd.DataFrame(columns=[feature_name])
-    
-    async def get_available_generators(self) -> List[str]:
+
+    @async_with_exception_handling
+    async def get_available_generators(self) ->List[str]:
         """
         Get the list of available feature generators.
         
@@ -339,19 +276,17 @@ class FeatureGeneratorAdapter(IFeatureGenerator):
             List of available feature generator names
         """
         try:
-            # Use the feature service to get available generators
-            available_generators = await self.feature_service.get_available_generators()
-            
+            available_generators = (await self.feature_service.
+                get_available_generators())
             return available_generators
         except Exception as e:
-            self.logger.error(f"Error retrieving available generators: {str(e)}")
-            # Return empty list on error
+            self.logger.error(
+                f'Error retrieving available generators: {str(e)}')
             return []
-    
-    async def get_generator_parameters(
-        self,
-        generator_name: str
-    ) -> Dict[str, Any]:
+
+    @async_with_exception_handling
+    async def get_generator_parameters(self, generator_name: str) ->Dict[
+        str, Any]:
         """
         Get the parameters for a feature generator.
         
@@ -362,11 +297,10 @@ class FeatureGeneratorAdapter(IFeatureGenerator):
             Dictionary containing the parameters for the generator
         """
         try:
-            # Use the feature service to get generator parameters
-            parameters = await self.feature_service.get_generator_parameters(generator_name)
-            
+            parameters = await self.feature_service.get_generator_parameters(
+                generator_name)
             return parameters
         except Exception as e:
-            self.logger.error(f"Error retrieving generator parameters: {str(e)}")
-            # Return empty dictionary on error
+            self.logger.error(
+                f'Error retrieving generator parameters: {str(e)}')
             return {}

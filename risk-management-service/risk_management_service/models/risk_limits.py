@@ -118,4 +118,11 @@ class RiskViolation(BaseModel):
     resolution_notes: Optional[str] = None
     
     class Config:
+    """
+    Config class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         orm_mode = True

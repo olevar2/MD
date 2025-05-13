@@ -17,9 +17,26 @@ from common_lib.clients import BaseServiceClient, ClientConfig
 from typing import Dict, Any, Optional, Union, List
 
 class ExampleServiceClient(BaseServiceClient):
+    """
+    ExampleServiceClient class that inherits from BaseServiceClient.
+    
+    Attributes:
+        Add attributes here
+    """
+
     \"\"\"Client for interacting with Example Service.\"\"\"
     
     def __init__(self, config: Union[ClientConfig, Dict[str, Any]]):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        Dict[str: Description of Dict[str
+        Any]]: Description of Any]]
+    
+    """
+
         \"\"\"Initialize the client.\"\"\"
         super().__init__(config)
     

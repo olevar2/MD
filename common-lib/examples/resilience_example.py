@@ -109,6 +109,11 @@ class ExampleServiceClient:
         """
         # Define the operation to execute
         async def operation():
+    """
+    Operation.
+    
+    """
+
             # Simulate a service call
             return await self._simulate_service_call(item_id)
         
@@ -116,14 +121,29 @@ class ExampleServiceClient:
         try:
             # Apply timeout
             async def with_timeout():
+    """
+    With timeout.
+    
+    """
+
                 return await self.timeout.execute(operation)
             
             # Apply bulkhead
             async def with_bulkhead():
+    """
+    With bulkhead.
+    
+    """
+
                 return await self.bulkhead.execute(with_timeout)
             
             # Apply circuit breaker
             async def with_circuit_breaker():
+    """
+    With circuit breaker.
+    
+    """
+
                 return await self.circuit_breaker.execute(with_bulkhead)
             
             # Apply retry

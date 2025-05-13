@@ -12,12 +12,29 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 class StructuredLogger:
+    """
+    StructuredLogger class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(
         self,
         service_name: str,
         log_level: str = "INFO",
         correlation_id: Optional[str] = None
     ):
+    """
+      init  .
+    
+    Args:
+        service_name: Description of service_name
+        log_level: Description of log_level
+        correlation_id: Description of correlation_id
+    
+    """
+
         self.service_name = service_name
         self.correlation_id = correlation_id or threading.get_ident()
         
@@ -60,6 +77,17 @@ class JsonFormatter(logging.Formatter):
     Custom formatter that outputs logs in JSON format.
     """
     def format(self, record: logging.LogRecord) -> str:
+    """
+    Format.
+    
+    Args:
+        record: Description of record
+    
+    Returns:
+        str: Description of return value
+    
+    """
+
         if hasattr(record, 'structured'):
             log_data = record.structured
         else:

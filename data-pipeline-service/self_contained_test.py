@@ -1,3 +1,9 @@
+"""
+Self contained test module.
+
+This module provides functionality for...
+"""
+
 # Simple test for direct testing of the TimeseriesAggregator functionality
 import os
 import sys
@@ -11,6 +17,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 # Define the minimal required classes for testing
 class TimeframeEnum(str):
+    """
+    TimeframeEnum class that inherits from str.
+    
+    Attributes:
+        Add attributes here
+    """
+
     ONE_MINUTE = "1m"
     FIVE_MINUTES = "5m"
     FIFTEEN_MINUTES = "15m"
@@ -21,20 +34,63 @@ class TimeframeEnum(str):
     ONE_WEEK = "1w"
     
     def __init__(self, value):
+    """
+      init  .
+    
+    Args:
+        value: Description of value
+    
+    """
+
         self.value = value
 
 
 class AggregationMethodEnum(str):
+    """
+    AggregationMethodEnum class that inherits from str.
+    
+    Attributes:
+        Add attributes here
+    """
+
     OHLCV = "ohlcv"
     VWAP = "vwap"
     TWAP = "twap"
     
     def __init__(self, value):
+    """
+      init  .
+    
+    Args:
+        value: Description of value
+    
+    """
+
         self.value = value
 
 
 class OHLCVData:
+    """
+    OHLCVData class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, timestamp, open, high, low, close, volume):
+    """
+      init  .
+    
+    Args:
+        timestamp: Description of timestamp
+        open: Description of open
+        high: Description of high
+        low: Description of low
+        close: Description of close
+        volume: Description of volume
+    
+    """
+
         self.timestamp = timestamp
         self.open = open
         self.high = high
@@ -43,6 +99,11 @@ class OHLCVData:
         self.volume = volume
         
     def dict(self):
+    """
+    Dict.
+    
+    """
+
         return {
             'timestamp': self.timestamp,
             'open': self.open,

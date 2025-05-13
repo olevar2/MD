@@ -141,4 +141,11 @@ class RiskAlert(BaseModel):
     resolved_at: Optional[datetime] = None
     
     class Config:
+    """
+    Config class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         orm_mode = True

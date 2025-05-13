@@ -11,7 +11,22 @@ import json
 logger = logging.getLogger(__name__)
 
 class ScalabilityManager:
+    """
+    ScalabilityManager class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, config: Dict):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+    
+    """
+
         self.config = config
         self.service_states: Dict[str, Dict] = {}
         self.scaling_policies = self._load_scaling_policies()

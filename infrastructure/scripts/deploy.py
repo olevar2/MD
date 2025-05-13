@@ -69,8 +69,8 @@ SERVICES = {
         "dependencies": [],
         "deployment_order": 9
     },
-    "ml-workbench-service": {
-        "path": "ml-workbench-service",
+    "ml_workbench-service": {
+        "path": "ml_workbench-service",
         "dependencies": ["core-foundations", "feature-store-service"],
         "deployment_order": 10
     },

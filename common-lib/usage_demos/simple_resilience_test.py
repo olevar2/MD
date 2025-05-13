@@ -57,10 +57,20 @@ async def test_circuit_breaker():
     
     # Create a simple test functions for success and failure
     async def fail_function():
+    """
+    Fail function.
+    
+    """
+
         print("Simulating failure")
         raise ValueError("Simulated failure")
         
     async def success_function():
+    """
+    Success function.
+    
+    """
+
         print("Simulating success")
         return "success"
     
@@ -114,6 +124,11 @@ async def test_retry_policy():
         exceptions=[ValueError]
     )
     async def flaky_function():
+    """
+    Flaky function.
+    
+    """
+
         nonlocal attempts
         attempts += 1
         if attempts < 3:
@@ -130,6 +145,11 @@ async def test_retry_policy():
         exceptions=[ValueError]
     )
     async def always_fails():
+    """
+    Always fails.
+    
+    """
+
         nonlocal fail_attempts
         fail_attempts += 1
         print(f"Failing attempt {fail_attempts}")
@@ -158,6 +178,11 @@ async def test_timeout_handler():
     # Fast operation that completes within timeout
     @timeout_handler(timeout_seconds=0.5)
     async def fast_operation():
+    """
+    Fast operation.
+    
+    """
+
         print("Fast operation running")
         await asyncio.sleep(0.1)
         return "completed quickly"
@@ -165,6 +190,11 @@ async def test_timeout_handler():
     # Slow operation that exceeds timeout
     @timeout_handler(timeout_seconds=0.2)
     async def slow_operation():
+    """
+    Slow operation.
+    
+    """
+
         print("Slow operation running")
         await asyncio.sleep(0.5)
         return "should not reach here"
@@ -193,6 +223,15 @@ async def test_bulkhead_pattern():
     
     @bulkhead(name="test-bulkhead", max_concurrent=2, max_waiting=1)
     async def guarded_operation(id, duration):
+    """
+    Guarded operation.
+    
+    Args:
+        id: Description of id
+        duration: Description of duration
+    
+    """
+
         nonlocal execution_count, max_concurrent_observed
         execution_count += 1
         max_concurrent_observed = max(max_concurrent_observed, execution_count)

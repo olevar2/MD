@@ -1,7 +1,7 @@
 """
 Example of Using the New Feature Extraction Framework
 
-This module demonstrates how to use the consolidated feature extraction framework 
+This module demonstrates how to use the consolidated feature extraction framework
 from the Analysis Engine service within the ML Integration Service.
 """
 
@@ -23,11 +23,8 @@ def extract_features_for_model(
     data: pd.DataFrame,
     task_type: str = "direction",
 ) -> pd.DataFrame:
-    \
-\
-\
-
-    Extract features for a machine learning model using the legacy framework::
+    """
+    Extract features for a machine learning model using the legacy framework.
 
     Args:
         data: DataFrame with market data and indicators
@@ -35,7 +32,7 @@ def extract_features_for_model(
 
     Returns:
         DataFrame with extracted features
-    \"\"\"
+    """
     # Create feature extractor (now always returns legacy)
     feature_extractor = FeatureExtractor.create() # Removed use_analysis_engine argument
 
@@ -56,19 +53,19 @@ def extract_features_for_model(
         feature_definitions=feature_definitions,
         fit_scalers=True
     )
-    
+
     logger.info(f"Extracted {len(features_df.columns)} features")
-    
+
     return features_df
 
 
 def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
     """
     Get standard feature definitions for a prediction task (legacy implementation)
-    
+
     Args:
         task_type: Type of prediction task ('direction', 'volatility', 'price_level')
-        
+
     Returns:
         List of feature definitions
     """
@@ -76,11 +73,11 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
         return [
             # Price features
             FeatureDefinition(
-                name="price_normalized", 
+                name="price_normalized",
                 source_columns=["close"],
                 feature_type=FeatureType.NORMALIZED
             ),
-            
+
             # RSI features
             FeatureDefinition(
                 name="rsi_normalized",
@@ -88,7 +85,7 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
                 feature_type=FeatureType.NORMALIZED,
                 params={"min_value": 0, "max_value": 100}
             ),
-            
+
             # MACD features
             FeatureDefinition(
                 name="macd_normalized",
@@ -100,7 +97,7 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
                 source_columns=["macd_hist_12_26_9"],
                 feature_type=FeatureType.NORMALIZED
             ),
-            
+
             # Moving average features
             FeatureDefinition(
                 name="ma_crossover",
@@ -109,7 +106,7 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
                 params={"method": "binary"}
             ),
         ]
-    
+
     elif task_type == "volatility":
         return [
             # ATR features
@@ -118,7 +115,7 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
                 source_columns=["atr_14"],
                 feature_type=FeatureType.NORMALIZED
             ),
-            
+
             # Bollinger Band features
             FeatureDefinition(
                 name="bb_width",
@@ -127,7 +124,7 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
                 params={"method": "bollinger_width"}
             ),
         ]
-    
+
     elif task_type == "price_level":
         return [
             # Price distribution
@@ -137,7 +134,7 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
                 feature_type=FeatureType.RELATIVE,
                 params={"method": "z_score", "window": 50}
             ),
-            
+
             # Bollinger Band position
             FeatureDefinition(
                 name="bb_position",
@@ -146,16 +143,16 @@ def get_legacy_standard_features(task_type: str) -> List[FeatureDefinition]:
                 params={"method": "custom"}
             ),
         ]
-    
+
     else:
         logger.warning(f"Unknown task type: {task_type}. Using direction features as default.")
         return get_legacy_standard_features("direction")
 
 
 def main():
-    \"\"\"
+    """
     Example usage - Will now always use the legacy framework
-    \"\"\"
+    """
     # Create sample data (replace with actual data loading)
     dates = pd.date_range(start='2023-01-01', periods=200, freq='1H')
     data = pd.DataFrame(index=dates)

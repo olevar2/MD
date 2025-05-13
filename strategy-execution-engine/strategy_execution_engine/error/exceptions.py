@@ -66,6 +66,17 @@ except ImportError:
             data: Any = None,
             details: Optional[Dict[str, Any]] = None
         ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        data: Description of data
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
             details = details or {}
             if data is not None:
                 details["data"] = str(data)
@@ -84,6 +95,16 @@ except ImportError:
             message: str,
             details: Optional[Dict[str, Any]] = None
         ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
             super().__init__(
                 message=message,
                 error_code="DATA_FETCH_ERROR",
@@ -98,6 +119,16 @@ except ImportError:
             message: str,
             details: Optional[Dict[str, Any]] = None
         ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
             super().__init__(
                 message=message,
                 error_code="DATA_STORAGE_ERROR",
@@ -112,6 +143,16 @@ except ImportError:
             message: str,
             details: Optional[Dict[str, Any]] = None
         ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
             super().__init__(
                 message=message,
                 error_code="DATA_TRANSFORMATION_ERROR",
@@ -126,6 +167,16 @@ except ImportError:
             message: str,
             details: Optional[Dict[str, Any]] = None
         ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
             super().__init__(
                 message=message,
                 error_code="SERVICE_ERROR",
@@ -140,6 +191,16 @@ except ImportError:
             message: str,
             details: Optional[Dict[str, Any]] = None
         ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
             super().__init__(
                 message=message,
                 error_code="MODEL_ERROR",
@@ -157,6 +218,17 @@ class StrategyExecutionError(ForexTradingPlatformError):
         strategy_name: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name
@@ -178,6 +250,18 @@ class StrategyConfigurationError(ForexTradingPlatformError):
         config_key: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        config_key: Description of config_key
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name
@@ -201,6 +285,17 @@ class StrategyLoadError(ForexTradingPlatformError):
         strategy_name: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name
@@ -222,6 +317,18 @@ class SignalGenerationError(ForexTradingPlatformError):
         symbol: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        symbol: Description of symbol
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name
@@ -246,6 +353,18 @@ class OrderGenerationError(ForexTradingPlatformError):
         signal_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        signal_id: Description of signal_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name
@@ -270,6 +389,18 @@ class BacktestError(ForexTradingPlatformError):
         backtest_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        backtest_id: Description of backtest_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name
@@ -294,6 +425,18 @@ class BacktestConfigError(BacktestError):
         config_name: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        config_name: Description of config_name
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if config_name:
             details["config_name"] = config_name
@@ -316,6 +459,18 @@ class BacktestDataError(BacktestError):
         data_source: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        data_source: Description of data_source
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if data_source:
             details["data_source"] = data_source
@@ -338,6 +493,18 @@ class BacktestExecutionError(BacktestError):
         backtest_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        backtest_id: Description of backtest_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         super().__init__(
             message=message,
             strategy_name=strategy_name,
@@ -358,6 +525,19 @@ class BacktestReportError(BacktestError):
         report_type: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        backtest_id: Description of backtest_id
+        report_type: Description of report_type
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if report_type:
             details["report_type"] = report_type
@@ -380,6 +560,17 @@ class RiskManagementError(ForexTradingPlatformError):
         strategy_name: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        strategy_name: Description of strategy_name
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if strategy_name:
             details["strategy_name"] = strategy_name

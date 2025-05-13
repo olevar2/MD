@@ -12,7 +12,7 @@ This document outlines the cleanup plan for the Trading Gateway Service after im
 ### JavaScript Files
 - `src/utils/errorBridge.js` - New JavaScript-Python error bridge
 - `src/utils/errors.js` - Existing error classes (keep and use with the bridge)
-- `src/middleware/errorHandler.js` - Existing error handler middleware (keep and update to use the bridge)
+- `src/middleware/error-handler.js` - Existing error handler middleware (keep and update to use the bridge)
 
 ### Test Files
 - `tests/test_error_handling.py` - Tests for Python error handling
@@ -24,7 +24,7 @@ This document outlines the cleanup plan for the Trading Gateway Service after im
 
 ### 1. JavaScript Error Handling Integration
 
-Update `src/middleware/errorHandler.js` to use the new error bridge:
+Update `src/middleware/error-handler.js` to use the new error bridge:
 
 ```javascript
 const {

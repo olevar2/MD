@@ -19,9 +19,9 @@ import {
   InputLabel,
   Select
 } from '@mui/material';
-import { Card } from '../ui-library/Card';
-import { Chart } from '../ui-library/Chart';
-import { StatusIndicator } from '../ui-library/StatusIndicator';
+import { Card } from '../ui_library/Card';
+import { Chart } from '../ui_library/Chart';
+import { StatusIndicator } from '../ui_library/StatusIndicator';
 
 interface TabPanelProps {
   children?: React.ReactNode;

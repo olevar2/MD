@@ -43,6 +43,13 @@ class TestDynamicRiskTuning:
         """Test that the dummy RiskRegimeType has the expected values."""
         # This test uses a dummy class until imports are resolved
         class DummyRiskRegimeType:
+    """
+    DummyRiskRegimeType class.
+    
+    Attributes:
+        Add attributes here
+    """
+
             LOW_RISK = "low_risk"
             MODERATE_RISK = "moderate_risk"
             HIGH_RISK = "high_risk"

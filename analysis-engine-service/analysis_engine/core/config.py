@@ -4,6 +4,15 @@ Configuration Management Module
 This module provides configuration management functionality for the Analysis Engine Service.
 This is a backward compatibility layer that imports from the consolidated settings module.
 
+from analysis_engine.core.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
 DEPRECATED: This module is deprecated and will be removed after 2023-12-31.
 Please import from analysis_engine.config instead.
 
@@ -28,9 +37,17 @@ from analysis_engine.config.settings import AnalysisEngineSettings as Settings, 
 from analysis_engine.core.deprecation_monitor import record_usage
 REMOVAL_DATE = datetime.date(2023, 12, 31)
 days_until_removal = (REMOVAL_DATE - datetime.date.today()).days
-days_message = f'{days_until_removal} days' if days_until_removal > 0 else 'PAST DUE'
+days_message = (f'{days_until_removal} days' if days_until_removal > 0 else
+    'PAST DUE')
 
+
+@with_exception_handling
 def show_deprecation_warning():
+    """
+    Show deprecation warning.
+    
+    """
+
     frame = inspect.currentframe().f_back.f_back
     filename = frame.f_code.co_filename
     lineno = frame.f_lineno
@@ -40,6 +57,13 @@ def show_deprecation_warning():
     except ValueError:
         rel_path = filename
     record_usage('analysis_engine.core.config')
-    warnings.warn(f"DEPRECATION WARNING: analysis_engine.core.config will be removed after {REMOVAL_DATE} ({days_message}).\nPlease import from analysis_engine.config instead.\nCalled from {rel_path}:{lineno} in function '{function_name}'\nMigration guide: https://confluence.example.com/display/DEV/Configuration+Migration+Guide", DeprecationWarning, stacklevel=2)
+    warnings.warn(
+        f"""DEPRECATION WARNING: analysis_engine.core.config will be removed after {REMOVAL_DATE} ({days_message}).
+Please import from analysis_engine.config instead.
+Called from {rel_path}:{lineno} in function '{function_name}'
+Migration guide: https://confluence.example.com/display/DEV/Configuration+Migration+Guide"""
+        , DeprecationWarning, stacklevel=2)
+
+
 show_deprecation_warning()
 settings = get_settings()

@@ -1,3 +1,9 @@
+"""
+Test regime transition predictor module.
+
+This module provides functionality for...
+"""
+
 import unittest
 import pandas as pd
 import numpy as np
@@ -20,6 +26,14 @@ class TestRegimeTransitionPredictor(unittest.TestCase):
         self.predictor._calculate_transition_indicators = lambda data: self._mock_indicators(data)
 
     def _mock_indicators(self, data):
+    """
+     mock indicators.
+    
+    Args:
+        data: Description of data
+    
+    """
+
         # Dummy indicators for testing
         return pd.DataFrame({
             'volatility_change': data['close'].pct_change().rolling(5).std().diff(),

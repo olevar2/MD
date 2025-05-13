@@ -50,6 +50,11 @@ class FeedbackUser(HttpUser):
     # TODO: Add other tasks if there are different types of feedback or related actions
     # @task(2) # Example: Make this task twice as likely
     # def send_complex_feedback(self):
+    """
+    Send complex feedback.
+    
+    """
+
     #     pass
 
 # To run this test:

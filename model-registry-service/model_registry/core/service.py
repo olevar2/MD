@@ -30,6 +30,14 @@ class ModelRegistryService:
     """
 
     def __init__(self, repository: ModelRegistryRepository):
+    """
+      init  .
+    
+    Args:
+        repository: Description of repository
+    
+    """
+
         self.repository = repository
 
     async def register_model(

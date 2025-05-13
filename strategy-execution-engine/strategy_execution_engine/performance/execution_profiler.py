@@ -15,16 +15,25 @@ import os
 from pathlib import Path
 import threading
 import traceback
-
 logger = logging.getLogger(__name__)
+
+
+from strategy_execution_engine.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class ExecutionProfiler:
     """
     Performance profiler for strategy execution pipeline components.
     Tracks execution times, identifies bottlenecks, and provides optimization recommendations.
     """
-    
-    def __init__(self, enabled: bool = True, output_dir: Optional[str] = None):
+
+    def __init__(self, enabled: bool=True, output_dir: Optional[str]=None):
         """
         Initialize the execution profiler.
         
@@ -33,32 +42,24 @@ class ExecutionProfiler:
             output_dir: Optional directory to save profiling results
         """
         self.enabled = enabled
-        self.output_dir = output_dir or "profiling_results"
+        self.output_dir = output_dir or 'profiling_results'
         self._ensure_output_dir()
-        
-        # Store profiling data
         self.execution_times = {}
         self.call_counts = {}
         self.memory_usage = {}
         self.bottlenecks = {}
-        
-        # Internal state
         self._active_spans = {}
         self._lock = threading.RLock()
-        
-        # Thresholds for bottleneck identification (in seconds)
-        self.bottleneck_thresholds = {
-            "critical": 1.0,   # > 1 second is critical
-            "warning": 0.5,    # > 500ms is a warning
-            "notice": 0.1      # > 100ms is worth noting
-        }
-        
+        self.bottleneck_thresholds = {'critical': 1.0, 'warning': 0.5,
+            'notice': 0.1}
+
     def _ensure_output_dir(self):
         """Create output directory if it doesn't exist."""
         if self.output_dir:
             Path(self.output_dir).mkdir(parents=True, exist_ok=True)
-            
-    def start_span(self, component: str, operation: str, metadata: Optional[Dict[str, Any]] = None) -> str:
+
+    def start_span(self, component: str, operation: str, metadata: Optional
+        [Dict[str, Any]]=None) ->str:
         """
         Start timing an operation.
         
@@ -71,19 +72,15 @@ class ExecutionProfiler:
             A span ID that can be used to stop the timing
         """
         if not self.enabled:
-            return f"{component}_{operation}_{datetime.now().timestamp()}"
-            
+            return f'{component}_{operation}_{datetime.now().timestamp()}'
         with self._lock:
-            span_id = f"{component}_{operation}_{datetime.now().timestamp()}"
-            self._active_spans[span_id] = {
-                "component": component,
-                "operation": operation,
-                "start_time": time.time(),
-                "metadata": metadata or {}
-            }
+            span_id = f'{component}_{operation}_{datetime.now().timestamp()}'
+            self._active_spans[span_id] = {'component': component,
+                'operation': operation, 'start_time': time.time(),
+                'metadata': metadata or {}}
             return span_id
-    
-    def stop_span(self, span_id: str) -> Optional[float]:
+
+    def stop_span(self, span_id: str) ->Optional[float]:
         """
         Stop timing an operation and record its duration.
         
@@ -95,33 +92,24 @@ class ExecutionProfiler:
         """
         if not self.enabled:
             return None
-            
         with self._lock:
             if span_id not in self._active_spans:
-                logger.warning(f"Attempt to stop unknown span: {span_id}")
+                logger.warning(f'Attempt to stop unknown span: {span_id}')
                 return None
-                
             span_data = self._active_spans.pop(span_id)
-            duration = time.time() - span_data["start_time"]
-            
-            # Record execution time
-            component = span_data["component"]
-            operation = span_data["operation"]
-            key = f"{component}.{operation}"
-            
+            duration = time.time() - span_data['start_time']
+            component = span_data['component']
+            operation = span_data['operation']
+            key = f'{component}.{operation}'
             if key not in self.execution_times:
                 self.execution_times[key] = []
             self.execution_times[key].append(duration)
-            
-            # Update call count
             self.call_counts[key] = self.call_counts.get(key, 0) + 1
-            
-            # Check if this is a bottleneck
             self._check_bottleneck(key, duration, span_data)
-            
             return duration
-    
-    def _check_bottleneck(self, key: str, duration: float, span_data: Dict[str, Any]):
+
+    def _check_bottleneck(self, key: str, duration: float, span_data: Dict[
+        str, Any]):
         """
         Check if the operation duration indicates a bottleneck.
         
@@ -135,31 +123,21 @@ class ExecutionProfiler:
             if duration > threshold:
                 severity = level
                 break
-                
         if severity:
             if key not in self.bottlenecks:
-                self.bottlenecks[key] = {
-                    "count": 0,
-                    "total_time": 0,
-                    "max_time": 0,
-                    "instances": []
-                }
-            
+                self.bottlenecks[key] = {'count': 0, 'total_time': 0,
+                    'max_time': 0, 'instances': []}
             bottleneck = self.bottlenecks[key]
-            bottleneck["count"] += 1
-            bottleneck["total_time"] += duration
-            bottleneck["max_time"] = max(bottleneck["max_time"], duration)
-            
-            # Store instance details (limiting to avoid excessive memory usage)
-            if len(bottleneck["instances"]) < 100:
-                instance = {
-                    "duration": duration,
-                    "timestamp": datetime.now().isoformat(),
-                    "severity": severity,
-                    "metadata": span_data.get("metadata", {})
-                }
-                bottleneck["instances"].append(instance)
+            bottleneck['count'] += 1
+            bottleneck['total_time'] += duration
+            bottleneck['max_time'] = max(bottleneck['max_time'], duration)
+            if len(bottleneck['instances']) < 100:
+                instance = {'duration': duration, 'timestamp': datetime.now
+                    ().isoformat(), 'severity': severity, 'metadata':
+                    span_data.get('metadata', {})}
+                bottleneck['instances'].append(instance)
 
+    @with_exception_handling
     def profile(self, component: str, operation: str):
         """
         Decorator to profile a function.
@@ -171,15 +149,35 @@ class ExecutionProfiler:
         Returns:
             Decorated function
         """
+
+        @with_exception_handling
         def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
+
             @functools.wraps(func)
+            @with_exception_handling
             def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
                 if not self.enabled:
                     return func(*args, **kwargs)
-                    
-                metadata = {"args_length": len(args), "kwargs_keys": list(kwargs.keys())}
+                metadata = {'args_length': len(args), 'kwargs_keys': list(
+                    kwargs.keys())}
                 span_id = self.start_span(component, operation, metadata)
-                
                 try:
                     result = func(*args, **kwargs)
                     return result
@@ -187,8 +185,8 @@ class ExecutionProfiler:
                     self.stop_span(span_id)
             return wrapper
         return decorator
-        
-    def get_summary(self) -> Dict[str, Any]:
+
+    def get_summary(self) ->Dict[str, Any]:
         """
         Get a summary of profiling results.
         
@@ -196,49 +194,30 @@ class ExecutionProfiler:
             Dictionary with profiling summary
         """
         if not self.enabled:
-            return {"enabled": False}
-            
-        summary = {
-            "enabled": True,
-            "total_operations": sum(self.call_counts.values()),
-            "unique_operations": len(self.call_counts),
-            "bottlenecks": len(self.bottlenecks),
-            "operation_stats": {},
-            "top_bottlenecks": []
-        }
-        
-        # Calculate statistics for each operation
+            return {'enabled': False}
+        summary = {'enabled': True, 'total_operations': sum(self.
+            call_counts.values()), 'unique_operations': len(self.
+            call_counts), 'bottlenecks': len(self.bottlenecks),
+            'operation_stats': {}, 'top_bottlenecks': []}
         for key, times in self.execution_times.items():
             if not times:
                 continue
-                
-            stats = {
-                "count": len(times),
-                "total_time": sum(times),
-                "avg_time": statistics.mean(times),
-                "min_time": min(times),
-                "max_time": max(times),
-                "p95_time": sorted(times)[int(len(times) * 0.95)] if len(times) > 20 else max(times)
-            }
-            summary["operation_stats"][key] = stats
-            
-        # List top bottlenecks
+            stats = {'count': len(times), 'total_time': sum(times),
+                'avg_time': statistics.mean(times), 'min_time': min(times),
+                'max_time': max(times), 'p95_time': sorted(times)[int(len(
+                times) * 0.95)] if len(times) > 20 else max(times)}
+            summary['operation_stats'][key] = stats
         if self.bottlenecks:
-            bottleneck_list = [{
-                "operation": key, 
-                "count": data["count"],
-                "total_time": data["total_time"],
-                "max_time": data["max_time"],
-                "avg_time": data["total_time"] / data["count"] if data["count"] > 0 else 0
-            } for key, data in self.bottlenecks.items()]
-            
-            # Sort by total time
-            bottleneck_list.sort(key=lambda x: x["total_time"], reverse=True)
-            summary["top_bottlenecks"] = bottleneck_list[:10]  # Top 10 bottlenecks
-            
+            bottleneck_list = [{'operation': key, 'count': data['count'],
+                'total_time': data['total_time'], 'max_time': data[
+                'max_time'], 'avg_time': data['total_time'] / data['count'] if
+                data['count'] > 0 else 0} for key, data in self.bottlenecks
+                .items()]
+            bottleneck_list.sort(key=lambda x: x['total_time'], reverse=True)
+            summary['top_bottlenecks'] = bottleneck_list[:10]
         return summary
-        
-    def save_results(self, filename: Optional[str] = None) -> str:
+
+    def save_results(self, filename: Optional[str]=None) ->str:
         """
         Save profiling results to file.
         
@@ -249,18 +228,14 @@ class ExecutionProfiler:
             Path to the saved file
         """
         if not self.enabled:
-            return ""
-            
+            return ''
         if not filename:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"profile_results_{timestamp}.json"
-            
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f'profile_results_{timestamp}.json'
         filepath = os.path.join(self.output_dir, filename)
-        
         summary = self.get_summary()
         with open(filepath, 'w') as f:
             json.dump(summary, f, indent=2)
-            
         return filepath
 
     def reset(self):
@@ -273,7 +248,6 @@ class ExecutionProfiler:
             self._active_spans = {}
 
 
-# Global profiler instance for shared use
 global_profiler = ExecutionProfiler(enabled=True)
 
 
@@ -295,8 +269,8 @@ class BatchProcessingOptimizer:
     """
     Utility for optimizing batch processing in the strategy execution pipeline.
     """
-    
-    def __init__(self, min_batch_size: int = 5, max_batch_size: int = 100):
+
+    def __init__(self, min_batch_size: int=5, max_batch_size: int=100):
         """
         Initialize the batch processing optimizer.
         
@@ -307,8 +281,8 @@ class BatchProcessingOptimizer:
         self.min_batch_size = min_batch_size
         self.max_batch_size = max_batch_size
         self.batch_size_history = {}
-        
-    def get_optimal_batch_size(self, operation: str, items_count: int) -> int:
+
+    def get_optimal_batch_size(self, operation: str, items_count: int) ->int:
         """
         Calculate the optimal batch size for a specific operation.
         
@@ -320,20 +294,17 @@ class BatchProcessingOptimizer:
             The recommended batch size
         """
         if items_count < self.min_batch_size:
-            return items_count  # Too few items, process all at once
-            
+            return items_count
         if operation in self.batch_size_history:
-            # Use historical data to optimize batch size
-            # In a more sophisticated implementation, this would use timing data
-            # to find the optimal performance point
-            return min(self.batch_size_history[operation], self.max_batch_size, items_count)
-        
-        # Default heuristic: start with a moderate batch size
-        default_size = min(max(items_count // 4, self.min_batch_size), self.max_batch_size)
+            return min(self.batch_size_history[operation], self.
+                max_batch_size, items_count)
+        default_size = min(max(items_count // 4, self.min_batch_size), self
+            .max_batch_size)
         self.batch_size_history[operation] = default_size
         return default_size
-        
-    def update_performance_data(self, operation: str, batch_size: int, duration: float):
+
+    def update_performance_data(self, operation: str, batch_size: int,
+        duration: float):
         """
         Update batch size optimization based on performance data.
         
@@ -342,12 +313,9 @@ class BatchProcessingOptimizer:
             batch_size: The batch size used
             duration: The execution duration per item
         """
-        # In a real implementation, this would track performance across different batch sizes
-        # and adjust recommendations accordingly
         pass
 
 
-# Create module-level instances for easy import and use
 profiler = global_profiler
 batch_optimizer = BatchProcessingOptimizer()
 """"""

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: risk-management-service
+  name: risk-management-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: risk-management-service
+  template:
+    metadata:
+      labels:
+        app: risk-management-service
+    spec:
+      containers:
+      - image: forex-trading-platform/risk-management-service:latest
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: risk-management-service
+        ports:
+        - containerPort: 8003
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi

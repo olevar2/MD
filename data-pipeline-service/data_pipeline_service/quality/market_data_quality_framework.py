@@ -219,8 +219,26 @@ class MarketDataQualityFramework:
         sentiment_validator.add_validator(sentiment_schema_validator)
 
         class SentimentRangeValidator:
+    """
+    SentimentRangeValidator class.
+    
+    Attributes:
+        Add attributes here
+    """
+
 
             def validate(self, data: pd.DataFrame) -> ValidationResult:
+    """
+    Validate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        ValidationResult: Description of return value
+    
+    """
+
                 if 'sentiment_score' not in data.columns:
                     return ValidationResult(is_valid=False, message='Missing sentiment_score column', severity=ValidationSeverity.ERROR)
                 invalid_scores = data[(data['sentiment_score'] < -1) | (data['sentiment_score'] > 1)]

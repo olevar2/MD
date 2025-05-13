@@ -196,6 +196,15 @@ class TestMarketRegimeIntegration(unittest.TestCase):
         
         # Subscribe to regime changes
         def on_regime_change(new_classification, old_classification):
+    """
+    On regime change.
+    
+    Args:
+        new_classification: Description of new_classification
+        old_classification: Description of old_classification
+    
+    """
+
             regime_changes.append((new_classification, old_classification))
         
         self.analyzer.subscribe_to_regime_changes(on_regime_change)

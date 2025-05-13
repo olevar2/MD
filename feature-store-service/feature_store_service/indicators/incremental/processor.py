@@ -12,9 +12,17 @@ from datetime import datetime
 import time
 import pandas as pd
 import numpy as np
-
 from feature_store_service.indicators.incremental.base import IncrementalIndicator
 
+
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class IncrementalProcessor:
     """
@@ -23,8 +31,8 @@ class IncrementalProcessor:
     This class manages a collection of incremental indicators and can update
     them all efficiently with new data, with support for parallel processing.
     """
-    
-    def __init__(self, max_workers: Optional[int] = None):
+
+    def __init__(self, max_workers: Optional[int]=None):
         """
         Initialize the incremental processor
         
@@ -35,16 +43,12 @@ class IncrementalProcessor:
         self.indicators: Dict[str, IncrementalIndicator] = {}
         self.initialized: Set[str] = set()
         self.historical_data: List[Dict[str, Any]] = []
-        
-        # Configure for parallel processing
         self.max_workers = max_workers
         if max_workers is None:
-            # Default to CPU count - 1 to avoid saturating the system
             self.max_workers = max(1, multiprocessing.cpu_count() - 1)
-        
         self.logger = logging.getLogger(__name__)
-    
-    def register_indicator(self, indicator: IncrementalIndicator) -> None:
+
+    def register_indicator(self, indicator: IncrementalIndicator) ->None:
         """
         Register an indicator with the processor
         
@@ -52,9 +56,10 @@ class IncrementalProcessor:
             indicator: Indicator instance to register
         """
         self.indicators[indicator.name] = indicator
-        self.logger.debug(f"Registered indicator: {indicator.name}")
-    
-    def register_indicators(self, indicators: List[IncrementalIndicator]) -> None:
+        self.logger.debug(f'Registered indicator: {indicator.name}')
+
+    def register_indicators(self, indicators: List[IncrementalIndicator]
+        ) ->None:
         """
         Register multiple indicators with the processor
         
@@ -63,12 +68,9 @@ class IncrementalProcessor:
         """
         for indicator in indicators:
             self.register_indicator(indicator)
-    
-    def initialize_indicators(
-        self,
-        historical_data: List[Dict[str, Any]],
-        indicator_names: Optional[List[str]] = None
-    ) -> None:
+
+    def initialize_indicators(self, historical_data: List[Dict[str, Any]],
+        indicator_names: Optional[List[str]]=None) ->None:
         """
         Initialize indicators with historical data
         
@@ -78,33 +80,22 @@ class IncrementalProcessor:
                            If None, all registered indicators will be initialized
         """
         self.historical_data = historical_data
-        
-        # Determine which indicators to initialize
         indicators_to_init = {}
         if indicator_names is None:
             indicators_to_init = self.indicators
         else:
-            indicators_to_init = {
-                name: self.indicators[name]
-                for name in indicator_names
-                if name in self.indicators
-            }
-        
+            indicators_to_init = {name: self.indicators[name] for name in
+                indicator_names if name in self.indicators}
         if not indicators_to_init:
-            self.logger.warning("No indicators to initialize")
+            self.logger.warning('No indicators to initialize')
             return
-        
-        # Initialize indicators in parallel if multiple indicators
         if len(indicators_to_init) > 1 and self.max_workers > 1:
             self._parallel_initialize(indicators_to_init, historical_data)
         else:
             self._sequential_initialize(indicators_to_init, historical_data)
-    
-    def _sequential_initialize(
-        self,
-        indicators: Dict[str, IncrementalIndicator],
-        data: List[Dict[str, Any]]
-    ) -> None:
+
+    def _sequential_initialize(self, indicators: Dict[str,
+        IncrementalIndicator], data: List[Dict[str, Any]]) ->None:
         """
         Initialize indicators sequentially
         
@@ -116,20 +107,16 @@ class IncrementalProcessor:
             start_time = time.time()
             indicator.initialize(data)
             end_time = time.time()
-            
             if indicator.is_initialized:
                 self.initialized.add(name)
                 self.logger.debug(
-                    f"Initialized {name} in {end_time - start_time:.4f} seconds"
-                )
+                    f'Initialized {name} in {end_time - start_time:.4f} seconds'
+                    )
             else:
-                self.logger.warning(f"Failed to initialize {name}")
-    
-    def _parallel_initialize(
-        self,
-        indicators: Dict[str, IncrementalIndicator],
-        data: List[Dict[str, Any]]
-    ) -> None:
+                self.logger.warning(f'Failed to initialize {name}')
+
+    def _parallel_initialize(self, indicators: Dict[str,
+        IncrementalIndicator], data: List[Dict[str, Any]]) ->None:
         """
         Initialize indicators in parallel using ThreadPoolExecutor
         
@@ -137,37 +124,40 @@ class IncrementalProcessor:
             indicators: Dictionary of indicators to initialize
             data: Historical data for initialization
         """
+
         def _init_worker(name: str, indicator: IncrementalIndicator):
+    """
+     init worker.
+    
+    Args:
+        name: Description of name
+        indicator: Description of indicator
+    
+    """
+
             start_time = time.time()
             indicator.initialize(data)
             end_time = time.time()
-            
             if indicator.is_initialized:
                 init_time = end_time - start_time
                 return name, True, init_time
             else:
                 return name, False, 0.0
-        
-        # Create tasks for parallel execution
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = {
-                executor.submit(_init_worker, name, indicator): name
-                for name, indicator in indicators.items()
-            }
-            
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers
+            ) as executor:
+            futures = {executor.submit(_init_worker, name, indicator): name for
+                name, indicator in indicators.items()}
             for future in concurrent.futures.as_completed(futures):
                 name, success, init_time = future.result()
                 if success:
                     self.initialized.add(name)
-                    self.logger.debug(f"Initialized {name} in {init_time:.4f} seconds")
+                    self.logger.debug(
+                        f'Initialized {name} in {init_time:.4f} seconds')
                 else:
-                    self.logger.warning(f"Failed to initialize {name}")
-    
-    def update(
-        self,
-        data_point: Dict[str, Any],
-        indicator_names: Optional[List[str]] = None
-    ) -> Dict[str, Dict[str, Any]]:
+                    self.logger.warning(f'Failed to initialize {name}')
+
+    def update(self, data_point: Dict[str, Any], indicator_names: Optional[
+        List[str]]=None) ->Dict[str, Dict[str, Any]]:
         """
         Update indicators with a new data point
         
@@ -179,35 +169,25 @@ class IncrementalProcessor:
         Returns:
             Dictionary mapping indicator names to their results
         """
-        # Determine which indicators to update
         indicators_to_update = {}
         if indicator_names is None:
-            indicators_to_update = {
-                name: self.indicators[name]
-                for name in self.initialized
-            }
+            indicators_to_update = {name: self.indicators[name] for name in
+                self.initialized}
         else:
-            indicators_to_update = {
-                name: self.indicators[name]
-                for name in indicator_names
-                if name in self.initialized and name in self.indicators
-            }
-        
+            indicators_to_update = {name: self.indicators[name] for name in
+                indicator_names if name in self.initialized and name in
+                self.indicators}
         if not indicators_to_update:
-            self.logger.warning("No initialized indicators to update")
+            self.logger.warning('No initialized indicators to update')
             return {}
-        
-        # Update indicators in parallel if multiple and configured for parallel
         if len(indicators_to_update) > 1 and self.max_workers > 1:
             return self._parallel_update(indicators_to_update, data_point)
         else:
             return self._sequential_update(indicators_to_update, data_point)
-    
-    def _sequential_update(
-        self,
-        indicators: Dict[str, IncrementalIndicator],
-        data_point: Dict[str, Any]
-    ) -> Dict[str, Dict[str, Any]]:
+
+    @with_exception_handling
+    def _sequential_update(self, indicators: Dict[str, IncrementalIndicator
+        ], data_point: Dict[str, Any]) ->Dict[str, Dict[str, Any]]:
         """
         Update indicators sequentially
         
@@ -224,16 +204,13 @@ class IncrementalProcessor:
                 result = indicator.update(data_point)
                 results[name] = result
             except Exception as e:
-                self.logger.error(f"Error updating {name}: {str(e)}")
+                self.logger.error(f'Error updating {name}: {str(e)}')
                 results[name] = {'error': str(e)}
-        
         return results
-    
-    def _parallel_update(
-        self,
-        indicators: Dict[str, IncrementalIndicator],
-        data_point: Dict[str, Any]
-    ) -> Dict[str, Dict[str, Any]]:
+
+    @with_exception_handling
+    def _parallel_update(self, indicators: Dict[str, IncrementalIndicator],
+        data_point: Dict[str, Any]) ->Dict[str, Dict[str, Any]]:
         """
         Update indicators in parallel using ThreadPoolExecutor
         
@@ -244,35 +221,38 @@ class IncrementalProcessor:
         Returns:
             Dictionary with update results
         """
+
+        @with_exception_handling
         def _update_worker(name: str, indicator: IncrementalIndicator):
+    """
+     update worker.
+    
+    Args:
+        name: Description of name
+        indicator: Description of indicator
+    
+    """
+
             try:
                 result = indicator.update(data_point)
                 return name, result, None
             except Exception as e:
                 return name, {'error': str(e)}, str(e)
-        
         results = {}
-        
-        # Create tasks for parallel execution
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = {
-                executor.submit(_update_worker, name, indicator): name
-                for name, indicator in indicators.items()
-            }
-            
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers
+            ) as executor:
+            futures = {executor.submit(_update_worker, name, indicator):
+                name for name, indicator in indicators.items()}
             for future in concurrent.futures.as_completed(futures):
                 name, result, error = future.result()
                 results[name] = result
                 if error:
-                    self.logger.error(f"Error updating {name}: {error}")
-        
+                    self.logger.error(f'Error updating {name}: {error}')
         return results
-    
-    def update_many(
-        self,
-        data_points: List[Dict[str, Any]],
-        indicator_names: Optional[List[str]] = None
-    ) -> List[Dict[str, Dict[str, Any]]]:
+
+    def update_many(self, data_points: List[Dict[str, Any]],
+        indicator_names: Optional[List[str]]=None) ->List[Dict[str, Dict[
+        str, Any]]]:
         """
         Update indicators with multiple data points sequentially
         
@@ -287,10 +267,9 @@ class IncrementalProcessor:
         for data_point in data_points:
             result = self.update(data_point, indicator_names)
             results.append(result)
-        
         return results
-    
-    def get_indicator(self, name: str) -> Optional[IncrementalIndicator]:
+
+    def get_indicator(self, name: str) ->Optional[IncrementalIndicator]:
         """
         Get an indicator by name
         
@@ -301,8 +280,8 @@ class IncrementalProcessor:
             Indicator instance or None if not found
         """
         return self.indicators.get(name)
-    
-    def get_state(self) -> Dict[str, Any]:
+
+    def get_state(self) ->Dict[str, Any]:
         """
         Get the current state of all indicators for persistence
         
@@ -313,10 +292,9 @@ class IncrementalProcessor:
         for name, indicator in self.indicators.items():
             if name in self.initialized:
                 state[name] = indicator.get_state()
-        
         return state
-    
-    def set_state(self, state: Dict[str, Any]) -> None:
+
+    def set_state(self, state: Dict[str, Any]) ->None:
         """
         Restore indicators from saved state
         
@@ -328,15 +306,14 @@ class IncrementalProcessor:
                 self.indicators[name].set_state(indicator_state)
                 if self.indicators[name].is_initialized:
                     self.initialized.add(name)
-    
-    def reset_all(self) -> None:
+
+    def reset_all(self) ->None:
         """Reset all indicators to their initial state"""
         for indicator in self.indicators.values():
             indicator.reset()
-        
         self.initialized.clear()
-    
-    def reset_indicator(self, name: str) -> bool:
+
+    def reset_indicator(self, name: str) ->bool:
         """
         Reset a specific indicator
         
@@ -352,13 +329,10 @@ class IncrementalProcessor:
                 self.initialized.remove(name)
             return True
         return False
-    
-    def calculate_all(
-        self,
-        data: Union[List[Dict[str, Any]], pd.DataFrame],
-        indicator_names: Optional[List[str]] = None,
-        include_incomplete: bool = False
-    ) -> pd.DataFrame:
+
+    def calculate_all(self, data: Union[List[Dict[str, Any]], pd.DataFrame],
+        indicator_names: Optional[List[str]]=None, include_incomplete: bool
+        =False) ->pd.DataFrame:
         """
         Calculate all specified indicators over the entire dataset
         
@@ -373,49 +347,33 @@ class IncrementalProcessor:
         Returns:
             DataFrame with all indicator values
         """
-        # Convert DataFrame to list of dictionaries if needed
         if isinstance(data, pd.DataFrame):
             records = data.to_dict('records')
         else:
             records = data
-        
         if not records:
             return pd.DataFrame()
-        
-        # Initialize indicators
         self.initialize_indicators(records, indicator_names)
-        
-        # Calculate indicators for each data point
         results = []
         timestamps = []
-        
         for i, record in enumerate(records):
             timestamp = record.get('timestamp', i)
             timestamps.append(timestamp)
-            
-            # Update all indicators with this data point
             indicator_results = self.update(record, indicator_names)
-            
-            # Flatten results for easier DataFrame creation
             flat_results = {'timestamp': timestamp}
-            
             for ind_name, ind_result in indicator_results.items():
-                # Handle scalar results
                 if isinstance(ind_result, dict) and 'value' in ind_result:
                     if include_incomplete or ind_result.get('complete', False):
                         flat_results[ind_name] = ind_result['value']
-                # Handle multi-value results (e.g. Bollinger Bands with middle, upper, lower)
                 elif isinstance(ind_result, dict):
                     for key, value in ind_result.items():
-                        if include_incomplete or ind_result.get('complete', False):
-                            flat_results[f"{ind_name}_{key}"] = value
-            
+                        if include_incomplete or ind_result.get('complete',
+                            False):
+                            flat_results[f'{ind_name}_{key}'] = value
             results.append(flat_results)
-        
-        # Create DataFrame from results
         return pd.DataFrame(results)
-    
-    def memory_usage_estimate(self) -> Dict[str, Any]:
+
+    def memory_usage_estimate(self) ->Dict[str, Any]:
         """
         Estimate memory usage of all indicators
         
@@ -424,44 +382,26 @@ class IncrementalProcessor:
         """
         total_size = 0
         indicator_sizes = {}
-        
         for name, indicator in self.indicators.items():
-            # Get indicator state
             state = indicator.get_state()
-            
-            # Rough estimation of state size in bytes
             size = 0
-            
-            # Estimate size of values lists in state
             for key, value in state.items():
                 if isinstance(value, list):
-                    # Estimate size of list elements
                     if value and isinstance(value[0], float):
-                        # 8 bytes per float + overhead
                         size += len(value) * 8 + 56
                     else:
-                        # Rough estimate for other types
                         size += len(value) * 4 + 56
                 elif isinstance(value, dict):
-                    # Rough dictionary size estimate
                     size += 64 + len(value) * 32
                 elif isinstance(value, str):
-                    # String size
                     size += len(value) + 49
                 else:
-                    # Other types (scalars)
                     size += 16
-            
             indicator_sizes[name] = size
             total_size += size
-        
-        return {
-            'total_bytes': total_size,
-            'total_mb': total_size / (1024 * 1024),
-            'indicator_bytes': indicator_sizes,
-            'indicator_count': len(self.indicators),
-            'initialized_count': len(self.initialized)
-        }
+        return {'total_bytes': total_size, 'total_mb': total_size / (1024 *
+            1024), 'indicator_bytes': indicator_sizes, 'indicator_count':
+            len(self.indicators), 'initialized_count': len(self.initialized)}
 
 
 class StreamingIndicatorProcessor:
@@ -471,12 +411,9 @@ class StreamingIndicatorProcessor:
     This class is optimized for the case where indicators are updated
     frequently with new tick or bar data in a streaming context.
     """
-    
-    def __init__(
-        self,
-        max_workers: Optional[int] = None,
-        state_persistence_path: Optional[str] = None
-    ):
+
+    def __init__(self, max_workers: Optional[int]=None,
+        state_persistence_path: Optional[str]=None):
         """
         Initialize the streaming processor
         
@@ -489,29 +426,24 @@ class StreamingIndicatorProcessor:
         self.last_update_time = None
         self.update_count = 0
         self.logger = logging.getLogger(__name__)
-    
-    def register_indicator(self, indicator: IncrementalIndicator) -> None:
+
+    def register_indicator(self, indicator: IncrementalIndicator) ->None:
         """Register an indicator with the processor"""
         self.processor.register_indicator(indicator)
-    
-    def register_indicators(self, indicators: List[IncrementalIndicator]) -> None:
+
+    def register_indicators(self, indicators: List[IncrementalIndicator]
+        ) ->None:
         """Register multiple indicators with the processor"""
         self.processor.register_indicators(indicators)
-    
-    def initialize_with_history(
-        self,
-        historical_data: List[Dict[str, Any]],
-        indicator_names: Optional[List[str]] = None
-    ) -> None:
+
+    def initialize_with_history(self, historical_data: List[Dict[str, Any]],
+        indicator_names: Optional[List[str]]=None) ->None:
         """Initialize indicators with historical data"""
         self.processor.initialize_indicators(historical_data, indicator_names)
         self.last_update_time = datetime.now()
-    
-    def process_tick(
-        self,
-        tick_data: Dict[str, Any],
-        indicator_names: Optional[List[str]] = None
-    ) -> Dict[str, Dict[str, Any]]:
+
+    def process_tick(self, tick_data: Dict[str, Any], indicator_names:
+        Optional[List[str]]=None) ->Dict[str, Dict[str, Any]]:
         """
         Process a new tick of data
         
@@ -525,8 +457,9 @@ class StreamingIndicatorProcessor:
         self.update_count += 1
         self.last_update_time = datetime.now()
         return self.processor.update(tick_data, indicator_names)
-    
-    def save_state(self, path: Optional[str] = None) -> bool:
+
+    @with_exception_handling
+    def save_state(self, path: Optional[str]=None) ->bool:
         """
         Save the current state of all indicators
         
@@ -537,53 +470,39 @@ class StreamingIndicatorProcessor:
             True if successful, False otherwise
         """
         import json
-        
         save_path = path or self.state_persistence_path
         if not save_path:
-            self.logger.warning("No state persistence path specified")
+            self.logger.warning('No state persistence path specified')
             return False
-        
         try:
-            # Get current state
             state = self.processor.get_state()
-            
-            # Add metadata
-            state_with_meta = {
-                'metadata': {
-                    'timestamp': datetime.now().isoformat(),
-                    'update_count': self.update_count
-                },
-                'indicators': {}
-            }
-            
-            # Convert complex structures/objects to serializable format
+            state_with_meta = {'metadata': {'timestamp': datetime.now().
+                isoformat(), 'update_count': self.update_count},
+                'indicators': {}}
             for ind_name, ind_state in state.items():
                 serializable_state = {}
                 for key, value in ind_state.items():
-                    # Convert numpy arrays/types to native Python types
                     if isinstance(value, np.ndarray):
                         serializable_state[key] = value.tolist()
                     elif isinstance(value, (np.int_, np.float_, np.bool_)):
                         serializable_state[key] = value.item()
-                    elif isinstance(value, list) and value and isinstance(value[0], np.ndarray):
-                        serializable_state[key] = [arr.tolist() for arr in value]
+                    elif isinstance(value, list) and value and isinstance(value
+                        [0], np.ndarray):
+                        serializable_state[key] = [arr.tolist() for arr in
+                            value]
                     else:
                         serializable_state[key] = value
-                
                 state_with_meta['indicators'][ind_name] = serializable_state
-            
-            # Save to file
             with open(save_path, 'w') as f:
                 json.dump(state_with_meta, f, indent=2)
-            
-            self.logger.info(f"Saved state to {save_path}")
+            self.logger.info(f'Saved state to {save_path}')
             return True
-            
         except Exception as e:
-            self.logger.error(f"Failed to save state: {str(e)}")
+            self.logger.error(f'Failed to save state: {str(e)}')
             return False
-    
-    def load_state(self, path: Optional[str] = None) -> bool:
+
+    @with_exception_handling
+    def load_state(self, path: Optional[str]=None) ->bool:
         """
         Load indicator states from file
         
@@ -595,53 +514,39 @@ class StreamingIndicatorProcessor:
         """
         import json
         import os
-        
         load_path = path or self.state_persistence_path
         if not load_path:
-            self.logger.warning("No state persistence path specified")
+            self.logger.warning('No state persistence path specified')
             return False
-        
         if not os.path.exists(load_path):
-            self.logger.warning(f"State file not found: {load_path}")
+            self.logger.warning(f'State file not found: {load_path}')
             return False
-        
         try:
             with open(load_path, 'r') as f:
                 state_with_meta = json.load(f)
-            
-            # Check if it's the new format with metadata
             if 'indicators' in state_with_meta:
                 indicator_state = state_with_meta['indicators']
                 if 'metadata' in state_with_meta:
                     metadata = state_with_meta['metadata']
                     self.update_count = metadata.get('update_count', 0)
             else:
-                # Old format without metadata
                 indicator_state = state_with_meta
-            
-            # Set state in processor
             self.processor.set_state(indicator_state)
-            
-            self.logger.info(f"Loaded state from {load_path}")
+            self.logger.info(f'Loaded state from {load_path}')
             return True
-            
         except Exception as e:
-            self.logger.error(f"Failed to load state: {str(e)}")
+            self.logger.error(f'Failed to load state: {str(e)}')
             return False
-    
-    def get_status(self) -> Dict[str, Any]:
+
+    def get_status(self) ->Dict[str, Any]:
         """Get current status information"""
         memory_usage = self.processor.memory_usage_estimate()
-        
-        return {
-            'update_count': self.update_count,
-            'last_update_time': self.last_update_time,
-            'indicator_count': len(self.processor.indicators),
-            'initialized_count': len(self.processor.initialized),
-            'memory_usage_mb': memory_usage['total_mb']
-        }
-    
-    def reset(self) -> None:
+        return {'update_count': self.update_count, 'last_update_time': self
+            .last_update_time, 'indicator_count': len(self.processor.
+            indicators), 'initialized_count': len(self.processor.
+            initialized), 'memory_usage_mb': memory_usage['total_mb']}
+
+    def reset(self) ->None:
         """Reset all indicators"""
         self.processor.reset_all()
         self.update_count = 0

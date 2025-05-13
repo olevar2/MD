@@ -156,6 +156,15 @@ def resilient_function(
         A wrapped function with both circuit breaker and retry policy applied
     """
     def circuit_breaker_wrapper(*args, **kwargs):
+    """
+    Circuit breaker wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         if not circuit_breaker_instance.allow_request():
             raise CircuitBreakerException(
                 f"Circuit {circuit_breaker_instance.name} is OPEN"

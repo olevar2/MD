@@ -59,6 +59,11 @@ class TestEnvironmentConfig:
     environment_variables: Dict[str, str] = None
 
     def __post_init__(self):
+    """
+      post init  .
+    
+    """
+
         # Set defaults based on mode if not explicitly provided
         if self.services_to_virtualize is None:
             if self.mode == TestMode.SIMULATED:
@@ -106,6 +111,11 @@ class TestEnvironment:
     """
 
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         self.playwright = None
         self.browser = None
         self.context = None
@@ -227,6 +237,14 @@ class WireMockServiceVirtualizer(ServiceVirtualizer):
     Used for virtualizing HTTP-based services.
     """
     def __init__(self, base_port: int = 8080):
+    """
+      init  .
+    
+    Args:
+        base_port: Description of base_port
+    
+    """
+
         self.base_port = base_port
         self.running_services: Dict[str, Tuple[subprocess.Popen, int]] = {}
         self.stub_dir = Path(__file__).parent.parent / "fixtures" / "wiremock_stubs"
@@ -409,20 +427,54 @@ class KafkaServiceVirtualizer(ServiceVirtualizer):
     Provides in-memory Kafka broker for testing event-driven interactions.
     """
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         # Implementation would use an embedded Kafka broker or a mock
         pass
 
     def start(self, service_name: str, config: Dict[str, Any]) -> str:
+    """
+    Start.
+    
+    Args:
+        service_name: Description of service_name
+        config: Description of config
+        Any]: Description of Any]
+    
+    Returns:
+        str: Description of return value
+    
+    """
+
         # Implementation for starting virtualized Kafka broker
         # This would likely use test-containers or embedded-kafka
         logger.info(f"Starting virtualized Kafka for {service_name}")
         return "localhost:9092"  # Return the broker connection string
 
     def stop(self, service_name: str) -> None:
+    """
+    Stop.
+    
+    Args:
+        service_name: Description of service_name
+    
+    """
+
         # Implementation to stop the virtualized Kafka broker
         logger.info(f"Stopping virtualized Kafka for {service_name}")
 
     def reset(self, service_name: str) -> None:
+    """
+    Reset.
+    
+    Args:
+        service_name: Description of service_name
+    
+    """
+
         # Implementation to clear all messages and reset state
         logger.info(f"Resetting virtualized Kafka for {service_name}")
 
@@ -437,6 +489,11 @@ class ServiceVirtualizationManager:
     Provides a unified interface for controlling virtualized services.
     """
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         self.virtualizers = {
             "http": WireMockServiceVirtualizer(),
             "kafka": KafkaServiceVirtualizer(),
@@ -543,6 +600,11 @@ class DockerManager:
     Handles starting, stopping, and monitoring containers.
     """
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         try:
             self.client = docker.from_env()
             # Validate Docker is running by listing containers

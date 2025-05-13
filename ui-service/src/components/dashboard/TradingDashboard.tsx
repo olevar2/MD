@@ -8,10 +8,10 @@ import {
   Tab,
   Tabs
 } from '@mui/material';
-import { Card } from '../ui-library/Card';
-import { Chart } from '../ui-library/Chart';
-import { DataTable } from '../ui-library/DataTable';
-import { StatusIndicator } from '../ui-library/StatusIndicator';
+import { Card } from '../ui_library/Card';
+import { Chart } from '../ui_library/Chart';
+import { DataTable } from '../ui_library/DataTable';
+import { StatusIndicator } from '../ui_library/StatusIndicator';
 import { GridColDef } from '@mui/x-data-grid';
 
 interface TabPanelProps {

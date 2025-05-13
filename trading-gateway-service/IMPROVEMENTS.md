@@ -24,7 +24,7 @@ This document outlines the improvements made to the Trading Gateway Service to e
 
 ### 4. Express Error Middleware
 
-- Enhanced the error handling middleware in `src/middleware/errorHandler.js`
+- Enhanced the error handling middleware in `src/middleware/error-handler.js`
 - Mapped error types to appropriate HTTP status codes
 - Ensured consistent error response format across all endpoints
 

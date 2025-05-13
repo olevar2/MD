@@ -8,6 +8,11 @@ It allows operations that might fail temporarily to be automatically retried.
 Usage:
     @retry_with_policy(max_attempts=3, base_delay=1.0, exceptions=(ConnectionError,))
     def call_external_service():
+    """
+    Call external service.
+    
+    """
+
         # Make external call that might fail temporarily
         return result
 
@@ -49,6 +54,15 @@ class RetryExhaustedException(Exception):
     """Exception raised when all retry attempts have been exhausted."""
 
     def __init__(self, attempts: int, last_exception: Exception):
+    """
+      init  .
+    
+    Args:
+        attempts: Description of attempts
+        last_exception: Description of last_exception
+    
+    """
+
         self.attempts = attempts
         self.last_exception = last_exception
         super().__init__(
@@ -58,12 +72,42 @@ class RetryExhaustedException(Exception):
 
 # Helper function to check if an exception should be retried
 def _is_retryable_exception(exceptions_to_retry: Set[Type[Exception]]) -> Callable[[Exception], bool]:
+    """
+     is retryable exception.
+    
+    Args:
+        exceptions_to_retry: Description of exceptions_to_retry
+    
+    Returns:
+        Callable[[Exception], bool]: Description of return value
+    
+    """
+
     def check(exception: Exception) -> bool:
+    """
+    Check.
+    
+    Args:
+        exception: Description of exception
+    
+    Returns:
+        bool: Description of return value
+    
+    """
+
         return any(isinstance(exception, exc_type) for exc_type in exceptions_to_retry)
     return check
 
 # Helper function for tenacity's before_sleep callback
 def _log_retry(retry_state):
+    """
+     log retry.
+    
+    Args:
+        retry_state: Description of retry_state
+    
+    """
+
     logger.warning(
         f"Retrying {retry_state.fn.__name__ if retry_state.fn else 'function'} "
         f"after attempt {retry_state.attempt_number} due to: {retry_state.outcome.exception()}. "
@@ -381,9 +425,36 @@ def retry_with_policy(
     )
 
     def decorator(func: Callable[..., Union[T, Coroutine[Any, Any, R]]]) -> Callable[..., Union[T, Coroutine[Any, Any, R]]]:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+        Union[T: Description of Union[T
+        Coroutine[Any: Description of Coroutine[Any
+        Any: Description of Any
+        R]]]: Description of R]]]
+    
+    Returns:
+        Callable[..., Union[T, Coroutine[Any, Any, R]]]: Description of return value
+    
+    """
+
         if asyncio.iscoroutinefunction(func):
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> R:
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        R: Description of return value
+    
+    """
+
                 # Cast func for the async execution path
                 async_func = cast(Callable[..., Coroutine[Any, Any, R]], func)
                 return await policy.execute_async(async_func, *args, **kwargs)
@@ -393,6 +464,18 @@ def retry_with_policy(
         else:
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> T:
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        T: Description of return value
+    
+    """
+
                  # Cast func for the sync execution path
                 sync_func = cast(Callable[..., T], func)
                 return policy.execute(sync_func, *args, **kwargs)

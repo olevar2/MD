@@ -17,7 +17,15 @@ logger = logging.getLogger(__name__)
 class ResourceMetrics:
     """Tracks and analyzes system resource usage."""
     
-    def __init__(self, history_size: int = 3600):  # 1 hour of history at 1 sample/second
+    def __init__(self, history_size: int = 3600):
+    """
+      init  .
+    
+    Args:
+        history_size: Description of history_size
+    
+    """
+  # 1 hour of history at 1 sample/second
         self.history_size = history_size
         self.cpu_history = deque(maxlen=history_size)
         self.memory_history = deque(maxlen=history_size)
@@ -63,6 +71,14 @@ class LoadBalancer:
     """Manages task distribution and resource allocation."""
     
     def __init__(self, max_threads: Optional[int] = None):
+    """
+      init  .
+    
+    Args:
+        max_threads: Description of max_threads
+    
+    """
+
         self.max_threads = max_threads or (psutil.cpu_count() * 2)
         self.active_tasks: Dict[str, Dict[str, Any]] = {}
         self.thread_pool = []
@@ -125,6 +141,15 @@ class AdaptiveResourceManager:
     """
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        Any]]: Description of Any]]
+    
+    """
+
         self.config = config or {}
         self.resource_metrics = ResourceMetrics()
         self.load_balancer = LoadBalancer()
@@ -139,6 +164,11 @@ class AdaptiveResourceManager:
     def _start_monitoring(self) -> None:
         """Start the resource monitoring thread."""
         def monitor():
+    """
+    Monitor.
+    
+    """
+
             while True:
                 try:
                     metrics = self.resource_metrics.record_metrics()
@@ -167,6 +197,11 @@ class AdaptiveResourceManager:
         
         # Schedule thread pool size restoration
         def restore_thread_pool():
+    """
+    Restore thread pool.
+    
+    """
+
             time.sleep(300)  # Wait 5 minutes
             self.load_balancer.max_threads = psutil.cpu_count() * 2
         

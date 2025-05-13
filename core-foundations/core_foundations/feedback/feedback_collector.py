@@ -18,11 +18,25 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class FeedbackValidationResult:
+    """
+    FeedbackValidationResult class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     is_valid: bool
     error_message: Optional[str] = None
     feedback_id: Optional[str] = None
 
 class FeedbackCollector:
+    """
+    FeedbackCollector class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(
         self,
         event_bus: KafkaEventBus,
@@ -30,6 +44,18 @@ class FeedbackCollector:
         batch_timeout_seconds: int = 30,
         validation_rules: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        event_bus: Description of event_bus
+        batch_size: Description of batch_size
+        batch_timeout_seconds: Description of batch_timeout_seconds
+        validation_rules: Description of validation_rules
+        Any]]: Description of Any]]
+    
+    """
+
         self.event_bus = event_bus
         self.batch_size = batch_size
         self.batch_timeout = batch_timeout_seconds

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ml-integration-service
+  name: ml-integration-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ml-integration-service
+  template:
+    metadata:
+      labels:
+        app: ml-integration-service
+    spec:
+      containers:
+      - image: forex-trading-platform/ml-integration-service:latest
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: ml-integration-service
+        ports:
+        - containerPort: 8006
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8006
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi

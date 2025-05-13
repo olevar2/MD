@@ -11,25 +11,92 @@ from unittest.mock import MagicMock
 
 # Mock the service client classes
 class ResilientServiceClientConfig:
+    """
+    ResilientServiceClientConfig class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, **kwargs):
+    """
+      init  .
+    
+    Args:
+        kwargs: Description of kwargs
+    
+    """
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
 class ResilientServiceClient:
+    """
+    ResilientServiceClient class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, config, logger=None):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        logger: Description of logger
+    
+    """
+
         self.config = config
         self.logger = logger
 
     async def get(self, *args, **kwargs):
+    """
+    Get.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         return {}
 
     async def post(self, *args, **kwargs):
+    """
+    Post.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         return {}
 
     async def put(self, *args, **kwargs):
+    """
+    Put.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         return {}
 
     async def delete(self, *args, **kwargs):
+    """
+    Delete.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         return {}
 
     async def connect(self):

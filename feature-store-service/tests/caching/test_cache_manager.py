@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-from feature_store_service.caching.cache_manager import CacheManager
+from common_lib.caching import AdaptiveCacheManager, cached, get_cache_manager
 from feature_store_service.caching.cache_key import CacheKey
 
 

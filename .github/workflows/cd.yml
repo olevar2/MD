@@ -1,0 +1,118 @@
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+    - name: Build and push trading-gateway-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./trading-gateway-service
+        push: true
+        tags: forex-trading-platform/trading-gateway-service:latest,forex-trading-platform/trading-gateway-service:${{
+          github.sha }}
+    - name: Build and push portfolio-management-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./portfolio-management-service
+        push: true
+        tags: forex-trading-platform/portfolio-management-service:latest,forex-trading-platform/portfolio-management-service:${{
+          github.sha }}
+    - name: Build and push risk-management-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./risk-management-service
+        push: true
+        tags: forex-trading-platform/risk-management-service:latest,forex-trading-platform/risk-management-service:${{
+          github.sha }}
+    - name: Build and push data-pipeline-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./data-pipeline-service
+        push: true
+        tags: forex-trading-platform/data-pipeline-service:latest,forex-trading-platform/data-pipeline-service:${{
+          github.sha }}
+    - name: Build and push feature-store-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./feature-store-service
+        push: true
+        tags: forex-trading-platform/feature-store-service:latest,forex-trading-platform/feature-store-service:${{
+          github.sha }}
+    - name: Build and push ml-integration-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./ml-integration-service
+        push: true
+        tags: forex-trading-platform/ml-integration-service:latest,forex-trading-platform/ml-integration-service:${{
+          github.sha }}
+    - name: Build and push ml-workbench-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./ml-workbench-service
+        push: true
+        tags: forex-trading-platform/ml-workbench-service:latest,forex-trading-platform/ml-workbench-service:${{
+          github.sha }}
+    - name: Build and push monitoring-alerting-service
+      uses: docker/build-push-action@v2
+      with:
+        context: ./monitoring-alerting-service
+        push: true
+        tags: forex-trading-platform/monitoring-alerting-service:latest,forex-trading-platform/monitoring-alerting-service:${{
+          github.sha }}
+  deploy-dev:
+    needs:
+    - build-and-push
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v1
+    - name: Set up Kubernetes config
+      run: echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+    - name: Deploy to development
+      run: python scripts/deploy_services.py --environment dev
+  deploy-production:
+    environment:
+      name: production
+      url: https://forex-trading-platform.example.com
+    needs:
+    - deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v1
+    - name: Set up Kubernetes config
+      run: echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+    - name: Deploy to production
+      run: python scripts/deploy_services.py --environment production
+  deploy-staging:
+    needs:
+    - deploy-dev
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v1
+    - name: Set up Kubernetes config
+      run: echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+    - name: Deploy to staging
+      run: python scripts/deploy_services.py --environment staging
+    - name: Run performance tests
+      run: python scripts/performance_test.py --environment staging
+name: Continuous Deployment
+'on':
+  push:
+    branches:
+    - main

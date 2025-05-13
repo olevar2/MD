@@ -1,3 +1,9 @@
+"""
+Ml analysis integration test module.
+
+This module provides functionality for...
+"""
+
 # Import necessary modules and classes
 import pytest
 import pandas as pd
@@ -26,12 +32,60 @@ except ImportError as e:
     ANALYSIS_ENGINE_AVAILABLE = False
     LEGACY_COMPONENTS_AVAILABLE = False
     # Define dummy classes if imports fail, tests requiring them will be skipped
-    # class AnalysisEngineFeatureClient: # REMOVED
-    #     def __init__(self, *args, **kwargs): pass
-    #     def extract_features(self, *args, **kwargs): return pd.DataFrame()
+    # class AnalysisEngineFeatureClient:
+    """
+    AnalysisEngineFeatureClient class.
+    
+    Attributes:
+        Add attributes here
+    """
+ # REMOVED
+    #     def __init__(self, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+ pass
+    #     def extract_features(self, *args, **kwargs):
+    """
+    Extract features.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+ return pd.DataFrame()
     class FeatureDefinition:
-        def __init__(self, *args, **kwargs): pass
-    class MLFeatureType: MOMENTUM = 'momentum'; TREND = 'trend'
+    """
+    FeatureDefinition class.
+    
+    Attributes:
+        Add attributes here
+    """
+
+        def __init__(self, *args, **kwargs):
+    """
+      init  .
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+ pass
+    class MLFeatureType:
+    """
+    MLFeatureType class.
+    
+    Attributes:
+        Add attributes here
+    """
+ MOMENTUM = 'momentum'; TREND = 'trend'
     class LegacyFeatureExtractor:
         def extract_features(self, *args, **kwargs): return pd.DataFrame({'legacy_sma': [1,2,3]})
 
@@ -111,13 +165,29 @@ def setup_analysis_engine_indicators():
 # from ml_integration_service.feature_extraction import FeatureExtractor as LegacyFeatureExtractor
 #
 # def benchmark_legacy_extraction(benchmark):
+    """
+    Benchmark legacy extraction.
+    
+    Args:
+        benchmark: Description of benchmark
+    
+    """
+
 #     data = sample_ohlcv_data_integration()
 #     defs = feature_definitions_integration()
 #     legacy_extractor = LegacyFeatureExtractor()
 #     benchmark(legacy_extractor.extract_features, data=data, feature_definitions=defs)
 #
 # # @pytest.mark.skipif(not ANALYSIS_ENGINE_AVAILABLE, reason="Analysis Engine components not available") # REMOVED
-# # def benchmark_analysis_engine_extraction(benchmark): # REMOVED
+# # def benchmark_analysis_engine_extraction(benchmark):
+    """
+    Benchmark analysis engine extraction.
+    
+    Args:
+        benchmark: Description of benchmark
+    
+    """
+ # REMOVED
 # #     data = sample_ohlcv_data_integration() # REMOVED
 # #     defs = feature_definitions_integration() # REMOVED
 # #     client = AnalysisEngineFeatureClient(use_fallback=False) # REMOVED

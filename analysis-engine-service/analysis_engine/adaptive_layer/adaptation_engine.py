@@ -1,4 +1,3 @@
-# filepath: d:\MD\forex_trading_platform\analysis-engine-service\analysis_engine\adaptive_layer\adaptation_engine.py
 """
 Adaptation Engine
 
@@ -11,7 +10,6 @@ This could involve:
 - Initiating the deployment of mutated or newly optimized strategies.
 - Adjusting resource allocation for specific models or strategies.
 """
-
 import logging
 import asyncio
 from typing import Dict, Any, Optional, List, Tuple
@@ -19,36 +17,30 @@ from datetime import datetime, timedelta
 import json
 import tempfile
 import os
-
 from core_foundations.utils.logger import get_logger
 from core_foundations.resilience.circuit_breaker import CircuitBreakerState
-from core_foundations.exceptions.client_exceptions import (
-    MLClientConnectionError,
-    MLJobSubmissionError,
-    ExecutionEngineConnectionError,
-    StrategyDeploymentError,
-    BacktestError
-)
-
-# Import necessary clients or services to interact with other parts of the system
+from core_foundations.exceptions.client_exceptions import MLClientConnectionError, MLJobSubmissionError, ExecutionEngineConnectionError, StrategyDeploymentError, BacktestError
 from ..clients.ml_pipeline_client import MLPipelineClient
 from ..clients.execution_engine_client import ExecutionEngineClient
-# from ..clients.deployment_service_client import DeploymentServiceClient # Example
-
-# Import the strategy execution adapter
 from ..adapters.strategy_execution_adapter import StrategyExecutorAdapter
-
 logger = get_logger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class AdaptationEngine:
     """
     Executes concrete adaptation steps.
     """
 
-    def __init__(self,
-                 ml_pipeline_client: MLPipelineClient = None,
-                 execution_engine_client: ExecutionEngineClient = None,
-                 config: Optional[Dict[str, Any]] = None):
+    def __init__(self, ml_pipeline_client: MLPipelineClient=None,
+        execution_engine_client: ExecutionEngineClient=None, config:
+        Optional[Dict[str, Any]]=None):
         """
         Initializes the AdaptationEngine.
 
@@ -58,20 +50,19 @@ class AdaptationEngine:
             config: Configuration parameters for the engine and its clients.
         """
         self.config = config or {}
-        # Initialize clients needed for adaptation actions
         self.ml_client = ml_pipeline_client
         self.exec_client = execution_engine_client
-        # self.deploy_client = DeploymentServiceClient(config=self.config.get('deploy_client'))
+        self.backtest_required = self.config_manager.get('backtest_required', True)
+        self.backtest_min_sharpe = self.config_manager.get('backtest_min_sharpe', 1.0)
+        self.backtest_max_drawdown = self.config.get('backtest_max_drawdown',
+            15.0)
+        self.backtest_min_win_rate = self.config.get('backtest_min_win_rate',
+            0.5)
+        logger.info('AdaptationEngine initialized.')
 
-        # Backtest configuration
-        self.backtest_required = self.config.get('backtest_required', True)
-        self.backtest_min_sharpe = self.config.get('backtest_min_sharpe', 1.0)
-        self.backtest_max_drawdown = self.config.get('backtest_max_drawdown', 15.0)  # percent
-        self.backtest_min_win_rate = self.config.get('backtest_min_win_rate', 0.50)  # 50%
-
-        logger.info("AdaptationEngine initialized.")
-
-    async def trigger_model_retraining(self, model_id: str, retraining_params: Optional[Dict[str, Any]] = None):
+    @async_with_exception_handling
+    async def trigger_model_retraining(self, model_id: str,
+        retraining_params: Optional[Dict[str, Any]]=None):
         """
         Initiates a retraining job for a specific ML model.
 
@@ -85,39 +76,44 @@ class AdaptationEngine:
         Raises:
             MLJobSubmissionError: If there was an error submitting the job
         """
-        logger.info(f"Received request to trigger retraining for model: {model_id}")
-
-        # Validate the client is available
+        logger.info(
+            f'Received request to trigger retraining for model: {model_id}')
         if not self.ml_client:
-            logger.error(f"Cannot trigger retraining for model {model_id}: ML client not initialized")
+            logger.error(
+                f'Cannot trigger retraining for model {model_id}: ML client not initialized'
+                )
             return None
-
         try:
-            # Execute the retraining job using the ML client
-            job_id = await self.ml_client.start_retraining_job(model_id, retraining_params)
-
+            job_id = await self.ml_client.start_retraining_job(model_id,
+                retraining_params)
             if job_id:
-                logger.info(f"Successfully triggered retraining job for model {model_id}. Job ID: {job_id}")
+                logger.info(
+                    f'Successfully triggered retraining job for model {model_id}. Job ID: {job_id}'
+                    )
                 return job_id
             else:
-                logger.error(f"Failed to get job ID for model retraining: {model_id}")
+                logger.error(
+                    f'Failed to get job ID for model retraining: {model_id}')
                 return None
-
         except MLClientConnectionError as e:
-            logger.error(f"Connection error while triggering retraining for model {model_id}: {e}", exc_info=True)
-            # This error is already being handled by circuit breaker in the client
+            logger.error(
+                f'Connection error while triggering retraining for model {model_id}: {e}'
+                , exc_info=True)
             return None
-
         except MLJobSubmissionError as e:
-            logger.error(f"Job submission error for model {model_id}: {e}", exc_info=True)
-            # Re-raise to allow higher-level handling if needed
+            logger.error(f'Job submission error for model {model_id}: {e}',
+                exc_info=True)
             raise
-
         except Exception as e:
-            logger.error(f"Unexpected error while triggering retraining for model {model_id}: {e}", exc_info=True)
+            logger.error(
+                f'Unexpected error while triggering retraining for model {model_id}: {e}'
+                , exc_info=True)
             return None
 
-    async def update_strategy_parameter(self, strategy_id: str, parameter_name: str, new_value: Any):
+    @with_resilience('update_strategy_parameter')
+    @async_with_exception_handling
+    async def update_strategy_parameter(self, strategy_id: str,
+        parameter_name: str, new_value: Any):
         """
         Updates a specific parameter for a running strategy.
 
@@ -126,25 +122,24 @@ class AdaptationEngine:
             parameter_name: The name of the parameter to change.
             new_value: The new value for the parameter.
         """
-        logger.info(f"Received request to update parameter '{parameter_name}' for strategy: {strategy_id} to {new_value}")
+        logger.info(
+            f"Received request to update parameter '{parameter_name}' for strategy: {strategy_id} to {new_value}"
+            )
         try:
-            # --- Placeholder Logic ---
-            # In a real implementation, this would call the Strategy Execution Engine API
-            # success = await self.exec_client.set_strategy_parameter(strategy_id, parameter_name, new_value)
-            # if success:
-            #     logger.info(f"Successfully updated parameter '{parameter_name}' for strategy {strategy_id}.")
-            # else:
-            #     logger.warning(f"Failed to update parameter '{parameter_name}' for strategy {strategy_id} via API.")
-            # return success
-            logger.warning(f"Placeholder: Updating parameter {parameter_name} for strategy {strategy_id} to {new_value}")
-            await asyncio.sleep(0.1) # Simulate async call
-            return True # Simulate success
-            # --- End Placeholder ---
+            logger.warning(
+                f'Placeholder: Updating parameter {parameter_name} for strategy {strategy_id} to {new_value}'
+                )
+            await asyncio.sleep(0.1)
+            return True
         except Exception as e:
-            logger.error(f"Failed to update parameter for strategy {strategy_id}: {e}", exc_info=True)
+            logger.error(
+                f'Failed to update parameter for strategy {strategy_id}: {e}',
+                exc_info=True)
             return False
 
-    async def run_backtest(self, strategy_id: str, config: Dict[str, Any]) -> Dict[str, Any]:
+    @async_with_exception_handling
+    async def run_backtest(self, strategy_id: str, config: Dict[str, Any]
+        ) ->Dict[str, Any]:
         """
         Run backtest for a strategy configuration using the real backtesting framework.
 
@@ -155,82 +150,65 @@ class AdaptationEngine:
         Returns:
             Dict[str, Any]: Backtest results including metrics
         """
-        logger.info(f"Running backtest for strategy {strategy_id}")
-
+        logger.info(f'Running backtest for strategy {strategy_id}')
         try:
-            # Create a temporary file with the strategy config
-            # This allows us to pass the config to the backtester even though
-            # it might be coming from a different process/service
-            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as tmp:
-                # Ensure strategy_id is in the config
-                if "id" not in config:
-                    config["id"] = strategy_id
-
-                # Write the config to the temp file
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix
+                ='.json') as tmp:
+                if 'id' not in config:
+                    config['id'] = strategy_id
                 json.dump(config, tmp)
                 config_path = tmp.name
-
-            # Define backtest period
-            # Default to 1 year of data ending today
-            end_date = datetime.now().strftime("%Y-%m-%d")
-            start_date = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
-
-            # Override with config-specific settings if available
-            if "backtest" in config:
-                backtest_config = config["backtest"]
-                if "lookback_days" in backtest_config:
-                    start_date = (datetime.now() - timedelta(days=backtest_config["lookback_days"])).strftime("%Y-%m-%d")
-                if "start_date" in backtest_config:
-                    start_date = backtest_config["start_date"]
-                if "end_date" in backtest_config:
-                    end_date = backtest_config["end_date"]
-
-            # Get assets to test
-            assets = config.get("instruments", None)
-
-            logger.info(f"Running backtest for strategy {strategy_id} from {start_date} to {end_date}")
-
-            # Use the strategy executor adapter to run the backtest
+            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=365)).strftime(
+                '%Y-%m-%d')
+            if 'backtest' in config:
+                backtest_config = config['backtest']
+                if 'lookback_days' in backtest_config:
+                    start_date = (datetime.now() - timedelta(days=
+                        backtest_config['lookback_days'])).strftime('%Y-%m-%d')
+                if 'start_date' in backtest_config:
+                    start_date = backtest_config['start_date']
+                if 'end_date' in backtest_config:
+                    end_date = backtest_config['end_date']
+            assets = config_manager.get('instruments', None)
+            logger.info(
+                f'Running backtest for strategy {strategy_id} from {start_date} to {end_date}'
+                )
             strategy_executor = StrategyExecutorAdapter()
-
-            # Convert dates to datetime objects if they're strings
-            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d") if isinstance(start_date, str) else start_date
-            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d") if isinstance(end_date, str) else end_date
-
-            # Run the backtest using the adapter
-            result = await strategy_executor.backtest_strategy(
-                strategy_id=strategy_id,
-                symbol=assets[0] if assets and isinstance(assets, list) else "EURUSD",  # Default to EURUSD if no assets
-                timeframe="1h",  # Default timeframe
-                start_date=start_date_obj,
-                end_date=end_date_obj,
-                parameters=config
-            )
-
-            # Clean up the temporary file
+            start_date_obj = datetime.strptime(start_date, '%Y-%m-%d'
+                ) if isinstance(start_date, str) else start_date
+            end_date_obj = datetime.strptime(end_date, '%Y-%m-%d'
+                ) if isinstance(end_date, str) else end_date
+            result = await strategy_executor.backtest_strategy(strategy_id=
+                strategy_id, symbol=assets[0] if assets and isinstance(
+                assets, list) else 'EURUSD', timeframe='1h', start_date=
+                start_date_obj, end_date=end_date_obj, parameters=config)
             try:
                 os.unlink(config_path)
             except Exception as e:
-                logger.warning(f"Failed to remove temporary config file {config_path}: {e}")
-
-            if result["success"]:
-                logger.info(f"Backtest completed successfully for strategy {strategy_id}")
-                logger.info(f"Key metrics - Sharpe: {result.get('metrics', {}).get('sharpe_ratio', 'N/A')}, "
-                           f"Max Drawdown: {result.get('metrics', {}).get('max_drawdown', 'N/A')}%, "
-                           f"Win Rate: {result.get('metrics', {}).get('win_rate', 'N/A')}")
+                logger.warning(
+                    f'Failed to remove temporary config file {config_path}: {e}'
+                    )
+            if result['success']:
+                logger.info(
+                    f'Backtest completed successfully for strategy {strategy_id}'
+                    )
+                logger.info(
+                    f"Key metrics - Sharpe: {result.get('metrics', {}).get('sharpe_ratio', 'N/A')}, Max Drawdown: {result.get('metrics', {}).get('max_drawdown', 'N/A')}%, Win Rate: {result.get('metrics', {}).get('win_rate', 'N/A')}"
+                    )
             else:
-                logger.warning(f"Backtest failed for strategy {strategy_id}: {result.get('error', 'Unknown error')}")
-
+                logger.warning(
+                    f"Backtest failed for strategy {strategy_id}: {result.get('error', 'Unknown error')}"
+                    )
             return result
-
         except Exception as e:
-            logger.error(f"Failed to run backtest for strategy {strategy_id}: {e}", exc_info=True)
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            logger.error(
+                f'Failed to run backtest for strategy {strategy_id}: {e}',
+                exc_info=True)
+            return {'success': False, 'error': str(e)}
 
-    def _validate_backtest_results(self, results: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def _validate_backtest_results(self, results: Dict[str, Any]) ->Tuple[
+        bool, List[str]]:
         """
         Validate backtest results against minimum thresholds.
 
@@ -243,33 +221,34 @@ class AdaptationEngine:
         """
         passed = True
         reasons = []
-
-        if not results.get("success", False):
-            return False, [f"Backtest failed to complete: {results.get('error', 'Unknown error')}"]
-
-        metrics = results.get("metrics", {})
-
-        # Check Sharpe ratio
-        sharpe = metrics.get("sharpe_ratio", 0)
+        if not results.get('success', False):
+            return False, [
+                f"Backtest failed to complete: {results.get('error', 'Unknown error')}"
+                ]
+        metrics = results.get('metrics', {})
+        sharpe = metrics.get('sharpe_ratio', 0)
         if sharpe < self.backtest_min_sharpe:
             passed = False
-            reasons.append(f"Sharpe ratio too low: {sharpe:.2f} (minimum: {self.backtest_min_sharpe:.2f})")
-
-        # Check max drawdown
-        drawdown = metrics.get("max_drawdown", 100)
+            reasons.append(
+                f'Sharpe ratio too low: {sharpe:.2f} (minimum: {self.backtest_min_sharpe:.2f})'
+                )
+        drawdown = metrics.get('max_drawdown', 100)
         if drawdown > self.backtest_max_drawdown:
             passed = False
-            reasons.append(f"Max drawdown too high: {drawdown:.2f}% (maximum: {self.backtest_max_drawdown:.2f}%)")
-
-        # Check win rate
-        win_rate = metrics.get("win_rate", 0)
+            reasons.append(
+                f'Max drawdown too high: {drawdown:.2f}% (maximum: {self.backtest_max_drawdown:.2f}%)'
+                )
+        win_rate = metrics.get('win_rate', 0)
         if win_rate < self.backtest_min_win_rate:
             passed = False
-            reasons.append(f"Win rate too low: {win_rate:.2f} (minimum: {self.backtest_min_win_rate:.2f})")
-
+            reasons.append(
+                f'Win rate too low: {win_rate:.2f} (minimum: {self.backtest_min_win_rate:.2f})'
+                )
         return passed, reasons
 
-    async def deploy_strategy_update(self, strategy_id: str, new_config: Dict[str, Any]):
+    @async_with_exception_handling
+    async def deploy_strategy_update(self, strategy_id: str, new_config:
+        Dict[str, Any]):
         """
         Deploys an updated configuration or version of a strategy after validating with backtest.
 
@@ -283,76 +262,67 @@ class AdaptationEngine:
         Raises:
             StrategyDeploymentError: If deployment fails
         """
-        logger.info(f"Received request to deploy update for strategy: {strategy_id}")
-
-        # Validate the client is available
+        logger.info(
+            f'Received request to deploy update for strategy: {strategy_id}')
         if not self.exec_client:
-            error_msg = f"Cannot deploy strategy {strategy_id}: Execution Engine client not initialized"
+            error_msg = (
+                f'Cannot deploy strategy {strategy_id}: Execution Engine client not initialized'
+                )
             logger.error(error_msg)
             raise StrategyDeploymentError(error_msg)
-
         try:
-            # Step 1: Run backtest if required
             if self.backtest_required:
-                logger.info(f"Running backtest for strategy {strategy_id} before deployment")
-                backtest_results = await self.run_backtest(strategy_id, new_config)
-                backtest_passed, reasons = self._validate_backtest_results(backtest_results)
-
+                logger.info(
+                    f'Running backtest for strategy {strategy_id} before deployment'
+                    )
+                backtest_results = await self.run_backtest(strategy_id,
+                    new_config)
+                backtest_passed, reasons = self._validate_backtest_results(
+                    backtest_results)
                 if not backtest_passed:
-                    reasons_str = "; ".join(reasons)
-                    logger.warning(f"Strategy {strategy_id} failed backtest validation: {reasons_str}")
-                    return {
-                        "success": False,
-                        "status": "rejected",
-                        "reason": f"Failed backtest validation: {reasons_str}",
-                        "backtest_results": backtest_results
-                    }
-
-                logger.info(f"Strategy {strategy_id} passed backtest validation")
-
-            # Step 2: Deploy the strategy
-            deployment_result = await self.exec_client.deploy_strategy(strategy_id, new_config)
-
-            if deployment_result and deployment_result.get("success", False):
-                deployment_id = deployment_result.get("deployment_id", "unknown")
-                logger.info(f"Successfully deployed strategy {strategy_id}. Deployment ID: {deployment_id}")
-
-                # Add backtest results to deployment result if available
-                if self.backtest_required and 'backtest_results' not in deployment_result:
-                    deployment_result["backtest_results"] = backtest_results
-
+                    reasons_str = '; '.join(reasons)
+                    logger.warning(
+                        f'Strategy {strategy_id} failed backtest validation: {reasons_str}'
+                        )
+                    return {'success': False, 'status': 'rejected',
+                        'reason':
+                        f'Failed backtest validation: {reasons_str}',
+                        'backtest_results': backtest_results}
+                logger.info(
+                    f'Strategy {strategy_id} passed backtest validation')
+            deployment_result = await self.exec_client.deploy_strategy(
+                strategy_id, new_config)
+            if deployment_result and deployment_result.get('success', False):
+                deployment_id = deployment_result.get('deployment_id',
+                    'unknown')
+                logger.info(
+                    f'Successfully deployed strategy {strategy_id}. Deployment ID: {deployment_id}'
+                    )
+                if (self.backtest_required and 'backtest_results' not in
+                    deployment_result):
+                    deployment_result['backtest_results'] = backtest_results
                 return deployment_result
             else:
-                error_msg = f"Deployment failed: {deployment_result.get('message', 'Unknown error')}"
-                logger.error(f"Failed to deploy strategy {strategy_id}: {error_msg}")
+                error_msg = (
+                    f"Deployment failed: {deployment_result.get('message', 'Unknown error')}"
+                    )
+                logger.error(
+                    f'Failed to deploy strategy {strategy_id}: {error_msg}')
                 return None
-
         except ExecutionEngineConnectionError as e:
-            logger.error(f"Connection error while deploying strategy {strategy_id}: {e}", exc_info=True)
-            raise StrategyDeploymentError(f"Connection error: {e}")
-
+            logger.error(
+                f'Connection error while deploying strategy {strategy_id}: {e}'
+                , exc_info=True)
+            raise StrategyDeploymentError(f'Connection error: {e}')
         except StrategyDeploymentError as e:
-            logger.error(f"Deployment error for strategy {strategy_id}: {e}", exc_info=True)
+            logger.error(f'Deployment error for strategy {strategy_id}: {e}',
+                exc_info=True)
             raise
-
         except Exception as e:
-            logger.error(f"Unexpected error while deploying strategy {strategy_id}: {e}", exc_info=True)
-            raise StrategyDeploymentError(f"Unexpected error: {e}")
+            logger.error(
+                f'Unexpected error while deploying strategy {strategy_id}: {e}'
+                , exc_info=True)
+            raise StrategyDeploymentError(f'Unexpected error: {e}')
 
-    # Add other adaptation actions as needed (e.g., adjust_resource_allocation)
 
-# --- Service Integration ---
-# This engine would typically be instantiated and used by the FeedbackLoop
-# or other coordinating components within the adaptive layer.
-
-# Example Usage (Conceptual - called from FeedbackLoop)
-# async def handle_adaptation_decision(decision):
-#     engine = AdaptationEngine()
-#     if decision.action == 'retrain_model':
-#         await engine.trigger_model_retraining(decision.model_id, decision.params)
-#     elif decision.action == 'update_parameter':
-#         await engine.update_strategy_parameter(decision.strategy_id, decision.param_name, decision.new_value)
-#     elif decision.action == 'deploy_mutation':
-#         await engine.deploy_strategy_update(decision.strategy_id, decision.new_config)
-
-import asyncio # Add asyncio import for placeholder sleep
+import asyncio

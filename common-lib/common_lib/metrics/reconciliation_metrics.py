@@ -56,8 +56,25 @@ def track_reconciliation(service: str, reconciliation_type: str):
         reconciliation_type: Type of reconciliation being performed
     """
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         @wraps(func)
         async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             # Increment active reconciliations
             ACTIVE_RECONCILIATIONS.labels(service=service, reconciliation_type=reconciliation_type).inc()
             

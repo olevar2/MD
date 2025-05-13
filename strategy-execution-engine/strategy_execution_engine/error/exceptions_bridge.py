@@ -1,334 +1,235 @@
 """
-Exceptions Bridge Module
+Service-Specific Exceptions Bridge
 
-This module bridges the common-lib exceptions with strategy-execution-engine specific exceptions.
-It re-exports all common exceptions and adds service-specific ones.
+This module provides a bridge between the common-lib error handling system and service-specific error handling.
+It includes decorators for adding standardized exception handling to functions and utilities for
+converting between different error types.
+
+To use this template:
+1. Copy this file to your service's error directory
+2. Replace SERVICE_NAME with your service name
+3. Replace StrategyExecutionError with your service-specific error class
+4. Add any additional service-specific exceptions
 """
-from typing import Dict, Any, Optional, Type, Callable, TypeVar, Union
-import functools
-import traceback
-import logging
-from fastapi import HTTPException, status
 
-# Import common-lib exceptions
-from common_lib.exceptions import (
-    # Base exception
-    ForexTradingPlatformError,
+import functools
+import logging
+import traceback
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union, cast
+
+# Import common-lib exceptions bridge
+from common_lib.errors.exceptions_bridge import (
+    # Base exceptions
+    BaseError,
+    ErrorCode,
     
-    # Configuration exceptions
-    ConfigurationError,
-    ConfigValidationError,
-    
-    # Data exceptions
-    DataError,
-    DataValidationError,
-    DataFetchError,
-    DataStorageError,
-    DataTransformationError,
-    
-    # Service exceptions
+    # Error classes
+    ValidationError,
+    DatabaseError,
+    APIError,
     ServiceError,
+    DataError,
+    BusinessError,
+    SecurityError,
+    ForexTradingError,
     ServiceUnavailableError,
-    ServiceTimeoutError,
-    
-    # Trading exceptions
-    TradingError,
-    OrderExecutionError,
-    PositionError,
-    
-    # Model exceptions
-    ModelError,
-    
-    # Security exceptions
+    ThirdPartyServiceError,
+    TimeoutError,
     AuthenticationError,
-    AuthorizationError
+    AuthorizationError,
+    NotFoundError,
+    ConflictError,
+    RateLimitError,
+    
+    # Base decorators
+    with_exception_handling as base_with_exception_handling,
+    async_with_exception_handling as base_async_with_exception_handling
 )
 
+# Type variable for function
+F = TypeVar('F', bound=Callable[..., Any])
+
+# Create logger
 logger = logging.getLogger(__name__)
 
-# Strategy Execution Engine specific exceptions
-class StrategyExecutionError(ForexTradingPlatformError):
-    """Base exception for strategy execution errors."""
+# Service name
+SERVICE_NAME = "strategy-execution"  # Replace with your service name
+
+
+# Service-specific error class
+class StrategyExecutionError(ServiceError):
+    """Base exception for service-specific errors."""
     
     def __init__(
         self,
         message: str,
-        error_code: str = "STRATEGY_EXECUTION_ERROR",
-        details: Optional[Dict[str, Any]] = None
+        error_code: ErrorCode = ErrorCode.SERVICE_ERROR,
+        details: Optional[Dict[str, Any]] = None,
+        correlation_id: Optional[str] = None,
+        cause: Optional[Exception] = None
     ):
-        super().__init__(message, error_code, details=details)
+        """
+        Initialize the service-specific error.
+        
+        Args:
+            message: Human-readable error message
+            error_code: Error code from the ErrorCode enum
+            details: Additional error details
+            correlation_id: Correlation ID for tracking the error across services
+            cause: Original exception that caused this error
+        """
+        super().__init__(
+            message=message,
+            error_code=error_code,
+            details=details,
+            correlation_id=correlation_id,
+            cause=cause
+        )
 
 
-class BacktestError(StrategyExecutionError):
-    """Base exception for backtesting errors."""
-    
-    def __init__(
-        self,
-        message: str,
-        error_code: str = "BACKTEST_ERROR",
-        details: Optional[Dict[str, Any]] = None
-    ):
-        super().__init__(message, error_code, details=details)
+# Add additional service-specific exceptions here
+class StrategyExecutionValidationError(ValidationError):
+    """Exception for service-specific validation errors."""
+    pass
 
 
-class BacktestConfigError(BacktestError):
-    """Exception raised when backtest configuration is invalid."""
-    
-    def __init__(
-        self,
-        message: str = "Invalid backtest configuration",
-        config_name: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        details = details or {}
-        if config_name:
-            details["config_name"] = config_name
-            
-        super().__init__(message, "BACKTEST_CONFIG_ERROR", details)
+class StrategyExecutionDataError(DataError):
+    """Exception for service-specific data errors."""
+    pass
 
 
-class BacktestDataError(BacktestError):
-    """Exception raised when backtest data is invalid or missing."""
-    
-    def __init__(
-        self,
-        message: str = "Invalid or missing backtest data",
-        data_source: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        details = details or {}
-        if data_source:
-            details["data_source"] = data_source
-            
-        super().__init__(message, "BACKTEST_DATA_ERROR", details)
+class StrategyExecutionBusinessError(BusinessError):
+    """Exception for service-specific business logic errors."""
+    pass
 
 
-class BacktestExecutionError(BacktestError):
-    """Exception raised when backtest execution fails."""
-    
-    def __init__(
-        self,
-        message: str = "Backtest execution failed",
-        backtest_id: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        details = details or {}
-        if backtest_id:
-            details["backtest_id"] = backtest_id
-            
-        super().__init__(message, "BACKTEST_EXECUTION_ERROR", details)
-
-
-class StrategyValidationError(StrategyExecutionError):
-    """Exception raised when strategy validation fails."""
-    
-    def __init__(
-        self,
-        message: str = "Strategy validation failed",
-        strategy_id: Optional[str] = None,
-        validation_errors: Optional[Dict[str, Any]] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        details = details or {}
-        if strategy_id:
-            details["strategy_id"] = strategy_id
-        if validation_errors:
-            details["validation_errors"] = validation_errors
-            
-        super().__init__(message, "STRATEGY_VALIDATION_ERROR", details)
-
-
-class StrategyExecutionTimeoutError(StrategyExecutionError):
-    """Exception raised when strategy execution times out."""
-    
-    def __init__(
-        self,
-        message: str = "Strategy execution timed out",
-        strategy_id: Optional[str] = None,
-        timeout_seconds: Optional[float] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        details = details or {}
-        if strategy_id:
-            details["strategy_id"] = strategy_id
-        if timeout_seconds is not None:
-            details["timeout_seconds"] = timeout_seconds
-            
-        super().__init__(message, "STRATEGY_EXECUTION_TIMEOUT", details)
-
-
-class StrategyNotFoundError(StrategyExecutionError):
-    """Exception raised when a strategy is not found."""
-    
-    def __init__(
-        self,
-        message: str = "Strategy not found",
-        strategy_id: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        details = details or {}
-        if strategy_id:
-            details["strategy_id"] = strategy_id
-            
-        super().__init__(message, "STRATEGY_NOT_FOUND", details)
-
-
-class BacktestReportError(BacktestError):
-    """Exception raised when generating a backtest report fails."""
-    
-    def __init__(
-        self,
-        message: str = "Failed to generate backtest report",
-        backtest_id: Optional[str] = None,
-        report_type: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        details = details or {}
-        if backtest_id:
-            details["backtest_id"] = backtest_id
-        if report_type:
-            details["report_type"] = report_type
-            
-        super().__init__(message, "BACKTEST_REPORT_ERROR", details)
-
-
-# Error conversion utilities
-def convert_to_http_exception(exc: ForexTradingPlatformError) -> HTTPException:
+def with_exception_handling(
+    func: Optional[F] = None,
+    *,
+    error_class: Type[BaseError] = StrategyExecutionError,
+    log_level: int = logging.ERROR,
+    include_traceback: bool = True,
+    reraise: bool = True,
+    correlation_id: Optional[str] = None,
+    context: Optional[Dict[str, Any]] = None,
+    cleanup_func: Optional[Callable[[], None]] = None
+) -> Union[F, Callable[[F], F]]:
     """
-    Convert a ForexTradingPlatformError to an appropriate HTTPException.
+    Decorator to add standardized exception handling to synchronous functions.
     
-    Args:
-        exc: The exception to convert
-        
-    Returns:
-        An HTTPException with appropriate status code and details
-    """
-    # Map exception types to status codes
-    status_code_map = {
-        # 400 Bad Request
-        DataValidationError: status.HTTP_400_BAD_REQUEST,
-        ConfigValidationError: status.HTTP_400_BAD_REQUEST,
-        StrategyValidationError: status.HTTP_400_BAD_REQUEST,
-        BacktestConfigError: status.HTTP_400_BAD_REQUEST,
-        
-        # 401 Unauthorized
-        AuthenticationError: status.HTTP_401_UNAUTHORIZED,
-        
-        # 403 Forbidden
-        AuthorizationError: status.HTTP_403_FORBIDDEN,
-        
-        # 404 Not Found
-        StrategyNotFoundError: status.HTTP_404_NOT_FOUND,
-        
-        # 408 Request Timeout
-        StrategyExecutionTimeoutError: status.HTTP_408_REQUEST_TIMEOUT,
-        
-        # 422 Unprocessable Entity
-        BacktestDataError: status.HTTP_422_UNPROCESSABLE_ENTITY,
-        
-        # 503 Service Unavailable
-        ServiceUnavailableError: status.HTTP_503_SERVICE_UNAVAILABLE,
-        ServiceTimeoutError: status.HTTP_503_SERVICE_UNAVAILABLE,
-    }
-    
-    # Get status code for exception type, default to 500
-    for exc_type, code in status_code_map.items():
-        if isinstance(exc, exc_type):
-            status_code = code
-            break
-    else:
-        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    
-    # Create HTTPException with details from original exception
-    return HTTPException(
-        status_code=status_code,
-        detail={
-            "error_code": exc.error_code,
-            "message": exc.message,
-            "details": exc.details
-        }
-    )
-
-
-# Decorator for exception handling
-F = TypeVar('F', bound=Callable)
-
-def with_exception_handling(func: F) -> F:
-    """
-    Decorator to add standardized exception handling to functions.
+    This decorator:
+    1. Catches all exceptions
+    2. Logs the exception with appropriate context
+    3. Optionally runs a cleanup function
+    4. Converts generic exceptions to service-specific exceptions
+    5. Optionally reraises the exception
     
     Args:
         func: The function to decorate
+        error_class: The error class to use for wrapping exceptions
+        log_level: The logging level to use
+        include_traceback: Whether to include traceback in the error details
+        reraise: Whether to reraise the exception
+        correlation_id: Correlation ID for tracking the error
+        context: Additional context information to include in logs
+        cleanup_func: Optional function to call for cleanup on error
         
     Returns:
         Decorated function with exception handling
     """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except ForexTradingPlatformError as e:
-            logger.error(
-                f"{e.__class__.__name__}: {e.message}",
-                extra={
-                    "error_code": e.error_code,
-                    "details": e.details
-                }
-            )
-            raise
-        except Exception as e:
-            logger.error(
-                f"Unexpected error: {str(e)}",
-                extra={
-                    "traceback": traceback.format_exc()
-                }
-            )
-            # Convert to ForexTradingPlatformError
-            raise StrategyExecutionError(
-                message=f"Unexpected error: {str(e)}",
-                error_code="UNEXPECTED_ERROR",
-                details={"original_error": str(e)}
-            )
-    
-    return wrapper
+    return base_with_exception_handling(
+        func=func,
+        error_class=error_class,
+        log_level=log_level,
+        include_traceback=include_traceback,
+        reraise=reraise,
+        correlation_id=correlation_id,
+        context=context,
+        cleanup_func=cleanup_func,
+        service_name=SERVICE_NAME
+    )
 
 
-# Async decorator for exception handling
-def async_with_exception_handling(func: F) -> F:
+def async_with_exception_handling(
+    func: Optional[F] = None,
+    *,
+    error_class: Type[BaseError] = StrategyExecutionError,
+    log_level: int = logging.ERROR,
+    include_traceback: bool = True,
+    reraise: bool = True,
+    correlation_id: Optional[str] = None,
+    context: Optional[Dict[str, Any]] = None,
+    cleanup_func: Optional[Callable[[], Any]] = None
+) -> Union[F, Callable[[F], F]]:
     """
-    Decorator to add standardized exception handling to async functions.
+    Decorator to add standardized exception handling to asynchronous functions.
+    
+    This decorator:
+    1. Catches all exceptions
+    2. Logs the exception with appropriate context
+    3. Optionally runs a cleanup function
+    4. Converts generic exceptions to service-specific exceptions
+    5. Optionally reraises the exception
     
     Args:
-        func: The async function to decorate
+        func: The function to decorate
+        error_class: The error class to use for wrapping exceptions
+        log_level: The logging level to use
+        include_traceback: Whether to include traceback in the error details
+        reraise: Whether to reraise the exception
+        correlation_id: Correlation ID for tracking the error
+        context: Additional context information to include in logs
+        cleanup_func: Optional function to call for cleanup on error
         
     Returns:
-        Decorated async function with exception handling
+        Decorated function with exception handling
     """
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except ForexTradingPlatformError as e:
-            logger.error(
-                f"{e.__class__.__name__}: {e.message}",
-                extra={
-                    "error_code": e.error_code,
-                    "details": e.details
-                }
-            )
-            raise
-        except Exception as e:
-            logger.error(
-                f"Unexpected error: {str(e)}",
-                extra={
-                    "traceback": traceback.format_exc()
-                }
-            )
-            # Convert to ForexTradingPlatformError
-            raise StrategyExecutionError(
-                message=f"Unexpected error: {str(e)}",
-                error_code="UNEXPECTED_ERROR",
-                details={"original_error": str(e)}
-            )
+    return base_async_with_exception_handling(
+        func=func,
+        error_class=error_class,
+        log_level=log_level,
+        include_traceback=include_traceback,
+        reraise=reraise,
+        correlation_id=correlation_id,
+        context=context,
+        cleanup_func=cleanup_func,
+        service_name=SERVICE_NAME
+    )
+
+
+# Re-export all imported exceptions
+__all__ = [
+    # Error codes
+    "ErrorCode",
     
-    return wrapper
+    # Base exceptions
+    "BaseError",
+    
+    # Common error classes
+    "ValidationError",
+    "DatabaseError",
+    "APIError",
+    "ServiceError",
+    "DataError",
+    "BusinessError",
+    "SecurityError",
+    "ForexTradingError",
+    "ServiceUnavailableError",
+    "ThirdPartyServiceError",
+    "TimeoutError",
+    "AuthenticationError",
+    "AuthorizationError",
+    "NotFoundError",
+    "ConflictError",
+    "RateLimitError",
+    
+    # Service-specific error classes
+    "StrategyExecutionError",
+    "StrategyExecutionValidationError",
+    "StrategyExecutionDataError",
+    "StrategyExecutionBusinessError",
+    
+    # Decorators
+    "with_exception_handling",
+    "async_with_exception_handling"
+]

@@ -79,6 +79,14 @@ class ResolutionStrategyError(ReconciliationError):
         self.discrepancy_id = discrepancy_id
         
     def __str__(self) -> str:
+    """
+      str  .
+    
+    Returns:
+        str: Description of return value
+    
+    """
+
         if self.discrepancy_id:
             return f"Strategy {self.strategy} for discrepancy {self.discrepancy_id}: {super().__str__()}"
         return f"Strategy {self.strategy}: {super().__str__()}"
@@ -108,6 +116,14 @@ class ReconciliationTimeoutError(ReconciliationError):
         self.reconciliation_id = reconciliation_id
         
     def __str__(self) -> str:
+    """
+      str  .
+    
+    Returns:
+        str: Description of return value
+    
+    """
+
         if self.reconciliation_id:
             return f"Reconciliation {self.reconciliation_id} timed out after {self.timeout_seconds} seconds: {super().__str__()}"
         return f"Reconciliation timed out after {self.timeout_seconds} seconds: {super().__str__()}"
@@ -137,4 +153,12 @@ class InconsistentDataError(ReconciliationError):
         self.sources = sources
         
     def __str__(self) -> str:
+    """
+      str  .
+    
+    Returns:
+        str: Description of return value
+    
+    """
+
         return f"Inconsistent data for field {self.field}: {super().__str__()}"

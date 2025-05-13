@@ -1,0 +1,188 @@
+{
+  "circular_dependencies": [
+    {
+      "service1": "feature-store-service",
+      "service2": "feature_store_service",
+      "service1_to_service2": [
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\database.py",
+          "import": "feature_store_service.config.get_database_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\logging_setup.py",
+          "import": "feature_store_service.config.get_logging_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.logging.enhanced_logging.configure_logging"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.indicators.advanced_indicators_registrar.register_advanced_indicators"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.forex_platform_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.config.CacheConfig"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_transformation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.cache_manager.CacheManager"
+        }
+      ],
+      "service2_to_service1": [
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\database.py",
+          "import": "feature_store_service.config.get_database_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\logging_setup.py",
+          "import": "feature_store_service.config.get_logging_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.logging.enhanced_logging.configure_logging"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.indicators.advanced_indicators_registrar.register_advanced_indicators"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.forex_platform_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.config.CacheConfig"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_transformation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.cache_manager.CacheManager"
+        }
+      ],
+      "suggestions": [
+        "This appears to be a naming issue. 'feature-store-service' and 'feature_store_service' seem to be the same service with different naming conventions.",
+        "Standardize the service naming to use either kebab-case or snake_case consistently."
+      ]
+    },
+    {
+      "service1": "feature_store_service",
+      "service2": "feature-store-service",
+      "service1_to_service2": [
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\database.py",
+          "import": "feature_store_service.config.get_database_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\logging_setup.py",
+          "import": "feature_store_service.config.get_logging_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.logging.enhanced_logging.configure_logging"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.indicators.advanced_indicators_registrar.register_advanced_indicators"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.forex_platform_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.config.CacheConfig"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_transformation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.cache_manager.CacheManager"
+        }
+      ],
+      "service2_to_service1": [
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\database.py",
+          "import": "feature_store_service.config.get_database_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\logging_setup.py",
+          "import": "feature_store_service.config.get_logging_config"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.logging.enhanced_logging.configure_logging"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.indicators.advanced_indicators_registrar.register_advanced_indicators"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_validation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.forex_platform_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.config.CacheConfig"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.error.exception_handlers.data_transformation_exception_handler"
+        },
+        {
+          "module": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\main.py",
+          "import": "feature_store_service.caching.cache_manager.CacheManager"
+        }
+      ],
+      "suggestions": [
+        "This appears to be a naming issue. 'feature_store_service' and 'feature-store-service' seem to be the same service with different naming conventions.",
+        "Standardize the service naming to use either kebab-case or snake_case consistently."
+      ]
+    }
+  ]
+}

@@ -1,3 +1,9 @@
+"""
+Runner module.
+
+This module provides functionality for...
+"""
+
 import os
 import time
 import json
@@ -17,6 +23,14 @@ class StressTestRunner:
       - Generates performance reports and visualizations
     """
     def __init__(self, config_path: str):
+    """
+      init  .
+    
+    Args:
+        config_path: Description of config_path
+    
+    """
+
         # Load environment configuration
         self.env_config = EnvironmentConfig(config_path)
         self.config = self.env_config.config
@@ -24,6 +38,14 @@ class StressTestRunner:
         self.reporting_config = self.env_config.get_reporting_config()
 
     def run_test(self) -> dict:
+    """
+    Run test.
+    
+    Returns:
+        dict: Description of return value
+    
+    """
+
         profile_name = self.config.get('environment_name', 'stress_test')
         test_config = self.config
         env = StressTestEnvironment(profile_name, test_config)
@@ -89,6 +111,11 @@ class StressTestRunner:
 
 
 def main():
+    """
+    Main.
+    
+    """
+
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     parser = argparse.ArgumentParser(description='Stress Test Runner for Forex Trading Platform')
     parser.add_argument('-c', '--config', help='Path to stress test YAML configuration')

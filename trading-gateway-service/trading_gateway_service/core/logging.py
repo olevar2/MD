@@ -15,6 +15,14 @@ class CorrelationFilter(logging.Filter):
     """Logging filter that adds correlation ID to log records."""
     
     def filter(self, record):
+    """
+    Filter.
+    
+    Args:
+        record: Description of record
+    
+    """
+
         correlation_id = get_correlation_id()
         record.correlation_id = correlation_id or "no-correlation-id"
         return True

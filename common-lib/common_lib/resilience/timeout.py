@@ -118,6 +118,15 @@ class Timeout:
             Decorated function
         """
         async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             return await self.execute(lambda: func(*args, **kwargs))
         
         return wrapper

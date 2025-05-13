@@ -21,6 +21,14 @@ class FilesystemModelRegistry(ModelRegistryRepository):
     """Implementation of ModelRegistryRepository using filesystem storage"""
 
     def __init__(self, base_path: str):
+    """
+      init  .
+    
+    Args:
+        base_path: Description of base_path
+    
+    """
+
         self.base_path = Path(base_path)
         self.models_path = self.base_path / "models"
         self.versions_path = self.base_path / "versions"

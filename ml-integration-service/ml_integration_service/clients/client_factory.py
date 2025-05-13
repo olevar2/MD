@@ -47,7 +47,7 @@ def get_ml_workbench_client(config_override: Optional[Dict[str, Any]] = None) ->
     """
     return get_client(
         client_class=MLWorkbenchClient,
-        service_name="ml-workbench-service",
+        service_name="ml_workbench-service",
         config_override=config_override
     )
 
@@ -81,7 +81,7 @@ def initialize_clients() -> None:
     # Configure ML Workbench client
     ml_workbench_config = {
         "base_url": settings.ML_WORKBENCH_API_URL,
-        "service_name": "ml-workbench-service",
+        "service_name": "ml_workbench-service",
         "api_key": settings.ML_WORKBENCH_API_KEY.get_secret_value() if settings.ML_WORKBENCH_API_KEY else None,
         "timeout_seconds": 30.0,
         "retry_base_delay": 0.5,
@@ -93,7 +93,7 @@ def initialize_clients() -> None:
 
     # Register client configurations
     register_client_config("analysis-engine-service", ClientConfig(**analysis_engine_config))
-    register_client_config("ml-workbench-service", ClientConfig(**ml_workbench_config))
+    register_client_config("ml_workbench-service", ClientConfig(**ml_workbench_config))
 
     # Add configurations for other clients as needed
 

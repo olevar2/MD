@@ -3,6 +3,15 @@ API Router Registration
 
 This module registers all API routers from the v1 package.
 
+from analysis_engine.core.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
 DEPRECATED: This module is deprecated and will be removed in a future version.
 Please use analysis_engine.api.routes instead, which provides a more comprehensive
 routing setup with the setup_routes() function.
@@ -30,20 +39,31 @@ from analysis_engine.api.routes.feedback_endpoints import router as feedback_end
 api_router = APIRouter(prefix='/api/v1')
 api_router.include_router(analysis_results_router, prefix='/analysis')
 api_router.include_router(market_regime_router, prefix='/market-regime')
-api_router.include_router(tool_effectiveness_router, prefix='/tool-effectiveness')
+api_router.include_router(tool_effectiveness_router, prefix=
+    '/tool-effectiveness')
 api_router.include_router(adaptive_layer_router, prefix='/adaptive')
 api_router.include_router(signal_quality_router, prefix='/signal-quality')
 api_router.include_router(enhanced_tool_router, prefix='/enhanced-tool')
 api_router.include_router(nlp_analysis_router, prefix='/nlp')
 api_router.include_router(correlation_analysis_router, prefix='/correlation')
-api_router.include_router(manipulation_detection_router, prefix='/manipulation')
-api_router.include_router(enhanced_effectiveness_api_router, prefix='/enhanced-effectiveness')
+api_router.include_router(manipulation_detection_router, prefix='/manipulation'
+    )
+api_router.include_router(enhanced_effectiveness_api_router, prefix=
+    '/enhanced-effectiveness')
 api_router.include_router(feedback_endpoints_router)
 REMOVAL_DATE = datetime.date(2023, 12, 31)
 days_until_removal = (REMOVAL_DATE - datetime.date.today()).days
-days_message = f'{days_until_removal} days' if days_until_removal > 0 else 'PAST DUE'
+days_message = (f'{days_until_removal} days' if days_until_removal > 0 else
+    'PAST DUE')
 
+
+@with_exception_handling
 def show_deprecation_warning():
+    """
+    Show deprecation warning.
+    
+    """
+
     frame = inspect.currentframe().f_back
     if frame:
         filename = frame.f_code.co_filename
@@ -53,7 +73,14 @@ def show_deprecation_warning():
             rel_path = os.path.relpath(filename)
         except ValueError:
             rel_path = filename
-        warnings.warn(f"DEPRECATION WARNING: analysis_engine.api.router will be removed after {REMOVAL_DATE} ({days_message}).\nPlease use analysis_engine.api.routes instead.\nCalled from {rel_path}:{lineno} in function '{function_name}'\nMigration guide: https://confluence.example.com/display/DEV/API+Router+Migration+Guide", DeprecationWarning, stacklevel=2)
+        warnings.warn(
+            f"""DEPRECATION WARNING: analysis_engine.api.router will be removed after {REMOVAL_DATE} ({days_message}).
+Please use analysis_engine.api.routes instead.
+Called from {rel_path}:{lineno} in function '{function_name}'
+Migration guide: https://confluence.example.com/display/DEV/API+Router+Migration+Guide"""
+            , DeprecationWarning, stacklevel=2)
+
+
 show_deprecation_warning()
 try:
     from analysis_engine.core.deprecation_monitor import record_usage

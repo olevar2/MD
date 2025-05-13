@@ -15,20 +15,47 @@ router = APIRouter(prefix='/feedback', tags=['Feedback System Monitoring'])
 _RECENT_FEEDBACK_STORE: List[Dict[str, Any]] = []
 _MAX_STORE_SIZE = 100
 
+
+from analysis_engine.core.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
 class FeedbackSystemStatus(BaseModel):
+    """
+    FeedbackSystemStatus class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     status: str = 'Operational'
     consumer_status: str = 'Connected'
     last_event_processed_at: Optional[datetime] = None
 
+
 class FeedbackEventSummary(BaseModel):
+    """
+    FeedbackEventSummary class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     feedback_id: str
     feedback_type: str
     source: str
     timestamp: datetime
 
+
 class FeedbackStats(BaseModel):
     total_processed: int
     processed_by_type: Dict[str, int]
+
 
 def add_to_recent_store(event_summary: FeedbackEventSummary):
     """Placeholder to simulate storing recent events."""
@@ -36,28 +63,40 @@ def add_to_recent_store(event_summary: FeedbackEventSummary):
     if len(_RECENT_FEEDBACK_STORE) > _MAX_STORE_SIZE:
         _RECENT_FEEDBACK_STORE.pop()
 
+
 @router.get('/status', response_model=FeedbackSystemStatus)
+@async_with_exception_handling
 async def get_feedback_system_status():
     """Get the current operational status of the feedback system."""
     logger.info('Request received for feedback system status.')
     try:
-        last_event_time = _RECENT_FEEDBACK_STORE[0]['timestamp'] if _RECENT_FEEDBACK_STORE else None
+        last_event_time = _RECENT_FEEDBACK_STORE[0]['timestamp'
+            ] if _RECENT_FEEDBACK_STORE else None
         return FeedbackSystemStatus(last_event_processed_at=last_event_time)
     except Exception as e:
-        logger.error(f'Error fetching feedback system status: {e}', exc_info=True)
-        raise HTTPException(status_code=500, detail='Internal server error fetching status')
+        logger.error(f'Error fetching feedback system status: {e}',
+            exc_info=True)
+        raise HTTPException(status_code=500, detail=
+            'Internal server error fetching status')
+
 
 @router.get('/recent', response_model=List[FeedbackEventSummary])
+@async_with_exception_handling
 async def get_recent_feedback_events(limit: int=20):
     """Retrieve a list of recently processed feedback events."""
-    logger.info(f'Request received for recent feedback events (limit: {limit}).')
+    logger.info(
+        f'Request received for recent feedback events (limit: {limit}).')
     try:
         return _RECENT_FEEDBACK_STORE[:limit]
     except Exception as e:
-        logger.error(f'Error fetching recent feedback events: {e}', exc_info=True)
-        raise HTTPException(status_code=500, detail='Internal server error fetching recent events')
+        logger.error(f'Error fetching recent feedback events: {e}',
+            exc_info=True)
+        raise HTTPException(status_code=500, detail=
+            'Internal server error fetching recent events')
+
 
 @router.get('/stats', response_model=FeedbackStats)
+@async_with_exception_handling
 async def get_feedback_statistics():
     """Get statistics about processed feedback events."""
     logger.info('Request received for feedback statistics.')
@@ -70,13 +109,21 @@ async def get_feedback_statistics():
         return FeedbackStats(total_processed=total, processed_by_type=by_type)
     except Exception as e:
         logger.error(f'Error fetching feedback statistics: {e}', exc_info=True)
-        raise HTTPException(status_code=500, detail='Internal server error fetching statistics')
+        raise HTTPException(status_code=500, detail=
+            'Internal server error fetching statistics')
 
+
+@with_exception_handling
 def record_feedback_processed(event: Any):
     """Call this function after successfully processing a feedback event."""
     try:
-        summary = FeedbackEventSummary(feedback_id=str(event.feedback_id), feedback_type=event.feedback_type, source=event.source, timestamp=event.timestamp)
+        summary = FeedbackEventSummary(feedback_id=str(event.feedback_id),
+            feedback_type=event.feedback_type, source=event.source,
+            timestamp=event.timestamp)
         add_to_recent_store(summary)
-        logger.debug(f'Recorded processed feedback event summary: {summary.feedback_id}')
+        logger.debug(
+            f'Recorded processed feedback event summary: {summary.feedback_id}'
+            )
     except Exception as e:
-        logger.warning(f'Could not record feedback event summary: {e}', exc_info=True)
+        logger.warning(f'Could not record feedback event summary: {e}',
+            exc_info=True)

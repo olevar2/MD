@@ -15,7 +15,22 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ApiSecurityManager:
+    """
+    ApiSecurityManager class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, config: Dict):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+    
+    """
+
         self.config = config
         self.audit_logger = logging.getLogger("security.audit")
         

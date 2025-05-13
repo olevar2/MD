@@ -1,3 +1,9 @@
+"""
+Models module.
+
+This module provides functionality for...
+"""
+
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, JSON, Text

@@ -70,6 +70,21 @@ class FeedbackLoopFactory(ServiceFactory):
         adaptation_engine: AdaptationEngine, # Requires AdaptationEngine
         **kwargs
     ) -> FeedbackLoop:
+    """
+    Create.
+    
+    Args:
+        config_manager: Description of config_manager
+        adaptation_engine: Description of adaptation_engine
+        # Requires AdaptationEngine
+        **kwargs: Description of # Requires AdaptationEngine
+        **kwargs
+    
+    Returns:
+        FeedbackLoop: Description of return value
+    
+    """
+
         config = config_manager.get_configuration("feedback_loop", {})
         return FeedbackLoop(adaptation_engine=adaptation_engine, config=config)
 
@@ -82,6 +97,18 @@ class FeedbackCategorizerFactory(ServiceFactory):
         config_manager: ConfigurationManager,
         **kwargs
     ) -> FeedbackCategorizer:
+    """
+    Create.
+    
+    Args:
+        config_manager: Description of config_manager
+        kwargs: Description of kwargs
+    
+    Returns:
+        FeedbackCategorizer: Description of return value
+    
+    """
+
         config = config_manager.get_configuration("feedback_categorizer", {})
         return FeedbackCategorizer(config=config)
 
@@ -112,13 +139,29 @@ class TradingFeedbackCollectorFactory(ServiceFactory):
         feedback_loop: FeedbackLoop, # Requires FeedbackLoop
         **kwargs
     ) -> TradingFeedbackCollector:
+    """
+    Create.
+    
+    Args:
+        config_manager: Description of config_manager
+        event_publisher: Description of event_publisher
+        feedback_loop: Description of feedback_loop
+        # Requires FeedbackLoop
+        **kwargs: Description of # Requires FeedbackLoop
+        **kwargs
+    
+    Returns:
+        TradingFeedbackCollector: Description of return value
+    
+    """
+
         config = config_manager.get_configuration("feedback_collector", {})
 
         # Create model training feedback adapter
         model_training_feedback = None
         if ML_WORKBENCH_AVAILABLE:
             ml_workbench_config = config_manager.get_configuration("ml_workbench", {})
-            if ml_workbench_config.get("enabled", False):
+            if ml_workbench_config_manager.get('enabled', False):
                 model_training_feedback = ModelTrainingFeedbackAdapter(config=ml_workbench_config)
 
         collector = TradingFeedbackCollector(
@@ -143,6 +186,19 @@ class ParameterFeedbackTrackerFactory(ServiceFactory):
         event_publisher: EventPublisher,
         **kwargs
     ) -> ParameterFeedbackTracker:
+    """
+    Create.
+    
+    Args:
+        config_manager: Description of config_manager
+        event_publisher: Description of event_publisher
+        kwargs: Description of kwargs
+    
+    Returns:
+        ParameterFeedbackTracker: Description of return value
+    
+    """
+
         config = config_manager.get_configuration("feedback_system", {}).get("parameter_tracking", {})
         return ParameterFeedbackTracker(
             event_publisher=event_publisher,
@@ -161,6 +217,27 @@ class StrategyMutationEngineFactory(ServiceFactory):
         event_bus: EventBusBase, # Requires EventBus
         **kwargs
     ) -> StrategyMutationEngine:
+    """
+    Create.
+    
+    Args:
+        config_manager: Description of config_manager
+        parameter_feedback_tracker: Description of parameter_feedback_tracker
+        # Renamed dependency
+        strategy_repository: Description of # Renamed dependency
+        strategy_repository
+        # Requires StrategyRepository
+        event_bus: Description of # Requires StrategyRepository
+        event_bus
+        # Requires EventBus
+        **kwargs: Description of # Requires EventBus
+        **kwargs
+    
+    Returns:
+        StrategyMutationEngine: Description of return value
+    
+    """
+
         config = config_manager.get_configuration("feedback_system", {}).get("strategy_mutation", {})
         return StrategyMutationEngine(
             parameter_feedback_service=parameter_feedback_tracker, # Pass tracker instance
@@ -185,9 +262,36 @@ class EnhancedFeedbackKafkaHandlerFactory(ServiceFactory):
         feedback_router: FeedbackRouter, # Requires FeedbackRouter
         **kwargs
     ) -> EnhancedFeedbackKafkaHandler:
+    """
+    Create.
+    
+    Args:
+        config_manager: Description of config_manager
+        event_bus: Description of event_bus
+        # Requires KafkaEventBus
+        feedback_loop: Description of # Requires KafkaEventBus
+        feedback_loop
+        # Requires FeedbackLoop
+        parameter_feedback_tracker: Description of # Requires FeedbackLoop
+        parameter_feedback_tracker
+        # Requires ParameterFeedbackTracker
+        strategy_mutation_engine: Description of # Requires ParameterFeedbackTracker
+        strategy_mutation_engine
+        # Requires StrategyMutationEngine
+        feedback_router: Description of # Requires StrategyMutationEngine
+        feedback_router
+        # Requires FeedbackRouter
+        **kwargs: Description of # Requires FeedbackRouter
+        **kwargs
+    
+    Returns:
+        EnhancedFeedbackKafkaHandler: Description of return value
+    
+    """
+
         feedback_config = config_manager.get_configuration("feedback_system", {})
-        service_name = feedback_config.get("service_name", "analysis_engine")
-        kafka_config = feedback_config.get("kafka_integration", {})
+        service_name = feedback_config_manager.get('service_name', "analysis_engine")
+        kafka_config = feedback_config_manager.get('kafka_integration', {})
 
         handler = EnhancedFeedbackKafkaHandler(
             event_bus=event_bus,
@@ -235,11 +339,34 @@ class FeedbackIntegrationServiceFactory(ServiceFactory):
         # ml_client: Optional[MLServiceClient] = None,
         **kwargs
     ) -> FeedbackIntegrationService:
+    """
+    Create.
+    
+    Args:
+        config_manager: Description of config_manager
+        event_publisher: Description of event_publisher
+        event_subscriber: Description of event_subscriber
+        adaptation_engine: Description of adaptation_engine
+        # Requires AdaptationEngine
+        feedback_loop: Description of # Requires AdaptationEngine
+        feedback_loop
+        # Requires FeedbackLoop
+        # Add optional ML client dependency if needed
+        # ml_client: Description of # Requires FeedbackLoop
+        # Add optional ML client dependency if needed
+        # ml_client
+        kwargs: Description of kwargs
+    
+    Returns:
+        FeedbackIntegrationService: Description of return value
+    
+    """
+
         # Create ML client if configured
         ml_client = None
         if ML_CLIENT_AVAILABLE:
             ml_config = config_manager.get_configuration("ml_integration", {})
-            if ml_config.get("enabled", False):
+            if ml_config_manager.get('enabled', False):
                  # Use the adapter
                  ml_client = MLModelConnectorAdapter(config=ml_config)
 
@@ -247,7 +374,7 @@ class FeedbackIntegrationServiceFactory(ServiceFactory):
         model_training_feedback = None
         if ML_WORKBENCH_AVAILABLE:
             ml_workbench_config = config_manager.get_configuration("ml_workbench", {})
-            if ml_workbench_config.get("enabled", False):
+            if ml_workbench_config_manager.get('enabled', False):
                 model_training_feedback = ModelTrainingFeedbackAdapter(config=ml_workbench_config)
 
         service = FeedbackIntegrationService(

@@ -14,13 +14,13 @@ import random
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 try:
-    from analysis_engine.utils.optimized_parallel_processor import OptimizedParallelProcessor
+    from common_lib.parallel import ParallelProcessor, get_parallel_processor
 except ImportError as e:
     print(f"Error importing modules: {e}")
     try:
         # Try with the full path
         sys.path.insert(0, "D:\\MD\\forex_trading_platform")
-        from analysis_engine.utils.optimized_parallel_processor import OptimizedParallelProcessor
+        from common_lib.parallel import ParallelProcessor, get_parallel_processor
     except ImportError as e:
         print(f"Error importing modules with full path: {e}")
         sys.exit(1)
@@ -64,6 +64,14 @@ class TestOptimizedParallelProcessor(unittest.TestCase):
 
         # Function that records execution order
         def record_execution(priority):
+    """
+    Record execution.
+    
+    Args:
+        priority: Description of priority
+    
+    """
+
             execution_order.append(priority)
             return priority
 
@@ -75,7 +83,7 @@ class TestOptimizedParallelProcessor(unittest.TestCase):
         ]
 
         # Process tasks with a single worker to ensure sequential execution
-        processor = OptimizedParallelProcessor(min_workers=1, max_workers=1)
+        processor = get_parallel_processor()
 
         # Use a more deterministic approach for testing priority
         execution_order.clear()

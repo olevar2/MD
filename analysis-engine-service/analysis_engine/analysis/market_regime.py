@@ -32,6 +32,14 @@ class MarketRegimeResult:
     """Wrapper for backward compatibility with RegimeClassification."""
 
     def __init__(self, classification):
+    """
+      init  .
+    
+    Args:
+        classification: Description of classification
+    
+    """
+
         self.classification = classification
         self.regime = classification.regime
         self.confidence = classification.confidence
@@ -50,6 +58,15 @@ class RegimeChangeResult:
     """Wrapper for backward compatibility with regime change events."""
 
     def __init__(self, new_classification, old_classification=None):
+    """
+      init  .
+    
+    Args:
+        new_classification: Description of new_classification
+        old_classification: Description of old_classification
+    
+    """
+
         self.new_regime = new_classification.regime if new_classification else None
         self.old_regime = old_classification.regime if old_classification else None
         self.new_classification = new_classification

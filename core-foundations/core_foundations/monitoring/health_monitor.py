@@ -16,12 +16,26 @@ from core_foundations.resilience.circuit_breaker import CircuitBreaker, CircuitB
 logger = logging.getLogger(__name__)
 
 class ServiceHealth(Enum):
+    """
+    ServiceHealth class that inherits from Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     HEALTHY = "HEALTHY"
     DEGRADED = "DEGRADED"
     UNHEALTHY = "UNHEALTHY"
 
 @dataclass
 class HealthMetrics:
+    """
+    HealthMetrics class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     cpu_usage: float
     memory_usage: float
     event_lag: int
@@ -54,6 +68,18 @@ class HealthMonitor:
         dependencies: Set[ServiceDependency],
         config: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        event_bus: Description of event_bus
+        service_name: Description of service_name
+        dependencies: Description of dependencies
+        config: Description of config
+        Any]]: Description of Any]]
+    
+    """
+
         self.event_bus = event_bus
         self.service_name = service_name
         self.dependencies = dependencies

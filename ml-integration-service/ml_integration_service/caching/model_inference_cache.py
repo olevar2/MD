@@ -66,8 +66,25 @@ def cache_model_inference(ttl: int = 1800):
         Decorated function
     """
     def decorator(func: Callable):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
             # Extract parameters for cache key
             model_name = kwargs.get('model_name', args[1] if len(args) > 1 else None)
             symbol = kwargs.get('symbol', args[2] if len(args) > 2 else None)

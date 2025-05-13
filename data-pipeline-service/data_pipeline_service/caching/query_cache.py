@@ -231,12 +231,30 @@ def cache_query(
         Decorated function
     """
     def decorator(func):
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
         def wrapper(
             self,
             query_type: str,
             table: str,
             **kwargs
         ):
+    """
+    Wrapper.
+    
+    Args:
+        query_type: Description of query_type
+        table: Description of table
+        kwargs: Description of kwargs
+    
+    """
+
             # Get query cache
             query_cache = getattr(self, "_query_cache", None)
             if query_cache is None:

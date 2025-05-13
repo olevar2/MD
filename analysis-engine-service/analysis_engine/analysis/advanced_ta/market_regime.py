@@ -300,6 +300,11 @@ if __name__ == '__main__':
     import asyncio
 
     async def run_example():
+    """
+    Run example.
+    
+    """
+
         # Create sample data (more needed for proper analysis)
         dates = pd.date_range(start='2023-01-01', periods=100, freq='D')
         price = (np.sin(np.linspace(0, 10, 100)) * 5 +

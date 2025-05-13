@@ -4,7 +4,6 @@ Core interfaces for broker adapters in the trading gateway service.
 This module defines the standard interfaces that all broker adapters must implement,
 ensuring consistent behavior across different brokers.
 """
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
@@ -13,31 +12,39 @@ from datetime import datetime, timezone
 import uuid
 
 
+from trading_gateway_service.resilience.utils import (
+    with_broker_api_resilience,
+    with_market_data_resilience,
+    with_order_execution_resilience,
+    with_risk_management_resilience,
+    with_database_resilience
+)
+
 class OrderType(Enum):
     """Types of orders that can be placed with brokers."""
-    MARKET = "market"
-    LIMIT = "limit"
-    STOP = "stop"
-    STOP_LIMIT = "stop_limit"
-    OCO = "one_cancels_other"  # One Cancels Other
-    TRAILING_STOP = "trailing_stop"
+    MARKET = 'market'
+    LIMIT = 'limit'
+    STOP = 'stop'
+    STOP_LIMIT = 'stop_limit'
+    OCO = 'one_cancels_other'
+    TRAILING_STOP = 'trailing_stop'
 
 
 class OrderDirection(Enum):
     """Direction of an order (buy/sell)."""
-    BUY = "buy"
-    SELL = "sell"
+    BUY = 'buy'
+    SELL = 'sell'
 
 
 class OrderStatus(Enum):
     """Possible statuses for an order."""
-    PENDING = "pending"
-    OPEN = "open"
-    PARTIALLY_FILLED = "partially_filled"
-    FILLED = "filled"
-    CANCELLED = "cancelled"
-    REJECTED = "rejected"
-    EXPIRED = "expired"
+    PENDING = 'pending'
+    OPEN = 'open'
+    PARTIALLY_FILLED = 'partially_filled'
+    FILLED = 'filled'
+    CANCELLED = 'cancelled'
+    REJECTED = 'rejected'
+    EXPIRED = 'expired'
 
 
 @dataclass
@@ -45,11 +52,11 @@ class OrderRequest:
     """
     Represents a request to place an order with a broker.
     """
-    instrument: str  # e.g., "EURUSD"
+    instrument: str
     order_type: OrderType
     direction: OrderDirection
     quantity: float
-    price: Optional[float] = None  # Required for limit and stop orders
+    price: Optional[float] = None
     stop_loss: Optional[float] = None
     take_profit: Optional[float] = None
     trailing_stop_pips: Optional[float] = None
@@ -109,8 +116,9 @@ class BrokerAdapterInterface(ABC):
     """
     Interface that all broker adapters must implement.
     """
+
     @abstractmethod
-    def connect(self, credentials: Dict[str, str]) -> bool:
+    def connect(self, credentials: Dict[str, str]) ->bool:
         """
         Connect to the broker using the provided credentials.
 
@@ -123,7 +131,7 @@ class BrokerAdapterInterface(ABC):
         pass
 
     @abstractmethod
-    def disconnect(self) -> bool:
+    def disconnect(self) ->bool:
         """
         Disconnect from the broker.
 
@@ -133,7 +141,7 @@ class BrokerAdapterInterface(ABC):
         pass
 
     @abstractmethod
-    def is_connected(self) -> bool:
+    def is_connected(self) ->bool:
         """
         Check if the adapter is currently connected to the broker.
 
@@ -142,8 +150,9 @@ class BrokerAdapterInterface(ABC):
         """
         pass
 
+    @with_broker_api_resilience('get_broker_info')
     @abstractmethod
-    def get_broker_info(self) -> BrokerInfo:
+    def get_broker_info(self) ->BrokerInfo:
         """
         Get information about the broker's capabilities and limitations.
 
@@ -152,8 +161,9 @@ class BrokerAdapterInterface(ABC):
         """
         pass
 
+    @with_broker_api_resilience('get_account_info')
     @abstractmethod
-    def get_account_info(self) -> Dict[str, Any]:
+    def get_account_info(self) ->Dict[str, Any]:
         """
         Get information about the trading account.
 
@@ -162,8 +172,9 @@ class BrokerAdapterInterface(ABC):
         """
         pass
 
+    @with_broker_api_resilience('get_positions')
     @abstractmethod
-    def get_positions(self) -> List[Dict[str, Any]]:
+    def get_positions(self) ->List[Dict[str, Any]]:
         """
         Get all open positions.
 
@@ -172,8 +183,9 @@ class BrokerAdapterInterface(ABC):
         """
         pass
 
+    @with_broker_api_resilience('get_orders')
     @abstractmethod
-    def get_orders(self) -> List[Dict[str, Any]]:
+    def get_orders(self) ->List[Dict[str, Any]]:
         """
         Get all pending orders.
 
@@ -183,7 +195,7 @@ class BrokerAdapterInterface(ABC):
         pass
 
     @abstractmethod
-    def place_order(self, order: OrderRequest) -> ExecutionReport:
+    def place_order(self, order: OrderRequest) ->ExecutionReport:
         """
         Place a new order with the broker.
 
@@ -196,7 +208,8 @@ class BrokerAdapterInterface(ABC):
         pass
 
     @abstractmethod
-    def modify_order(self, order_id: str, modifications: Dict[str, Any]) -> ExecutionReport:
+    def modify_order(self, order_id: str, modifications: Dict[str, Any]
+        ) ->ExecutionReport:
         """
         Modify an existing order.
 
@@ -210,7 +223,7 @@ class BrokerAdapterInterface(ABC):
         pass
 
     @abstractmethod
-    def cancel_order(self, order_id: str) -> ExecutionReport:
+    def cancel_order(self, order_id: str) ->ExecutionReport:
         """
         Cancel an existing order.
 
@@ -222,8 +235,9 @@ class BrokerAdapterInterface(ABC):
         """
         pass
 
+    @with_market_data_resilience('get_market_data')
     @abstractmethod
-    def get_market_data(self, instrument: str) -> Dict[str, Any]:
+    def get_market_data(self, instrument: str) ->Dict[str, Any]:
         """
         Get current market data for an instrument.
 

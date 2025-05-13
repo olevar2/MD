@@ -276,16 +276,16 @@
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\IAdvancedIndicator.py",
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\i_advanced_indicator.py",
       "type": "file",
       "expected": "snake_case",
-      "actual": "IAdvancedIndicator.py"
+      "actual": "i_advanced_indicator.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\IPatternRecognizer.py",
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\interfaces\\i_pattern_recognizer.py",
       "type": "file",
       "expected": "snake_case",
-      "actual": "IPatternRecognizer.py"
+      "actual": "i_pattern_recognizer.py"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\analysis_engine\\learning_from_mistakes\\__init__.py",
@@ -474,28 +474,28 @@
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\api\\apiClient.js",
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\api\\api-client.js",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "apiClient.js"
+      "actual": "api-client.js"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\AnalysisDashboard.js",
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\analysis-dashboard.js",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "AnalysisDashboard.js"
+      "actual": "analysis-dashboard.js"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\ConfluenceDetectionWidget.js",
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\confluence-detection-widget.js",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "ConfluenceDetectionWidget.js"
+      "actual": "confluence-detection-widget.js"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\DivergenceAnalysisWidget.js",
+      "path": "D:\\MD\\forex_trading_platform\\analysis-engine-service\\ui\\components\\divergence-analysis-widget.js",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "DivergenceAnalysisWidget.js"
+      "actual": "divergence-analysis-widget.js"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\analysis_engine\\analysis\\advanced_ta\\base\\__init__.py",
@@ -588,10 +588,10 @@
       "actual": "caching_optimization_summary.md"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\chat_interface_template\\ChatBackendService.py",
+      "path": "D:\\MD\\forex_trading_platform\\chat_interface_template\\chat_backend_service.py",
       "type": "file",
       "expected": "snake_case",
-      "actual": "ChatBackendService.py"
+      "actual": "chat_backend_service.py"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\chat_interface_template\\ChatInterface.tsx",
@@ -648,10 +648,10 @@
       "actual": ".prettierrc.json"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\apiClient.js",
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\api-client.js",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "apiClient.js"
+      "actual": "api-client.js"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\docs\\error_handling.md",
@@ -666,16 +666,16 @@
       "actual": "errorBridge.ts"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\errorHandler.js",
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\error-handler.js",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "errorHandler.js"
+      "actual": "error-handler.js"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\templates\\ServiceClientTemplate.ts",
+      "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\templates\\service-client-template.ts",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "ServiceClientTemplate.ts"
+      "actual": "service-client-template.ts"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\common-js-lib\\test\\security.test.js",
@@ -1692,10 +1692,10 @@
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\interfaces\\IIndicator.py",
+      "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\interfaces\\i_indicator.py",
       "type": "file",
       "expected": "snake_case",
-      "actual": "IIndicator.py"
+      "actual": "i_indicator.py"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\feature-store-service\\feature_store_service\\reconciliation\\__init__.py",
@@ -1872,85 +1872,85 @@
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service",
       "type": "directory",
       "expected": "snake_case",
-      "actual": "ml-workbench-service"
+      "actual": "ml_workbench-service"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\.pre-commit-config.yaml",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\.pre-commit-config.yaml",
       "type": "file",
       "expected": "kebab-case",
       "actual": ".pre-commit-config.yaml"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\hardware_optimization_output\\sample_model_cpu_optimization_results.json",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\hardware_optimization_output\\sample_model_cpu_optimization_results.json",
       "type": "file",
       "expected": "kebab-case",
       "actual": "sample_model_cpu_optimization_results.json"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\adapters\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\adapters\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\api\\v1\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\api\\v1\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\multitask\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\multitask\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\reward\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\state\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\environment\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\models\\reinforcement\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\models\\reinforcement\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\model_registry\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\model_registry\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\ml_workbench_service\\optimization\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\ml_workbench_service\\optimization\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\optimization\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\optimization\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ml-workbench-service\\tests\\__init__.py",
+      "path": "D:\\MD\\forex_trading_platform\\ml_workbench-service\\tests\\__init__.py",
       "type": "file",
       "expected": "snake_case",
       "actual": "__init__.py"
@@ -2826,10 +2826,10 @@
       "actual": "order_execution_service_refactoring.md"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\src\\middleware\\errorHandler.js",
+      "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\src\\middleware\\error-handler.js",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "errorHandler.js"
+      "actual": "error-handler.js"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\trading-gateway-service\\src\\utils\\errorBridge.js",
@@ -2946,16 +2946,16 @@
       "actual": "next.config.js"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\api\\apiClient.ts",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\api\\api-client.ts",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "apiClient.ts"
+      "actual": "api-client.ts"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ABTestMonitor.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ab-test-monitor.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "ABTestMonitor.tsx"
+      "actual": "ab-test-monitor.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\analysis\\AnalysisCharting.tsx",
@@ -2976,34 +2976,34 @@
       "actual": "InteractiveAnalysisTools.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset-detail\\CryptoDetails.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset_detail\\CryptoDetails.jsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "CryptoDetails.jsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset-detail\\ForexDetails.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset_detail\\ForexDetails.jsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "ForexDetails.jsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset-detail\\StockDetails.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset_detail\\StockDetails.jsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "StockDetails.jsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\AssetDetailView.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\asset-detail-view.jsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "AssetDetailView.jsx"
+      "actual": "asset-detail-view.jsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\CausalDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\causal-dashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "CausalDashboard.tsx"
+      "actual": "causal-dashboard.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\chart\\Chart.tsx",
@@ -3138,10 +3138,10 @@
       "actual": "AdvancedTradingDashboard.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\RegimeAwareDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\regime-aware-dashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "RegimeAwareDashboard.tsx"
+      "actual": "regime-aware-dashboard.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\dashboard\\RegimeIndicator.tsx",
@@ -3174,40 +3174,40 @@
       "actual": "PhaseDocumentation.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\FeedbackLoopDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback_loop\\FeedbackLoopDashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "FeedbackLoopDashboard.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\HistoricalTrendAnalysis.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback_loop\\HistoricalTrendAnalysis.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "HistoricalTrendAnalysis.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\ParameterCrossRegimeAnalysis.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback_loop\\ParameterCrossRegimeAnalysis.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "ParameterCrossRegimeAnalysis.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\ParameterEffectivenessCard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback_loop\\ParameterEffectivenessCard.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "ParameterEffectivenessCard.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-loop\\ParameterInsightsPanel.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback_loop\\ParameterInsightsPanel.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "ParameterInsightsPanel.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\FeedbackDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\feedback-dashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "FeedbackDashboard.tsx"
+      "actual": "feedback-dashboard.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\health\\HealthSummary.tsx",
@@ -3258,10 +3258,10 @@
       "actual": "MLConfirmationFilter.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\ModelExplainabilityVisualization.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\model-explainability-visualization.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "ModelExplainabilityVisualization.tsx"
+      "actual": "model-explainability-visualization.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\RLEnvironmentConfigurator.tsx",
@@ -3270,22 +3270,22 @@
       "actual": "RLEnvironmentConfigurator.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\RLTrainingDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml\\rl-training-dashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "RLTrainingDashboard.tsx"
+      "actual": "rl-training-dashboard.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml-workbench\\RLTrainingVisualization.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ml_workbench\\RLTrainingVisualization.jsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "RLTrainingVisualization.jsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ModelExplainabilityVisualization.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\model-explainability-visualization.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "ModelExplainabilityVisualization.tsx"
+      "actual": "model-explainability-visualization.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\monitoring\\RealTimeMonitoringDisplays.tsx",
@@ -3294,10 +3294,10 @@
       "actual": "RealTimeMonitoringDisplays.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\MultiAssetPortfolioDashboard.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\multi-asset-portfolio-dashboard.jsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "MultiAssetPortfolioDashboard.jsx"
+      "actual": "multi-asset-portfolio-dashboard.jsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\navigation\\MainNavigation.tsx",
@@ -3312,16 +3312,16 @@
       "actual": "MobileNavigation.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\NetworkGraph.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\network-graph.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "NetworkGraph.tsx"
+      "actual": "network-graph.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ParameterTuningInterface.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\parameter-tuning-interface.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "ParameterTuningInterface.tsx"
+      "actual": "parameter-tuning-interface.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\portfolio\\PortfolioManagement.tsx",
@@ -3330,40 +3330,40 @@
       "actual": "PortfolioManagement.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\PortfolioBreakdown.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\portfolio-breakdown.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "PortfolioBreakdown.tsx"
+      "actual": "portfolio-breakdown.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\PositionMonitoringDashboard.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\position-monitoring-dashboard.jsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "PositionMonitoringDashboard.jsx"
+      "actual": "position-monitoring-dashboard.jsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\RegimeAwareDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\regime-aware-dashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "RegimeAwareDashboard.tsx"
+      "actual": "regime-aware-dashboard.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\reinforcement\\RLTrainingDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\reinforcement\\rl-training-dashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "RLTrainingDashboard.tsx"
+      "actual": "rl-training-dashboard.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\RLEnvironmentConfig.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\rl-environment-config.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "RLEnvironmentConfig.tsx"
+      "actual": "rl-environment-config.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\RLTrainingDashboard.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\rl-training-dashboard.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "RLTrainingDashboard.tsx"
+      "actual": "rl-training-dashboard.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\settings\\ApiKeyDialog.tsx",
@@ -3384,16 +3384,16 @@
       "actual": "Setup2FADialog.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\SignalVisualization.jsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\signal-visualization.jsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "SignalVisualization.jsx"
+      "actual": "signal-visualization.jsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\SignalVisualizer.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\signal-visualizer.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "SignalVisualizer.tsx"
+      "actual": "signal-visualizer.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\strategy\\AdaptiveStrategySettings.tsx",
@@ -3450,10 +3450,10 @@
       "actual": "PositionsMonitor.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\SignalVisualizer.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\signal-visualizer.tsx",
       "type": "file",
       "expected": "kebab-case",
-      "actual": "SignalVisualizer.tsx"
+      "actual": "signal-visualizer.tsx"
     },
     {
       "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\trading\\TouchControls.tsx",
@@ -3480,37 +3480,37 @@
       "actual": "Watchlist.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\Button.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui_library\\Button.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "Button.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\Card.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui_library\\Card.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "Card.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\Chart.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui_library\\Chart.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "Chart.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\DataTable.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui_library\\DataTable.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "DataTable.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\StatusIndicator.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui_library\\StatusIndicator.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "StatusIndicator.tsx"
     },
     {
-      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui-library\\ThemeProvider.tsx",
+      "path": "D:\\MD\\forex_trading_platform\\ui-service\\src\\components\\ui_library\\ThemeProvider.tsx",
       "type": "file",
       "expected": "kebab-case",
       "actual": "ThemeProvider.tsx"

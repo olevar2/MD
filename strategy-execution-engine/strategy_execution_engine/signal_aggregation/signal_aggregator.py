@@ -1,3 +1,9 @@
+"""
+Signal aggregator module.
+
+This module provides functionality for...
+"""
+
 class SignalAggregator:
     """
     Aggregates signals from multiple sources and calculates a final signal with confidence level.

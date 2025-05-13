@@ -1,3 +1,9 @@
+"""
+Market data module.
+
+This module provides functionality for...
+"""
+
 
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Any, Union

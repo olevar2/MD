@@ -539,7 +539,7 @@ class FeedbackLoopTestCase(TestCase):
         super().__init__(
             name="Feedback Loop Integration Test",
             description="Tests the complete feedback loop from trading outcome to model adaptation",
-            tags=["feedback-loop", "adaptation", "ml"],
+            tags=["feedback_loop", "adaptation", "ml"],
             timeout_seconds=120.0  # Longer timeout for adaptation process
         )
         self.strategy_api_url = strategy_api_url

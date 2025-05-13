@@ -76,6 +76,18 @@ class ParameterValidationError(OptimizationError):
         parameter_value: Optional[Any] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        parameter_name: Description of parameter_name
+        parameter_value: Description of parameter_value
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if parameter_name:
             details["parameter_name"] = parameter_name
@@ -100,6 +112,18 @@ class OptimizationConvergenceError(OptimizationError):
         iterations: Optional[int] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        algorithm: Description of algorithm
+        iterations: Description of iterations
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if algorithm:
             details["algorithm"] = algorithm
@@ -123,6 +147,17 @@ class ResourceAllocationError(OptimizationError):
         resource_type: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        resource_type: Description of resource_type
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if resource_type:
             details["resource_type"] = resource_type
@@ -143,6 +178,17 @@ class CachingError(OptimizationError):
         cache_key: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        cache_key: Description of cache_key
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if cache_key:
             details["cache_key"] = cache_key
@@ -163,6 +209,17 @@ class MLOptimizationError(OptimizationError):
         model_type: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        model_type: Description of model_type
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if model_type:
             details["model_type"] = model_type

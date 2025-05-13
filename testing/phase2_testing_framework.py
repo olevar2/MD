@@ -656,6 +656,18 @@ class Phase2TestingFramework:
         
         # Simple moving average crossover strategy for testing
         def sma_crossover_strategy(data, engine, fast_length=10, slow_length=30, **kwargs):
+    """
+    Sma crossover strategy.
+    
+    Args:
+        data: Description of data
+        engine: Description of engine
+        fast_length: Description of fast_length
+        slow_length: Description of slow_length
+        kwargs: Description of kwargs
+    
+    """
+
             # Calculate moving averages
             data['fast_sma'] = data['close'].rolling(window=fast_length).mean()
             data['slow_sma'] = data['close'].rolling(window=slow_length).mean()

@@ -182,6 +182,18 @@ def with_error_handling(func: F) -> F:
     """
     @functools.wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
         try:
             return func(*args, **kwargs)
         except ForexTradingPlatformError as e:
@@ -208,6 +220,18 @@ def async_with_error_handling(func: AsyncF) -> AsyncF:
     """
     @functools.wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
         try:
             return await func(*args, **kwargs)
         except ForexTradingPlatformError as e:

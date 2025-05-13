@@ -34,6 +34,14 @@ class FractalType(Enum):
 class FractalPattern(PatternResult):
     """Represents a detected fractal pattern."""
     def __init__(self, **kwargs):
+    """
+      init  .
+    
+    Args:
+        kwargs: Description of kwargs
+    
+    """
+
         super().__init__(**kwargs)
         self.fractal_type = kwargs.get("fractal_type", None) # FractalType Enum
         self.pattern_name = "Fractal"

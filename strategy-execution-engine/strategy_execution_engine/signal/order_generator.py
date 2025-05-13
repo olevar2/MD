@@ -27,9 +27,9 @@ class OrderGenerator:
             config: Configuration dictionary for order generation
         """
         self.config = config or {}
-        self.default_order_type = self.config.get("default_order_type", "MARKET")
-        self.default_time_in_force = self.config.get("default_time_in_force", "GTC")
-        self.enable_oco_orders = self.config.get("enable_oco_orders", True)
+        self.default_order_type = self.config_manager.get('default_order_type', "MARKET")
+        self.default_time_in_force = self.config_manager.get('default_time_in_force', "GTC")
+        self.enable_oco_orders = self.config_manager.get('enable_oco_orders', True)
         
     def generate_orders(
         self,

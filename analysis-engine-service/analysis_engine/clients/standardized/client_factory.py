@@ -3,9 +3,7 @@ Standardized Client Factory
 
 This module provides a factory for creating standardized API clients.
 """
-
 from typing import Optional
-
 from analysis_engine.core.config import get_settings
 from analysis_engine.clients.standardized.adaptive_layer_client import AdaptiveLayerClient
 from analysis_engine.clients.standardized.market_regime_client import MarketRegimeClient
@@ -19,8 +17,14 @@ from analysis_engine.clients.standardized.monitoring_client import MonitoringCli
 from analysis_engine.clients.standardized.causal_client import CausalClient
 from analysis_engine.clients.standardized.backtesting_client import BacktestingClient
 from analysis_engine.monitoring.structured_logging import get_structured_logger
-
 logger = get_structured_logger(__name__)
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class StandardizedClientFactory:
     """
@@ -31,7 +35,7 @@ class StandardizedClientFactory:
     the correct base URLs and timeouts.
     """
 
-    def __init__(self, base_url: Optional[str] = None, timeout: int = 30):
+    def __init__(self, base_url: Optional[str]=None, timeout: int=30):
         """
         Initialize the standardized client factory.
 
@@ -42,19 +46,23 @@ class StandardizedClientFactory:
         settings = get_settings()
         self.base_url = base_url or settings.analysis_engine_url
         self.timeout = timeout
+        logger.info(
+            f'Initialized standardized client factory with base URL: {self.base_url}'
+            )
 
-        logger.info(f"Initialized standardized client factory with base URL: {self.base_url}")
-
-    def get_adaptive_layer_client(self) -> AdaptiveLayerClient:
+    @with_resilience('get_adaptive_layer_client')
+    def get_adaptive_layer_client(self) ->AdaptiveLayerClient:
         """
         Get a client for interacting with the standardized Adaptive Layer API.
 
         Returns:
             AdaptiveLayerClient instance
         """
-        return AdaptiveLayerClient(base_url=self.base_url, timeout=self.timeout)
+        return AdaptiveLayerClient(base_url=self.base_url, timeout=self.timeout
+            )
 
-    def get_market_regime_client(self) -> MarketRegimeClient:
+    @with_resilience('get_market_regime_client')
+    def get_market_regime_client(self) ->MarketRegimeClient:
         """
         Get a client for interacting with the standardized Market Regime API.
 
@@ -63,16 +71,19 @@ class StandardizedClientFactory:
         """
         return MarketRegimeClient(base_url=self.base_url, timeout=self.timeout)
 
-    def get_signal_quality_client(self) -> SignalQualityClient:
+    @with_resilience('get_signal_quality_client')
+    def get_signal_quality_client(self) ->SignalQualityClient:
         """
         Get a client for interacting with the standardized Signal Quality API.
 
         Returns:
             SignalQualityClient instance
         """
-        return SignalQualityClient(base_url=self.base_url, timeout=self.timeout)
+        return SignalQualityClient(base_url=self.base_url, timeout=self.timeout
+            )
 
-    def get_nlp_analysis_client(self) -> NLPAnalysisClient:
+    @with_resilience('get_nlp_analysis_client')
+    def get_nlp_analysis_client(self) ->NLPAnalysisClient:
         """
         Get a client for interacting with the standardized NLP Analysis API.
 
@@ -81,34 +92,41 @@ class StandardizedClientFactory:
         """
         return NLPAnalysisClient(base_url=self.base_url, timeout=self.timeout)
 
-    def get_correlation_analysis_client(self) -> CorrelationAnalysisClient:
+    @with_resilience('get_correlation_analysis_client')
+    def get_correlation_analysis_client(self) ->CorrelationAnalysisClient:
         """
         Get a client for interacting with the standardized Correlation Analysis API.
 
         Returns:
             CorrelationAnalysisClient instance
         """
-        return CorrelationAnalysisClient(base_url=self.base_url, timeout=self.timeout)
+        return CorrelationAnalysisClient(base_url=self.base_url, timeout=
+            self.timeout)
 
-    def get_manipulation_detection_client(self) -> ManipulationDetectionClient:
+    @with_resilience('get_manipulation_detection_client')
+    def get_manipulation_detection_client(self) ->ManipulationDetectionClient:
         """
         Get a client for interacting with the standardized Manipulation Detection API.
 
         Returns:
             ManipulationDetectionClient instance
         """
-        return ManipulationDetectionClient(base_url=self.base_url, timeout=self.timeout)
+        return ManipulationDetectionClient(base_url=self.base_url, timeout=
+            self.timeout)
 
-    def get_effectiveness_client(self) -> EffectivenessClient:
+    @with_resilience('get_effectiveness_client')
+    def get_effectiveness_client(self) ->EffectivenessClient:
         """
         Get a client for interacting with the standardized Tool Effectiveness API.
 
         Returns:
             EffectivenessClient instance
         """
-        return EffectivenessClient(base_url=self.base_url, timeout=self.timeout)
+        return EffectivenessClient(base_url=self.base_url, timeout=self.timeout
+            )
 
-    def get_feedback_client(self) -> FeedbackClient:
+    @with_database_resilience('get_feedback_client')
+    def get_feedback_client(self) ->FeedbackClient:
         """
         Get a client for interacting with the standardized Feedback API.
 
@@ -117,7 +135,8 @@ class StandardizedClientFactory:
         """
         return FeedbackClient(base_url=self.base_url, timeout=self.timeout)
 
-    def get_monitoring_client(self) -> MonitoringClient:
+    @with_resilience('get_monitoring_client')
+    def get_monitoring_client(self) ->MonitoringClient:
         """
         Get a client for interacting with the standardized Monitoring API.
 
@@ -126,7 +145,8 @@ class StandardizedClientFactory:
         """
         return MonitoringClient(base_url=self.base_url, timeout=self.timeout)
 
-    def get_causal_client(self) -> CausalClient:
+    @with_resilience('get_causal_client')
+    def get_causal_client(self) ->CausalClient:
         """
         Get a client for interacting with the standardized Causal Analysis API.
 
@@ -135,7 +155,8 @@ class StandardizedClientFactory:
         """
         return CausalClient(base_url=self.base_url, timeout=self.timeout)
 
-    def get_backtesting_client(self) -> BacktestingClient:
+    @with_resilience('get_backtesting_client')
+    def get_backtesting_client(self) ->BacktestingClient:
         """
         Get a client for interacting with the standardized Backtesting API.
 
@@ -144,13 +165,11 @@ class StandardizedClientFactory:
         """
         return BacktestingClient(base_url=self.base_url, timeout=self.timeout)
 
-    # Add methods for other standardized clients as they are implemented
 
-
-# Singleton instance for easy access
 _factory_instance = None
 
-def get_client_factory() -> StandardizedClientFactory:
+
+def get_client_factory() ->StandardizedClientFactory:
     """
     Get the standardized client factory instance.
 
@@ -158,8 +177,6 @@ def get_client_factory() -> StandardizedClientFactory:
         StandardizedClientFactory instance
     """
     global _factory_instance
-
     if _factory_instance is None:
         _factory_instance = StandardizedClientFactory()
-
     return _factory_instance

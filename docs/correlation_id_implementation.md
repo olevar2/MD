@@ -22,7 +22,7 @@ The following services have been updated to use standardized correlation ID prop
 | risk-management-service | ✅ | Fully implemented with middleware and logging |
 | monitoring-alerting-service | ✅ | Fully implemented with middleware and logging |
 | ml-integration-service | ✅ | Fully implemented with middleware and logging |
-| ml-workbench-service | ✅ | Fully implemented with middleware and logging |
+| ml_workbench-service | ✅ | Fully implemented with middleware and logging |
 | data-pipeline-service | ✅ | Fully implemented with middleware and logging |
 | feature-store-service | ✅ | Fully implemented with middleware and logging |
 | trading-gateway-service | ✅ | Fully implemented with middleware and logging |

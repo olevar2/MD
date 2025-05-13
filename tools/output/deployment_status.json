@@ -1,0 +1,80 @@
+{
+  "version": {
+    "version": null,
+    "timestamp": null,
+    "environment": null,
+    "services": {}
+  },
+  "deployment_frequency": {
+    "total_deployments": 0,
+    "deployments_last_7_days": 0,
+    "deployments_last_30_days": 0,
+    "deployments_last_90_days": 0,
+    "average_deployments_per_week": 0,
+    "average_deployments_per_month": 0,
+    "deployment_dates": [],
+    "deployment_by_day_of_week": {
+      "Monday": 0,
+      "Tuesday": 0,
+      "Wednesday": 0,
+      "Thursday": 0,
+      "Friday": 0,
+      "Saturday": 0,
+      "Sunday": 0
+    },
+    "deployment_by_hour": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0
+    }
+  },
+  "rollback_frequency": {
+    "total_rollbacks": 0,
+    "rollbacks_last_30_days": 0,
+    "rollback_percentage": 0,
+    "rollback_dates": [],
+    "rollback_reasons": {}
+  },
+  "pipeline_health": {
+    "pipeline_exists": true,
+    "pipeline_type": "GitHub Actions",
+    "success_rate": null,
+    "average_duration": null,
+    "last_run_status": null,
+    "last_run_timestamp": null
+  },
+  "summary": {
+    "current_version": null,
+    "environment": null,
+    "last_deployment": null,
+    "total_deployments": 0,
+    "deployments_last_30_days": 0,
+    "average_deployments_per_week": 0,
+    "total_rollbacks": 0,
+    "rollback_percentage": 0,
+    "pipeline_exists": true,
+    "pipeline_type": "GitHub Actions",
+    "pipeline_success_rate": null
+  }
+}

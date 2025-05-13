@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: monitoring-alerting-service
+  name: monitoring-alerting-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-alerting-service
+  template:
+    metadata:
+      labels:
+        app: monitoring-alerting-service
+    spec:
+      containers:
+      - image: forex-trading-platform/monitoring-alerting-service:latest
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8008
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: monitoring-alerting-service
+        ports:
+        - containerPort: 8008
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8008
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi

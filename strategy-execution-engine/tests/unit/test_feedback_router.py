@@ -1,3 +1,9 @@
+"""
+Test feedback router module.
+
+This module provides functionality for...
+"""
+
 \
 import pytest
 import asyncio
@@ -12,10 +18,20 @@ import httpx # Added httpx import
 # Mock services needed by FeedbackRouter if they are used in tested methods
 @pytest.fixture
 def mock_feedback_collector():
+    """
+    Mock feedback collector.
+    
+    """
+
     return AsyncMock()
 
 @pytest.fixture
 def mock_timeframe_feedback_service():
+    """
+    Mock timeframe feedback service.
+    
+    """
+
     return AsyncMock()
 
 @pytest.fixture

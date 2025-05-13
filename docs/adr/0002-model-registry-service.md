@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Our ML-related services (ml-workbench-service, ml-integration-service, and analysis-engine-service) had several issues:
+Our ML-related services (ml_workbench-service, ml-integration-service, and analysis-engine-service) had several issues:
 
 1. Circular dependencies between services
 2. Inconsistent model versioning and lifecycle management

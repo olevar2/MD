@@ -33,6 +33,19 @@ class RegimeAwareOptimizer:
         base_optimizer: Optional[Any] = None,
         regime_weights: Optional[Dict[str, float]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        regime_detector: Description of regime_detector
+        # MarketRegimeDetector instance
+        base_optimizer: Description of # MarketRegimeDetector instance
+        base_optimizer
+        regime_weights: Description of regime_weights
+        float]]: Description of float]]
+    
+    """
+
         self.regime_detector = regime_detector
         self.base_optimizer = base_optimizer or GaussianProcessRegressor()
         self.regime_weights = regime_weights or {}
@@ -74,6 +87,14 @@ class RegimeAwareOptimizer:
             if len(data) >= min_samples_per_regime:
                 # Create regime-specific objective function
                 def regime_objective(params):
+    """
+    Regime objective.
+    
+    Args:
+        params: Description of params
+    
+    """
+
                     return objective_func(params, data)
                 
                 # Optimize for this regime
@@ -270,6 +291,16 @@ class OnlineLearningOptimizer:
         learning_rate: float = 0.1,
         window_size: int = 1000
     ):
+    """
+      init  .
+    
+    Args:
+        base_optimizer: Description of base_optimizer
+        learning_rate: Description of learning_rate
+        window_size: Description of window_size
+    
+    """
+
         self.base_optimizer = base_optimizer
         self.learning_rate = learning_rate
         self.window_size = window_size

@@ -24,6 +24,15 @@ class OHLCVCache:
     """Cache layer for frequently accessed OHLCV data."""
 
     def __init__(self, redis_client: Redis, ttl_seconds: int = 3600):
+    """
+      init  .
+    
+    Args:
+        redis_client: Description of redis_client
+        ttl_seconds: Description of ttl_seconds
+    
+    """
+
         self.redis = redis_client
         self.ttl = ttl_seconds
 

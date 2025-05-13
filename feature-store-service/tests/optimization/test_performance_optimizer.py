@@ -140,6 +140,14 @@ class TestPerformanceOptimization(unittest.TestCase):
     def test_concurrent_profiling(self):
         """Test concurrent performance profiling."""
         def worker(worker_id):
+    """
+    Worker.
+    
+    Args:
+        worker_id: Description of worker_id
+    
+    """
+
             _, profile = self.optimizer.profile_calculation(
                 indicator_name=f"TestIndicator_{worker_id}",
                 calc_func=dummy_calculation,

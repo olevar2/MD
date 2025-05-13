@@ -681,6 +681,11 @@ if __name__ == '__main__':
     
     # Let's run the async sample test instead if the environment part fails
     async def run_main_async():
+    """
+    Run main async.
+    
+    """
+
         logging.basicConfig(level=logging.INFO)
         await run_sample_integrated_test()
 

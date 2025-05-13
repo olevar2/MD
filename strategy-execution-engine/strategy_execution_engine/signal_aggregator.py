@@ -65,6 +65,25 @@ class Signal:
         expiration: Optional[datetime] = None,
         metadata: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        source_id: Description of source_id
+        source_type: Description of source_type
+        direction: Description of direction
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        strength: Description of strength
+        # 0.0 to 1.0
+        timestamp: Description of # 0.0 to 1.0
+        timestamp
+        expiration: Description of expiration
+        metadata: Description of metadata
+        Any]]: Description of Any]]
+    
+    """
+
         self.source_id = source_id
         self.source_type = source_type
         self.direction = direction
@@ -116,6 +135,24 @@ class AggregatedSignal:
         timeframe: SignalTimeframe,
         market_context: Dict[str, Any]
     ):
+    """
+      init  .
+    
+    Args:
+        symbol: Description of symbol
+        direction: Description of direction
+        strength: Description of strength
+        confidence: Description of confidence
+        # 0.0 to 1.0
+        contributing_signals: Description of # 0.0 to 1.0
+        contributing_signals
+        timestamp: Description of timestamp
+        timeframe: Description of timeframe
+        market_context: Description of market_context
+        Any]: Description of Any]
+    
+    """
+
         self.symbol = symbol
         self.direction = direction
         self.strength = strength

@@ -20,6 +20,11 @@ class TestMLPipelineClient:
     
     @pytest.fixture
     def mock_config_manager(self):
+    """
+    Mock config manager.
+    
+    """
+
         config_manager = MagicMock()
         config_manager.get_section.return_value = {
             "base_url": "http://test-ml-service:9000",

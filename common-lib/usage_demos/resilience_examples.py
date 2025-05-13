@@ -89,6 +89,14 @@ async def execute_trade_with_circuit_breaker(order_id: str, symbol: str, quantit
     
     # Define the function that is protected by the circuit breaker
     async def execute_trade() -> Dict[str, Any]:
+    """
+    Execute trade.
+    
+    Returns:
+        Dict[str, Any]: Description of return value
+    
+    """
+
         logger.info(f"Executing trade for order {order_id}: {quantity} {symbol}")
         
         # Simulate random failures

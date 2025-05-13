@@ -11,19 +11,19 @@ import asyncio
 import json
 import os
 import httpx
-
-from common_lib.ml.prediction_interfaces import (
-    IMLPredictionService,
-    IMLSignalGenerator,
-    ModelType,
-    ModelMetadata,
-    PredictionRequest,
-    PredictionResult
-)
+from common_lib.ml.prediction_interfaces import IMLPredictionService, IMLSignalGenerator, ModelType, ModelMetadata, PredictionRequest, PredictionResult
 from core_foundations.utils.logger import get_logger
-
 logger = get_logger(__name__)
 
+
+from strategy_execution_engine.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class MLPredictionServiceAdapter(IMLPredictionService):
     """
@@ -32,8 +32,8 @@ class MLPredictionServiceAdapter(IMLPredictionService):
     This adapter can either use a direct API connection to the ML integration service
     or provide standalone functionality to avoid circular dependencies.
     """
-    
-    def __init__(self, config: Dict[str, Any] = None):
+
+    def __init__(self, config: Dict[str, Any]=None):
         """
         Initialize the adapter.
         
@@ -41,254 +41,136 @@ class MLPredictionServiceAdapter(IMLPredictionService):
             config: Configuration parameters
         """
         self.config = config or {}
-        
-        # Get ML integration service URL from config or environment
-        ml_integration_base_url = self.config.get(
-            "ml_integration_base_url", 
-            os.environ.get("ML_INTEGRATION_BASE_URL", "http://ml-integration-service:8000")
-        )
-        
-        # Set up the client with resolved URL
-        self.client = httpx.AsyncClient(
-            base_url=f"{ml_integration_base_url.rstrip('/')}/api/v1",
-            timeout=30.0
-        )
-        
-        # Cache for model metadata
+        ml_integration_base_url = self.config.get('ml_integration_base_url',
+            os.environ.get('ML_INTEGRATION_BASE_URL',
+            'http://ml-integration-service:8000'))
+        self.client = httpx.AsyncClient(base_url=
+            f"{ml_integration_base_url.rstrip('/')}/api/v1", timeout=30.0)
         self.metadata_cache = {}
-        self.cache_ttl = self.config.get("cache_ttl_minutes", 15)  # Cache TTL in minutes
-    
-    async def get_prediction(
-        self,
-        model_id: str,
-        inputs: Dict[str, Any],
-        version_id: Optional[str] = None,
-        explanation_required: bool = False,
-        context: Optional[Dict[str, Any]] = None
-    ) -> PredictionResult:
+        self.cache_ttl = self.config_manager.get('cache_ttl_minutes', 15)
+
+    @async_with_exception_handling
+    async def get_prediction(self, model_id: str, inputs: Dict[str, Any],
+        version_id: Optional[str]=None, explanation_required: bool=False,
+        context: Optional[Dict[str, Any]]=None) ->PredictionResult:
         """Get a prediction from a model."""
         try:
-            # Prepare request data
-            request_data = {
-                "inputs": inputs,
-                "explanation_required": explanation_required
-            }
-            
+            request_data = {'inputs': inputs, 'explanation_required':
+                explanation_required}
             if version_id:
-                request_data["version_id"] = version_id
-                
+                request_data['version_id'] = version_id
             if context:
-                request_data["context"] = context
-            
-            # Send request
-            response = await self.client.post(
-                f"/models/{model_id}/predict",
-                json=request_data
-            )
+                request_data['context'] = context
+            response = await self.client.post(f'/models/{model_id}/predict',
+                json=request_data)
             response.raise_for_status()
-            
-            # Parse response
             result = response.json()
-            
-            # Convert to PredictionResult
-            return PredictionResult(
-                prediction=result.get("prediction"),
-                confidence=result.get("confidence", 0.0),
-                model_id=model_id,
-                version_id=result.get("version_id", version_id or "default"),
-                timestamp=datetime.fromisoformat(result.get("timestamp")) if "timestamp" in result else datetime.now(),
-                explanation=result.get("explanation"),
-                metadata=result.get("metadata")
-            )
-            
+            return PredictionResult(prediction=result.get('prediction'),
+                confidence=result.get('confidence', 0.0), model_id=model_id,
+                version_id=result.get('version_id', version_id or 'default'
+                ), timestamp=datetime.fromisoformat(result.get('timestamp')
+                ) if 'timestamp' in result else datetime.now(), explanation
+                =result.get('explanation'), metadata=result.get('metadata'))
         except Exception as e:
-            logger.error(f"Error getting prediction: {str(e)}")
-            
-            # Return fallback prediction
-            return PredictionResult(
-                prediction=None,
-                confidence=0.0,
-                model_id=model_id,
-                version_id=version_id or "default",
-                timestamp=datetime.now(),
-                explanation=None,
-                metadata={"error": str(e), "is_fallback": True}
-            )
-    
-    async def get_batch_predictions(
-        self,
-        model_id: str,
-        batch_inputs: List[Dict[str, Any]],
-        version_id: Optional[str] = None,
-        explanation_required: bool = False,
-        context: Optional[Dict[str, Any]] = None
-    ) -> List[PredictionResult]:
+            logger.error(f'Error getting prediction: {str(e)}')
+            return PredictionResult(prediction=None, confidence=0.0,
+                model_id=model_id, version_id=version_id or 'default',
+                timestamp=datetime.now(), explanation=None, metadata={
+                'error': str(e), 'is_fallback': True})
+
+    @async_with_exception_handling
+    async def get_batch_predictions(self, model_id: str, batch_inputs: List
+        [Dict[str, Any]], version_id: Optional[str]=None,
+        explanation_required: bool=False, context: Optional[Dict[str, Any]]
+        =None) ->List[PredictionResult]:
         """Get predictions for a batch of inputs."""
         try:
-            # Prepare request data
-            request_data = {
-                "batch_inputs": batch_inputs,
-                "explanation_required": explanation_required
-            }
-            
+            request_data = {'batch_inputs': batch_inputs,
+                'explanation_required': explanation_required}
             if version_id:
-                request_data["version_id"] = version_id
-                
+                request_data['version_id'] = version_id
             if context:
-                request_data["context"] = context
-            
-            # Send request
+                request_data['context'] = context
             response = await self.client.post(
-                f"/models/{model_id}/batch-predict",
-                json=request_data
-            )
+                f'/models/{model_id}/batch-predict', json=request_data)
             response.raise_for_status()
-            
-            # Parse response
             results = response.json()
-            
-            # Convert to PredictionResult objects
-            return [
-                PredictionResult(
-                    prediction=result.get("prediction"),
-                    confidence=result.get("confidence", 0.0),
-                    model_id=model_id,
-                    version_id=result.get("version_id", version_id or "default"),
-                    timestamp=datetime.fromisoformat(result.get("timestamp")) if "timestamp" in result else datetime.now(),
-                    explanation=result.get("explanation"),
-                    metadata=result.get("metadata")
-                )
-                for result in results
-            ]
-            
+            return [PredictionResult(prediction=result.get('prediction'),
+                confidence=result.get('confidence', 0.0), model_id=model_id,
+                version_id=result.get('version_id', version_id or 'default'
+                ), timestamp=datetime.fromisoformat(result.get('timestamp')
+                ) if 'timestamp' in result else datetime.now(), explanation
+                =result.get('explanation'), metadata=result.get('metadata')
+                ) for result in results]
         except Exception as e:
-            logger.error(f"Error getting batch predictions: {str(e)}")
-            
-            # Return fallback predictions
-            return [
-                PredictionResult(
-                    prediction=None,
-                    confidence=0.0,
-                    model_id=model_id,
-                    version_id=version_id or "default",
-                    timestamp=datetime.now(),
-                    explanation=None,
-                    metadata={"error": str(e), "is_fallback": True}
-                )
-                for _ in batch_inputs
-            ]
-    
-    async def get_model_metadata(
-        self,
-        model_id: str,
-        version_id: Optional[str] = None
-    ) -> ModelMetadata:
+            logger.error(f'Error getting batch predictions: {str(e)}')
+            return [PredictionResult(prediction=None, confidence=0.0,
+                model_id=model_id, version_id=version_id or 'default',
+                timestamp=datetime.now(), explanation=None, metadata={
+                'error': str(e), 'is_fallback': True}) for _ in batch_inputs]
+
+    @async_with_exception_handling
+    async def get_model_metadata(self, model_id: str, version_id: Optional[
+        str]=None) ->ModelMetadata:
         """Get metadata for a model."""
         try:
-            # Check cache first
             cache_key = f"{model_id}_{version_id or 'default'}"
             if cache_key in self.metadata_cache:
                 cache_entry = self.metadata_cache[cache_key]
-                cache_age = (datetime.now() - cache_entry["timestamp"]).total_seconds() / 60
+                cache_age = (datetime.now() - cache_entry['timestamp']
+                    ).total_seconds() / 60
                 if cache_age < self.cache_ttl:
-                    return cache_entry["metadata"]
-            
-            # Prepare query parameters
+                    return cache_entry['metadata']
             params = {}
             if version_id:
-                params["version_id"] = version_id
-            
-            # Send request
-            response = await self.client.get(
-                f"/models/{model_id}/metadata",
-                params=params
-            )
+                params['version_id'] = version_id
+            response = await self.client.get(f'/models/{model_id}/metadata',
+                params=params)
             response.raise_for_status()
-            
-            # Parse response
             result = response.json()
-            
-            # Convert to ModelMetadata
-            metadata = ModelMetadata(
-                model_id=model_id,
-                model_type=ModelType(result.get("model_type", "custom")),
-                version=result.get("version", version_id or "default"),
-                created_at=datetime.fromisoformat(result.get("created_at")) if "created_at" in result else datetime.now(),
-                features=result.get("features", []),
-                target=result.get("target", ""),
-                description=result.get("description"),
-                performance_metrics=result.get("performance_metrics"),
-                tags=result.get("tags")
-            )
-            
-            # Update cache
-            self.metadata_cache[cache_key] = {
-                "metadata": metadata,
-                "timestamp": datetime.now()
-            }
-            
+            metadata = ModelMetadata(model_id=model_id, model_type=
+                ModelType(result.get('model_type', 'custom')), version=
+                result.get('version', version_id or 'default'), created_at=
+                datetime.fromisoformat(result.get('created_at')) if 
+                'created_at' in result else datetime.now(), features=result
+                .get('features', []), target=result.get('target', ''),
+                description=result.get('description'), performance_metrics=
+                result.get('performance_metrics'), tags=result.get('tags'))
+            self.metadata_cache[cache_key] = {'metadata': metadata,
+                'timestamp': datetime.now()}
             return metadata
-            
         except Exception as e:
-            logger.error(f"Error getting model metadata: {str(e)}")
-            
-            # Return fallback metadata
-            return ModelMetadata(
-                model_id=model_id,
-                model_type=ModelType.CUSTOM,
-                version=version_id or "default",
-                created_at=datetime.now(),
-                features=[],
-                target="",
-                description=f"Error: {str(e)}",
-                performance_metrics=None,
-                tags=["error", "fallback"]
-            )
-    
-    async def list_available_models(
-        self,
-        model_type: Optional[ModelType] = None,
-        tags: Optional[List[str]] = None
-    ) -> List[ModelMetadata]:
+            logger.error(f'Error getting model metadata: {str(e)}')
+            return ModelMetadata(model_id=model_id, model_type=ModelType.
+                CUSTOM, version=version_id or 'default', created_at=
+                datetime.now(), features=[], target='', description=
+                f'Error: {str(e)}', performance_metrics=None, tags=['error',
+                'fallback'])
+
+    @async_with_exception_handling
+    async def list_available_models(self, model_type: Optional[ModelType]=
+        None, tags: Optional[List[str]]=None) ->List[ModelMetadata]:
         """List available models."""
         try:
-            # Prepare query parameters
             params = {}
             if model_type:
-                params["model_type"] = model_type.value
+                params['model_type'] = model_type.value
             if tags:
-                params["tags"] = ",".join(tags)
-            
-            # Send request
-            response = await self.client.get(
-                "/models",
-                params=params
-            )
+                params['tags'] = ','.join(tags)
+            response = await self.client.get('/models', params=params)
             response.raise_for_status()
-            
-            # Parse response
             results = response.json()
-            
-            # Convert to ModelMetadata objects
-            return [
-                ModelMetadata(
-                    model_id=result.get("model_id"),
-                    model_type=ModelType(result.get("model_type", "custom")),
-                    version=result.get("version", "default"),
-                    created_at=datetime.fromisoformat(result.get("created_at")) if "created_at" in result else datetime.now(),
-                    features=result.get("features", []),
-                    target=result.get("target", ""),
-                    description=result.get("description"),
-                    performance_metrics=result.get("performance_metrics"),
-                    tags=result.get("tags")
-                )
-                for result in results
-            ]
-            
+            return [ModelMetadata(model_id=result.get('model_id'),
+                model_type=ModelType(result.get('model_type', 'custom')),
+                version=result.get('version', 'default'), created_at=
+                datetime.fromisoformat(result.get('created_at')) if 
+                'created_at' in result else datetime.now(), features=result
+                .get('features', []), target=result.get('target', ''),
+                description=result.get('description'), performance_metrics=
+                result.get('performance_metrics'), tags=result.get('tags')) for
+                result in results]
         except Exception as e:
-            logger.error(f"Error listing available models: {str(e)}")
-            
-            # Return empty list
+            logger.error(f'Error listing available models: {str(e)}')
             return []
 
 
@@ -299,8 +181,8 @@ class MLSignalGeneratorAdapter(IMLSignalGenerator):
     This adapter can either use a direct API connection to the ML integration service
     or provide standalone functionality to avoid circular dependencies.
     """
-    
-    def __init__(self, config: Dict[str, Any] = None):
+
+    def __init__(self, config: Dict[str, Any]=None):
         """
         Initialize the adapter.
         
@@ -308,105 +190,54 @@ class MLSignalGeneratorAdapter(IMLSignalGenerator):
             config: Configuration parameters
         """
         self.config = config or {}
-        
-        # Get ML integration service URL from config or environment
-        ml_integration_base_url = self.config.get(
-            "ml_integration_base_url", 
-            os.environ.get("ML_INTEGRATION_BASE_URL", "http://ml-integration-service:8000")
-        )
-        
-        # Set up the client with resolved URL
-        self.client = httpx.AsyncClient(
-            base_url=f"{ml_integration_base_url.rstrip('/')}/api/v1",
-            timeout=30.0
-        )
-    
-    async def generate_trading_signals(
-        self,
-        symbol: str,
-        timeframe: str,
-        lookback_bars: int = 100,
-        models: Optional[List[str]] = None,
-        context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        ml_integration_base_url = self.config.get('ml_integration_base_url',
+            os.environ.get('ML_INTEGRATION_BASE_URL',
+            'http://ml-integration-service:8000'))
+        self.client = httpx.AsyncClient(base_url=
+            f"{ml_integration_base_url.rstrip('/')}/api/v1", timeout=30.0)
+
+    @async_with_exception_handling
+    async def generate_trading_signals(self, symbol: str, timeframe: str,
+        lookback_bars: int=100, models: Optional[List[str]]=None, context:
+        Optional[Dict[str, Any]]=None) ->Dict[str, Any]:
         """Generate trading signals using ML models."""
         try:
-            # Prepare request data
-            request_data = {
-                "symbol": symbol,
-                "timeframe": timeframe,
-                "lookback_bars": lookback_bars
-            }
-            
+            request_data = {'symbol': symbol, 'timeframe': timeframe,
+                'lookback_bars': lookback_bars}
             if models:
-                request_data["models"] = models
-                
+                request_data['models'] = models
             if context:
-                request_data["context"] = context
-            
-            # Send request
-            response = await self.client.post(
-                "/signals/generate",
-                json=request_data
-            )
+                request_data['context'] = context
+            response = await self.client.post('/signals/generate', json=
+                request_data)
             response.raise_for_status()
-            
-            # Parse response
             return response.json()
-            
         except Exception as e:
-            logger.error(f"Error generating trading signals: {str(e)}")
-            
-            # Return fallback signals
-            return {
-                "symbol": symbol,
-                "timeframe": timeframe,
-                "signals": [],
-                "timestamp": datetime.now().isoformat(),
-                "error": str(e),
-                "is_fallback": True
-            }
-    
-    async def get_model_performance(
-        self,
-        model_id: str,
-        symbol: Optional[str] = None,
-        timeframe: Optional[str] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
-    ) -> Dict[str, Any]:
+            logger.error(f'Error generating trading signals: {str(e)}')
+            return {'symbol': symbol, 'timeframe': timeframe, 'signals': [],
+                'timestamp': datetime.now().isoformat(), 'error': str(e),
+                'is_fallback': True}
+
+    @async_with_exception_handling
+    async def get_model_performance(self, model_id: str, symbol: Optional[
+        str]=None, timeframe: Optional[str]=None, start_date: Optional[
+        datetime]=None, end_date: Optional[datetime]=None) ->Dict[str, Any]:
         """Get performance metrics for a model."""
         try:
-            # Prepare query parameters
-            params = {"model_id": model_id}
+            params = {'model_id': model_id}
             if symbol:
-                params["symbol"] = symbol
+                params['symbol'] = symbol
             if timeframe:
-                params["timeframe"] = timeframe
+                params['timeframe'] = timeframe
             if start_date:
-                params["start_date"] = start_date.isoformat()
+                params['start_date'] = start_date.isoformat()
             if end_date:
-                params["end_date"] = end_date.isoformat()
-            
-            # Send request
-            response = await self.client.get(
-                "/models/performance",
-                params=params
-            )
+                params['end_date'] = end_date.isoformat()
+            response = await self.client.get('/models/performance', params=
+                params)
             response.raise_for_status()
-            
-            # Parse response
             return response.json()
-            
         except Exception as e:
-            logger.error(f"Error getting model performance: {str(e)}")
-            
-            # Return fallback performance metrics
-            return {
-                "model_id": model_id,
-                "symbol": symbol,
-                "timeframe": timeframe,
-                "metrics": {},
-                "error": str(e),
-                "is_fallback": True
-            }
+            logger.error(f'Error getting model performance: {str(e)}')
+            return {'model_id': model_id, 'symbol': symbol, 'timeframe':
+                timeframe, 'metrics': {}, 'error': str(e), 'is_fallback': True}

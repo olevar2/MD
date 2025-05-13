@@ -163,14 +163,53 @@ def retry_with_policy(
     )
 
     def decorator(func: Callable[..., Union[T, Coroutine[Any, Any, R]]]) -> Callable[..., Union[T, Coroutine[Any, Any, R]]]:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+        Union[T: Description of Union[T
+        Coroutine[Any: Description of Coroutine[Any
+        Any: Description of Any
+        R]]]: Description of R]]]
+    
+    Returns:
+        Callable[..., Union[T, Coroutine[Any, Any, R]]]: Description of return value
+    
+    """
+
         if asyncio.iscoroutinefunction(func):
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> R:
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        R: Description of return value
+    
+    """
+
                 return await policy.execute_async(func, *args, **kwargs)
             return async_wrapper # type: ignore
         else:
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> T:
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        T: Description of return value
+    
+    """
+
                 return policy.execute_sync(func, *args, **kwargs)
             return sync_wrapper # type: ignore
     return decorator

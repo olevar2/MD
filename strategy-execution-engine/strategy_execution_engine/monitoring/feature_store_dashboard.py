@@ -134,6 +134,14 @@ class FeatureStoreDashboard:
             Input("interval-component", "n_intervals")
         )
         def update_api_calls_graph(n):
+    """
+    Update api calls graph.
+    
+    Args:
+        n: Description of n
+    
+    """
+
             metrics = feature_store_metrics.get_metrics()
             
             # Create bar chart for API calls
@@ -161,6 +169,14 @@ class FeatureStoreDashboard:
             Input("interval-component", "n_intervals")
         )
         def update_cache_performance_graph(n):
+    """
+    Update cache performance graph.
+    
+    Args:
+        n: Description of n
+    
+    """
+
             metrics = feature_store_metrics.get_metrics()
             
             # Create pie chart for cache performance
@@ -187,6 +203,14 @@ class FeatureStoreDashboard:
             Input("interval-component", "n_intervals")
         )
         def update_errors_graph(n):
+    """
+    Update errors graph.
+    
+    Args:
+        n: Description of n
+    
+    """
+
             metrics = feature_store_metrics.get_metrics()
             
             # Create bar chart for errors
@@ -214,6 +238,14 @@ class FeatureStoreDashboard:
             Input("interval-component", "n_intervals")
         )
         def update_response_time_graph(n):
+    """
+    Update response time graph.
+    
+    Args:
+        n: Description of n
+    
+    """
+
             metrics = feature_store_metrics.get_metrics()
             
             # Create gauge for average response time
@@ -247,6 +279,14 @@ class FeatureStoreDashboard:
             Input("interval-component", "n_intervals")
         )
         def update_fallbacks_graph(n):
+    """
+    Update fallbacks graph.
+    
+    Args:
+        n: Description of n
+    
+    """
+
             metrics = feature_store_metrics.get_metrics()
             
             # Create bar chart for fallbacks
@@ -274,6 +314,14 @@ class FeatureStoreDashboard:
             Input("interval-component", "n_intervals")
         )
         def update_summary(n):
+    """
+    Update summary.
+    
+    Args:
+        n: Description of n
+    
+    """
+
             metrics = feature_store_metrics.get_metrics()
             
             # Create summary table

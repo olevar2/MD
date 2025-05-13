@@ -14,7 +14,14 @@ class DataPipelineSettings(AppSettings):
 
     # --- Service Specific Metadata ---
     # Override SERVICE_NAME from base class
-    SERVICE_NAME: str = "data-pipeline-service"
+    SERVICE_NAME:
+    """
+    SERVICE_NAME class.
+    
+    Attributes:
+        Add attributes here
+    """
+ str = "data-pipeline-service"
     # Keep app_version if needed, or rely on deployment tags/metadata
     app_version: str = "0.1.0"
     # DEBUG_MODE and LOG_LEVEL are inherited from AppSettings
@@ -86,7 +93,14 @@ class DataPipelineSettings(AppSettings):
 
 
 # Remove original Settings class definition and validation if fully covered by base class
-# class Settings(BaseSettings): ...
+# class Settings(BaseSettings):
+    """
+    Settings class that inherits from BaseSettings.
+    
+    Attributes:
+        Add attributes here
+    """
+ ...
 # @field_validator("log_level") ... - Handled in base class
 
 # Update the getter function to use the new class and the common loader

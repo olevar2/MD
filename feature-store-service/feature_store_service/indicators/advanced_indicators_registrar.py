@@ -17,7 +17,17 @@ from feature_store_service.indicators.statistical_regression_indicators import S
 from feature_store_service.indicators.advanced_patterns import AdvancedPatternFacade, RenkoPatternRecognizer, IchimokuPatternRecognizer, WyckoffPatternRecognizer, HeikinAshiPatternRecognizer, VSAPatternRecognizer, MarketProfileAnalyzer, PointAndFigureAnalyzer, WolfeWaveDetector, PitchforkAnalyzer, DivergenceDetector
 logger = logging.getLogger(__name__)
 
-def register_advanced_indicators(registry: IndicatorRegistry) -> None:
+
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
+def register_advanced_indicators(registry: IndicatorRegistry) ->None:
     """
     Register all advanced technical indicators with the indicator registry.
 
@@ -75,7 +85,9 @@ def register_advanced_indicators(registry: IndicatorRegistry) -> None:
     registry.register_indicator(DivergenceDetector)
     register_analysis_engine_indicators(registry)
 
-def register_analysis_engine_indicators(registry: IndicatorRegistry) -> None:
+
+@with_exception_handling
+def register_analysis_engine_indicators(registry: IndicatorRegistry) ->None:
     """
     Register indicators from the Analysis Engine Service using adapters.
 
@@ -91,12 +103,31 @@ def register_analysis_engine_indicators(registry: IndicatorRegistry) -> None:
         if not advanced_indicators:
             logger.warning('No indicators found in Analysis Engine Service')
             return
-        logger.info(f'Found {len(advanced_indicators)} indicators in Analysis Engine Service')
-        adapter_configs = {'FibonacciRetracement': {'name_prefix': 'fib'}, 'FibonacciExtension': {'name_prefix': 'fib'}, 'FibonacciArcs': {'name_prefix': 'fib'}, 'FibonacciFans': {'name_prefix': 'fib'}, 'FibonacciTimeZones': {'name_prefix': 'fib'}, 'GannFan': {'name_prefix': 'gann'}, 'GannGrid': {'name_prefix': 'gann'}, 'GannSquare': {'name_prefix': 'gann'}, 'HarmonicPatternFinder': {'name_prefix': 'harmonic'}, 'ElliottWaveAnalyzer': {'name_prefix': 'elliott'}, 'FractalIndicator': {'name_prefix': 'fractal'}, 'PivotPointCalculator': {'name_prefix': 'pivot'}, 'VolatilityAnalysis': {'name_prefix': 'volvol'}, 'ConfluenceDetector': {'name_prefix': 'confluence'}, 'MarketRegimeDetector': {'name_prefix': 'regime'}, 'MultiTimeframeAnalysis': {'name_prefix': 'mta'}, 'TimeCycleAnalysis': {'name_prefix': 'cycle'}, 'CurrencyCorrelation': {'name_prefix': 'corr'}}
+        logger.info(
+            f'Found {len(advanced_indicators)} indicators in Analysis Engine Service'
+            )
+        adapter_configs = {'FibonacciRetracement': {'name_prefix': 'fib'},
+            'FibonacciExtension': {'name_prefix': 'fib'}, 'FibonacciArcs':
+            {'name_prefix': 'fib'}, 'FibonacciFans': {'name_prefix': 'fib'},
+            'FibonacciTimeZones': {'name_prefix': 'fib'}, 'GannFan': {
+            'name_prefix': 'gann'}, 'GannGrid': {'name_prefix': 'gann'},
+            'GannSquare': {'name_prefix': 'gann'}, 'HarmonicPatternFinder':
+            {'name_prefix': 'harmonic'}, 'ElliottWaveAnalyzer': {
+            'name_prefix': 'elliott'}, 'FractalIndicator': {'name_prefix':
+            'fractal'}, 'PivotPointCalculator': {'name_prefix': 'pivot'},
+            'VolatilityAnalysis': {'name_prefix': 'volvol'},
+            'ConfluenceDetector': {'name_prefix': 'confluence'},
+            'MarketRegimeDetector': {'name_prefix': 'regime'},
+            'MultiTimeframeAnalysis': {'name_prefix': 'mta'},
+            'TimeCycleAnalysis': {'name_prefix': 'cycle'},
+            'CurrencyCorrelation': {'name_prefix': 'corr'}}
         for indicator_name, indicator_class in advanced_indicators.items():
             if indicator_name in adapter_configs:
                 config = adapter_configs[indicator_name]
-                module_name_snake = _camel_to_snake(indicator_name).replace('_analyzer', '').replace('_indicator', '').replace('_calculator', '').replace('_detector', '').replace('_finder', '').replace('_analysis', '')
+                module_name_snake = _camel_to_snake(indicator_name).replace(
+                    '_analyzer', '').replace('_indicator', '').replace(
+                    '_calculator', '').replace('_detector', '').replace(
+                    '_finder', '').replace('_analysis', '')
                 if 'fibonacci' in module_name_snake:
                     module_name = 'fibonacci'
                 elif 'gann' in module_name_snake:
@@ -109,35 +140,48 @@ def register_analysis_engine_indicators(registry: IndicatorRegistry) -> None:
                     module_name = 'fractal_geometry'
                 elif 'pivot' in module_name_snake:
                     module_name = 'pivot_points'
-                elif 'volvol' in config.get('name_prefix', ''):
+                elif 'volvol' in config_manager.get('name_prefix', ''):
                     module_name = 'volume_volatility'
-                elif 'confluence' in config.get('name_prefix', ''):
+                elif 'confluence' in config_manager.get('name_prefix', ''):
                     module_name = 'confluence'
-                elif 'regime' in config.get('name_prefix', ''):
+                elif 'regime' in config_manager.get('name_prefix', ''):
                     module_name = 'market_regime'
-                elif 'mta' in config.get('name_prefix', ''):
+                elif 'mta' in config_manager.get('name_prefix', ''):
                     module_name = 'multi_timeframe'
-                elif 'cycle' in config.get('name_prefix', ''):
+                elif 'cycle' in config_manager.get('name_prefix', ''):
                     module_name = 'time_cycle'
-                elif 'corr' in config.get('name_prefix', ''):
+                elif 'corr' in config_manager.get('name_prefix', ''):
                     module_name = 'currency_correlation'
                 else:
                     module_name = module_name_snake
-                module_path = f'analysis_engine.analysis.advanced_ta.{module_name}'
+                module_path = (
+                    f'analysis_engine.analysis.advanced_ta.{module_name}')
                 try:
-                    adapter_instance = AdvancedIndicatorAdapter(advanced_indicator_class=indicator_class, **config)
+                    adapter_instance = AdvancedIndicatorAdapter(
+                        advanced_indicator_class=indicator_class, **config)
                     registry.register_indicator(adapter_instance)
-                    logger.info(f'Registered adapted indicator: {adapter_instance.name}')
+                    logger.info(
+                        f'Registered adapted indicator: {adapter_instance.name}'
+                        )
                 except Exception as e:
-                    logger.error(f'Failed to create or register adapter for {indicator_name} from {module_path}: {e}')
+                    logger.error(
+                        f'Failed to create or register adapter for {indicator_name} from {module_path}: {e}'
+                        )
             else:
-                logger.warning(f'No adapter configuration found for {indicator_name}. Skipping registration.')
+                logger.warning(
+                    f'No adapter configuration found for {indicator_name}. Skipping registration.'
+                    )
     except ImportError as e:
-        logger.error(f'Could not import analysis engine modules: {e}. Adapters not registered.')
+        logger.error(
+            f'Could not import analysis engine modules: {e}. Adapters not registered.'
+            )
     except Exception as e:
-        logger.error(f'An unexpected error occurred during analysis engine indicator registration: {e}')
+        logger.error(
+            f'An unexpected error occurred during analysis engine indicator registration: {e}'
+            )
 
-def camel_to_snake(name: str) -> str:
+
+def camel_to_snake(name: str) ->str:
     """Convert CamelCase name to snake_case."""
     import re
     name = re.sub('(.)([A-Z][a-z]+)', '\\1_\\2', name)

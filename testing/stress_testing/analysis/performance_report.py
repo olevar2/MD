@@ -17,6 +17,15 @@ class PerformanceReport:
     """
 
     def __init__(self, config, results_source):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+        results_source: Description of results_source
+    
+    """
+
         # self.config = config # EnvironmentConfig
         self.config = config # Placeholder
         self.results_source = results_source # Path to results file, or metrics endpoint config

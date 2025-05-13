@@ -71,6 +71,21 @@ class AnalysisError(ForexTradingPlatformError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        error_code: Description of error_code
+        details: Description of details
+        Any]]: Description of Any]]
+        correlation_id: Description of correlation_id
+        status_code: Description of status_code
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         super().__init__(message, error_code, details, *args, **kwargs)
         self.correlation_id = correlation_id or str(uuid.uuid4())
         self.status_code = status_code
@@ -87,6 +102,18 @@ class AnalyzerNotFoundError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        analyzer_name: Description of analyzer_name
+        available_analyzers: Description of available_analyzers
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {
             "analyzer_name": analyzer_name,
             "available_analyzers": available_analyzers or []
@@ -116,6 +143,21 @@ class InsufficientDataError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        required_points: Description of required_points
+        available_points: Description of available_points
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {
             "symbol": symbol,
             "timeframe": timeframe
@@ -150,6 +192,21 @@ class InvalidAnalysisParametersError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        parameters: Description of parameters
+        Any]]: Description of Any]]
+        validation_errors: Description of validation_errors
+        Any]]]: Description of Any]]]
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if parameters is not None:
@@ -180,6 +237,18 @@ class AnalysisTimeoutError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        analyzer_name: Description of analyzer_name
+        timeout_seconds: Description of timeout_seconds
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if analyzer_name is not None:
@@ -211,6 +280,19 @@ class MarketRegimeError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if symbol is not None:
@@ -241,6 +323,18 @@ class SignalQualityError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        signal_id: Description of signal_id
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if signal_id is not None:
@@ -268,6 +362,18 @@ class ToolEffectivenessError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        tool_id: Description of tool_id
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if tool_id is not None:
@@ -295,6 +401,18 @@ class NLPAnalysisError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        text: Description of text
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if text is not None:
@@ -323,6 +441,18 @@ class CorrelationAnalysisError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        symbols: Description of symbols
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if symbols is not None:
@@ -351,6 +481,19 @@ class ManipulationDetectionError(AnalysisError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        symbol: Description of symbol
+        timeframe: Description of timeframe
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         details = {}
 
         if symbol is not None:
@@ -384,6 +527,21 @@ class ServiceInitializationError(ServiceError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        service_name: Description of service_name
+        error_code: Description of error_code
+        details: Description of details
+        Any]]: Description of Any]]
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         if service_name:
             message = f"{message} for service {service_name}"
 
@@ -411,6 +569,21 @@ class ServiceResolutionError(ServiceError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        service_name: Description of service_name
+        error_code: Description of error_code
+        details: Description of details
+        Any]]: Description of Any]]
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         if service_name:
             message = f"{message} for service {service_name}"
 
@@ -438,6 +611,21 @@ class ServiceCleanupError(ServiceError):
         *args,
         **kwargs
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        service_name: Description of service_name
+        error_code: Description of error_code
+        details: Description of details
+        Any]]: Description of Any]]
+        correlation_id: Description of correlation_id
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         if service_name:
             message = f"{message} for service {service_name}"
 
@@ -462,6 +650,15 @@ def with_exception_handling(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return func(*args, **kwargs)
         except ForexTradingPlatformError:
@@ -513,6 +710,15 @@ def async_with_exception_handling(func):
     """
     @wraps(func)
     async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return await func(*args, **kwargs)
         except ForexTradingPlatformError:

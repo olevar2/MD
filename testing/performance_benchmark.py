@@ -385,6 +385,14 @@ class PerformanceBenchmark:
         if parallel:
             # Create partial function with fixed parameters
             def benchmark_wrapper(indicator):
+    """
+    Benchmark wrapper.
+    
+    Args:
+        indicator: Description of indicator
+    
+    """
+
                 try:
                     params = params_dict.get(indicator, {})
                     return self.benchmark_indicator(

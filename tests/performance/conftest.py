@@ -78,8 +78,33 @@ def performance_metrics():
 def time_it(performance_metrics):
     """Create a timer decorator."""
     def decorator(name: str):
+    """
+    Decorator.
+    
+    Args:
+        name: Description of name
+    
+    """
+
         def inner_decorator(func):
+    """
+    Inner decorator.
+    
+    Args:
+        func: Description of func
+    
+    """
+
             async def async_wrapper(*args, **kwargs):
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
                 start_time = time.time()
                 result = await func(*args, **kwargs)
                 duration = time.time() - start_time
@@ -87,6 +112,15 @@ def time_it(performance_metrics):
                 return result
             
             def sync_wrapper(*args, **kwargs):
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
                 start_time = time.time()
                 result = func(*args, **kwargs)
                 duration = time.time() - start_time
@@ -167,10 +201,32 @@ def mock_database():
             self.performance_metrics.record("database_transaction_start", duration)
             
             class Transaction:
+    """
+    Transaction class.
+    
+    Attributes:
+        Add attributes here
+    """
+
                 async def __aenter__(self):
+    """
+      aenter  .
+    
+    """
+
                     return self
                 
                 async def __aexit__(self, exc_type, exc_val, exc_tb):
+    """
+      aexit  .
+    
+    Args:
+        exc_type: Description of exc_type
+        exc_val: Description of exc_val
+        exc_tb: Description of exc_tb
+    
+    """
+
                     start_time = time.time()
                     await asyncio.sleep(0.01)  # Simulate transaction end time
                     duration = time.time() - start_time

@@ -28,6 +28,15 @@ from core_foundations.models.financial_instruments import SymbolInfo
 class MockForexBrokerSimulator:
     """Mock ForexBrokerSimulator for testing."""
     def __init__(self, symbol="EUR/USD", initial_balance=10000):
+    """
+      init  .
+    
+    Args:
+        symbol: Description of symbol
+        initial_balance: Description of initial_balance
+    
+    """
+
         self.symbol = symbol
         self.balance = initial_balance
         self.current_time = datetime.now()

@@ -21,6 +21,20 @@ class ABTest:
         end_time: Optional[datetime] = None,
         status: str = "active"
     ):
+    """
+      init  .
+    
+    Args:
+        test_id: Description of test_id
+        model_id: Description of model_id
+        version_ids: Description of version_ids
+        traffic_split: Description of traffic_split
+        start_time: Description of start_time
+        end_time: Description of end_time
+        status: Description of status
+    
+    """
+
         self.test_id = test_id
         self.model_id = model_id
         self.version_ids = version_ids
@@ -31,6 +45,11 @@ class ABTest:
         self._validate()
 
     def _validate(self):
+    """
+     validate.
+    
+    """
+
         if len(self.version_ids) != len(self.traffic_split):
             raise ValueError("Number of versions must match number of traffic split values")
         if abs(sum(self.traffic_split) - 1.0) > 0.0001:

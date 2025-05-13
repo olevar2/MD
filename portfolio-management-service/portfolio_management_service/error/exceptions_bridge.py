@@ -79,6 +79,17 @@ class PortfolioNotFoundError(PortfolioManagementError):
         portfolio_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        portfolio_id: Description of portfolio_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if portfolio_id:
             details["portfolio_id"] = portfolio_id
@@ -95,6 +106,17 @@ class PositionNotFoundError(PortfolioManagementError):
         position_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        position_id: Description of position_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if position_id:
             details["position_id"] = position_id
@@ -113,6 +135,19 @@ class InsufficientBalanceError(PortfolioManagementError):
         currency: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        required_amount: Description of required_amount
+        available_amount: Description of available_amount
+        currency: Description of currency
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if required_amount is not None:
             details["required_amount"] = required_amount
@@ -133,6 +168,17 @@ class PortfolioOperationError(PortfolioManagementError):
         operation: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        operation: Description of operation
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if operation:
             details["operation"] = operation
@@ -149,6 +195,17 @@ class AccountReconciliationError(PortfolioManagementError):
         account_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        account_id: Description of account_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if account_id:
             details["account_id"] = account_id
@@ -247,6 +304,15 @@ def with_exception_handling(func: F) -> F:
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return func(*args, **kwargs)
         except ForexTradingPlatformError as e:
@@ -288,6 +354,15 @@ def async_with_exception_handling(func: F) -> F:
     """
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return await func(*args, **kwargs)
         except ForexTradingPlatformError as e:

@@ -206,6 +206,11 @@ def close_sync_database():
 
 # Example Usage (typically called during application startup/shutdown)
 # async def main():
+    """
+    Main.
+    
+    """
+
 #     # Load settings (replace with your actual settings loading)
 #     settings = AppSettings()
 #     await initialize_async_database(settings)

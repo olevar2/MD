@@ -118,6 +118,19 @@ class RiskLimitBreachError(RiskManagementError):
         limit_value: Optional[float] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        limit_type: Description of limit_type
+        current_value: Description of current_value
+        limit_value: Description of limit_value
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if limit_type:
             details["limit_type"] = limit_type
@@ -138,6 +151,17 @@ class RiskProfileNotFoundError(RiskManagementError):
         profile_id: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        profile_id: Description of profile_id
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         details = details or {}
         if profile_id:
             details["profile_id"] = profile_id
@@ -224,6 +248,15 @@ def with_exception_handling(func: F) -> F:
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return func(*args, **kwargs)
         except ForexTradingPlatformError as e:
@@ -265,6 +298,15 @@ def async_with_exception_handling(func: F) -> F:
     """
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return await func(*args, **kwargs)
         except ForexTradingPlatformError as e:

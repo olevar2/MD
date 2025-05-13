@@ -4,22 +4,26 @@ Incremental Indicator Service.
 This service manages incremental indicator calculations, providing efficient
 real-time updates and state management for low-latency applications.
 """
-
 import json
 import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Union, Any, Tuple
 import pandas as pd
-
 from core_foundations.utils.logger import get_logger
-from feature_store_service.computation.incremental.base_incremental import (
-    IncrementalIndicator, IncrementalIndicatorFactory
-)
+from feature_store_service.computation.incremental.base_incremental import IncrementalIndicator, IncrementalIndicatorFactory
 from feature_store_service.storage.feature_storage import FeatureStorage
 from data_pipeline_service.services.ohlcv_service import OHLCVService
+logger = get_logger('feature-store-service.incremental-indicator-service')
 
-logger = get_logger("feature-store-service.incremental-indicator-service")
 
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class IncrementalIndicatorService:
     """
@@ -29,13 +33,9 @@ class IncrementalIndicatorService:
     with new data points, optimized for low-latency applications like real-time
     trading systems.
     """
-    
-    def __init__(
-        self,
-        feature_storage: FeatureStorage,
-        ohlcv_service: OHLCVService,
-        state_persistence_path: Optional[str] = None
-    ):
+
+    def __init__(self, feature_storage: FeatureStorage, ohlcv_service:
+        OHLCVService, state_persistence_path: Optional[str]=None):
         """
         Initialize the incremental indicator service.
         
@@ -47,19 +47,12 @@ class IncrementalIndicatorService:
         self.feature_storage = feature_storage
         self.ohlcv_service = ohlcv_service
         self.state_persistence_path = state_persistence_path
-        
-        # Dictionary to store active indicator instances by key
-        # Key format: "{symbol}_{timeframe}_{indicator_type}_{params_hash}"
         self.active_indicators: Dict[str, IncrementalIndicator] = {}
-        
-    async def get_or_initialize_indicator(
-        self,
-        symbol: str,
-        timeframe: str,
-        indicator_type: str,
-        params: Dict[str, Any] = None,
-        lookback_days: int = 60
-    ) -> Optional[IncrementalIndicator]:
+
+    @async_with_exception_handling
+    async def get_or_initialize_indicator(self, symbol: str, timeframe: str,
+        indicator_type: str, params: Dict[str, Any]=None, lookback_days: int=60
+        ) ->Optional[IncrementalIndicator]:
         """
         Get an existing indicator instance or initialize a new one.
         
@@ -73,60 +66,44 @@ class IncrementalIndicatorService:
         Returns:
             IncrementalIndicator instance if successful, None otherwise
         """
-        # Generate a unique key for this indicator configuration
-        indicator_key = self._generate_indicator_key(symbol, timeframe, indicator_type, params)
-        
-        # Check if we already have this indicator
+        indicator_key = self._generate_indicator_key(symbol, timeframe,
+            indicator_type, params)
         if indicator_key in self.active_indicators:
             return self.active_indicators[indicator_key]
-            
-        # Create a new indicator instance
-        indicator = IncrementalIndicatorFactory.create_indicator(indicator_type, **params or {})
+        indicator = IncrementalIndicatorFactory.create_indicator(indicator_type
+            , **params or {})
         if not indicator:
-            logger.error(f"Failed to create indicator of type {indicator_type}")
+            logger.error(f'Failed to create indicator of type {indicator_type}'
+                )
             return None
-            
-        # Initialize the indicator with historical data
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=lookback_days)
-        
         try:
-            # Fetch historical data for initialization
-            data = await self.ohlcv_service.get_ohlcv_data(
-                symbol=symbol,
-                timeframe=timeframe,
-                start_date=start_date,
-                end_date=end_date
-            )
-            
+            data = await self.ohlcv_service.get_ohlcv_data(symbol=symbol,
+                timeframe=timeframe, start_date=start_date, end_date=end_date)
             if data.empty:
-                logger.warning(f"No historical data available for {symbol} {timeframe}")
+                logger.warning(
+                    f'No historical data available for {symbol} {timeframe}')
                 return None
-                
-            # Initialize the indicator with the historical data
             indicator.initialize(data)
-            
             if indicator.is_initialized:
-                # Store the initialized indicator
                 self.active_indicators[indicator_key] = indicator
-                logger.info(f"Initialized {indicator_type} for {symbol} {timeframe}")
+                logger.info(
+                    f'Initialized {indicator_type} for {symbol} {timeframe}')
                 return indicator
             else:
-                logger.error(f"Failed to initialize {indicator_type} for {symbol} {timeframe}")
+                logger.error(
+                    f'Failed to initialize {indicator_type} for {symbol} {timeframe}'
+                    )
                 return None
-                
         except Exception as e:
-            logger.error(f"Error initializing indicator: {str(e)}")
+            logger.error(f'Error initializing indicator: {str(e)}')
             return None
-    
-    async def update_indicator(
-        self,
-        symbol: str,
-        timeframe: str,
-        indicator_type: str,
-        new_data_point: Dict[str, Union[float, datetime]],
-        params: Dict[str, Any] = None
-    ) -> Dict[str, float]:
+
+    @async_with_exception_handling
+    async def update_indicator(self, symbol: str, timeframe: str,
+        indicator_type: str, new_data_point: Dict[str, Union[float,
+        datetime]], params: Dict[str, Any]=None) ->Dict[str, float]:
         """
         Update an indicator with a new data point.
         
@@ -140,39 +117,30 @@ class IncrementalIndicatorService:
         Returns:
             Dictionary with the updated indicator values
         """
-        # Generate the indicator key
-        indicator_key = self._generate_indicator_key(symbol, timeframe, indicator_type, params)
-        
-        # Get or initialize the indicator
+        indicator_key = self._generate_indicator_key(symbol, timeframe,
+            indicator_type, params)
         indicator = self.active_indicators.get(indicator_key)
         if not indicator:
-            indicator = await self.get_or_initialize_indicator(
-                symbol, timeframe, indicator_type, params
-            )
-            
+            indicator = await self.get_or_initialize_indicator(symbol,
+                timeframe, indicator_type, params)
         if not indicator:
-            logger.error(f"Failed to get/initialize indicator for update: {indicator_key}")
+            logger.error(
+                f'Failed to get/initialize indicator for update: {indicator_key}'
+                )
             return {}
-            
-        # Update the indicator with the new data point
         try:
             result = indicator.update(new_data_point)
-            
-            # Persist updated state if configured
             if self.state_persistence_path:
                 self._save_indicator_state(indicator_key, indicator)
-                
             return result
         except Exception as e:
-            logger.error(f"Error updating indicator {indicator_key}: {str(e)}")
+            logger.error(f'Error updating indicator {indicator_key}: {str(e)}')
             return {}
-    
-    async def update_all_indicators_for_symbol(
-        self,
-        symbol: str,
-        timeframe: str,
-        new_data_point: Dict[str, Union[float, datetime]]
-    ) -> Dict[str, Dict[str, float]]:
+
+    @async_with_exception_handling
+    async def update_all_indicators_for_symbol(self, symbol: str, timeframe:
+        str, new_data_point: Dict[str, Union[float, datetime]]) ->Dict[str,
+        Dict[str, float]]:
         """
         Update all active indicators for a specific symbol and timeframe.
         
@@ -185,33 +153,23 @@ class IncrementalIndicatorService:
             Dictionary mapping indicator keys to their updated values
         """
         results = {}
-        
-        # Find all indicators for this symbol and timeframe
-        prefix = f"{symbol}_{timeframe}_"
-        relevant_keys = [k for k in self.active_indicators.keys() if k.startswith(prefix)]
-        
-        # Update each indicator
+        prefix = f'{symbol}_{timeframe}_'
+        relevant_keys = [k for k in self.active_indicators.keys() if k.
+            startswith(prefix)]
         for key in relevant_keys:
             indicator = self.active_indicators[key]
             try:
                 updated_values = indicator.update(new_data_point)
-                # Extract indicator type from the key
                 parts = key.split('_')
                 if len(parts) > 2:
-                    indicator_type = parts[2]  # Extract the indicator type part of the key
+                    indicator_type = parts[2]
                     results[indicator_type] = updated_values
             except Exception as e:
-                logger.error(f"Error updating indicator {key}: {str(e)}")
-                
+                logger.error(f'Error updating indicator {key}: {str(e)}')
         return results
-    
-    def _generate_indicator_key(
-        self,
-        symbol: str,
-        timeframe: str,
-        indicator_type: str,
-        params: Optional[Dict[str, Any]]
-    ) -> str:
+
+    def _generate_indicator_key(self, symbol: str, timeframe: str,
+        indicator_type: str, params: Optional[Dict[str, Any]]) ->str:
         """
         Generate a unique key for an indicator configuration.
         
@@ -224,22 +182,19 @@ class IncrementalIndicatorService:
         Returns:
             Unique key string
         """
-        # Create a consistent string representation of the parameters
-        params_str = ""
+        params_str = ''
         if params:
-            # Sort the parameters by key for consistency
             sorted_params = {k: params[k] for k in sorted(params.keys())}
-            # Convert to a consistent string representation
             params_str = json.dumps(sorted_params, sort_keys=True)
-            # Generate a hash of the parameters string
             import hashlib
             params_hash = hashlib.md5(params_str.encode()).hexdigest()[:8]
         else:
-            params_hash = "default"
-            
-        return f"{symbol}_{timeframe}_{indicator_type}_{params_hash}"
-    
-    def _save_indicator_state(self, indicator_key: str, indicator: IncrementalIndicator) -> bool:
+            params_hash = 'default'
+        return f'{symbol}_{timeframe}_{indicator_type}_{params_hash}'
+
+    @with_exception_handling
+    def _save_indicator_state(self, indicator_key: str, indicator:
+        IncrementalIndicator) ->bool:
         """
         Save the indicator state to persistent storage.
         
@@ -252,25 +207,22 @@ class IncrementalIndicatorService:
         """
         if not self.state_persistence_path:
             return False
-            
         try:
             import os
             import pickle
-            
-            # Create directory if it doesn't exist
             os.makedirs(self.state_persistence_path, exist_ok=True)
-            
-            # Save the indicator state
-            file_path = os.path.join(self.state_persistence_path, f"{indicator_key}.pickle")
+            file_path = os.path.join(self.state_persistence_path,
+                f'{indicator_key}.pickle')
             with open(file_path, 'wb') as f:
                 pickle.dump(indicator.get_state(), f)
-                
             return True
         except Exception as e:
-            logger.error(f"Error saving indicator state: {str(e)}")
+            logger.error(f'Error saving indicator state: {str(e)}')
             return False
-    
-    def _load_indicator_state(self, indicator_key: str) -> Optional[Dict[str, Any]]:
+
+    @with_exception_handling
+    def _load_indicator_state(self, indicator_key: str) ->Optional[Dict[str,
+        Any]]:
         """
         Load an indicator state from persistent storage.
         
@@ -282,24 +234,22 @@ class IncrementalIndicatorService:
         """
         if not self.state_persistence_path:
             return None
-            
         try:
             import os
             import pickle
-            
-            file_path = os.path.join(self.state_persistence_path, f"{indicator_key}.pickle")
+            file_path = os.path.join(self.state_persistence_path,
+                f'{indicator_key}.pickle')
             if not os.path.exists(file_path):
                 return None
-                
             with open(file_path, 'rb') as f:
                 state = pickle.load(f)
-                
             return state
         except Exception as e:
-            logger.error(f"Error loading indicator state: {str(e)}")
+            logger.error(f'Error loading indicator state: {str(e)}')
             return None
-    
-    async def load_all_saved_states(self) -> int:
+
+    @async_with_exception_handling
+    async def load_all_saved_states(self) ->int:
         """
         Load all saved indicator states from persistent storage.
         
@@ -307,58 +257,47 @@ class IncrementalIndicatorService:
             Number of successfully loaded indicators
         """
         if not self.state_persistence_path:
-            logger.warning("No state persistence path configured")
+            logger.warning('No state persistence path configured')
             return 0
-            
         try:
             import os
             import pickle
-            
             if not os.path.exists(self.state_persistence_path):
-                logger.warning(f"State persistence directory does not exist: {self.state_persistence_path}")
+                logger.warning(
+                    f'State persistence directory does not exist: {self.state_persistence_path}'
+                    )
                 return 0
-                
-            # Find all pickle files in the directory
             count = 0
             for filename in os.listdir(self.state_persistence_path):
                 if not filename.endswith('.pickle'):
                     continue
-                    
-                indicator_key = filename[:-7]  # Remove '.pickle' extension
-                
-                # Load the state
+                indicator_key = filename[:-7]
                 state = self._load_indicator_state(indicator_key)
                 if not state:
                     continue
-                    
-                # Extract indicator type from the state
                 indicator_type = state.get('name')
                 if not indicator_type:
-                    logger.warning(f"Invalid state file, missing indicator type: {filename}")
+                    logger.warning(
+                        f'Invalid state file, missing indicator type: {filename}'
+                        )
                     continue
-                    
-                # Create a new indicator instance
                 indicator = IncrementalIndicatorFactory.create_indicator(
-                    indicator_type, **state.get('params', {})
-                )
+                    indicator_type, **state.get('params', {}))
                 if not indicator:
-                    logger.error(f"Failed to create indicator from saved state: {indicator_type}")
+                    logger.error(
+                        f'Failed to create indicator from saved state: {indicator_type}'
+                        )
                     continue
-                    
-                # Set the loaded state
                 indicator.set_state(state)
-                
-                # Add to active indicators
                 self.active_indicators[indicator_key] = indicator
                 count += 1
-                
-            logger.info(f"Loaded {count} indicator states from persistence")
+            logger.info(f'Loaded {count} indicator states from persistence')
             return count
         except Exception as e:
-            logger.error(f"Error loading saved indicator states: {str(e)}")
+            logger.error(f'Error loading saved indicator states: {str(e)}')
             return 0
-    
-    def get_all_active_indicators(self) -> Dict[str, Dict[str, Any]]:
+
+    def get_all_active_indicators(self) ->Dict[str, Dict[str, Any]]:
         """
         Get information about all active indicators.
         
@@ -366,22 +305,14 @@ class IncrementalIndicatorService:
             Dictionary mapping indicator keys to their information
         """
         result = {}
-        
         for key, indicator in self.active_indicators.items():
-            # Extract components from the key
             parts = key.split('_')
             if len(parts) >= 4:
                 symbol = parts[0]
                 timeframe = parts[1]
                 indicator_type = parts[2]
-                
-                result[key] = {
-                    "symbol": symbol,
-                    "timeframe": timeframe,
-                    "type": indicator_type,
-                    "params": indicator.params,
-                    "is_initialized": indicator.is_initialized,
-                    "last_updated": indicator.last_timestamp
-                }
-                
+                result[key] = {'symbol': symbol, 'timeframe': timeframe,
+                    'type': indicator_type, 'params': indicator.params,
+                    'is_initialized': indicator.is_initialized,
+                    'last_updated': indicator.last_timestamp}
         return result

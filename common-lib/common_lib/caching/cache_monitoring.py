@@ -106,6 +106,11 @@ class CacheMonitor:
     def _start_monitoring_thread(self) -> None:
         """Start the monitoring thread."""
         def update_metrics():
+    """
+    Update metrics.
+    
+    """
+
             while True:
                 try:
                     self.update_metrics()

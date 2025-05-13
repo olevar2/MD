@@ -62,6 +62,11 @@ class AdaptationTriggerUser(HttpUser):
     # if such endpoints exist, to measure the performance of reading adapted parameters.
     # @task
     # def check_strategy_parameters(self):
+    """
+    Check strategy parameters.
+    
+    """
+
     #     strategy_id = f"strat_adapt_{random.randint(1, 50)}"
     #     param_endpoint = f"/api/v1/strategies/{strategy_id}/parameters"
     #     self.client.get(param_endpoint)

@@ -178,5 +178,5 @@ class ExperimentFilter(BaseModel):
     dataset_id: Optional[str] = None
     tags: Optional[List[str]] = None
     created_after: Optional[datetime] = None
-    created_before: Optional[datetime]] = None  # TODO: Fix unmatched brackets manually  # TODO: Fix unmatched brackets manually  # TODO: Fix unmatched brackets manually
+    created_before: Optional[datetime] = None
     created_by: Optional[str] = None

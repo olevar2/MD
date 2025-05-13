@@ -1,3 +1,9 @@
+"""
+Error handlers module.
+
+This module provides functionality for...
+"""
+
 import logging
 import traceback
 from typing import Union

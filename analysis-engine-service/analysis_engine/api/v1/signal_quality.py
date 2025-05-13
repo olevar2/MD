@@ -22,11 +22,25 @@ router = APIRouter()
 
 # API models
 class QualityEvaluationRequest(BaseModel):
+    """
+    QualityEvaluationRequest class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     signal_id: str = Field(..., description="ID of the signal to evaluate")
     market_context: Optional[Dict[str, Any]] = Field(default={}, description="Additional market context")
     historical_data: Optional[Dict[str, Any]] = Field(default={}, description="Historical performance data")
 
 class SignalQualityResponse(BaseModel):
+    """
+    SignalQualityResponse class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     signal_id: str
     tool_id: str
     base_quality: float
@@ -38,6 +52,13 @@ class SignalQualityResponse(BaseModel):
     evaluation_timestamp: datetime
 
 class QualityAnalysisResponse(BaseModel):
+    """
+    QualityAnalysisResponse class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     average_quality: float
     average_success_rate: float
     correlation: float
@@ -48,6 +69,13 @@ class QualityAnalysisResponse(BaseModel):
     market_regime: Optional[str]
 
 class QualityTrendResponse(BaseModel):
+    """
+    QualityTrendResponse class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     quality_trend: float
     success_trend: float
     data_points: int

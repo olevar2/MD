@@ -208,7 +208,23 @@ if __name__ == '__main__':
 
     # Mock User class
     class MockUser:
+    """
+    MockUser class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self, id, roles):
+    """
+      init  .
+    
+    Args:
+        id: Description of id
+        roles: Description of roles
+    
+    """
+
             self.id = id
             self.roles = set(roles)
 

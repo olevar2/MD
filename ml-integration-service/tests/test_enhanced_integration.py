@@ -118,8 +118,24 @@ class TestOptimization:
         """Test multi-objective optimization."""
         optimizer = MultiObjectiveOptimizer()
         
-        def obj1(x): return -((x['param1'] - 0.5) ** 2)
-        def obj2(x): return -((x['param2'] - 0.5) ** 2)
+        def obj1(x):
+    """
+    Obj1.
+    
+    Args:
+        x: Description of x
+    
+    """
+ return -((x['param1'] - 0.5) ** 2)
+        def obj2(x):
+    """
+    Obj2.
+    
+    Args:
+        x: Description of x
+    
+    """
+ return -((x['param2'] - 0.5) ** 2)
         
         results = optimizer.optimize(
             param_bounds={'param1': (0, 1), 'param2': (0, 1)},
@@ -139,6 +155,14 @@ class TestStressTesting:
         tester = ModelRobustnessTester()
         
         def mock_predictor(data):
+    """
+    Mock predictor.
+    
+    Args:
+        data: Description of data
+    
+    """
+
             return np.random.normal(0, 1, len(data))
         
         results = tester.test_model_robustness(
@@ -156,6 +180,15 @@ class TestStressTesting:
         analyzer = SensitivityAnalyzer()
         
         def mock_predictor(data, params):
+    """
+    Mock predictor.
+    
+    Args:
+        data: Description of data
+        params: Description of params
+    
+    """
+
             return np.random.normal(params['param1'], params['param2'], len(data))
         
         results = analyzer.analyze_parameter_sensitivity(

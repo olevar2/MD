@@ -355,6 +355,12 @@ class ReconciliationResult:
         }
 
     def __repr__(self) -> str:
+        """
+        String representation of the reconciliation result.
+
+        Returns:
+            String representation
+        """
         return f"ReconciliationResult(id={self.reconciliation_id}, status={self.status.name}, discrepancies={self.discrepancy_count}, resolutions={self.resolution_count})"
 
 

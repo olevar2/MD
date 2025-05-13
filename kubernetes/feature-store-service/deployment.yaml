@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: feature-store-service
+  name: feature-store-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: feature-store-service
+  template:
+    metadata:
+      labels:
+        app: feature-store-service
+    spec:
+      containers:
+      - image: forex-trading-platform/feature-store-service:latest
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: feature-store-service
+        ports:
+        - containerPort: 8005
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8005
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi

@@ -96,7 +96,7 @@
       ]
     },
     {
-      "name": "ml-workbench-service",
+      "name": "ml_workbench-service",
       "description": "Development environment for ML models",
       "key_modules": [],
       "dependencies": [

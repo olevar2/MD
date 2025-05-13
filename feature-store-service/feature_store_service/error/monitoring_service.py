@@ -31,6 +31,21 @@ class ErrorPattern:
         affected_indicators: List[str],
         common_params: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        pattern_id: Description of pattern_id
+        error_type: Description of error_type
+        frequency: Description of frequency
+        first_seen: Description of first_seen
+        last_seen: Description of last_seen
+        affected_indicators: Description of affected_indicators
+        common_params: Description of common_params
+        Any]]: Description of Any]]
+    
+    """
+
         self.pattern_id = pattern_id
         self.error_type = error_type
         self.frequency = frequency
@@ -76,6 +91,18 @@ class DiagnosticMetric:
         severity: str,
         timestamp: datetime
     ):
+    """
+      init  .
+    
+    Args:
+        name: Description of name
+        value: Description of value
+        threshold: Description of threshold
+        severity: Description of severity
+        timestamp: Description of timestamp
+    
+    """
+
         self.name = name
         self.value = value
         self.threshold = threshold
@@ -107,6 +134,14 @@ class ErrorMonitoringService:
     """
     
     def __init__(self, storage_dir: str = "monitoring"):
+    """
+      init  .
+    
+    Args:
+        storage_dir: Description of storage_dir
+    
+    """
+
         self.storage_dir = Path(storage_dir)
         self.storage_dir.mkdir(exist_ok=True)
         

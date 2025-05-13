@@ -182,6 +182,11 @@ class Resilience:
         """
         # Create a wrapped function that applies all resilience patterns
         async def execute_with_resilience():
+    """
+    Execute with resilience.
+    
+    """
+
             # Apply timeout if enabled
             if self.timeout:
                 return await self.timeout.execute(lambda: func(*args, **kwargs))
@@ -214,6 +219,18 @@ class Resilience:
         """
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
             return await self.execute_async(func, *args, **kwargs)
         return wrapper
 
@@ -316,8 +333,32 @@ def resilient(
     resilience = get_resilience(service_name, operation_name, config)
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+        Any]: Description of Any]
+    
+    Returns:
+        Callable[..., Any]: Description of return value
+    
+    """
+
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
             return await resilience.execute_async(func, *args, **kwargs)
         return wrapper
 

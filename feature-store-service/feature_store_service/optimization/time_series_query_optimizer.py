@@ -4,7 +4,6 @@ Optimized Time Series Query Manager
 This module provides optimized query functionality for time-series data in TimescaleDB.
 It implements caching, query optimization, and streaming capabilities for efficient data access.
 """
-
 import logging
 from typing import Dict, List, Optional, Union, Any, Tuple
 from datetime import datetime, timedelta
@@ -13,10 +12,17 @@ import numpy as np
 from sqlalchemy import select, func, text
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import expression
-
-# Local imports
 from feature_store_service.caching import CacheManager
 
+
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class TimeSeriesQueryOptimizer:
     """
@@ -28,14 +34,9 @@ class TimeSeriesQueryOptimizer:
     - Support for streaming data for real-time applications
     - Automatic chunk selection for improved query performance
     """
-    
-    def __init__(
-        self,
-        db_session: Session,
-        cache_manager: Optional[CacheManager] = None,
-        cache_ttl: int = 3600,  # Default TTL: 1 hour
-        enable_streaming: bool = False
-    ):
+
+    def __init__(self, db_session: Session, cache_manager: Optional[
+        CacheManager]=None, cache_ttl: int=3600, enable_streaming: bool=False):
         """
         Initialize the query optimizer
         
@@ -47,38 +48,22 @@ class TimeSeriesQueryOptimizer:
         """
         self.db = db_session
         self.logger = logging.getLogger(__name__)
-        
-        # Initialize cache manager if not provided
         if cache_manager:
             self.cache_manager = cache_manager
         else:
             from feature_store_service.caching import create_default_cache_manager
             self.cache_manager = create_default_cache_manager()
-        
         self.cache_ttl = cache_ttl
         self.enable_streaming = enable_streaming
-        
-        # Performance statistics
-        self.stats = {
-            'cache_hits': 0,
-            'cache_misses': 0,
-            'query_times': [],
-            'streaming_sessions': 0
-        }
-    
-    def query_time_series(
-        self,
-        table,
-        columns: List[str],
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        filters: Optional[Dict] = None,
-        order_by: str = 'timestamp',
-        order_desc: bool = False,
-        limit: Optional[int] = None,
-        use_cache: bool = True,
-        chunk_time_interval: Optional[str] = None
-    ) -> pd.DataFrame:
+        self.stats = {'cache_hits': 0, 'cache_misses': 0, 'query_times': [],
+            'streaming_sessions': 0}
+
+    @with_exception_handling
+    def query_time_series(self, table, columns: List[str], start_time:
+        Optional[datetime]=None, end_time: Optional[datetime]=None, filters:
+        Optional[Dict]=None, order_by: str='timestamp', order_desc: bool=
+        False, limit: Optional[int]=None, use_cache: bool=True,
+        chunk_time_interval: Optional[str]=None) ->pd.DataFrame:
         """
         Execute an optimized time-series query
         
@@ -99,57 +84,39 @@ class TimeSeriesQueryOptimizer:
         """
         import time
         start = time.time()
-        
-        # Generate cache key if caching is enabled
         cache_key = None
         if use_cache:
-            cache_key = self._generate_cache_key(
-                table.__tablename__, columns, start_time, end_time, filters, limit, order_desc
-            )
-            
-            # Try to get from cache
+            cache_key = self._generate_cache_key(table.__tablename__,
+                columns, start_time, end_time, filters, limit, order_desc)
             cached_data = self.cache_manager.get(cache_key)
             if cached_data is not None:
-                self.logger.debug(f"Cache hit for key {cache_key}")
+                self.logger.debug(f'Cache hit for key {cache_key}')
                 self.stats['cache_hits'] += 1
-                
                 elapsed = time.time() - start
-                self.logger.debug(f"Query completed in {elapsed:.4f}s (from cache)")
+                self.logger.debug(
+                    f'Query completed in {elapsed:.4f}s (from cache)')
                 return cached_data
-        
         self.stats['cache_misses'] += 1
-        
-        # Build the query
-        query = self._build_optimized_query(
-            table, columns, start_time, end_time, filters, order_by, order_desc, limit, chunk_time_interval
-        )
-        
-        # Execute the query
+        query = self._build_optimized_query(table, columns, start_time,
+            end_time, filters, order_by, order_desc, limit, chunk_time_interval
+            )
         try:
             result = pd.read_sql(query.statement, self.db.connection())
-            
-            # Cache the result if caching is enabled
             if use_cache and cache_key:
                 self.cache_manager.set(cache_key, result, self.cache_ttl)
-            
             elapsed = time.time() - start
             self.stats['query_times'].append(elapsed)
-            self.logger.debug(f"Query completed in {elapsed:.4f}s (from database)")
-            
+            self.logger.debug(
+                f'Query completed in {elapsed:.4f}s (from database)')
             return result
         except Exception as e:
-            self.logger.error(f"Error executing time-series query: {str(e)}")
+            self.logger.error(f'Error executing time-series query: {str(e)}')
             raise
-    
-    def stream_time_series(
-        self,
-        table,
-        columns: List[str],
-        batch_size: int = 1000,
-        start_time: Optional[datetime] = None,
-        filters: Optional[Dict] = None,
-        chunk_time_interval: Optional[str] = None
-    ):
+
+    @with_exception_handling
+    def stream_time_series(self, table, columns: List[str], batch_size: int
+        =1000, start_time: Optional[datetime]=None, filters: Optional[Dict]
+        =None, chunk_time_interval: Optional[str]=None):
         """
         Stream time-series data with a generator to handle large datasets
         
@@ -165,52 +132,37 @@ class TimeSeriesQueryOptimizer:
             DataFrame batches of time-series data
         """
         if not self.enable_streaming:
-            self.logger.warning("Streaming is not enabled. Please initialize with enable_streaming=True")
+            self.logger.warning(
+                'Streaming is not enabled. Please initialize with enable_streaming=True'
+                )
             return
-        
         self.stats['streaming_sessions'] += 1
-        
-        # Default to current time if not provided
         current_time = start_time or datetime.utcnow()
-        
         while True:
             try:
-                # Query the next batch
-                query = self._build_optimized_query(
-                    table, columns, 
-                    start_time=current_time,
-                    end_time=None,  # No end time for streaming
-                    filters=filters,
-                    limit=batch_size,
-                    chunk_time_interval=chunk_time_interval
-                )
-                
+                query = self._build_optimized_query(table, columns,
+                    start_time=current_time, end_time=None, filters=filters,
+                    limit=batch_size, chunk_time_interval=chunk_time_interval)
                 batch = pd.read_sql(query.statement, self.db.connection())
-                
                 if batch.empty:
-                    # No new data, wait briefly before trying again
                     import time
                     time.sleep(0.1)
                     continue
-                
-                # Update current_time to the latest timestamp in the batch
-                if 'timestamp' in batch.columns and not batch['timestamp'].empty:
-                    current_time = batch['timestamp'].max() + timedelta(milliseconds=1)
-                
+                if 'timestamp' in batch.columns and not batch['timestamp'
+                    ].empty:
+                    current_time = batch['timestamp'].max() + timedelta(
+                        milliseconds=1)
                 yield batch
-            
             except Exception as e:
-                self.logger.error(f"Error in streaming time-series data: {str(e)}")
+                self.logger.error(
+                    f'Error in streaming time-series data: {str(e)}')
                 import time
-                time.sleep(1)  # Wait before retrying
-    
-    def get_optimized_time_ranges(
-        self,
-        table,
-        interval: str = '1h',
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None
-    ) -> Dict[str, Any]:
+                time.sleep(1)
+
+    @with_exception_handling
+    def get_optimized_time_ranges(self, table, interval: str='1h',
+        start_time: Optional[datetime]=None, end_time: Optional[datetime]=None
+        ) ->Dict[str, Any]:
         """
         Get optimized time ranges based on continuous aggregates in TimescaleDB
         
@@ -224,30 +176,21 @@ class TimeSeriesQueryOptimizer:
             Dictionary with optimized time ranges and statistics
         """
         try:
-            # Get available continuous aggregates for the table
-            continuous_aggregates = self._get_continuous_aggregates(table.__tablename__)
-            
+            continuous_aggregates = self._get_continuous_aggregates(table.
+                __tablename__)
             if not continuous_aggregates:
-                return {
-                    "has_optimized_ranges": False,
-                    "message": "No continuous aggregates available for this table"
-                }
-            
-            # Find the best matching aggregate
+                return {'has_optimized_ranges': False, 'message':
+                    'No continuous aggregates available for this table'}
             best_aggregate = None
             for agg in continuous_aggregates:
                 if agg['interval'] == interval:
                     best_aggregate = agg
                     break
-            
             if not best_aggregate:
-                return {
-                    "has_optimized_ranges": False,
-                    "message": f"No continuous aggregate with interval {interval} found"
-                }
-            
-            # Get time range stats
-            stats_query = text(f"""
+                return {'has_optimized_ranges': False, 'message':
+                    f'No continuous aggregate with interval {interval} found'}
+            stats_query = text(
+                f"""
                 SELECT 
                     min(time_bucket('{interval}', timestamp)) as min_time,
                     max(time_bucket('{interval}', timestamp)) as max_time,
@@ -256,38 +199,27 @@ class TimeSeriesQueryOptimizer:
                 WHERE 
                     timestamp >= :start_time AND 
                     timestamp <= :end_time
-            """)
-            
+            """
+                )
             params = {}
             if start_time:
                 params['start_time'] = start_time
             else:
                 params['start_time'] = text("'-infinity'::timestamptz")
-                
             if end_time:
                 params['end_time'] = end_time
             else:
                 params['end_time'] = text("'infinity'::timestamptz")
-            
             result = self.db.execute(stats_query, params).fetchone()
-            
-            return {
-                "has_optimized_ranges": True,
-                "aggregate_view": best_aggregate['view_name'],
-                "interval": interval,
-                "min_time": result[0],
-                "max_time": result[1],
-                "bucket_count": result[2]
-            }
-            
+            return {'has_optimized_ranges': True, 'aggregate_view':
+                best_aggregate['view_name'], 'interval': interval,
+                'min_time': result[0], 'max_time': result[1],
+                'bucket_count': result[2]}
         except Exception as e:
-            self.logger.error(f"Error getting optimized time ranges: {str(e)}")
-            return {
-                "has_optimized_ranges": False,
-                "error": str(e)
-            }
-    
-    def get_performance_stats(self) -> Dict[str, Any]:
+            self.logger.error(f'Error getting optimized time ranges: {str(e)}')
+            return {'has_optimized_ranges': False, 'error': str(e)}
+
+    def get_performance_stats(self) ->Dict[str, Any]:
         """
         Get performance statistics for the query optimizer
         
@@ -295,41 +227,28 @@ class TimeSeriesQueryOptimizer:
             Dictionary with performance statistics
         """
         stats = self.stats.copy()
-        
-        # Calculate average query time
         if stats['query_times']:
-            stats['avg_query_time'] = sum(stats['query_times']) / len(stats['query_times'])
+            stats['avg_query_time'] = sum(stats['query_times']) / len(stats
+                ['query_times'])
             stats['min_query_time'] = min(stats['query_times'])
             stats['max_query_time'] = max(stats['query_times'])
         else:
             stats['avg_query_time'] = 0
             stats['min_query_time'] = 0
             stats['max_query_time'] = 0
-        
-        # Calculate cache hit ratio
         total_queries = stats['cache_hits'] + stats['cache_misses']
         if total_queries > 0:
             stats['cache_hit_ratio'] = stats['cache_hits'] / total_queries
         else:
             stats['cache_hit_ratio'] = 0
-        
-        # Add cache stats
         stats['cache_stats'] = self.cache_manager.get_stats()
-        
         return stats
-    
-    def _build_optimized_query(
-        self,
-        table,
-        columns: List[str],
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        filters: Optional[Dict] = None,
-        order_by: str = 'timestamp',
-        order_desc: bool = False,
-        limit: Optional[int] = None,
-        chunk_time_interval: Optional[str] = None
-    ):
+
+    def _build_optimized_query(self, table, columns: List[str], start_time:
+        Optional[datetime]=None, end_time: Optional[datetime]=None, filters:
+        Optional[Dict]=None, order_by: str='timestamp', order_desc: bool=
+        False, limit: Optional[int]=None, chunk_time_interval: Optional[str
+        ]=None):
         """
         Build an optimized SQLAlchemy query for time-series data
         
@@ -347,58 +266,36 @@ class TimeSeriesQueryOptimizer:
         Returns:
             SQLAlchemy query object
         """
-        # Start building the query
         if '*' in columns:
             query = select(table)
         else:
             query = select([getattr(table, col) for col in columns])
-        
-        # Add time range filters if provided
         if start_time:
             query = query.where(table.timestamp >= start_time)
-        
         if end_time:
             query = query.where(table.timestamp <= end_time)
-        
-        # Add additional filters if provided
         if filters:
             for column, value in filters.items():
                 if hasattr(table, column):
                     query = query.where(getattr(table, column) == value)
                 else:
-                    self.logger.warning(f"Ignoring filter for unknown column: {column}")
-        
-        # Add order by
+                    self.logger.warning(
+                        f'Ignoring filter for unknown column: {column}')
         if hasattr(table, order_by):
             order_col = getattr(table, order_by)
             if order_desc:
                 query = query.order_by(order_col.desc())
             else:
                 query = query.order_by(order_col)
-        
-        # Add limit if provided
         if limit:
             query = query.limit(limit)
-        
-        # Add TimescaleDB optimization hints if applicable
         if chunk_time_interval:
-            # Only available in SQLAlchemy 1.4+
-            # query = query.execution_options(postgresql_hint=f"TimescaleDB:chunks:range_start:{start_time},range_end:{end_time},interval:{chunk_time_interval}")
-            # For now, we'll rely on TimescaleDB's internal optimization
             pass
-        
         return query
-    
-    def _generate_cache_key(
-        self,
-        table_name: str,
-        columns: List[str],
-        start_time: Optional[datetime],
-        end_time: Optional[datetime],
-        filters: Optional[Dict],
-        limit: Optional[int],
-        order_desc: bool
-    ) -> str:
+
+    def _generate_cache_key(self, table_name: str, columns: List[str],
+        start_time: Optional[datetime], end_time: Optional[datetime],
+        filters: Optional[Dict], limit: Optional[int], order_desc: bool) ->str:
         """
         Generate a unique cache key for a query
         
@@ -416,23 +313,17 @@ class TimeSeriesQueryOptimizer:
         """
         import hashlib
         import json
-        
-        # Create a dictionary of all query parameters
-        key_dict = {
-            'table': table_name,
-            'columns': sorted(columns),
+        key_dict = {'table': table_name, 'columns': sorted(columns),
             'start_time': start_time.isoformat() if start_time else None,
             'end_time': end_time.isoformat() if end_time else None,
-            'filters': json.dumps(filters, sort_keys=True) if filters else None,
-            'limit': limit,
-            'order_desc': order_desc
-        }
-        
-        # Convert to string and hash
+            'filters': json.dumps(filters, sort_keys=True) if filters else
+            None, 'limit': limit, 'order_desc': order_desc}
         key_str = json.dumps(key_dict, sort_keys=True)
-        return f"tsq:{hashlib.md5(key_str.encode()).hexdigest()}"
-    
-    def _get_continuous_aggregates(self, table_name: str) -> List[Dict[str, str]]:
+        return f'tsq:{hashlib.md5(key_str.encode()).hexdigest()}'
+
+    @with_exception_handling
+    def _get_continuous_aggregates(self, table_name: str) ->List[Dict[str, str]
+        ]:
         """
         Get continuous aggregates defined for a table in TimescaleDB
         
@@ -443,8 +334,8 @@ class TimeSeriesQueryOptimizer:
             List of dictionaries with aggregate information
         """
         try:
-            # This query is specific to TimescaleDB
-            query = text("""
+            query = text(
+                """
                 SELECT 
                     view_name,
                     materialization_hypertable,
@@ -453,32 +344,23 @@ class TimeSeriesQueryOptimizer:
                 FROM timescaledb_information.continuous_aggregates
                 WHERE materialization_hypertable = :table_name
                 ORDER BY refresh_interval
-            """)
-            
-            results = self.db.execute(query, {'table_name': table_name}).fetchall()
-            
-            # Extract interval from view definition (this is a simplification)
+            """
+                )
+            results = self.db.execute(query, {'table_name': table_name}
+                ).fetchall()
             aggregates = []
             for row in results:
                 view_def = row[2].lower()
                 interval = None
-                
-                # Try to extract time_bucket interval
                 import re
-                interval_match = re.search(r"time_bucket\('([^']+)'", view_def)
+                interval_match = re.search("time_bucket\\('([^']+)'", view_def)
                 if interval_match:
                     interval = interval_match.group(1)
-                
-                aggregates.append({
-                    'view_name': row[0],
-                    'hypertable': row[1],
-                    'view_definition': row[2],
-                    'refresh_interval': row[3],
-                    'interval': interval
-                })
-            
+                aggregates.append({'view_name': row[0], 'hypertable': row[1
+                    ], 'view_definition': row[2], 'refresh_interval': row[3
+                    ], 'interval': interval})
             return aggregates
-        
         except Exception as e:
-            self.logger.error(f"Error fetching continuous aggregates: {str(e)}")
+            self.logger.error(f'Error fetching continuous aggregates: {str(e)}'
+                )
             return []

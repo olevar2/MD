@@ -1,9 +1,3 @@
-# Node.js dependencies
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-
 # Python
 __pycache__/
 *.py[cod]
@@ -17,7 +11,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -27,10 +20,10 @@ var/
 *.egg
 .pytest_cache/
 
-# Virtual environments
+# Virtual Environment
 venv/
+.venv/
 ENV/
-env/
 
 # IDE files
 .idea/
@@ -38,22 +31,40 @@ env/
 *.swp
 *.swo
 
-# OS specific files
-.DS_Store
-Thumbs.db
-
 # Logs
-logs/
 *.log
-
-# Build artifacts
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.dylib
+logs/
 
 # Temporary files
-*.tmp
-*.temp
+temp_dir/
+temp_repo/
+
+# Backup files
+*.bak
+*.bak.*
+
+# Node modules
+node_modules/
+
+# VS Code specific files
+Code - Insiders.VisualElementsManifest.xml
+Code - Insiders.exe
+LICENSES.chromium.html
+chrome_100_percent.pak
+chrome_200_percent.pak
+d3dcompiler_47.dll
+ffmpeg.dll
+icudtl.dat
+libEGL.dll
+libGLESv2.dll
+locales/
+resources.pak
+resources/
+snapshot_blob.bin
+v8_context_snapshot.bin
+vk_swiftshader.dll
+vk_swiftshader_icd.json
+vulkan-1.dll
+unins000.dat
+unins000.exe
+unins000.msg

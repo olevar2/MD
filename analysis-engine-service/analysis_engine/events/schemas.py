@@ -1,5 +1,4 @@
-\
-""
+"""
 Defines the schemas for events published and consumed by the Analysis Engine Service.
 """
 

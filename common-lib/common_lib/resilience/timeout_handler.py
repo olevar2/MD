@@ -24,6 +24,15 @@ class TimeoutError(Exception):
     """Exception raised when an operation times out."""
     
     def __init__(self, operation_name: str, timeout_seconds: float):
+    """
+      init  .
+    
+    Args:
+        operation_name: Description of operation_name
+        timeout_seconds: Description of timeout_seconds
+    
+    """
+
         self.operation_name = operation_name
         self.timeout_seconds = timeout_seconds
         super().__init__(f"Operation '{operation_name}' timed out after {timeout_seconds} seconds")
@@ -118,9 +127,32 @@ def timeout_handler(
         A decorator function
     """
     def decorator(func: Callable) -> Callable:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    Returns:
+        Callable: Description of return value
+    
+    """
+
         if asyncio.iscoroutinefunction(func):
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Async wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
                 # Handle async function
                 coro = func(*args, **kwargs)
                 op_name = operation_name or func.__name__
@@ -129,6 +161,18 @@ def timeout_handler(
         else:
             @functools.wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Sync wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
                 # Handle sync function
                 op_name = operation_name or func.__name__
                 return sync_timeout(func, args, kwargs, timeout_seconds, op_name)

@@ -668,7 +668,14 @@ class HealthRegistry:
             }
 
 
-# class HealthCheck: # This was the incomplete definition
+# class HealthCheck:
+    """
+    HealthCheck class.
+    
+    Attributes:
+        Add attributes here
+    """
+ # This was the incomplete definition
 #     """
 #     Health check implementation for exposing health status via HTTP.
 #     

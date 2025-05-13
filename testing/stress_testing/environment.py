@@ -1,3 +1,9 @@
+"""
+Environment module.
+
+This module provides functionality for...
+"""
+
 import logging
 import time
 import threading

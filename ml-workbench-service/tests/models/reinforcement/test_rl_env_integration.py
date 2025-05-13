@@ -1,3 +1,9 @@
+"""
+Test rl env integration module.
+
+This module provides functionality for...
+"""
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -24,6 +30,11 @@ from core_foundations.models.financial_instruments import SymbolInfo
 # Mock Data and Simulators
 @pytest.fixture
 def mock_symbol_info():
+    """
+    Mock symbol info.
+    
+    """
+
     return SymbolInfo(
         symbol="EURUSD",
         base_currency="EUR",
@@ -38,6 +49,11 @@ def mock_symbol_info():
 
 @pytest.fixture
 def mock_forex_data():
+    """
+    Mock forex data.
+    
+    """
+
     dates = pd.to_datetime([datetime(2023, 1, 1, i) for i in range(100)])
     data = {
         'open': np.random.rand(100) * 0.1 + 1.1,
@@ -60,14 +76,43 @@ def mock_forex_data():
 
 @pytest.fixture
 def broker_simulator(mock_forex_data, mock_symbol_info):
+    """
+    Broker simulator.
+    
+    Args:
+        mock_forex_data: Description of mock_forex_data
+        mock_symbol_info: Description of mock_symbol_info
+    
+    """
+
     # Use the adapter instead of direct dependency
     return BrokerSimulatorAdapter()
 
 @pytest.fixture
 def news_sentiment_simulator(mock_forex_data):
+    """
+    News sentiment simulator.
+    
+    Args:
+        mock_forex_data: Description of mock_forex_data
+    
+    """
+
     # Use a simple mock object instead of direct dependency
     class MockNewsSentimentSimulator:
+    """
+    MockNewsSentimentSimulator class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self):
+    """
+      init  .
+    
+    """
+
             start_time = mock_forex_data.index[0]
             event_time = start_time + timedelta(hours=10)
             self.events = [
@@ -87,6 +132,16 @@ def news_sentiment_simulator(mock_forex_data):
 
 @pytest.fixture
 def integrated_rl_env(mock_forex_data, broker_simulator, news_sentiment_simulator):
+    """
+    Integrated rl env.
+    
+    Args:
+        mock_forex_data: Description of mock_forex_data
+        broker_simulator: Description of broker_simulator
+        news_sentiment_simulator: Description of news_sentiment_simulator
+    
+    """
+
     return EnhancedForexTradingEnv(
         broker_simulator=broker_simulator,
         symbol="EUR/USD",

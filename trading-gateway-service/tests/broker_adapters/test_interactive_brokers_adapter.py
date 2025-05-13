@@ -181,6 +181,14 @@ class TestInteractiveBrokersAdapter(unittest.TestCase):
         callback_report = None
         
         async def mock_callback(report):
+    """
+    Mock callback.
+    
+    Args:
+        report: Description of report
+    
+    """
+
             nonlocal callback_called, callback_report
             callback_called = True
             callback_report = report

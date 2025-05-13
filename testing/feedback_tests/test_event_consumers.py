@@ -16,6 +16,11 @@ from core_foundations.models.feedback_models import TradeFeedback, TradeFeedback
 # If using aiokafka, mock AIOKafkaConsumer instead
 @pytest.fixture
 def mock_kafka_consumer():
+    """
+    Mock kafka consumer.
+    
+    """
+
     with patch('analysis_engine.adaptive_layer.event_consumers.KafkaConsumer', new_callable=MagicMock) as mock_consumer_class:
         mock_consumer_instance = mock_consumer_class.return_value
         mock_consumer_instance.poll = MagicMock()
@@ -24,7 +29,15 @@ def mock_kafka_consumer():
         yield mock_consumer_instance
 
 @pytest.fixture
-def feedback_consumer(mock_kafka_consumer): # Depends on the mock fixture
+def feedback_consumer(mock_kafka_consumer):
+    """
+    Feedback consumer.
+    
+    Args:
+        mock_kafka_consumer: Description of mock_kafka_consumer
+    
+    """
+ # Depends on the mock fixture
     consumer = FeedbackConsumer(
         bootstrap_servers='mock_server:9092',
         group_id='test_group',

@@ -46747,8 +46747,8 @@
           "learning_adaptive_integration.py": null
         },
         "interfaces/": {
-          "IAdvancedIndicator.py": null,
-          "IPatternRecognizer.py": null
+          "i_advanced_indicator.py": null,
+          "i_pattern_recognizer.py": null
         },
         "learning_from_mistakes/": {
           "effectiveness_logger.py": null,
@@ -47045,12 +47045,12 @@
       "test_config.py": null,
       "ui/": {
         "api/": {
-          "apiClient.js": null
+          "api-client.js": null
         },
         "components/": {
-          "AnalysisDashboard.js": null,
-          "ConfluenceDetectionWidget.js": null,
-          "DivergenceAnalysisWidget.js": null
+          "analysis-dashboard.js": null,
+          "confluence-detection-widget.js": null,
+          "divergence-analysis-widget.js": null
         }
       }
     },
@@ -47095,7 +47095,7 @@
     "caching_optimization_summary.md": null,
     "chat_interface_template/": {
       "api_endpoints.py": null,
-      "ChatBackendService.py": null,
+      "chat_backend_service.py": null,
       "ChatInterface.tsx": null,
       "ChatService.ts": null,
       "integration_guide.md": null,
@@ -47111,12 +47111,12 @@
       ".eslintrc.js": null,
       ".pre-commit-config.yaml": null,
       ".prettierrc.json": null,
-      "apiClient.js": null,
+      "api-client.js": null,
       "docs/": {
         "error_handling.md": null
       },
       "errorBridge.ts": null,
-      "errorHandler.js": null,
+      "error-handler.js": null,
       "errors.js": null,
       "errors.ts": null,
       "index.js": null,
@@ -47126,7 +47126,7 @@
       "resilience.js": null,
       "security.js": null,
       "templates/": {
-        "ServiceClientTemplate.ts": null
+        "service-client-template.ts": null
       },
       "test/": {
         "security.test.js": null
@@ -48141,7 +48141,7 @@
           "__init__.py": null
         },
         "interfaces/": {
-          "IIndicator.py": null
+          "i_indicator.py": null
         },
         "logging/": {
           "enhanced_logging.py": null,
@@ -48533,7 +48533,7 @@
         "__init__.py": null
       }
     },
-    "ml-workbench-service/": {
+    "ml_workbench-service/": {
       ".env.example": null,
       ".pre-commit-config.yaml": null,
       ".pylintrc": null,
@@ -58302,7 +58302,7 @@
         },
         "app.js": null,
         "middleware/": {
-          "errorHandler.js": null
+          "error-handler.js": null
         },
         "utils/": {
           "errorBridge.js": null,
@@ -58468,23 +58468,23 @@
       "SERVICE_CHECKLIST.md": null,
       "src/": {
         "api/": {
-          "apiClient.ts": null,
+          "api-client.ts": null,
           "strategy-api.ts": null
         },
         "components/": {
-          "ABTestMonitor.tsx": null,
+          "ab-test-monitor.tsx": null,
           "analysis/": {
             "AnalysisCharting.tsx": null,
             "ConfluenceHighlighting.tsx": null,
             "InteractiveAnalysisTools.tsx": null
           },
-          "asset-detail/": {
+          "asset_detail/": {
             "CryptoDetails.jsx": null,
             "ForexDetails.jsx": null,
             "StockDetails.jsx": null
           },
-          "AssetDetailView.jsx": null,
-          "CausalDashboard.tsx": null,
+          "asset-detail-view.jsx": null,
+          "causal-dashboard.tsx": null,
           "chart/": {
             "Chart.tsx": null,
             "ChartControlPanel.tsx": null,
@@ -58518,7 +58518,7 @@
           },
           "dashboard/": {
             "AdvancedTradingDashboard.tsx": null,
-            "RegimeAwareDashboard.tsx": null,
+            "regime-aware-dashboard.tsx": null,
             "RegimeIndicator.tsx": null,
             "TradingDashboard.tsx": null,
             "__tests__/": {
@@ -58528,14 +58528,14 @@
           "documentation/": {
             "PhaseDocumentation.tsx": null
           },
-          "feedback-loop/": {
+          "feedback_loop/": {
             "FeedbackLoopDashboard.tsx": null,
             "HistoricalTrendAnalysis.tsx": null,
             "ParameterCrossRegimeAnalysis.tsx": null,
             "ParameterEffectivenessCard.tsx": null,
             "ParameterInsightsPanel.tsx": null
           },
-          "FeedbackDashboard.tsx": null,
+          "feedback-dashboard.tsx": null,
           "health/": {
             "HealthSummary.tsx": null,
             "MetricChart.tsx": null,
@@ -58551,42 +58551,42 @@
           },
           "ml/": {
             "MLConfirmationFilter.tsx": null,
-            "ModelExplainabilityVisualization.tsx": null,
+            "model-explainability-visualization.tsx": null,
             "RLEnvironmentConfigurator.tsx": null,
-            "RLTrainingDashboard.tsx": null
+            "rl-training-dashboard.tsx": null
           },
-          "ml-workbench/": {
+          "ml_workbench/": {
             "RLTrainingVisualization.jsx": null
           },
-          "ModelExplainabilityVisualization.tsx": null,
+          "model-explainability-visualization.tsx": null,
           "monitoring/": {
             "RealTimeMonitoringDisplays.tsx": null
           },
-          "MultiAssetPortfolioDashboard.jsx": null,
+          "multi-asset-portfolio-dashboard.jsx": null,
           "navigation/": {
             "MainNavigation.tsx": null,
             "MobileNavigation.tsx": null
           },
-          "NetworkGraph.tsx": null,
-          "ParameterTuningInterface.tsx": null,
+          "network-graph.tsx": null,
+          "parameter-tuning-interface.tsx": null,
           "portfolio/": {
             "PortfolioManagement.tsx": null
           },
-          "PortfolioBreakdown.tsx": null,
-          "PositionMonitoringDashboard.jsx": null,
-          "RegimeAwareDashboard.tsx": null,
+          "portfolio-breakdown.tsx": null,
+          "position-monitoring-dashboard.jsx": null,
+          "regime-aware-dashboard.tsx": null,
           "reinforcement/": {
-            "RLTrainingDashboard.tsx": null
+            "rl-training-dashboard.tsx": null
           },
-          "RLEnvironmentConfig.tsx": null,
-          "RLTrainingDashboard.tsx": null,
+          "rl-environment-config.tsx": null,
+          "rl-training-dashboard.tsx": null,
           "settings/": {
             "ApiKeyDialog.tsx": null,
             "IndicatorSelector.tsx": null,
             "Setup2FADialog.tsx": null
           },
-          "SignalVisualization.jsx": null,
-          "SignalVisualizer.tsx": null,
+          "signal-visualization.jsx": null,
+          "signal-visualizer.tsx": null,
           "strategy/": {
             "AdaptiveStrategySettings.tsx": null,
             "ParameterConfigurator.tsx": null,
@@ -58599,13 +58599,13 @@
             "OrderEntry.tsx": null,
             "OrdersList.tsx": null,
             "PositionsMonitor.tsx": null,
-            "SignalVisualizer.tsx": null,
+            "signal-visualizer.tsx": null,
             "TouchControls.tsx": null,
             "TradingDashboard.tsx": null,
             "TradingSignals.tsx": null,
             "Watchlist.tsx": null
           },
-          "ui-library/": {
+          "ui_library/": {
             "Button.tsx": null,
             "Card.tsx": null,
             "Chart.tsx": null,
@@ -58641,7 +58641,7 @@
           "useWebSocket.ts": null
         },
         "pages/": {
-          "chat-demo/": {
+          "chat_demo/": {
             "index.tsx": null
           },
           "dashboard/": {

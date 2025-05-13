@@ -101,6 +101,17 @@ def version_route(
         Decorator function for the route handler
     """
     def decorator(func: Callable) -> Callable:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    Returns:
+        Callable: Description of return value
+    
+    """
+
         # Create a router for each version
         for version in versions:
             version_prefix = f"{prefix}/{version}"

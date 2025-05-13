@@ -55,10 +55,10 @@ class Backtester:
         self.asset_registry = AssetRegistry()
 
         # Default configuration
-        self.default_lookback_days = self.config.get("default_lookback_days", 365)
-        self.include_market_regimes = self.config.get("include_market_regimes", True)
-        self.data_source = self.config.get("data_source", "default")
-        self.temp_dir = self.config.get("temp_dir", "tmp")
+        self.default_lookback_days = self.config_manager.get('default_lookback_days', 365)
+        self.include_market_regimes = self.config_manager.get('include_market_regimes', True)
+        self.data_source = self.config_manager.get('data_source', "default")
+        self.temp_dir = self.config_manager.get('temp_dir', "tmp")
 
         # Ensure temp directory exists
         os.makedirs(self.temp_dir, exist_ok=True)
@@ -131,7 +131,7 @@ class Backtester:
         strategy_config = self._load_strategy_config(config_path)
 
         # Get strategy ID for error reporting
-        strategy_id = strategy_config.get("id", "unknown")
+        strategy_id = strategy_config_manager.get('id', "unknown")
 
         # Determine assets to test if not explicitly specified
         if not assets and "instruments" in strategy_config:
@@ -183,7 +183,7 @@ class Backtester:
         metrics = self._calculate_performance_metrics(backtest_result)
 
         # Generate report if specified in config
-        if self.config.get("generate_reports", False):
+        if self.config_manager.get('generate_reports', False):
             try:
                 report_path = await self.report_generator.generate_report(backtest_result, metrics)
                 metrics["report_path"] = report_path
@@ -201,7 +201,7 @@ class Backtester:
             "success": True,
             "metadata": {
                 "strategy_id": strategy_id,
-                "version": strategy_config.get("version", "1.0"),
+                "version": strategy_config_manager.get('version', "1.0"),
                 "start_date": start_date_obj.isoformat(),
                 "end_date": end_date_obj.isoformat(),
                 "assets": assets,

@@ -40,9 +40,9 @@ async def get_query_optimizer(
         
         # Override with provided config if available
         if config:
-            cache_enabled = config.get("cache_enabled", cache_enabled)
-            cache_ttl_seconds = config.get("cache_ttl_seconds", cache_ttl_seconds)
-            max_cache_items = config.get("max_cache_items", max_cache_items)
+            cache_enabled = config_manager.get('cache_enabled', cache_enabled)
+            cache_ttl_seconds = config_manager.get('cache_ttl_seconds', cache_ttl_seconds)
+            max_cache_items = config_manager.get('max_cache_items', max_cache_items)
             
         # Create the query optimizer
         _query_optimizer_instance = TimeSeriesQueryOptimizer(

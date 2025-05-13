@@ -3,20 +3,25 @@ Standardized Adaptive Layer Client
 
 This module provides a client for interacting with the standardized Adaptive Layer API.
 """
-
 import logging
 import aiohttp
 import asyncio
 import pandas as pd
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
-
 from analysis_engine.core.config import get_settings
 from analysis_engine.core.resilience import retry_with_backoff, circuit_breaker
 from analysis_engine.monitoring.structured_logging import get_structured_logger
 from analysis_engine.core.exceptions_bridge import ServiceUnavailableError, ServiceTimeoutError
-
 logger = get_structured_logger(__name__)
+from analysis_engine.core.exceptions_bridge import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
+
+
+from analysis_engine.resilience.utils import (
+    with_resilience,
+    with_analysis_resilience,
+    with_database_resilience
+)
 
 class AdaptiveLayerClient:
     """
@@ -28,7 +33,7 @@ class AdaptiveLayerClient:
     It includes resilience patterns like retry with backoff and circuit breaking.
     """
 
-    def __init__(self, base_url: Optional[str] = None, timeout: int = 30):
+    def __init__(self, base_url: Optional[str]=None, timeout: int=30):
         """
         Initialize the Adaptive Layer client.
 
@@ -39,24 +44,16 @@ class AdaptiveLayerClient:
         settings = get_settings()
         self.base_url = base_url or settings.analysis_engine_url
         self.timeout = timeout
-        self.api_prefix = "/api/v1/analysis/adaptations"
+        self.api_prefix = '/api/v1/analysis/adaptations'
+        self.circuit_breaker = circuit_breaker(failure_threshold=5,
+            recovery_timeout=30, name='adaptive_layer_client')
+        logger.info(
+            f'Initialized Adaptive Layer client with base URL: {self.base_url}'
+            )
 
-        # Configure circuit breaker
-        self.circuit_breaker = circuit_breaker(
-            failure_threshold=5,
-            recovery_timeout=30,
-            name="adaptive_layer_client"
-        )
-
-        logger.info(f"Initialized Adaptive Layer client with base URL: {self.base_url}")
-
-    async def _make_request(
-        self,
-        method: str,
-        endpoint: str,
-        data: Optional[Dict] = None,
-        params: Optional[Dict] = None
-    ) -> Dict:
+    @async_with_exception_handling
+    async def _make_request(self, method: str, endpoint: str, data:
+        Optional[Dict]=None, params: Optional[Dict]=None) ->Dict:
         """
         Make a request to the Adaptive Layer API with resilience patterns.
 
@@ -74,53 +71,55 @@ class AdaptiveLayerClient:
             ServiceTimeoutError: If the request times out
             Exception: For other errors
         """
-        url = f"{self.base_url}{self.api_prefix}{endpoint}"
+        url = f'{self.base_url}{self.api_prefix}{endpoint}'
 
-        @retry_with_backoff(
-            max_retries=3,
-            backoff_factor=1.5,
-            retry_exceptions=[aiohttp.ClientError, TimeoutError]
-        )
+        @retry_with_backoff(max_retries=3, backoff_factor=1.5,
+            retry_exceptions=[aiohttp.ClientError, TimeoutError])
         @self.circuit_breaker
+        @async_with_exception_handling
         async def _request():
+    """
+     request.
+    
+    """
+
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.request(
-                        method=method,
-                        url=url,
-                        json=data,
-                        params=params,
-                        timeout=self.timeout
-                    ) as response:
+                    async with session.request(method=method, url=url, json
+                        =data, params=params, timeout=self.timeout
+                        ) as response:
                         if response.status >= 500:
                             error_text = await response.text()
-                            logger.error(f"Server error from Adaptive Layer API: {error_text}")
-                            raise ServiceUnavailableError(f"Adaptive Layer API server error: {response.status}")
-
+                            logger.error(
+                                f'Server error from Adaptive Layer API: {error_text}'
+                                )
+                            raise ServiceUnavailableError(
+                                f'Adaptive Layer API server error: {response.status}'
+                                )
                         if response.status >= 400:
                             error_text = await response.text()
-                            logger.error(f"Client error from Adaptive Layer API: {error_text}")
-                            raise Exception(f"Adaptive Layer API client error: {response.status} - {error_text}")
-
+                            logger.error(
+                                f'Client error from Adaptive Layer API: {error_text}'
+                                )
+                            raise Exception(
+                                f'Adaptive Layer API client error: {response.status} - {error_text}'
+                                )
                         return await response.json()
             except aiohttp.ClientError as e:
-                logger.error(f"Connection error to Adaptive Layer API: {str(e)}")
-                raise ServiceUnavailableError(f"Failed to connect to Adaptive Layer API: {str(e)}")
+                logger.error(
+                    f'Connection error to Adaptive Layer API: {str(e)}')
+                raise ServiceUnavailableError(
+                    f'Failed to connect to Adaptive Layer API: {str(e)}')
             except asyncio.TimeoutError:
-                logger.error(f"Timeout connecting to Adaptive Layer API")
-                raise ServiceTimeoutError(f"Timeout connecting to Adaptive Layer API")
-
+                logger.error(f'Timeout connecting to Adaptive Layer API')
+                raise ServiceTimeoutError(
+                    f'Timeout connecting to Adaptive Layer API')
         return await _request()
 
-    async def generate_adaptive_parameters(
-        self,
-        strategy_id: str,
-        symbol: str,
-        timeframe: str,
-        ohlc_data: Union[List[Dict], pd.DataFrame],
-        available_tools: List[str],
-        adaptation_strategy: str = "moderate"
-    ) -> Dict:
+    async def generate_adaptive_parameters(self, strategy_id: str, symbol:
+        str, timeframe: str, ohlc_data: Union[List[Dict], pd.DataFrame],
+        available_tools: List[str], adaptation_strategy: str='moderate'
+        ) ->Dict:
         """
         Generate adaptive parameters based on current market conditions and tool effectiveness.
 
@@ -135,33 +134,23 @@ class AdaptiveLayerClient:
         Returns:
             Generated parameters
         """
-        # Convert DataFrame to list of dicts if needed
         if isinstance(ohlc_data, pd.DataFrame):
-            if 'timestamp' not in ohlc_data.columns and ohlc_data.index.name != 'timestamp':
+            if ('timestamp' not in ohlc_data.columns and ohlc_data.index.
+                name != 'timestamp'):
                 ohlc_data = ohlc_data.reset_index()
-
             ohlc_data = ohlc_data.to_dict('records')
+        data = {'strategy_id': strategy_id, 'symbol': symbol, 'timeframe':
+            timeframe, 'ohlc_data': ohlc_data, 'available_tools':
+            available_tools, 'adaptation_strategy': adaptation_strategy}
+        logger.info(
+            f'Generating adaptive parameters for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}'
+            )
+        return await self._make_request('POST', '/parameters/generate',
+            data=data)
 
-        data = {
-            "strategy_id": strategy_id,
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "ohlc_data": ohlc_data,
-            "available_tools": available_tools,
-            "adaptation_strategy": adaptation_strategy
-        }
-
-        logger.info(f"Generating adaptive parameters for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}")
-        return await self._make_request("POST", "/parameters/generate", data=data)
-
-    async def adjust_parameters(
-        self,
-        strategy_id: str,
-        instrument: str,
-        timeframe: str,
-        current_parameters: Dict[str, Any],
-        context: Optional[Dict[str, Any]] = None
-    ) -> Dict:
+    async def adjust_parameters(self, strategy_id: str, instrument: str,
+        timeframe: str, current_parameters: Dict[str, Any], context:
+        Optional[Dict[str, Any]]=None) ->Dict:
         """
         Adjust strategy parameters based on market conditions and tool effectiveness.
 
@@ -175,27 +164,20 @@ class AdaptiveLayerClient:
         Returns:
             Adjusted parameters response
         """
-        data = {
-            "strategy_id": strategy_id,
-            "instrument": instrument,
-            "timeframe": timeframe,
-            "current_parameters": current_parameters,
-            "context": context or {}
-        }
+        data = {'strategy_id': strategy_id, 'instrument': instrument,
+            'timeframe': timeframe, 'current_parameters':
+            current_parameters, 'context': context or {}}
+        logger.info(
+            f'Adjusting parameters for strategy {strategy_id}, instrument {instrument}, timeframe {timeframe}'
+            )
+        return await self._make_request('POST', '/parameters/adjust', data=data
+            )
 
-        logger.info(f"Adjusting parameters for strategy {strategy_id}, instrument {instrument}, timeframe {timeframe}")
-        return await self._make_request("POST", "/parameters/adjust", data=data)
-
-    async def update_strategy_parameters(
-        self,
-        strategy_id: str,
-        symbol: str,
-        timeframe: str,
-        ohlc_data: Union[List[Dict], pd.DataFrame],
-        available_tools: List[str],
-        adaptation_strategy: str = "moderate",
-        strategy_execution_api_url: Optional[str] = None
-    ) -> Dict:
+    @with_resilience('update_strategy_parameters')
+    async def update_strategy_parameters(self, strategy_id: str, symbol:
+        str, timeframe: str, ohlc_data: Union[List[Dict], pd.DataFrame],
+        available_tools: List[str], adaptation_strategy: str='moderate',
+        strategy_execution_api_url: Optional[str]=None) ->Dict:
         """
         Generate adaptive parameters and apply them to the strategy execution engine.
 
@@ -211,35 +193,24 @@ class AdaptiveLayerClient:
         Returns:
             Updated strategy parameters
         """
-        # Convert DataFrame to list of dicts if needed
         if isinstance(ohlc_data, pd.DataFrame):
-            if 'timestamp' not in ohlc_data.columns and ohlc_data.index.name != 'timestamp':
+            if ('timestamp' not in ohlc_data.columns and ohlc_data.index.
+                name != 'timestamp'):
                 ohlc_data = ohlc_data.reset_index()
-
             ohlc_data = ohlc_data.to_dict('records')
+        data = {'strategy_id': strategy_id, 'symbol': symbol, 'timeframe':
+            timeframe, 'ohlc_data': ohlc_data, 'available_tools':
+            available_tools, 'adaptation_strategy': adaptation_strategy,
+            'strategy_execution_api_url': strategy_execution_api_url}
+        logger.info(
+            f'Updating strategy parameters for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}'
+            )
+        return await self._make_request('POST', '/strategy/update', data=data)
 
-        data = {
-            "strategy_id": strategy_id,
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "ohlc_data": ohlc_data,
-            "available_tools": available_tools,
-            "adaptation_strategy": adaptation_strategy,
-            "strategy_execution_api_url": strategy_execution_api_url
-        }
-
-        logger.info(f"Updating strategy parameters for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}")
-        return await self._make_request("POST", "/strategy/update", data=data)
-
-    async def generate_strategy_recommendations(
-        self,
-        strategy_id: str,
-        symbol: str,
-        timeframe: str,
-        ohlc_data: Union[List[Dict], pd.DataFrame],
-        current_tools: List[str],
-        all_available_tools: List[str]
-    ) -> Dict:
+    async def generate_strategy_recommendations(self, strategy_id: str,
+        symbol: str, timeframe: str, ohlc_data: Union[List[Dict], pd.
+        DataFrame], current_tools: List[str], all_available_tools: List[str]
+        ) ->Dict:
         """
         Generate recommendations for optimizing a strategy based on effectiveness data.
 
@@ -254,33 +225,24 @@ class AdaptiveLayerClient:
         Returns:
             Strategy recommendations
         """
-        # Convert DataFrame to list of dicts if needed
         if isinstance(ohlc_data, pd.DataFrame):
-            if 'timestamp' not in ohlc_data.columns and ohlc_data.index.name != 'timestamp':
+            if ('timestamp' not in ohlc_data.columns and ohlc_data.index.
+                name != 'timestamp'):
                 ohlc_data = ohlc_data.reset_index()
-
             ohlc_data = ohlc_data.to_dict('records')
+        data = {'strategy_id': strategy_id, 'symbol': symbol, 'timeframe':
+            timeframe, 'ohlc_data': ohlc_data, 'current_tools':
+            current_tools, 'all_available_tools': all_available_tools}
+        logger.info(
+            f'Generating strategy recommendations for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}'
+            )
+        return await self._make_request('POST', '/strategy/recommendations',
+            data=data)
 
-        data = {
-            "strategy_id": strategy_id,
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "ohlc_data": ohlc_data,
-            "current_tools": current_tools,
-            "all_available_tools": all_available_tools
-        }
-
-        logger.info(f"Generating strategy recommendations for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}")
-        return await self._make_request("POST", "/strategy/recommendations", data=data)
-
-    async def analyze_strategy_effectiveness_trend(
-        self,
-        strategy_id: str,
-        symbol: str,
-        timeframe: str,
-        period_days: int = 30,
-        look_back_periods: int = 6
-    ) -> Dict:
+    @with_analysis_resilience('analyze_strategy_effectiveness_trend')
+    async def analyze_strategy_effectiveness_trend(self, strategy_id: str,
+        symbol: str, timeframe: str, period_days: int=30, look_back_periods:
+        int=6) ->Dict:
         """
         Analyze how a strategy's effectiveness has changed over time.
 
@@ -294,27 +256,19 @@ class AdaptiveLayerClient:
         Returns:
             Strategy effectiveness trend analysis
         """
-        data = {
-            "strategy_id": strategy_id,
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "period_days": period_days,
-            "look_back_periods": look_back_periods
-        }
+        data = {'strategy_id': strategy_id, 'symbol': symbol, 'timeframe':
+            timeframe, 'period_days': period_days, 'look_back_periods':
+            look_back_periods}
+        logger.info(
+            f'Analyzing strategy effectiveness trend for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}'
+            )
+        return await self._make_request('POST',
+            '/strategy/effectiveness-trend', data=data)
 
-        logger.info(f"Analyzing strategy effectiveness trend for strategy {strategy_id}, symbol {symbol}, timeframe {timeframe}")
-        return await self._make_request("POST", "/strategy/effectiveness-trend", data=data)
-
-    async def record_strategy_outcome(
-        self,
-        strategy_id: str,
-        instrument: str,
-        timeframe: str,
-        adaptation_id: str,
-        outcome_metrics: Dict[str, Any],
-        market_regime: Optional[str] = None,
-        feedback_content: Optional[Dict[str, Any]] = None
-    ) -> Dict:
+    async def record_strategy_outcome(self, strategy_id: str, instrument:
+        str, timeframe: str, adaptation_id: str, outcome_metrics: Dict[str,
+        Any], market_regime: Optional[str]=None, feedback_content: Optional
+        [Dict[str, Any]]=None) ->Dict:
         """
         Record the outcome of a strategy execution with adapted parameters.
 
@@ -330,36 +284,30 @@ class AdaptiveLayerClient:
         Returns:
             Status response
         """
-        data = {
-            "strategy_id": strategy_id,
-            "instrument": instrument,
-            "timeframe": timeframe,
-            "adaptation_id": adaptation_id,
-            "outcome_metrics": outcome_metrics,
-            "market_regime": market_regime,
-            "feedback_content": feedback_content
-        }
+        data = {'strategy_id': strategy_id, 'instrument': instrument,
+            'timeframe': timeframe, 'adaptation_id': adaptation_id,
+            'outcome_metrics': outcome_metrics, 'market_regime':
+            market_regime, 'feedback_content': feedback_content}
+        logger.info(
+            f'Recording strategy outcome for strategy {strategy_id}, instrument {instrument}, timeframe {timeframe}'
+            )
+        return await self._make_request('POST', '/feedback/outcomes', data=data
+            )
 
-        logger.info(f"Recording strategy outcome for strategy {strategy_id}, instrument {instrument}, timeframe {timeframe}")
-        return await self._make_request("POST", "/feedback/outcomes", data=data)
-
-    async def get_adaptation_history(self) -> Dict:
+    @with_resilience('get_adaptation_history')
+    async def get_adaptation_history(self) ->Dict:
         """
         Get the history of adaptation decisions from the adaptation engine.
 
         Returns:
             Adaptation history
         """
-        logger.info("Getting adaptation history")
-        return await self._make_request("GET", "/adaptations/history")
+        logger.info('Getting adaptation history')
+        return await self._make_request('GET', '/adaptations/history')
 
-    async def get_parameter_history(
-        self,
-        strategy_id: str,
-        instrument: str,
-        timeframe: str,
-        limit: int = 10
-    ) -> Dict:
+    @with_resilience('get_parameter_history')
+    async def get_parameter_history(self, strategy_id: str, instrument: str,
+        timeframe: str, limit: int=10) ->Dict:
         """
         Get parameter adjustment history for a specific strategy, instrument, and timeframe.
 
@@ -372,19 +320,20 @@ class AdaptiveLayerClient:
         Returns:
             Parameter history
         """
-        params = {"limit": limit}
+        params = {'limit': limit}
+        strategy_id_kebab = strategy_id.replace('_', '-')
+        instrument_kebab = instrument.replace('_', '-')
+        timeframe_kebab = timeframe.replace('_', '-')
+        endpoint = (
+            f'/parameters/history/{strategy_id_kebab}/{instrument_kebab}/{timeframe_kebab}'
+            )
+        logger.info(
+            f'Getting parameter history for strategy {strategy_id}, instrument {instrument}, timeframe {timeframe}'
+            )
+        return await self._make_request('GET', endpoint, params=params)
 
-        # Convert parameters to kebab-case
-        strategy_id_kebab = strategy_id.replace("_", "-")
-        instrument_kebab = instrument.replace("_", "-")
-        timeframe_kebab = timeframe.replace("_", "-")
-
-        endpoint = f"/parameters/history/{strategy_id_kebab}/{instrument_kebab}/{timeframe_kebab}"
-
-        logger.info(f"Getting parameter history for strategy {strategy_id}, instrument {instrument}, timeframe {timeframe}")
-        return await self._make_request("GET", endpoint, params=params)
-
-    async def get_adaptation_insights(self, strategy_id: str) -> Dict:
+    @with_resilience('get_adaptation_insights')
+    async def get_adaptation_insights(self, strategy_id: str) ->Dict:
         """
         Generate insights from feedback data for a specific strategy.
 
@@ -394,18 +343,14 @@ class AdaptiveLayerClient:
         Returns:
             Adaptation insights
         """
-        # Convert strategy_id to kebab-case
-        strategy_id_kebab = strategy_id.replace("_", "-")
-        endpoint = f"/feedback/insights/{strategy_id_kebab}"
+        strategy_id_kebab = strategy_id.replace('_', '-')
+        endpoint = f'/feedback/insights/{strategy_id_kebab}'
+        logger.info(f'Getting adaptation insights for strategy {strategy_id}')
+        return await self._make_request('GET', endpoint)
 
-        logger.info(f"Getting adaptation insights for strategy {strategy_id}")
-        return await self._make_request("GET", endpoint)
-
-    async def get_performance_by_regime(
-        self,
-        strategy_id: str,
-        market_regime: Optional[str] = None
-    ) -> Dict:
+    @with_resilience('get_performance_by_regime')
+    async def get_performance_by_regime(self, strategy_id: str,
+        market_regime: Optional[str]=None) ->Dict:
         """
         Get aggregated performance metrics by market regime for a specific strategy.
 
@@ -418,11 +363,9 @@ class AdaptiveLayerClient:
         """
         params = {}
         if market_regime:
-            params["market_regime"] = market_regime
-
-        # Convert strategy_id to kebab-case
-        strategy_id_kebab = strategy_id.replace("_", "-")
-        endpoint = f"/feedback/performance/{strategy_id_kebab}"
-
-        logger.info(f"Getting performance by regime for strategy {strategy_id}")
-        return await self._make_request("GET", endpoint, params=params)
+            params['market_regime'] = market_regime
+        strategy_id_kebab = strategy_id.replace('_', '-')
+        endpoint = f'/feedback/performance/{strategy_id_kebab}'
+        logger.info(f'Getting performance by regime for strategy {strategy_id}'
+            )
+        return await self._make_request('GET', endpoint, params=params)

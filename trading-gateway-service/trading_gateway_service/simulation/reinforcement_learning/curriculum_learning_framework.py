@@ -6,7 +6,6 @@ forex trading RL training. Curriculum learning involves training an agent
 on increasingly difficult scenarios to improve learning efficiency and
 final performance.
 """
-
 from typing import Dict, List, Optional, Tuple, Any, Union, Callable
 import numpy as np
 import pandas as pd
@@ -15,23 +14,21 @@ import random
 from enum import Enum
 import logging
 from dataclasses import dataclass, field
-
-from trading_gateway_service.simulation.advanced_market_regime_simulator import (
-    MarketCondition, MarketSession, LiquidityProfile, SimulationScenario
-)
-from trading_gateway_service.simulation.enhanced_market_condition_generator import (
-    EnhancedMarketConditionGenerator
-)
-from trading_gateway_service.simulation.forex_broker_simulator import (
-    ForexBrokerSimulator
-)
-from trading_gateway_service.simulation.news_sentiment_simulator import (
-    NewsAndSentimentSimulator, NewsImpactLevel
-)
+from trading_gateway_service.simulation.advanced_market_regime_simulator import MarketCondition, MarketSession, LiquidityProfile, SimulationScenario
+from trading_gateway_service.simulation.enhanced_market_condition_generator import EnhancedMarketConditionGenerator
+from trading_gateway_service.simulation.forex_broker_simulator import ForexBrokerSimulator
+from trading_gateway_service.simulation.news_sentiment_simulator import NewsAndSentimentSimulator, NewsImpactLevel
 from core_foundations.utils.logger import get_logger
-
 logger = get_logger(__name__)
 
+
+from trading_gateway_service.resilience.utils import (
+    with_broker_api_resilience,
+    with_market_data_resilience,
+    with_order_execution_resilience,
+    with_risk_management_resilience,
+    with_database_resilience
+)
 
 @dataclass
 class DifficultyLevel:
@@ -41,7 +38,7 @@ class DifficultyLevel:
     description: str
     volatility_scale: float = 1.0
     allowed_conditions: List[MarketCondition] = field(default_factory=list)
-    allowed_patterns: List[str] = field(default_factory=list) 
+    allowed_patterns: List[str] = field(default_factory=list)
     liquidity_profiles: List[LiquidityProfile] = field(default_factory=list)
     anomaly_probability: float = 0.1
     news_event_probability: float = 0.1
@@ -62,18 +59,12 @@ class CurriculumLearningFramework:
     - Automatic scenario generation for each level
     - Detailed performance tracking and analysis
     """
-    
-    def __init__(
-        self,
-        broker_simulator: ForexBrokerSimulator,
-        market_generator: EnhancedMarketConditionGenerator,
-        num_levels: int = 5,
-        symbols: List[str] = None,
-        performance_threshold: float = 0.7,
-        consecutive_successes_required: int = 3,
-        session_duration: timedelta = timedelta(hours=8),
-        random_seed: Optional[int] = None
-    ):
+
+    def __init__(self, broker_simulator: ForexBrokerSimulator,
+        market_generator: EnhancedMarketConditionGenerator, num_levels: int
+        =5, symbols: List[str]=None, performance_threshold: float=0.7,
+        consecutive_successes_required: int=3, session_duration: timedelta=
+        timedelta(hours=8), random_seed: Optional[int]=None):
         """
         Initialize the curriculum learning framework.
         
@@ -91,240 +82,121 @@ class CurriculumLearningFramework:
         self.broker_simulator = broker_simulator
         self.market_generator = market_generator
         self.num_levels = num_levels
-        self.symbols = symbols or ["EUR/USD"]
+        self.symbols = symbols or ['EUR/USD']
         self.performance_threshold = performance_threshold
         self.consecutive_successes_required = consecutive_successes_required
         self.session_duration = session_duration
-        
-        # Set random seed if provided
         if random_seed is not None:
             np.random.seed(random_seed)
             random.seed(random_seed)
-            
-        # Initialize difficulty levels
         self.difficulty_levels = self._initialize_difficulty_levels()
-        
-        # Track agent progress
         self.current_level = 1
         self.consecutive_successes = 0
         self.training_history = []
-        
-        # Generate initial curriculum
         self.curriculum = self._generate_curriculum()
-        
-    def _initialize_difficulty_levels(self) -> Dict[int, DifficultyLevel]:
+
+    def _initialize_difficulty_levels(self) ->Dict[int, DifficultyLevel]:
         """Initialize the difficulty levels for the curriculum."""
         levels = {}
-        
-        # Level 1: Beginner - Stable trending markets with high liquidity
-        levels[1] = DifficultyLevel(
-            level_id=1,
-            name="Beginner",
-            description="Stable trending markets with high liquidity",
-            volatility_scale=0.8,
-            allowed_conditions=[
-                MarketCondition.NORMAL,
-                MarketCondition.TRENDING_BULLISH,
-                MarketCondition.TRENDING_BEARISH,
-                MarketCondition.RANGING_NARROW
-            ],
-            liquidity_profiles=[
-                LiquidityProfile.HIGH,
-                LiquidityProfile.MEDIUM
-            ],
-            anomaly_probability=0.0,
-            news_event_probability=0.1,
-            max_drawdown_percent=2.0,
-            max_adverse_excursion=1.0,
-            validation_metrics={
-                "min_sharpe_ratio": 1.0,
-                "min_profit_factor": 1.2,
-                "max_drawdown_pct": 5.0
-            }
-        )
-        
-        # Level 2: Intermediate - More market conditions with some volatility
-        levels[2] = DifficultyLevel(
-            level_id=2,
-            name="Intermediate",
-            description="Varied market conditions with increased volatility",
-            volatility_scale=1.0,
-            allowed_conditions=[
-                MarketCondition.TRENDING_BULLISH,
-                MarketCondition.TRENDING_BEARISH,
-                MarketCondition.RANGING_WIDE,
-                MarketCondition.RANGING_NARROW,
-                MarketCondition.REVERSAL_BULLISH,
-                MarketCondition.REVERSAL_BEARISH
-            ],
-            liquidity_profiles=[
-                LiquidityProfile.HIGH,
-                LiquidityProfile.MEDIUM
-            ],
-            anomaly_probability=0.1,
-            news_event_probability=0.2,
-            max_drawdown_percent=4.0,
-            max_adverse_excursion=2.0,
-            validation_metrics={
-                "min_sharpe_ratio": 0.8,
-                "min_profit_factor": 1.1,
-                "max_drawdown_pct": 8.0
-            }
-        )
-        
-        # Level 3: Advanced - Breakouts and higher volatility
-        levels[3] = DifficultyLevel(
-            level_id=3,
-            name="Advanced",
-            description="Breakouts and higher volatility with moderate news impact",
-            volatility_scale=1.3,
-            allowed_conditions=[
-                MarketCondition.HIGH_VOLATILITY,
-                MarketCondition.BREAKOUT_BULLISH,
-                MarketCondition.BREAKOUT_BEARISH,
-                MarketCondition.RANGING_WIDE,
-                MarketCondition.NEWS_REACTION
-            ],
-            liquidity_profiles=[
-                LiquidityProfile.MEDIUM,
-                LiquidityProfile.LOW
-            ],
-            anomaly_probability=0.2,
-            news_event_probability=0.4,
-            max_drawdown_percent=6.0,
-            max_adverse_excursion=3.0,
-            validation_metrics={
-                "min_sharpe_ratio": 0.6,
-                "min_profit_factor": 1.05,
-                "max_drawdown_pct": 10.0
-            }
-        )
-        
-        # Level 4: Expert - Complex scenarios with low liquidity
-        levels[4] = DifficultyLevel(
-            level_id=4,
-            name="Expert",
-            description="Complex scenarios with low liquidity and significant news impact",
-            volatility_scale=1.6,
-            allowed_conditions=[
-                MarketCondition.HIGH_VOLATILITY,
-                MarketCondition.LIQUIDITY_GAP,
-                MarketCondition.NEWS_REACTION,
-                MarketCondition.REVERSAL_BEARISH,
-                MarketCondition.REVERSAL_BULLISH
-            ],
-            liquidity_profiles=[
-                LiquidityProfile.MEDIUM,
-                LiquidityProfile.LOW
-            ],
-            anomaly_probability=0.4,
-            news_event_probability=0.6,
-            max_drawdown_percent=8.0,
-            max_adverse_excursion=4.0,
-            validation_metrics={
-                "min_sharpe_ratio": 0.4,
-                "min_profit_factor": 1.02,
-                "max_drawdown_pct": 12.0
-            }
-        )
-        
-        # Level 5: Master - Extreme conditions and stress testing
-        levels[5] = DifficultyLevel(
-            level_id=5,
-            name="Master",
-            description="Extreme market conditions and stress testing",
-            volatility_scale=2.0,
-            allowed_conditions=[
-                MarketCondition.FLASH_CRASH,
-                MarketCondition.FLASH_SPIKE,
-                MarketCondition.LIQUIDITY_GAP,
-                MarketCondition.HIGH_VOLATILITY,
-                MarketCondition.NEWS_REACTION
-            ],
-            liquidity_profiles=[
-                LiquidityProfile.LOW,
-                LiquidityProfile.VERY_LOW
-            ],
-            anomaly_probability=0.6,
-            news_event_probability=0.8,
-            max_drawdown_percent=15.0,
-            max_adverse_excursion=7.0,
-            validation_metrics={
-                "min_sharpe_ratio": 0.2,
-                "min_profit_factor": 1.0,
-                "max_drawdown_pct": 15.0
-            }
-        )
-        
+        levels[1] = DifficultyLevel(level_id=1, name='Beginner',
+            description='Stable trending markets with high liquidity',
+            volatility_scale=0.8, allowed_conditions=[MarketCondition.
+            NORMAL, MarketCondition.TRENDING_BULLISH, MarketCondition.
+            TRENDING_BEARISH, MarketCondition.RANGING_NARROW],
+            liquidity_profiles=[LiquidityProfile.HIGH, LiquidityProfile.
+            MEDIUM], anomaly_probability=0.0, news_event_probability=0.1,
+            max_drawdown_percent=2.0, max_adverse_excursion=1.0,
+            validation_metrics={'min_sharpe_ratio': 1.0,
+            'min_profit_factor': 1.2, 'max_drawdown_pct': 5.0})
+        levels[2] = DifficultyLevel(level_id=2, name='Intermediate',
+            description=
+            'Varied market conditions with increased volatility',
+            volatility_scale=1.0, allowed_conditions=[MarketCondition.
+            TRENDING_BULLISH, MarketCondition.TRENDING_BEARISH,
+            MarketCondition.RANGING_WIDE, MarketCondition.RANGING_NARROW,
+            MarketCondition.REVERSAL_BULLISH, MarketCondition.
+            REVERSAL_BEARISH], liquidity_profiles=[LiquidityProfile.HIGH,
+            LiquidityProfile.MEDIUM], anomaly_probability=0.1,
+            news_event_probability=0.2, max_drawdown_percent=4.0,
+            max_adverse_excursion=2.0, validation_metrics={
+            'min_sharpe_ratio': 0.8, 'min_profit_factor': 1.1,
+            'max_drawdown_pct': 8.0})
+        levels[3] = DifficultyLevel(level_id=3, name='Advanced',
+            description=
+            'Breakouts and higher volatility with moderate news impact',
+            volatility_scale=1.3, allowed_conditions=[MarketCondition.
+            HIGH_VOLATILITY, MarketCondition.BREAKOUT_BULLISH,
+            MarketCondition.BREAKOUT_BEARISH, MarketCondition.RANGING_WIDE,
+            MarketCondition.NEWS_REACTION], liquidity_profiles=[
+            LiquidityProfile.MEDIUM, LiquidityProfile.LOW],
+            anomaly_probability=0.2, news_event_probability=0.4,
+            max_drawdown_percent=6.0, max_adverse_excursion=3.0,
+            validation_metrics={'min_sharpe_ratio': 0.6,
+            'min_profit_factor': 1.05, 'max_drawdown_pct': 10.0})
+        levels[4] = DifficultyLevel(level_id=4, name='Expert', description=
+            'Complex scenarios with low liquidity and significant news impact',
+            volatility_scale=1.6, allowed_conditions=[MarketCondition.
+            HIGH_VOLATILITY, MarketCondition.LIQUIDITY_GAP, MarketCondition
+            .NEWS_REACTION, MarketCondition.REVERSAL_BEARISH,
+            MarketCondition.REVERSAL_BULLISH], liquidity_profiles=[
+            LiquidityProfile.MEDIUM, LiquidityProfile.LOW],
+            anomaly_probability=0.4, news_event_probability=0.6,
+            max_drawdown_percent=8.0, max_adverse_excursion=4.0,
+            validation_metrics={'min_sharpe_ratio': 0.4,
+            'min_profit_factor': 1.02, 'max_drawdown_pct': 12.0})
+        levels[5] = DifficultyLevel(level_id=5, name='Master', description=
+            'Extreme market conditions and stress testing',
+            volatility_scale=2.0, allowed_conditions=[MarketCondition.
+            FLASH_CRASH, MarketCondition.FLASH_SPIKE, MarketCondition.
+            LIQUIDITY_GAP, MarketCondition.HIGH_VOLATILITY, MarketCondition
+            .NEWS_REACTION], liquidity_profiles=[LiquidityProfile.LOW,
+            LiquidityProfile.VERY_LOW], anomaly_probability=0.6,
+            news_event_probability=0.8, max_drawdown_percent=15.0,
+            max_adverse_excursion=7.0, validation_metrics={
+            'min_sharpe_ratio': 0.2, 'min_profit_factor': 1.0,
+            'max_drawdown_pct': 15.0})
         return levels
-    
-    def _generate_curriculum(self) -> Dict[int, List[SimulationScenario]]:
+
+    def _generate_curriculum(self) ->Dict[int, List[SimulationScenario]]:
         """Generate training scenarios for all difficulty levels."""
         curriculum = {}
-        
         for level_id, level in self.difficulty_levels.items():
             curriculum[level_id] = []
-            
-            # Create 5 different scenarios per level for variety
             for scenario_index in range(5):
-                # Select a random symbol
                 symbol = random.choice(self.symbols)
-                
-                # Select a random condition from allowed conditions
                 condition = random.choice(level.allowed_conditions)
-                
-                # Select a random liquidity profile
                 liquidity = random.choice(level.liquidity_profiles)
-                
-                # Determine if we'll include a news event
                 include_news = random.random() < level.news_event_probability
                 news_events = None
-                
                 if include_news and self.market_generator.news_simulator:
-                    # Create a news event with impact level appropriate for this difficulty
                     if level_id <= 2:
                         impact_level = NewsImpactLevel.LOW
                     elif level_id <= 4:
                         impact_level = NewsImpactLevel.MEDIUM
                     else:
                         impact_level = NewsImpactLevel.HIGH
-                        
-                    # Place news event somewhere in the middle of the scenario
-                    offset_minutes = int(self.session_duration.total_seconds() * random.uniform(0.3, 0.7) / 60)
-                    
-                    news_events = [{
-                        'event_type': 'ECONOMIC_DATA',
-                        'impact_level': impact_level,
-                        'time_offset_minutes': offset_minutes,
-                        'volatility_impact': 1.0 + (impact_level.value * 0.5),
-                        'price_impact': 0.001 * impact_level.value * (1 if random.random() > 0.5 else -1)
-                    }]
-                
-                # Generate the scenario with our parameters
+                    offset_minutes = int(self.session_duration.
+                        total_seconds() * random.uniform(0.3, 0.7) / 60)
+                    news_events = [{'event_type': 'ECONOMIC_DATA',
+                        'impact_level': impact_level, 'time_offset_minutes':
+                        offset_minutes, 'volatility_impact': 1.0 + 
+                        impact_level.value * 0.5, 'price_impact': 0.001 *
+                        impact_level.value * (1 if random.random() > 0.5 else
+                        -1)}]
                 scenario = self.market_generator.generate_market_scenario(
-                    symbol=symbol,
-                    condition=condition,
-                    duration=self.session_duration,
-                    news_events=news_events
-                )
-                
-                # Apply level-specific volatility scaling
+                    symbol=symbol, condition=condition, duration=self.
+                    session_duration, news_events=news_events)
                 scenario.volatility_factor *= level.volatility_scale
-                
-                # Add to curriculum
                 curriculum[level_id].append(scenario)
-        
         return curriculum
-    
-    def get_current_level_scenarios(self) -> List[SimulationScenario]:
+
+    @with_broker_api_resilience('get_current_level_scenarios')
+    def get_current_level_scenarios(self) ->List[SimulationScenario]:
         """Get the scenarios for the current difficulty level."""
         return self.curriculum[self.current_level]
-    
-    def report_training_results(
-        self, 
-        scenario_index: int, 
-        performance_metrics: Dict[str, float]
-    ) -> None:
+
+    def report_training_results(self, scenario_index: int,
+        performance_metrics: Dict[str, float]) ->None:
         """
         Report training results for a specific scenario.
         
@@ -332,27 +204,18 @@ class CurriculumLearningFramework:
             scenario_index: Index of the scenario that was trained on
             performance_metrics: Dictionary of performance metrics
         """
-        # Record the training result
-        result = {
-            "level": self.current_level,
-            "scenario_index": scenario_index,
-            "metrics": performance_metrics,
-            "timestamp": datetime.now(),
-            "success": self._evaluate_success(performance_metrics)
-        }
-        
+        result = {'level': self.current_level, 'scenario_index':
+            scenario_index, 'metrics': performance_metrics, 'timestamp':
+            datetime.now(), 'success': self._evaluate_success(
+            performance_metrics)}
         self.training_history.append(result)
-        
-        # Update consecutive successes
-        if result["success"]:
+        if result['success']:
             self.consecutive_successes += 1
         else:
             self.consecutive_successes = 0
-            
-        # Check if we should advance to the next level
         self._check_level_advancement()
-    
-    def _evaluate_success(self, metrics: Dict[str, float]) -> bool:
+
+    def _evaluate_success(self, metrics: Dict[str, float]) ->bool:
         """
         Evaluate if the training was successful based on metrics.
         
@@ -364,77 +227,68 @@ class CurriculumLearningFramework:
         """
         level = self.difficulty_levels[self.current_level]
         validation_metrics = level.validation_metrics
-        
-        # Check if metrics meet the validation criteria
         success = True
-        
-        # Check Sharpe ratio
-        if "sharpe_ratio" in metrics and "min_sharpe_ratio" in validation_metrics:
-            if metrics["sharpe_ratio"] < validation_metrics["min_sharpe_ratio"]:
+        if ('sharpe_ratio' in metrics and 'min_sharpe_ratio' in
+            validation_metrics):
+            if metrics['sharpe_ratio'] < validation_metrics['min_sharpe_ratio'
+                ]:
                 success = False
-                
-        # Check profit factor
-        if "profit_factor" in metrics and "min_profit_factor" in validation_metrics:
-            if metrics["profit_factor"] < validation_metrics["min_profit_factor"]:
+        if ('profit_factor' in metrics and 'min_profit_factor' in
+            validation_metrics):
+            if metrics['profit_factor'] < validation_metrics[
+                'min_profit_factor']:
                 success = False
-                
-        # Check maximum drawdown
-        if "max_drawdown_pct" in metrics and "max_drawdown_pct" in validation_metrics:
-            if metrics["max_drawdown_pct"] > validation_metrics["max_drawdown_pct"]:
+        if ('max_drawdown_pct' in metrics and 'max_drawdown_pct' in
+            validation_metrics):
+            if metrics['max_drawdown_pct'] > validation_metrics[
+                'max_drawdown_pct']:
                 success = False
-                
         return success
-    
-    def _check_level_advancement(self) -> None:
+
+    def _check_level_advancement(self) ->None:
         """Check if the agent should advance to the next level."""
-        if (self.consecutive_successes >= self.consecutive_successes_required and 
-            self.current_level < self.num_levels):
-            # Advance to the next level
+        if (self.consecutive_successes >= self.
+            consecutive_successes_required and self.current_level < self.
+            num_levels):
             self.current_level += 1
             self.consecutive_successes = 0
-            
-            logger.info(f"Agent advanced to curriculum level {self.current_level}: "
-                      f"{self.difficulty_levels[self.current_level].name}")
-    
-    def reset_progress(self) -> None:
+            logger.info(
+                f'Agent advanced to curriculum level {self.current_level}: {self.difficulty_levels[self.current_level].name}'
+                )
+
+    def reset_progress(self) ->None:
         """Reset the agent's progress to the first level."""
         self.current_level = 1
         self.consecutive_successes = 0
-        logger.info("Agent progress has been reset to level 1")
-    
-    def get_progress_summary(self) -> Dict[str, Any]:
+        logger.info('Agent progress has been reset to level 1')
+
+    @with_broker_api_resilience('get_progress_summary')
+    def get_progress_summary(self) ->Dict[str, Any]:
         """Get a summary of the agent's progress through the curriculum."""
-        # Count successes and failures by level
         level_stats = {}
         for level_id in range(1, self.num_levels + 1):
-            level_history = [r for r in self.training_history if r["level"] == level_id]
-            successes = sum(1 for r in level_history if r["success"])
+            level_history = [r for r in self.training_history if r['level'] ==
+                level_id]
+            successes = sum(1 for r in level_history if r['success'])
             attempts = len(level_history)
-            
             if attempts > 0:
                 success_rate = successes / attempts
             else:
                 success_rate = 0.0
-                
-            level_stats[level_id] = {
-                "name": self.difficulty_levels[level_id].name,
-                "attempts": attempts,
-                "successes": successes,
-                "success_rate": success_rate,
-                "completed": level_id < self.current_level
-            }
-            
-        return {
-            "current_level": self.current_level,
-            "current_level_name": self.difficulty_levels[self.current_level].name,
-            "consecutive_successes": self.consecutive_successes,
-            "required_successes": self.consecutive_successes_required,
-            "total_training_sessions": len(self.training_history),
-            "level_statistics": level_stats,
-            "curriculum_completion": (self.current_level - 1) / self.num_levels
-        }
-    
-    def generate_validation_scenarios(self, num_scenarios: int = 3) -> List[SimulationScenario]:
+            level_stats[level_id] = {'name': self.difficulty_levels[
+                level_id].name, 'attempts': attempts, 'successes':
+                successes, 'success_rate': success_rate, 'completed': 
+                level_id < self.current_level}
+        return {'current_level': self.current_level, 'current_level_name':
+            self.difficulty_levels[self.current_level].name,
+            'consecutive_successes': self.consecutive_successes,
+            'required_successes': self.consecutive_successes_required,
+            'total_training_sessions': len(self.training_history),
+            'level_statistics': level_stats, 'curriculum_completion': (self
+            .current_level - 1) / self.num_levels}
+
+    def generate_validation_scenarios(self, num_scenarios: int=3) ->List[
+        SimulationScenario]:
         """
         Generate validation scenarios at the current difficulty level.
         
@@ -446,105 +300,77 @@ class CurriculumLearningFramework:
         """
         validation_scenarios = []
         level = self.difficulty_levels[self.current_level]
-        
         for _ in range(num_scenarios):
             symbol = random.choice(self.symbols)
             condition = random.choice(level.allowed_conditions)
-            
-            # Generate a scenario with parameters from the current level
-            scenario = self.market_generator.generate_market_scenario(
-                symbol=symbol,
-                condition=condition,
-                duration=self.session_duration
-            )
-            
-            # Apply level-specific adjustments
+            scenario = self.market_generator.generate_market_scenario(symbol
+                =symbol, condition=condition, duration=self.session_duration)
             scenario.volatility_factor *= level.volatility_scale
             validation_scenarios.append(scenario)
-            
         return validation_scenarios
-    
-    def export_curriculum_configuration(self) -> Dict[str, Any]:
+
+    def export_curriculum_configuration(self) ->Dict[str, Any]:
         """Export the complete curriculum configuration."""
-        config = {
-            "num_levels": self.num_levels,
-            "symbols": self.symbols,
-            "performance_threshold": self.performance_threshold,
-            "consecutive_successes_required": self.consecutive_successes_required,
-            "session_duration_hours": self.session_duration.total_seconds() / 3600,
-            "levels": []
-        }
-        
+        config = {'num_levels': self.num_levels, 'symbols': self.symbols,
+            'performance_threshold': self.performance_threshold,
+            'consecutive_successes_required': self.
+            consecutive_successes_required, 'session_duration_hours': self.
+            session_duration.total_seconds() / 3600, 'levels': []}
         for level_id, level in self.difficulty_levels.items():
-            level_config = {
-                "id": level.level_id,
-                "name": level.name,
-                "description": level.description,
-                "volatility_scale": level.volatility_scale,
-                "allowed_conditions": [c.value for c in level.allowed_conditions],
-                "liquidity_profiles": [lp.value for lp in level.liquidity_profiles],
-                "anomaly_probability": level.anomaly_probability,
-                "news_event_probability": level.news_event_probability,
-                "validation_metrics": level.validation_metrics
-            }
-            config["levels"].append(level_config)
-            
+            level_config = {'id': level.level_id, 'name': level.name,
+                'description': level.description, 'volatility_scale': level
+                .volatility_scale, 'allowed_conditions': [c.value for c in
+                level.allowed_conditions], 'liquidity_profiles': [lp.value for
+                lp in level.liquidity_profiles], 'anomaly_probability':
+                level.anomaly_probability, 'news_event_probability': level.
+                news_event_probability, 'validation_metrics': level.
+                validation_metrics}
+            config['levels'].append(level_config)
         return config
-    
-    def import_curriculum_configuration(self, config: Dict[str, Any]) -> None:
+
+    def import_curriculum_configuration(self, config: Dict[str, Any]) ->None:
         """
         Import a curriculum configuration.
         
         Args:
             config: Dictionary with curriculum configuration
         """
-        self.num_levels = config.get("num_levels", 5)
-        self.symbols = config.get("symbols", ["EUR/USD"])
-        self.performance_threshold = config.get("performance_threshold", 0.7)
-        self.consecutive_successes_required = config.get("consecutive_successes_required", 3)
-        self.session_duration = timedelta(hours=config.get("session_duration_hours", 8))
-        
-        # Reset progress
+        self.num_levels = config_manager.get('num_levels', 5)
+        self.symbols = config_manager.get('symbols', ['EUR/USD'])
+        self.performance_threshold = config_manager.get('performance_threshold', 0.7)
+        self.consecutive_successes_required = config.get(
+            'consecutive_successes_required', 3)
+        self.session_duration = timedelta(hours=config.get(
+            'session_duration_hours', 8))
         self.reset_progress()
-        
-        # Rebuild difficulty levels if provided
-        if "levels" in config:
+        if 'levels' in config:
             new_levels = {}
-            
-            for level_config in config["levels"]:
-                level_id = level_config["id"]
-                
-                # Convert string values back to enums
+            for level_config in config['levels']:
+                level_id = level_config['id']
                 allowed_conditions = []
-                for condition_str in level_config.get("allowed_conditions", []):
+                for condition_str in level_config.get('allowed_conditions', []
+                    ):
                     for condition in MarketCondition:
                         if condition.value == condition_str:
                             allowed_conditions.append(condition)
                             break
-                
                 liquidity_profiles = []
-                for profile_str in level_config.get("liquidity_profiles", []):
+                for profile_str in level_config_manager.get('liquidity_profiles', []):
                     for profile in LiquidityProfile:
                         if profile.value == profile_str:
                             liquidity_profiles.append(profile)
                             break
-                
-                # Create the level
-                new_levels[level_id] = DifficultyLevel(
-                    level_id=level_id,
-                    name=level_config.get("name", f"Level {level_id}"),
-                    description=level_config.get("description", ""),
-                    volatility_scale=level_config.get("volatility_scale", 1.0),
-                    allowed_conditions=allowed_conditions,
+                new_levels[level_id] = DifficultyLevel(level_id=level_id,
+                    name=level_config_manager.get('name', f'Level {level_id}'),
+                    description=level_config_manager.get('description', ''),
+                    volatility_scale=level_config.get('volatility_scale', 
+                    1.0), allowed_conditions=allowed_conditions,
                     liquidity_profiles=liquidity_profiles,
-                    anomaly_probability=level_config.get("anomaly_probability", 0.1),
-                    news_event_probability=level_config.get("news_event_probability", 0.1),
-                    validation_metrics=level_config.get("validation_metrics", {})
-                )
-            
-            # Replace existing levels
+                    anomaly_probability=level_config.get(
+                    'anomaly_probability', 0.1), news_event_probability=
+                    level_config_manager.get('news_event_probability', 0.1),
+                    validation_metrics=level_config.get(
+                    'validation_metrics', {}))
             if new_levels:
                 self.difficulty_levels = new_levels
-        
-        # Regenerate the curriculum
         self.curriculum = self._generate_curriculum()

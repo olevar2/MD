@@ -17,6 +17,14 @@ class FeatureStoreMonitoring:
     """
     
     def __init__(self, base_dir: str = "monitoring/feature_store"):
+    """
+      init  .
+    
+    Args:
+        base_dir: Description of base_dir
+    
+    """
+
         self.monitor = CriticalComponentMonitor(
             base_dir=base_dir,
             config={

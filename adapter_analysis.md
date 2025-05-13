@@ -25,7 +25,7 @@
 | risk-management-service | 2 | 0 | 0.00% |
 | monitoring-alerting-service | 5 | 0 | 0.00% |
 | model-registry-service | 0 | 0 | 0.00% |
-| ml-workbench-service | 4 | 0 | 0.00% |
+| ml_workbench-service | 4 | 0 | 0.00% |
 | trading-gateway-service | 4 | 0 | 0.00% |
 | common-lib | 1 | 0 | 0.00% |
 | feature-store-service | 6 | 0 | 0.00% |
@@ -47,8 +47,8 @@
 | monitoring-alerting-service | ml-integration-service | Direct dependency without adapter |
 | monitoring-alerting-service | analysis_engine | Direct dependency without adapter |
 | monitoring-alerting-service | strategy-execution-engine | Direct dependency without adapter |
-| ml-workbench-service | risk-management-service | Direct dependency without adapter |
-| ml-workbench-service | trading-gateway-service | Direct dependency without adapter |
+| ml_workbench-service | risk-management-service | Direct dependency without adapter |
+| ml_workbench-service | trading-gateway-service | Direct dependency without adapter |
 | trading-gateway-service | risk-management-service | Direct dependency without adapter |
 | trading-gateway-service | analysis_engine | Direct dependency without adapter |
 | feature-store-service | feature_store_service | Direct dependency without adapter |
@@ -64,7 +64,7 @@
 | analysis-engine-service | ml-integration-service | Direct dependency without adapter |
 | analysis-engine-service | risk-management-service | Direct dependency without adapter |
 | analysis-engine-service | analysis_engine | Direct dependency without adapter |
-| analysis-engine-service | ml-workbench-service | Direct dependency without adapter |
+| analysis-engine-service | ml_workbench-service | Direct dependency without adapter |
 | analysis-engine-service | trading-gateway-service | Direct dependency without adapter |
 | analysis-engine-service | strategy-execution-engine | Direct dependency without adapter |
 
@@ -75,7 +75,7 @@
 | ml-integration-service | IFeatureProvider | ml-integration-service.FeatureProviderAdapter | Missing adapter for interface implementation |
 | common-lib | IFeatureProvider | common-lib.FeatureProviderAdapter | Missing adapter for interface implementation |
 | feature-store-service | IFeatureProvider | feature-store-service.FeatureProviderAdapter | Missing adapter for interface implementation |
-| ml-workbench-service | IRiskManager | ml-workbench-service.RiskManagerAdapter | Missing adapter for interface implementation |
+| ml_workbench-service | IRiskManager | ml_workbench-service.RiskManagerAdapter | Missing adapter for interface implementation |
 | trading-gateway-service | IRiskManager | trading-gateway-service.RiskManagerAdapter | Missing adapter for interface implementation |
 | trading-gateway-service | IRiskManager | trading-gateway-service.RiskManagerAdapter | Missing adapter for interface implementation |
 | common-lib | IRiskManager | common-lib.RiskManagerAdapter | Missing adapter for interface implementation |

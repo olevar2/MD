@@ -22,6 +22,11 @@ class DataService:
     """Service for retrieving and managing data from various sources."""
     
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         self.ml_workbench_url = enhanced_settings.ML_WORKBENCH_API_URL
         self.data_pipeline_url = enhanced_settings.DATA_PIPELINE_API_URL
         

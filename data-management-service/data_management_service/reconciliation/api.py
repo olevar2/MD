@@ -37,8 +37,23 @@ router = APIRouter(prefix="/reconciliation", tags=["reconciliation"])
 # Dependency for database connection
 async def get_db_engine() -> AsyncEngine:
     """Get database engine."""
-    # This should be configured from environment variables or config file
-    connection_string = "postgresql+asyncpg://postgres:postgres@localhost:5432/forex_platform"
+    # Get database connection parameters from environment variables
+    import os
+    from dotenv import load_dotenv
+
+    # Load environment variables from .env file
+    load_dotenv()
+
+    # Get database connection parameters
+    db_user = os.getenv("DB_USER", "postgres")
+    db_password = os.getenv("DB_PASSWORD", "postgres")
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_port = os.getenv("DB_PORT", "5432")
+    db_name = os.getenv("DB_NAME", "forex_platform")
+
+    # Create connection string
+    connection_string = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+
     return create_async_engine(connection_string)
 
 

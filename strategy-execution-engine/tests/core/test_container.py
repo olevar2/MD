@@ -18,6 +18,14 @@ class TestService:
 class AsyncTestService:
     """Async test service class for container tests."""
     def __init__(self, name):
+    """
+      init  .
+    
+    Args:
+        name: Description of name
+    
+    """
+
         self.name = name
         self.initialized = False
         self.shutdown = False

@@ -33,6 +33,11 @@ def experiment_service(mock_experiment_repo, mock_run_repo):
 
 @pytest.fixture
 def sample_experiment_data():
+    """
+    Sample experiment data.
+    
+    """
+
     return {"name": "Test Experiment", "description": "A sample experiment"}
 
 @pytest.fixture

@@ -97,6 +97,13 @@ class BaseServiceClient(ClientCorrelationMixin):
     Base class for service clients with built-in resilience patterns.
 
     This class provides:
+    """
+    provides class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     1. Standard HTTP methods with resilience patterns
     2. Error handling and mapping
     3. Metrics collection
@@ -381,6 +388,11 @@ class BaseServiceClient(ClientCorrelationMixin):
         try:
             # Execute request with circuit breaker
             async def execute_request():
+    """
+    Execute request.
+    
+    """
+
                 async with self.session.request(
                     method=method,
                     url=url,

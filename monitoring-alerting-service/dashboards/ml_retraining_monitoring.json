@@ -3,7 +3,7 @@
     "title": "ML Retraining Monitoring Dashboard",
     "description": "Monitors ML model retraining jobs, success rates, and performance metrics",
     "refreshRate": "30s",
-    "tags": ["ml", "model-training", "feedback-loop"],
+    "tags": ["ml", "model-training", "feedback_loop"],
     "uid": "ml-retraining-monitoring",
     "version": 1
   },
@@ -172,7 +172,7 @@
     },
     {
       "title": "Feedback Loop Performance",
-      "url": "/dashboard/feedback-loop-monitoring",
+      "url": "/dashboard/feedback_loop-monitoring",
       "type": "dashboard"
     }
   ]

@@ -99,7 +99,31 @@ def with_error_handling(
         Decorator function
     """
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+        T]: Description of T]
+    
+    Returns:
+        Callable[..., T]: Description of return value
+    
+    """
+
         def wrapper(*args: Any, **kwargs: Any) -> T:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        T: Description of return value
+    
+    """
+
             try:
                 return func(*args, **kwargs)
             except Exception as e:

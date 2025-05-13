@@ -1,0 +1,128 @@
+groups:
+- name: forex_trading_platform
+  rules:
+  - annotations: &id001
+      description: Service monitoring-alerting-service has been down for more than
+        1 minute.
+      summary: Service monitoring-alerting-service is down
+    expr: up{service="trading-gateway-service"} == 0
+    for: 1m
+    labels: &id002
+      severity: critical
+    name: Trading_Gateway_ServiceDown
+  - annotations: &id003
+      description: Service {{ $labels.service }} has a high HTTP error rate (> 5%)
+        for more than 5 minutes.
+      summary: High error rate for {{ $labels.service }}
+    expr: sum(rate(http_requests_total{service="trading-gateway-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="trading-gateway-service"}[5m])) > 0.05
+    for: 5m
+    labels: &id004
+      severity: warning
+    name: Trading_Gateway_ServiceHighErrorRate
+  - annotations: *id001
+    expr: up{service="portfolio-management-service"} == 0
+    for: 1m
+    labels: *id002
+    name: Portfolio_Management_ServiceDown
+  - annotations: *id003
+    expr: sum(rate(http_requests_total{service="portfolio-management-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="portfolio-management-service"}[5m]))
+      > 0.05
+    for: 5m
+    labels: *id004
+    name: Portfolio_Management_ServiceHighErrorRate
+  - annotations: *id001
+    expr: up{service="risk-management-service"} == 0
+    for: 1m
+    labels: *id002
+    name: Risk_Management_ServiceDown
+  - annotations: *id003
+    expr: sum(rate(http_requests_total{service="risk-management-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="risk-management-service"}[5m])) > 0.05
+    for: 5m
+    labels: *id004
+    name: Risk_Management_ServiceHighErrorRate
+  - annotations: *id001
+    expr: up{service="data-pipeline-service"} == 0
+    for: 1m
+    labels: *id002
+    name: Data_Pipeline_ServiceDown
+  - annotations: *id003
+    expr: sum(rate(http_requests_total{service="data-pipeline-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="data-pipeline-service"}[5m])) > 0.05
+    for: 5m
+    labels: *id004
+    name: Data_Pipeline_ServiceHighErrorRate
+  - annotations: *id001
+    expr: up{service="feature-store-service"} == 0
+    for: 1m
+    labels: *id002
+    name: Feature_Store_ServiceDown
+  - annotations: *id003
+    expr: sum(rate(http_requests_total{service="feature-store-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="feature-store-service"}[5m])) > 0.05
+    for: 5m
+    labels: *id004
+    name: Feature_Store_ServiceHighErrorRate
+  - annotations: *id001
+    expr: up{service="ml-integration-service"} == 0
+    for: 1m
+    labels: *id002
+    name: Ml_Integration_ServiceDown
+  - annotations: *id003
+    expr: sum(rate(http_requests_total{service="ml-integration-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="ml-integration-service"}[5m])) > 0.05
+    for: 5m
+    labels: *id004
+    name: Ml_Integration_ServiceHighErrorRate
+  - annotations: *id001
+    expr: up{service="ml-workbench-service"} == 0
+    for: 1m
+    labels: *id002
+    name: Ml_Workbench_ServiceDown
+  - annotations: *id003
+    expr: sum(rate(http_requests_total{service="ml-workbench-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="ml-workbench-service"}[5m])) > 0.05
+    for: 5m
+    labels: *id004
+    name: Ml_Workbench_ServiceHighErrorRate
+  - annotations: *id001
+    expr: up{service="monitoring-alerting-service"} == 0
+    for: 1m
+    labels: *id002
+    name: Monitoring_Alerting_ServiceDown
+  - annotations: *id003
+    expr: sum(rate(http_requests_total{service="monitoring-alerting-service", status=~"5.."}[5m]))
+      / sum(rate(http_requests_total{service="monitoring-alerting-service"}[5m]))
+      > 0.05
+    for: 5m
+    labels: *id004
+    name: Monitoring_Alerting_ServiceHighErrorRate
+  - annotations:
+      description: Service {{ $labels.service }} has CPU usage > 80% for more than
+        5 minutes.
+      summary: High CPU usage for {{ $labels.service }}
+    expr: rate(process_cpu_seconds_total[1m]) > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    name: HighCPUUsage
+  - annotations:
+      description: Service {{ $labels.service }} has memory usage > 80% for more than
+        5 minutes.
+      summary: High memory usage for {{ $labels.service }}
+    expr: process_resident_memory_bytes / process_resident_memory_bytes{quantile="0.99"}
+      > 0.8
+    for: 5m
+    labels:
+      severity: warning
+    name: HighMemoryUsage
+  - annotations:
+      description: Instance has disappeared from Prometheus target discovery.
+      summary: Instance missing
+    expr: absent(up{job="forex-trading-platform"})
+    for: 5m
+    labels:
+      severity: critical
+    name: InstanceMissing

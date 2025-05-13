@@ -9,6 +9,13 @@ import yaml
 logger = logging.getLogger(__name__)
 
 class BackupManager:
+    """
+    BackupManager class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     def __init__(self, config_path: str):
         self.config = self._load_config(config_path)
         self.backup_schedules = self.config.get('backup_schedules', {})

@@ -28,6 +28,14 @@ def reset_placeholder_store():
 
 # --- Helper to populate placeholder store --- 
 def populate_store(count=5):
+    """
+    Populate store.
+    
+    Args:
+        count: Description of count
+    
+    """
+
     now = datetime.utcnow()
     for i in range(count):
         event = MagicMock()

@@ -60,6 +60,11 @@ def quantize_model(
         #     if calibration_data is None:
         #         raise QuantizationError("Calibration data required for int8 quantization.")
         #     def representative_dataset():
+    """
+    Representative dataset.
+    
+    """
+
         #         for data in calibration_data.take(100): # Example: Use 100 samples
         #             yield [tf.dtypes.cast(data, tf.float32)] 
         #     converter.optimizations = [tf.lite.Optimize.DEFAULT]

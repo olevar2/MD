@@ -128,6 +128,16 @@ class TestCleanupError(E2ETestError):
         message: str,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         super().__init__(
             message=message,
             error_code="TEST_CLEANUP_ERROR",

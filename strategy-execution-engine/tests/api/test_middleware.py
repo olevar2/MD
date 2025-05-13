@@ -83,6 +83,11 @@ def test_request_logging_middleware_error(app, client):
     # Add test endpoint that raises an error
     @app.get("/error")
     def error_endpoint():
+    """
+    Error endpoint.
+    
+    """
+
         raise ValueError("Test error")
     
     # Make request with logging middleware

@@ -16,12 +16,43 @@ from sqlalchemy.orm import Session
 import json
 logger = logging.getLogger(__name__)
 
+
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
 class QueryPlan:
     """
     Represents an optimized query plan for time series data.
     """
 
-    def __init__(self, table_name: str, columns: List[str], time_column: str='timestamp', where_conditions: Optional[List[str]]=None, sort_columns: Optional[List[str]]=None, sort_direction: str='ASC', group_by: Optional[List[str]]=None, limit: Optional[int]=None, time_bucket: Optional[str]=None, chunk_size: Optional[int]=None):
+    def __init__(self, table_name: str, columns: List[str], time_column:
+        str='timestamp', where_conditions: Optional[List[str]]=None,
+        sort_columns: Optional[List[str]]=None, sort_direction: str='ASC',
+        group_by: Optional[List[str]]=None, limit: Optional[int]=None,
+        time_bucket: Optional[str]=None, chunk_size: Optional[int]=None):
+    """
+      init  .
+    
+    Args:
+        table_name: Description of table_name
+        columns: Description of columns
+        time_column: Description of time_column
+        where_conditions: Description of where_conditions
+        sort_columns: Description of sort_columns
+        sort_direction: Description of sort_direction
+        group_by: Description of group_by
+        limit: Description of limit
+        time_bucket: Description of time_bucket
+        chunk_size: Description of chunk_size
+    
+    """
+
         self.table_name = table_name
         self.columns = columns
         self.time_column = time_column
@@ -38,7 +69,7 @@ class QueryPlan:
         self.use_index_scan = False
         self.use_parallel_scan = False
 
-    def to_sql(self) -> str:
+    def to_sql(self) ->str:
         """
         Convert the query plan to a SQL statement.
         
@@ -47,24 +78,30 @@ class QueryPlan:
         """
         select_cols = []
         if self.time_bucket:
-            select_cols.append(f"time_bucket('{self.time_bucket}', {self.time_column}) AS {self.time_column}")
+            select_cols.append(
+                f"time_bucket('{self.time_bucket}', {self.time_column}) AS {self.time_column}"
+                )
             if self.time_column not in self.group_by and self.group_by:
-                self.group_by.insert(0, f"time_bucket('{self.time_bucket}', {self.time_column})")
+                self.group_by.insert(0,
+                    f"time_bucket('{self.time_bucket}', {self.time_column})")
         for col in self.columns:
             if col != self.time_column or not self.time_bucket:
                 select_cols.append(col)
-        sql = f'SELECT {', '.join(select_cols)} FROM {self.table_name}'
+        sql = f"SELECT {', '.join(select_cols)} FROM {self.table_name}"
         if self.where_conditions:
-            sql += f' WHERE {' AND '.join(self.where_conditions)}'
+            sql += f" WHERE {' AND '.join(self.where_conditions)}"
         if self.group_by and (self.time_bucket or len(self.group_by) > 1):
-            sql += f' GROUP BY {', '.join(self.group_by)}'
+            sql += f" GROUP BY {', '.join(self.group_by)}"
         if self.sort_columns:
-            sql += f' ORDER BY {', '.join(self.sort_columns)} {self.sort_direction}'
+            sql += (
+                f" ORDER BY {', '.join(self.sort_columns)} {self.sort_direction}"
+                )
         if self.limit:
             sql += f' LIMIT {self.limit}'
         return sql
 
-    def optimize(self, db_session: Session) -> 'QueryPlan':
+    @with_exception_handling
+    def optimize(self, db_session: Session) ->'QueryPlan':
         """
         Optimize the query plan based on table statistics and TimescaleDB features.
         
@@ -76,29 +113,70 @@ class QueryPlan:
         """
         try:
             table_name_safe = self.table_name.split('.')[-1]
-            stats_query = '\n            SELECT \n                reltuples::bigint as approximate_row_count,\n                pg_total_relation_size(:table_name) as table_size_bytes\n            FROM pg_class\n            WHERE relname = :table_name_safe\n            '
-            result = db_session.execute(text(stats_query), {'table_name': self.table_name, 'table_name_safe': table_name_safe}).fetchone()
+            stats_query = """
+            SELECT 
+                reltuples::bigint as approximate_row_count,
+                pg_total_relation_size(:table_name) as table_size_bytes
+            FROM pg_class
+            WHERE relname = :table_name_safe
+            """
+            result = db_session.execute(text(stats_query), {'table_name':
+                self.table_name, 'table_name_safe': table_name_safe}).fetchone(
+                )
             if result:
                 self.estimated_rows = result[0]
                 table_size_mb = result[1] / (1024 * 1024)
-                logger.info(f'Table {self.table_name} has approximately {self.estimated_rows} rows and size {table_size_mb:.2f} MB')
-            hypertable_query = '\n            SELECT * FROM timescaledb_information.hypertables\n            WHERE hypertable_name = :table_name_safe\n            '
-            hypertable_info = db_session.execute(text(hypertable_query), {'table_name_safe': table_name_safe}).fetchone()
+                logger.info(
+                    f'Table {self.table_name} has approximately {self.estimated_rows} rows and size {table_size_mb:.2f} MB'
+                    )
+            hypertable_query = """
+            SELECT * FROM timescaledb_information.hypertables
+            WHERE hypertable_name = :table_name_safe
+            """
+            hypertable_info = db_session.execute(text(hypertable_query), {
+                'table_name_safe': table_name_safe}).fetchone()
             if hypertable_info:
-                logger.info(f'Table {self.table_name} is a TimescaleDB hypertable')
-                chunks_query = '\n                SELECT count(*) as chunk_count\n                FROM timescaledb_information.chunks\n                WHERE hypertable_name = :table_name_safe\n                '
-                chunks_result = db_session.execute(text(chunks_query), {'table_name_safe': table_name_safe}).fetchone()
+                logger.info(
+                    f'Table {self.table_name} is a TimescaleDB hypertable')
+                chunks_query = """
+                SELECT count(*) as chunk_count
+                FROM timescaledb_information.chunks
+                WHERE hypertable_name = :table_name_safe
+                """
+                chunks_result = db_session.execute(text(chunks_query), {
+                    'table_name_safe': table_name_safe}).fetchone()
                 if chunks_result:
                     self.estimated_chunks = chunks_result[0]
-                    logger.info(f'Hypertable has {self.estimated_chunks} chunks')
-                if self.time_column and any((cond for cond in self.where_conditions if self.time_column in cond)):
+                    logger.info(
+                        f'Hypertable has {self.estimated_chunks} chunks')
+                if self.time_column and any(cond for cond in self.
+                    where_conditions if self.time_column in cond):
                     self.use_hypertable_cache = True
-                    logger.info('Enabling chunk exclusion for time range query')
+                    logger.info('Enabling chunk exclusion for time range query'
+                        )
                 if self.estimated_rows and self.estimated_rows > 1000000:
                     self.use_parallel_scan = True
                     logger.info('Enabling parallel scan for large hypertable')
-            index_query = '\n            SELECT\n                i.relname as index_name,\n                a.attname as column_name\n            FROM\n                pg_class t,\n                pg_class i,\n                pg_index ix,\n                pg_attribute a\n            WHERE\n                t.relname = :table_name_safe AND\n                t.oid = ix.indrelid AND\n                i.oid = ix.indexrelid AND\n                a.attrelid = t.oid AND\n                a.attnum = ANY(ix.indkey)\n            ORDER BY\n                i.relname\n            '
-            indexes = db_session.execute(text(index_query), {'table_name_safe': table_name_safe}).fetchall()
+            index_query = """
+            SELECT
+                i.relname as index_name,
+                a.attname as column_name
+            FROM
+                pg_class t,
+                pg_class i,
+                pg_index ix,
+                pg_attribute a
+            WHERE
+                t.relname = :table_name_safe AND
+                t.oid = ix.indrelid AND
+                i.oid = ix.indexrelid AND
+                a.attrelid = t.oid AND
+                a.attnum = ANY(ix.indkey)
+            ORDER BY
+                i.relname
+            """
+            indexes = db_session.execute(text(index_query), {
+                'table_name_safe': table_name_safe}).fetchall()
             indexed_columns = [idx[1] for idx in indexes]
             for condition in self.where_conditions:
                 for col in indexed_columns:
@@ -114,7 +192,7 @@ class QueryPlan:
             logger.error(f'Error during query optimization: {str(e)}')
             return self
 
-    def generate_optimized_sql(self) -> str:
+    def generate_optimized_sql(self) ->str:
         """
         Generate SQL with TimescaleDB-specific optimizations.
         
@@ -125,16 +203,18 @@ class QueryPlan:
         hints = []
         if self.use_hypertable_cache:
             hints.append('TimescaleDB.enable_chunk_exclusion true')
-        if self.use_parallel_scan and (not self.use_index_scan):
+        if self.use_parallel_scan and not self.use_index_scan:
             hints.append('enable_parallel_append true')
             hints.append('enable_parallel_seq_scan true')
             hints.append('parallel_workers 4')
         if hints:
             hint_string = ', '.join(hints)
-            optimized_sql = base_sql.replace('SELECT', f'SELECT /*+ {hint_string} */', 1)
+            optimized_sql = base_sql.replace('SELECT',
+                f'SELECT /*+ {hint_string} */', 1)
             return optimized_sql
         else:
             return base_sql
+
 
 class QueryCache:
     """
@@ -152,7 +232,7 @@ class QueryCache:
         self.max_size = max_size
         self.logger = logging.getLogger(__name__)
 
-    def get(self, sql: str) -> Optional[pd.DataFrame]:
+    def get(self, sql: str) ->Optional[pd.DataFrame]:
         """
         Get a cached query result if it exists and is not expired.
         
@@ -172,7 +252,7 @@ class QueryCache:
                 self.logger.info(f'Expired cache entry removed')
         return None
 
-    def set(self, sql: str, df: pd.DataFrame) -> None:
+    def set(self, sql: str, df: pd.DataFrame) ->None:
         """
         Cache a query result.
         
@@ -184,25 +264,29 @@ class QueryCache:
             oldest_key = min(self.cache.keys(), key=lambda k: self.cache[k][1])
             del self.cache[oldest_key]
             self.logger.info(f'Removed oldest cache entry to make room')
-        self.cache[sql] = (df, datetime.now())
+        self.cache[sql] = df, datetime.now()
         self.logger.info(f'Cached query result ({len(df)} rows)')
 
-    def invalidate(self, table_name: str) -> None:
+    def invalidate(self, table_name: str) ->None:
         """
         Invalidate cache entries for a specific table.
         
         Args:
             table_name: Name of the table to invalidate
         """
-        keys_to_remove = [key for key in self.cache.keys() if f'FROM {table_name}' in key or f'from {table_name}' in key]
+        keys_to_remove = [key for key in self.cache.keys() if 
+            f'FROM {table_name}' in key or f'from {table_name}' in key]
         for key in keys_to_remove:
             del self.cache[key]
-        self.logger.info(f'Invalidated {len(keys_to_remove)} cache entries for table {table_name}')
+        self.logger.info(
+            f'Invalidated {len(keys_to_remove)} cache entries for table {table_name}'
+            )
 
-    def clear(self) -> None:
+    def clear(self) ->None:
         """Clear all cache entries."""
         self.cache.clear()
         self.logger.info('Cleared query cache')
+
 
 class TimeSeriesQueryOptimizer:
     """
@@ -223,7 +307,12 @@ class TimeSeriesQueryOptimizer:
         self.logger = logging.getLogger(__name__)
         self.default_chunk_size = 10000
 
-    def optimize_query(self, table_name: str, columns: List[str], time_range: Optional[Tuple[datetime, datetime]]=None, filters: Optional[Dict[str, Any]]=None, sort_by: Optional[str]=None, limit: Optional[int]=None, time_bucket: Optional[str]=None, use_cache: bool=True) -> pd.DataFrame:
+    @with_exception_handling
+    def optimize_query(self, table_name: str, columns: List[str],
+        time_range: Optional[Tuple[datetime, datetime]]=None, filters:
+        Optional[Dict[str, Any]]=None, sort_by: Optional[str]=None, limit:
+        Optional[int]=None, time_bucket: Optional[str]=None, use_cache:
+        bool=True) ->pd.DataFrame:
         """
         Execute an optimized time series query.
         
@@ -240,7 +329,8 @@ class TimeSeriesQueryOptimizer:
         Returns:
             DataFrame containing query results
         """
-        query_plan = self._build_query_plan(table_name, columns, time_range, filters, sort_by, limit, time_bucket)
+        query_plan = self._build_query_plan(table_name, columns, time_range,
+            filters, sort_by, limit, time_bucket)
         sql = query_plan.to_sql()
         if use_cache:
             cached_result = self.cache.get(sql)
@@ -252,28 +342,50 @@ class TimeSeriesQueryOptimizer:
                     with Session(conn) as session:
                         query_plan = query_plan.optimize(session)
                     optimized_sql = query_plan.generate_optimized_sql()
-                    self.logger.info(f'Executing optimized query: {optimized_sql}')
+                    self.logger.info(
+                        f'Executing optimized query: {optimized_sql}')
                     start_time = datetime.now()
                     df = pd.read_sql(optimized_sql, conn)
                     query_time = (datetime.now() - start_time).total_seconds()
-                    self.logger.info(f'Query completed in {query_time:.2f} seconds, returned {len(df)} rows')
+                    self.logger.info(
+                        f'Query completed in {query_time:.2f} seconds, returned {len(df)} rows'
+                        )
             else:
                 with psycopg2.connect(self.connection_string) as conn:
                     with conn.cursor() as cursor:
 
+
                         class SimpleCursor:
+    """
+    SimpleCursor class.
+    
+    Attributes:
+        Add attributes here
+    """
+
 
                             def execute(self, query):
+    """
+    Execute.
+    
+    Args:
+        query: Description of query
+    
+    """
+
                                 cursor.execute(query)
                                 return cursor
                         simple_cursor = SimpleCursor()
                         query_plan = query_plan.optimize(simple_cursor)
                     optimized_sql = query_plan.generate_optimized_sql()
-                    self.logger.info(f'Executing optimized query: {optimized_sql}')
+                    self.logger.info(
+                        f'Executing optimized query: {optimized_sql}')
                     start_time = datetime.now()
                     df = pd.read_sql(optimized_sql, conn)
                     query_time = (datetime.now() - start_time).total_seconds()
-                    self.logger.info(f'Query completed in {query_time:.2f} seconds, returned {len(df)} rows')
+                    self.logger.info(
+                        f'Query completed in {query_time:.2f} seconds, returned {len(df)} rows'
+                        )
             if use_cache:
                 self.cache.set(sql, df)
             return df
@@ -281,7 +393,10 @@ class TimeSeriesQueryOptimizer:
             self.logger.error(f'Query execution error: {str(e)}')
             raise
 
-    def build_query_plan(self, table_name: str, columns: List[str], time_range: Optional[Tuple[datetime, datetime]]=None, filters: Optional[Dict[str, Any]]=None, sort_by: Optional[str]=None, limit: Optional[int]=None, time_bucket: Optional[str]=None) -> QueryPlan:
+    def build_query_plan(self, table_name: str, columns: List[str],
+        time_range: Optional[Tuple[datetime, datetime]]=None, filters:
+        Optional[Dict[str, Any]]=None, sort_by: Optional[str]=None, limit:
+        Optional[int]=None, time_bucket: Optional[str]=None) ->QueryPlan:
         """
         Build a QueryPlan object from query parameters.
         
@@ -317,9 +432,12 @@ class TimeSeriesQueryOptimizer:
                     where_conditions.append(f'{column} = :value_{column}')
         sort_columns = [sort_by] if sort_by else ['timestamp']
         group_by = columns.copy() if time_bucket else None
-        return QueryPlan(table_name=table_name, columns=columns, time_column='timestamp', where_conditions=where_conditions, sort_columns=sort_columns, limit=limit, time_bucket=time_bucket, group_by=group_by, chunk_size=self.default_chunk_size)
+        return QueryPlan(table_name=table_name, columns=columns,
+            time_column='timestamp', where_conditions=where_conditions,
+            sort_columns=sort_columns, limit=limit, time_bucket=time_bucket,
+            group_by=group_by, chunk_size=self.default_chunk_size)
 
-    def validate_table_name(self, table_name: str) -> None:
+    def validate_table_name(self, table_name: str) ->None:
         """
         Validate table name to prevent SQL injection.
         
@@ -331,10 +449,10 @@ class TimeSeriesQueryOptimizer:
         """
         if not table_name or not isinstance(table_name, str):
             raise ValueError('Table name must be a non-empty string')
-        if not all((c.isalnum() or c == '_' or c == '.' for c in table_name)):
+        if not all(c.isalnum() or c == '_' or c == '.' for c in table_name):
             raise ValueError(f'Invalid table name: {table_name}')
 
-    def validate_column_name(self, column_name: str) -> None:
+    def validate_column_name(self, column_name: str) ->None:
         """
         Validate column name to prevent SQL injection.
         
@@ -346,10 +464,10 @@ class TimeSeriesQueryOptimizer:
         """
         if not column_name or not isinstance(column_name, str):
             raise ValueError('Column name must be a non-empty string')
-        if not all((c.isalnum() or c == '_' for c in column_name)):
+        if not all(c.isalnum() or c == '_' for c in column_name):
             raise ValueError(f'Invalid column name: {column_name}')
 
-    def validate_columns(self, columns: List[str]) -> None:
+    def validate_columns(self, columns: List[str]) ->None:
         """
         Validate a list of column names.
         
@@ -364,7 +482,8 @@ class TimeSeriesQueryOptimizer:
         for column in columns:
             self._validate_column_name(column)
 
-    def validate_time_bucket(self, time_bucket: str) -> None:
+    @with_exception_handling
+    def validate_time_bucket(self, time_bucket: str) ->None:
         """
         Validate time bucket string.
         
@@ -376,18 +495,23 @@ class TimeSeriesQueryOptimizer:
         """
         if not time_bucket or not isinstance(time_bucket, str):
             raise ValueError('Time bucket must be a non-empty string')
-        valid_units = ['microsecond', 'microseconds', 'millisecond', 'milliseconds', 'second', 'seconds', 'minute', 'minutes', 'hour', 'hours', 'day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years']
+        valid_units = ['microsecond', 'microseconds', 'millisecond',
+            'milliseconds', 'second', 'seconds', 'minute', 'minutes',
+            'hour', 'hours', 'day', 'days', 'week', 'weeks', 'month',
+            'months', 'year', 'years']
         parts = time_bucket.split()
         if len(parts) != 2:
             raise ValueError(f'Invalid time bucket format: {time_bucket}')
         try:
             float(parts[0])
             if parts[1].lower() not in valid_units:
-                raise ValueError(f'Invalid time unit in time bucket: {parts[1]}')
+                raise ValueError(
+                    f'Invalid time unit in time bucket: {parts[1]}')
         except ValueError:
             raise ValueError(f'Invalid time bucket format: {time_bucket}')
 
-    def get_timescale_continuous_aggregates(self) -> List[Dict[str, Any]]:
+    @with_exception_handling
+    def get_timescale_continuous_aggregates(self) ->List[Dict[str, Any]]:
         """
         Get information about available TimescaleDB continuous aggregates.
         
@@ -398,20 +522,30 @@ class TimeSeriesQueryOptimizer:
             if self.engine:
                 with self.engine.connect() as conn:
                     with Session(conn) as session:
-                        query = '\n                        SELECT * FROM timescaledb_information.continuous_aggregates\n                        '
+                        query = """
+                        SELECT * FROM timescaledb_information.continuous_aggregates
+                        """
                         result = session.execute(text(query)).fetchall()
                         return [dict(row) for row in result]
             else:
                 with psycopg2.connect(self.connection_string) as conn:
                     with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-                        cursor.execute('\n                        SELECT * FROM timescaledb_information.continuous_aggregates\n                        ')
+                        cursor.execute(
+                            """
+                        SELECT * FROM timescaledb_information.continuous_aggregates
+                        """
+                            )
                         result = cursor.fetchall()
                         return list(result)
         except Exception as e:
-            self.logger.error(f'Error fetching continuous aggregates: {str(e)}')
+            self.logger.error(f'Error fetching continuous aggregates: {str(e)}'
+                )
             return []
 
-    def query_continuous_aggregate(self, view_name: str, columns: List[str], time_range: Optional[Tuple[datetime, datetime]]=None, filters: Optional[Dict[str, Any]]=None, sort_by: Optional[str]=None, limit: Optional[int]=None) -> pd.DataFrame:
+    def query_continuous_aggregate(self, view_name: str, columns: List[str],
+        time_range: Optional[Tuple[datetime, datetime]]=None, filters:
+        Optional[Dict[str, Any]]=None, sort_by: Optional[str]=None, limit:
+        Optional[int]=None) ->pd.DataFrame:
         """
         Query a TimescaleDB continuous aggregate view.
         
@@ -426,9 +560,14 @@ class TimeSeriesQueryOptimizer:
         Returns:
             DataFrame containing query results
         """
-        return self.optimize_query(table_name=view_name, columns=columns, time_range=time_range, filters=filters, sort_by=sort_by, limit=limit, time_bucket=None)
+        return self.optimize_query(table_name=view_name, columns=columns,
+            time_range=time_range, filters=filters, sort_by=sort_by, limit=
+            limit, time_bucket=None)
 
-    def suggest_optimal_query(self, table_name: str, columns: List[str], time_range: Optional[Tuple[datetime, datetime]]=None, filters: Optional[Dict[str, Any]]=None) -> Dict[str, Any]:
+    @with_exception_handling
+    def suggest_optimal_query(self, table_name: str, columns: List[str],
+        time_range: Optional[Tuple[datetime, datetime]]=None, filters:
+        Optional[Dict[str, Any]]=None) ->Dict[str, Any]:
         """
         Suggest the optimal query approach based on the query parameters.
         
@@ -441,7 +580,10 @@ class TimeSeriesQueryOptimizer:
         Returns:
             Dictionary with suggestions for optimal query
         """
-        suggestions = {'original_params': {'table_name': table_name, 'columns': columns, 'time_range': [t.isoformat() if t else None for t in time_range] if time_range else None, 'filters': filters}, 'suggestions': []}
+        suggestions = {'original_params': {'table_name': table_name,
+            'columns': columns, 'time_range': [(t.isoformat() if t else
+            None) for t in time_range] if time_range else None, 'filters':
+            filters}, 'suggestions': []}
         try:
             continuous_aggregates = self.get_timescale_continuous_aggregates()
             matching_aggs = []
@@ -469,17 +611,30 @@ class TimeSeriesQueryOptimizer:
                                     bucket_seconds = quantity * 604800
                                 else:
                                     bucket_seconds = None
-                                if bucket_seconds and time_diff.total_seconds() > bucket_seconds * 10:
-                                    suggestions['suggestions'].append({'type': 'use_continuous_aggregate', 'view_name': agg.get('view_name'), 'reason': f'Query spans {time_diff.total_seconds() / 86400:.1f} days, which is much larger than the bucket size ({bucket})'})
+                                if bucket_seconds and time_diff.total_seconds(
+                                    ) > bucket_seconds * 10:
+                                    suggestions['suggestions'].append({
+                                        'type': 'use_continuous_aggregate',
+                                        'view_name': agg.get('view_name'),
+                                        'reason':
+                                        f'Query spans {time_diff.total_seconds() / 86400:.1f} days, which is much larger than the bucket size ({bucket})'
+                                        })
             if time_range:
                 start_time, end_time = time_range
                 time_diff = end_time - start_time
                 if time_diff.total_seconds() > 86400 * 30:
-                    suggestions['suggestions'].append({'type': 'use_time_bucket', 'bucket_size': '1 day', 'reason': 'Query spans more than 30 days'})
+                    suggestions['suggestions'].append({'type':
+                        'use_time_bucket', 'bucket_size': '1 day', 'reason':
+                        'Query spans more than 30 days'})
                 elif time_diff.total_seconds() > 86400 * 7:
-                    suggestions['suggestions'].append({'type': 'use_time_bucket', 'bucket_size': '1 hour', 'reason': 'Query spans more than 7 days'})
+                    suggestions['suggestions'].append({'type':
+                        'use_time_bucket', 'bucket_size': '1 hour',
+                        'reason': 'Query spans more than 7 days'})
             if len(columns) > 5:
-                suggestions['suggestions'].append({'type': 'limit_columns', 'reason': f'Query selects {len(columns)} columns, which may impact performance'})
+                suggestions['suggestions'].append({'type': 'limit_columns',
+                    'reason':
+                    f'Query selects {len(columns)} columns, which may impact performance'
+                    })
             return suggestions
         except Exception as e:
             self.logger.error(f'Error generating query suggestions: {str(e)}')

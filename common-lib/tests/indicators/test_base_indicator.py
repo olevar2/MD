@@ -62,6 +62,13 @@ class TestBaseIndicator(unittest.TestCase):
         
         # Test with int for float parameter (should auto-convert)
         class TestIndicator(BaseIndicator):
+    """
+    TestIndicator class that inherits from BaseIndicator.
+    
+    Attributes:
+        Add attributes here
+    """
+
             required_params = {"value": float}
         
         indicator = TestIndicator({"value": 5})

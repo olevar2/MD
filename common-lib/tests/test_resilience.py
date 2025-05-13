@@ -33,6 +33,11 @@ class TestCircuitBreaker(unittest.TestCase):
     """Tests for the circuit breaker implementation."""
     
     def setUp(self):
+    """
+    Setup.
+    
+    """
+
         self.config = CircuitBreakerConfig(
             failure_threshold=2,
             reset_timeout_seconds=0.1
@@ -46,6 +51,11 @@ class TestCircuitBreaker(unittest.TestCase):
     def test_circuit_breaker_opens_after_failures(self):
         """Test that a circuit breaks open after specified number of failures."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             # Mock function that will fail
             mock_func = AsyncMock(side_effect=ValueError("Service unavailable"))
             
@@ -69,6 +79,11 @@ class TestCircuitBreaker(unittest.TestCase):
     def test_circuit_breaker_resets_after_timeout(self):
         """Test that a circuit resets to half-open after timeout."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             # Mock function that will fail
             mock_func = AsyncMock(side_effect=ValueError("Service unavailable"))
             
@@ -101,6 +116,11 @@ class TestRetryPolicy(unittest.TestCase):
     def test_retry_with_policy_succeeds_eventually(self):
         """Test that retry_with_policy retries until success."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             attempts = 0
             
             @retry_with_policy(
@@ -109,6 +129,11 @@ class TestRetryPolicy(unittest.TestCase):
                 exceptions=[ValueError]
             )
             async def flaky_function():
+    """
+    Flaky function.
+    
+    """
+
                 nonlocal attempts
                 attempts += 1
                 if attempts < 3:
@@ -125,12 +150,22 @@ class TestRetryPolicy(unittest.TestCase):
     def test_retry_exhausted(self):
         """Test that retry_with_policy raises RetryExhaustedException after max attempts."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             @retry_with_policy(
                 max_attempts=2,
                 base_delay=0.01,
                 exceptions=[ValueError]
             )
             async def failing_function():
+    """
+    Failing function.
+    
+    """
+
                 raise ValueError("Always fails")
             
             with self.assertRaises(RetryExhaustedException):
@@ -146,8 +181,18 @@ class TestTimeout(unittest.TestCase):
     def test_timeout_handler_allows_fast_operations(self):
         """Test that timeout_handler allows operations that complete within timeout."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             @timeout_handler(timeout_seconds=0.5)
             async def fast_operation():
+    """
+    Fast operation.
+    
+    """
+
                 await asyncio.sleep(0.1)
                 return "completed"
             
@@ -160,8 +205,18 @@ class TestTimeout(unittest.TestCase):
     def test_timeout_handler_stops_slow_operations(self):
         """Test that timeout_handler stops operations that exceed timeout."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             @timeout_handler(timeout_seconds=0.1)
             async def slow_operation():
+    """
+    Slow operation.
+    
+    """
+
                 await asyncio.sleep(0.5)
                 return "completed"
             
@@ -178,11 +233,24 @@ class TestBulkhead(unittest.TestCase):
     def test_bulkhead_limits_concurrent_executions(self):
         """Test that bulkhead limits the number of concurrent executions."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             execution_count = 0
             max_concurrent_observed = 0
             
             @bulkhead(name="test-bulkhead", max_concurrent=2)
             async def guarded_operation(duration):
+    """
+    Guarded operation.
+    
+    Args:
+        duration: Description of duration
+    
+    """
+
                 nonlocal execution_count, max_concurrent_observed
                 execution_count += 1
                 max_concurrent_observed = max(max_concurrent_observed, execution_count)
@@ -215,9 +283,19 @@ class TestBulkhead(unittest.TestCase):
     def test_bulkhead_rejects_when_full(self):
         """Test that bulkhead rejects executions when full and max_waiting is exceeded."""
         async def run_test():
+    """
+    Run test.
+    
+    """
+
             # Create a bulkhead that allows 1 concurrent and 1 waiting
             @bulkhead(name="test-bulkhead-full", max_concurrent=1, max_waiting=1)
             async def guarded_operation():
+    """
+    Guarded operation.
+    
+    """
+
                 await asyncio.sleep(0.2)
                 return "completed"
             

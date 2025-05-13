@@ -1,3 +1,9 @@
+"""
+Rl risk optimizer module.
+
+This module provides functionality for...
+"""
+
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple, Union, Any
@@ -9,6 +15,13 @@ from dataclasses import dataclass
 logger = logging.getLogger(__name__)
 
 class RiskOptimizationStrategy(str, Enum):
+    """
+    RiskOptimizationStrategy class that inherits from str, Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     CONSERVATIVE = "conservative"
     MODERATE = "moderate"
     AGGRESSIVE = "aggressive"
@@ -16,6 +29,13 @@ class RiskOptimizationStrategy(str, Enum):
     PERSONALIZED = "personalized"
 
 class MarketRegime(str, Enum):
+    """
+    MarketRegime class that inherits from str, Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
     TRENDING_BULLISH = "trending_bullish"
     TRENDING_BEARISH = "trending_bearish"
     RANGING = "ranging"

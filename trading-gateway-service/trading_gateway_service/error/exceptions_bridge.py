@@ -95,6 +95,17 @@ class BrokerConnectionError(ServiceUnavailableError):
         broker_name: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        broker_name: Description of broker_name
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         error_details = details or {}
         if broker_name:
             error_details["broker_name"] = broker_name
@@ -115,6 +126,18 @@ class OrderValidationError(DataValidationError):
         validation_errors: Optional[List[str]] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        order_id: Description of order_id
+        validation_errors: Description of validation_errors
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         error_details = details or {}
         if order_id:
             error_details["order_id"] = order_id
@@ -136,6 +159,17 @@ class MarketDataError(DataFetchError):
         symbol: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        message: Description of message
+        symbol: Description of symbol
+        details: Description of details
+        Any]]: Description of Any]]
+    
+    """
+
         error_details = details or {}
         if symbol:
             error_details["symbol"] = symbol
@@ -238,6 +272,15 @@ def with_exception_handling(
         Wrapped function with exception handling
     """
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return func(*args, **kwargs)
         except Exception as e:
@@ -287,6 +330,15 @@ async def async_with_exception_handling(
         Wrapped async function with exception handling
     """
     async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         try:
             return await func(*args, **kwargs)
         except Exception as e:

@@ -40,7 +40,7 @@ Based on the naming convention analysis, we have identified:
 **Tasks**:
 
 1. Refactor UI component directories:
-   - Rename kebab-case directories to snake_case (e.g., asset-detail → asset_detail)
+   - Rename kebab-case directories to snake_case (e.g., asset_detail → asset_detail)
    - Update import statements in files that reference these directories
 
 2. Refactor test directories:

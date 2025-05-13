@@ -15,6 +15,11 @@ class CacheMetrics:
     - Cache utilization
     """
     def __init__(self):
+    """
+      init  .
+    
+    """
+
         self.hits = 0
         self.misses = 0
         self.puts = 0

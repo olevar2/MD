@@ -37,9 +37,18 @@ class SyntheticDataGenerator:
     """
     Generates synthetic datasets with pre-defined causal structures.
     Useful for testing and benchmarking causal discovery algorithms.
-    """'''
+    """
 
     def __init__(self, parameters: Optional[Dict[str, Any]] = None):
+    """
+      init  .
+    
+    Args:
+        parameters: Description of parameters
+        Any]]: Description of Any]]
+    
+    """
+
         self.parameters = parameters or {}
         logger.info(f"Initializing SyntheticDataGenerator with parameters: {self.parameters}")
 

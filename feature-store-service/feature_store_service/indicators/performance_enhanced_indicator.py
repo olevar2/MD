@@ -4,7 +4,6 @@ Performance Enhanced Indicator Module.
 This module provides an extension to BaseIndicator with performance optimizations
 using GPU acceleration, advanced calculation, load balancing, and memory optimization.
 """
-
 from typing import Dict, List, Optional, Union, Any
 import pandas as pd
 import numpy as np
@@ -12,30 +11,32 @@ import time
 import logging
 import os
 from functools import wraps
-
 from feature_store_service.indicators.base_indicator import BaseIndicator
 from feature_store_service.optimization.gpu_acceleration import GPUAccelerator, is_gpu_available
-from feature_store_service.optimization.advanced_calculation import (
-    smart_cache, pre_aggregator, lazy_calculator, incremental_calculator
-)
-from feature_store_service.optimization.load_balancing import (
-    get_load_balancer, ComputationPriority
-)
-from feature_store_service.optimization.memory_optimization import (
-    get_historical_data_manager, MemoryOptimizer, DataPrecision
-)
-
+from feature_store_service.optimization.advanced_calculation import smart_cache, pre_aggregator, lazy_calculator, incremental_calculator
+from feature_store_service.optimization.load_balancing import get_load_balancer, ComputationPriority
+from feature_store_service.optimization.memory_optimization import get_historical_data_manager, MemoryOptimizer, DataPrecision
 logger = logging.getLogger(__name__)
-
-# Import metrics exporter if available
 try:
     from monitoring_alerting_service.metrics_exporters.performance_optimization_exporter import get_metrics_exporter
     has_metrics_exporter = True
 except ImportError:
     has_metrics_exporter = False
-    logger.debug("Performance metrics exporter not available. Metrics will only be logged locally.")
+    logger.debug(
+        'Performance metrics exporter not available. Metrics will only be logged locally.'
+        )
 
 
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
+
+@with_exception_handling
 def performance_monitored(func):
     """
     Decorator to monitor performance of indicator calculations.
@@ -46,80 +47,67 @@ def performance_monitored(func):
     Returns:
         Decorated function with performance monitoring
     """
+
     @wraps(func)
+    @with_exception_handling
     def wrapper(self, *args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         start_time = time.time()
-        
-        # Record initial memory usage
         try:
             import psutil
             initial_memory = psutil.Process().memory_info().rss
         except:
             initial_memory = None
-            
-        # Execute the function
         result = func(self, *args, **kwargs)
-        
-        # Calculate elapsed time
         elapsed_time = time.time() - start_time
-        
-        # Calculate memory delta
         memory_delta_mb = None
         if initial_memory is not None:
             try:
                 current_memory = psutil.Process().memory_info().rss
                 memory_delta = current_memory - initial_memory
-                memory_delta_mb = memory_delta / 1024 / 1024  # Convert to MB
+                memory_delta_mb = memory_delta / 1024 / 1024
             except:
                 memory_delta = None
-        
-        # Record performance metrics
-        indicator_name = self.__class__.__name__ if hasattr(self, "__class__") else "Unknown"
-        log_message = f"Performance: {indicator_name}.{func.__name__} completed in {elapsed_time:.4f}s"
-        
+        indicator_name = self.__class__.__name__ if hasattr(self, '__class__'
+            ) else 'Unknown'
+        log_message = (
+            f'Performance: {indicator_name}.{func.__name__} completed in {elapsed_time:.4f}s'
+            )
         if memory_delta_mb is not None:
-            log_message += f" (memory delta: {memory_delta_mb:.2f} MB)"
-        
+            log_message += f' (memory delta: {memory_delta_mb:.2f} MB)'
         logger.info(log_message)
-        
-        # Store metrics for later analysis
-        if hasattr(self, "_performance_metrics"):
-            metric_data = {
-                'indicator': indicator_name,
-                'function': func.__name__,
-                'elapsed_time': elapsed_time,
-                'memory_delta_mb': memory_delta_mb,
-                'timestamp': time.time()
-            }
-            
-            # Add data size if available in args (typically a DataFrame)
+        if hasattr(self, '_performance_metrics'):
+            metric_data = {'indicator': indicator_name, 'function': func.
+                __name__, 'elapsed_time': elapsed_time, 'memory_delta_mb':
+                memory_delta_mb, 'timestamp': time.time()}
             data_size = None
             for arg in args:
                 if isinstance(arg, pd.DataFrame):
                     data_size = len(arg)
                     metric_data['data_size'] = data_size
                     break
-            
             self._performance_metrics.append(metric_data)
-            
-            # Report to metrics exporter if available
             if has_metrics_exporter and func.__name__ == 'calculate':
                 try:
                     exporter = get_metrics_exporter()
-                    is_enhanced = hasattr(self, '_use_gpu') or hasattr(self, '_use_advanced_calc')
-                    exporter.record_calculation_metrics(
-                        indicator_name=indicator_name,
-                        enhanced=is_enhanced,
-                        data_size=data_size or 0,
-                        execution_time=elapsed_time,
-                        memory_usage=memory_delta_mb,
-                        succeeded=True
-                    )
+                    is_enhanced = hasattr(self, '_use_gpu') or hasattr(self,
+                        '_use_advanced_calc')
+                    exporter.record_calculation_metrics(indicator_name=
+                        indicator_name, enhanced=is_enhanced, data_size=
+                        data_size or 0, execution_time=elapsed_time,
+                        memory_usage=memory_delta_mb, succeeded=True)
                 except Exception as e:
-                    logger.warning(f"Failed to export performance metrics: {e}")
-        
+                    logger.warning(f'Failed to export performance metrics: {e}'
+                        )
         return result
-    
     return wrapper
 
 
@@ -131,7 +119,7 @@ class PerformanceEnhancedIndicator(BaseIndicator):
     GPU acceleration, advanced calculation techniques, load balancing,
     and memory optimization.
     """
-    
+
     def __init__(self, *args, **kwargs):
         """
         Initialize a performance-enhanced indicator.
@@ -140,34 +128,25 @@ class PerformanceEnhancedIndicator(BaseIndicator):
             *args: Positional arguments for BaseIndicator
             **kwargs: Keyword arguments for BaseIndicator and performance options
         """
-        # Extract performance options
         self._use_gpu = kwargs.pop('use_gpu', True)
         self._use_advanced_calc = kwargs.pop('use_advanced_calc', True)
         self._use_load_balancing = kwargs.pop('use_load_balancing', True)
-        self._use_memory_optimization = kwargs.pop('use_memory_optimization', True)
-        self._computation_priority = kwargs.pop('computation_priority', ComputationPriority.NORMAL)
-        
-        # Initialize performance trackers
+        self._use_memory_optimization = kwargs.pop('use_memory_optimization',
+            True)
+        self._computation_priority = kwargs.pop('computation_priority',
+            ComputationPriority.NORMAL)
         self._performance_metrics = []
-        
-        # Initialize BaseIndicator
         super().__init__(*args, **kwargs)
-        
-        # Initialize optimization components if needed
         if self._use_gpu and is_gpu_available():
             self._gpu_accelerator = GPUAccelerator()
         else:
             self._gpu_accelerator = None
-            
-        # Set up optional components based on settings
         if self._use_memory_optimization:
             self._data_manager = get_historical_data_manager()
-            
-        # Set unique key for caching
-        self._cache_key = f"{self.__class__.__name__}_{id(self)}"
-        
+        self._cache_key = f'{self.__class__.__name__}_{id(self)}'
+
     @performance_monitored
-    def calculate(self, data: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
+    def calculate(self, data: pd.DataFrame, *args, **kwargs) ->pd.DataFrame:
         """
         Calculate the indicator with performance optimizations.
         
@@ -182,47 +161,30 @@ class PerformanceEnhancedIndicator(BaseIndicator):
         Returns:
             DataFrame with indicator values
         """
-        # Apply memory optimization if enabled
         if self._use_memory_optimization and len(data) > 10000:
             data = MemoryOptimizer.optimize_dataframe(data)
-            
-        # Check cache for previous calculation with same inputs
         if self._use_advanced_calc:
-            cache_hit, cached_result = smart_cache.get(f"{self._cache_key}.calculate",
-                                                     (data.shape, data.index[0], data.index[-1]),
-                                                     kwargs)
+            cache_hit, cached_result = smart_cache.get(
+                f'{self._cache_key}.calculate', (data.shape, data.index[0],
+                data.index[-1]), kwargs)
             if cache_hit:
                 return cached_result
-                
-        # Use load balancing for intensive calculations if enabled
         if self._use_load_balancing and len(data) > 50000:
-            # Submit to load balancer
             load_balancer = get_load_balancer()
-            task_id = load_balancer.submit_task(
-                func=self._calculate_impl,
-                args=(data, *args),
-                kwargs=kwargs,
-                priority=self._computation_priority,
-                cpu_intensive=True
-            )
-            
-            # Wait for result
+            task_id = load_balancer.submit_task(func=self._calculate_impl,
+                args=(data, *args), kwargs=kwargs, priority=self.
+                _computation_priority, cpu_intensive=True)
             task_result = load_balancer.get_task_result(task_id, wait=True)
             result = task_result['result']
         else:
-            # Direct calculation
             result = self._calculate_impl(data, *args, **kwargs)
-            
-        # Store in cache
         if self._use_advanced_calc:
-            smart_cache.set(f"{self._cache_key}.calculate",
-                           (data.shape, data.index[0], data.index[-1]),
-                           kwargs,
-                           result)
-            
+            smart_cache.set(f'{self._cache_key}.calculate', (data.shape,
+                data.index[0], data.index[-1]), kwargs, result)
         return result
-        
-    def _calculate_impl(self, data: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
+
+    def _calculate_impl(self, data: pd.DataFrame, *args, **kwargs
+        ) ->pd.DataFrame:
         """
         Implementation of the indicator calculation.
         
@@ -237,9 +199,9 @@ class PerformanceEnhancedIndicator(BaseIndicator):
         Returns:
             DataFrame with indicator values
         """
-        raise NotImplementedError("Subclasses must implement _calculate_impl")
-    
-    def get_performance_metrics(self) -> List[Dict[str, Any]]:
+        raise NotImplementedError('Subclasses must implement _calculate_impl')
+
+    def get_performance_metrics(self) ->List[Dict[str, Any]]:
         """
         Get performance metrics for this indicator.
         
@@ -247,16 +209,15 @@ class PerformanceEnhancedIndicator(BaseIndicator):
             List of performance metric dictionaries
         """
         return self._performance_metrics
-        
-    def clear_performance_metrics(self) -> None:
+
+    def clear_performance_metrics(self) ->None:
         """
         Clear collected performance metrics.
         """
         self._performance_metrics = []
 
 
-# Example adapters for using optimization components directly
-
+@with_exception_handling
 def gpu_accelerated_operation(operation_name: str, func, *args, **kwargs):
     """
     Execute an operation with GPU acceleration if available.
@@ -271,33 +232,23 @@ def gpu_accelerated_operation(operation_name: str, func, *args, **kwargs):
         Result from the function
     """
     start_time = time.time()
-    
-    # Create an accelerator if needed
     if is_gpu_available():
         accelerator = GPUAccelerator()
-        
-        # Process arguments for GPU
-        gpu_args = [accelerator.to_gpu(arg) if isinstance(arg, (np.ndarray, pd.DataFrame, pd.Series)) 
-                   else arg for arg in args]
-        
+        gpu_args = [(accelerator.to_gpu(arg) if isinstance(arg, (np.ndarray,
+            pd.DataFrame, pd.Series)) else arg) for arg in args]
         try:
-            # Execute on GPU
             result = func(*gpu_args, **kwargs)
-            
-            # Transfer result back to CPU if needed
             if hasattr(result, 'cpu') or hasattr(result, 'numpy'):
                 result = accelerator.to_cpu(result)
-                
             elapsed = time.time() - start_time
-            logger.debug(f"GPU operation {operation_name} completed in {elapsed:.4f}s")
+            logger.debug(
+                f'GPU operation {operation_name} completed in {elapsed:.4f}s')
             return result
-            
         except Exception as e:
-            logger.warning(f"GPU operation {operation_name} failed: {e}. Falling back to CPU.")
-            # Fall back to CPU
-    
-    # CPU execution
+            logger.warning(
+                f'GPU operation {operation_name} failed: {e}. Falling back to CPU.'
+                )
     result = func(*args, **kwargs)
     elapsed = time.time() - start_time
-    logger.debug(f"CPU operation {operation_name} completed in {elapsed:.4f}s")
+    logger.debug(f'CPU operation {operation_name} completed in {elapsed:.4f}s')
     return result

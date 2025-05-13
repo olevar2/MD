@@ -1,3 +1,9 @@
+"""
+Test sequence pattern recognizer module.
+
+This module provides functionality for...
+"""
+
 import unittest
 import pandas as pd
 import numpy as np
@@ -36,12 +42,28 @@ class TestSequencePatternRecognizer(unittest.TestCase):
         }
 
     def _detect_head_shoulders(self, data):
+    """
+     detect head shoulders.
+    
+    Args:
+        data: Description of data
+    
+    """
+
         # Dummy detection logic for testing
         if len(data) > 5 and data['close'].iloc[-3] > data['close'].iloc[-1] and data['close'].iloc[-3] > data['close'].iloc[-5]:
              return {'name': 'head_shoulders', 'confidence': 0.7, 'index': data.index[-1]}
         return None
 
     def _detect_double_top(self, data):
+    """
+     detect double top.
+    
+    Args:
+        data: Description of data
+    
+    """
+
         # Dummy detection logic for testing
         if len(data) > 4 and abs(data['high'].iloc[-1] - data['high'].iloc[-3]) < 0.001:
              return {'name': 'double_top', 'confidence': 0.6, 'index': data.index[-1]}

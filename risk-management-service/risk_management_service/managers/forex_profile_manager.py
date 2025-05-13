@@ -31,6 +31,25 @@ class RiskProfile:
         volatility_factor: float = 1.0,
         **additional_params
     ):
+    """
+      init  .
+    
+    Args:
+        name: Description of name
+        max_position_size: Description of max_position_size
+        max_leverage: Description of max_leverage
+        stop_loss_pips: Description of stop_loss_pips
+        take_profit_pips: Description of take_profit_pips
+        trailing_stop_enabled: Description of trailing_stop_enabled
+        trailing_stop_activation_pips: Description of trailing_stop_activation_pips
+        max_slippage_pips: Description of max_slippage_pips
+        max_spread_pips: Description of max_spread_pips
+        risk_per_trade_pct: Description of risk_per_trade_pct
+        volatility_factor: Description of volatility_factor
+        additional_params: Description of additional_params
+    
+    """
+
         self.name = name
         self.max_position_size = max_position_size
         self.max_leverage = max_leverage

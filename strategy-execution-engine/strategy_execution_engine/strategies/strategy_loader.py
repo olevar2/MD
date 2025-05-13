@@ -185,9 +185,9 @@ class StrategyLoader:
             with open(config_path, 'r') as f:
                 config = json.load(f)
 
-            strategy_id = config.get("strategy_id")
-            parameters = config.get("parameters", {})
-            metadata = config.get("metadata", {})
+            strategy_id = config_manager.get('strategy_id')
+            parameters = config_manager.get('parameters', {})
+            metadata = config_manager.get('metadata', {})
 
             if not strategy_id:
                 raise StrategyConfigurationError(

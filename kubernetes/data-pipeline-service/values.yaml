@@ -1,0 +1,50 @@
+affinity: {}
+autoscaling:
+  enabled: true
+  maxReplicas: 10
+  minReplicas: 2
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+config:
+  database:
+    host: postgres
+    name: data-pipeline-service
+    port: 5432
+    user: postgres
+  logging:
+    format: json
+    level: INFO
+  metrics:
+    enabled: true
+    path: /metrics
+  service:
+    environment: production
+    name: data-pipeline-service
+    port: 8000
+  tracing:
+    enabled: true
+    endpoint: jaeger-collector:4317
+env:
+  ENVIRONMENT: production
+  LOG_LEVEL: INFO
+  SERVICE_NAME: data-pipeline-service
+image:
+  pullPolicy: IfNotPresent
+  repository: forex-trading-platform/data-pipeline-service
+  tag: latest
+nodeSelector: {}
+replicaCount: 2
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+secrets:
+  apiKey: secret-key
+  dbPassword: password
+service:
+  port: 8000
+  type: ClusterIP
+tolerations: []

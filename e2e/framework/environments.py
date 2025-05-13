@@ -1,14 +1,11 @@
-\
-\
-\
-
-Manages isolated test environments for E2E testing.::
+"""
+Manages isolated test environments for E2E testing.
 
 This module defines the TestEnvironment class responsible for setting up,
 managing, and tearing down the necessary infrastructure (services, databases, etc.)
 for running end-to-end tests. It supports different configurations, including
 mocked services and data seeding.
-\"\"\"
+"""
 
 import logging
 import os
@@ -28,12 +25,26 @@ except ImportError:
     logging.warning("Could not import from e2e.utils.test_environment. Using basic stubs.")
 
     class EnvironmentMode(str, Enum):
+    """
+    EnvironmentMode class that inherits from str, Enum.
+    
+    Attributes:
+        Add attributes here
+    """
+
         SIMULATED = "simulated"
         HYBRID = "hybrid"
         PRODUCTION = "production"
 
     @dataclass
     class TestEnvironmentConfig:
+    """
+    TestEnvironmentConfig class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         mode: EnvironmentMode = EnvironmentMode.SIMULATED
         use_live_market_data: bool = False
         use_persistent_storage: bool = False
@@ -41,7 +52,22 @@ except ImportError:
         browser_headless: bool = True
 
     class ServiceManager:
+    """
+    ServiceManager class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self, config: TestEnvironmentConfig):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+    
+    """
+
             self.config = config
             self.client = docker.from_env()
             self.containers: Dict[str, Container] = {}
@@ -50,6 +76,14 @@ except ImportError:
             logging.info("Initialized STUB ServiceManager")
 
         def create_network(self, name: str):
+    """
+    Create network.
+    
+    Args:
+        name: Description of name
+    
+    """
+
              try:
                  self.network = self.client.networks.create(name, driver="bridge")
                  logging.info(f"Created Docker network: {name}")
@@ -68,6 +102,28 @@ except ImportError:
                           depends_on: Optional[List[str]] = None, # Placeholder for dependency mgmt
                           healthcheck_url: Optional[str] = None,
                           **kwargs) -> str:
+    """
+    Start service.
+    
+    Args:
+        service_name: Description of service_name
+        image: Description of image
+        environment: Description of environment
+        str]]: Description of str]]
+        ports: Description of ports
+        int]]: Description of int]]
+        network_name: Description of network_name
+        depends_on: Description of depends_on
+        # Placeholder for dependency mgmt
+                          healthcheck_url: Description of # Placeholder for dependency mgmt
+                          healthcheck_url
+        kwargs: Description of kwargs
+    
+    Returns:
+        str: Description of return value
+    
+    """
+
             logging.info(f"STUB: Starting service {service_name}...")
             # Simplified: Assume service starts instantly and is available at localhost:port
             port_key = list(ports.keys())[0] if ports else None
@@ -80,6 +136,11 @@ except ImportError:
             return url
 
         def stop_all_services(self):
+    """
+    Stop all services.
+    
+    """
+
             logging.info("STUB: Stopping all services...")
             self.containers = {}
             self.service_urls = {}
@@ -93,19 +154,62 @@ except ImportError:
 
 
         def get_service_url(self, service_name: str) -> Optional[str]:
+    """
+    Get service url.
+    
+    Args:
+        service_name: Description of service_name
+    
+    Returns:
+        Optional[str]: Description of return value
+    
+    """
+
             return self.service_urls.get(service_name)
 
     class TestDatabase:
+    """
+    TestDatabase class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self, config: TestEnvironmentConfig):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+    
+    """
+
             self.config = config
             self.databases = set()
             logging.info("Initialized STUB TestDatabase")
 
         def create_test_database(self, db_name: str):
+    """
+    Create test database.
+    
+    Args:
+        db_name: Description of db_name
+    
+    """
+
             logging.info(f"STUB: Creating test database {db_name}...")
             self.databases.add(db_name)
 
         def load_test_data(self, db_name: str, data_fixture_path: str):
+    """
+    Load test data.
+    
+    Args:
+        db_name: Description of db_name
+        data_fixture_path: Description of data_fixture_path
+    
+    """
+
             logging.info(f"STUB: Loading data from {data_fixture_path} into {db_name}...")
             if not os.path.exists(data_fixture_path):
                  logging.warning(f"Data fixture path not found: {data_fixture_path}")
@@ -113,6 +217,11 @@ except ImportError:
             # In real implementation: connect to DB and execute SQL/load data
 
         def cleanup_all_databases(self):
+    """
+    Cleanup all databases.
+    
+    """
+
             logging.info("STUB: Cleaning up all test databases...")
             self.databases = set()
 
@@ -185,22 +294,22 @@ DEFAULT_SERVICE_CONFIG = {
 
 
 class TestEnvironment:
-    \"\"\"
+    """
     Manages the setup and teardown of an isolated E2E test environment.
 
     Orchestrates Docker containers for services, databases, and potentially
     other dependencies like message queues. Provides methods for data seeding
     and accessing service endpoints.
-    \"\"\"
+    """
 
     def __init__(self, config: Optional[TestEnvironmentConfig] = None, network_name: str = "forex_e2e_test_net"):
-        \"\"\"
+        """
         Initialize the test environment.
 
         Args:
             config: Configuration for the environment mode and settings.
             network_name: Name for the Docker network to connect services.
-        \"\"\"
+        """
         self.config = config or TestEnvironmentConfig()
         self.service_manager = ServiceManager(self.config)
         self.database_manager = TestDatabase(self.config)
@@ -213,7 +322,7 @@ class TestEnvironment:
         logger.info(f"Initializing TestEnvironment in {self.config.mode.value} mode.")
 
     def add_service(self, service_name: str, use_mock: bool = False, **override_config):
-        \"\"\"
+        """
         Declare a service required for the test environment.
 
         Args:
@@ -221,7 +330,7 @@ class TestEnvironment:
             use_mock: If True, try to use a mock version of the service if available.
             **override_config: Specific configurations to override the defaults
                                (e.g., image, ports, environment).
-        \"\"\"
+        """
         if self._is_setup:
             raise RuntimeError("Cannot add services after the environment is set up.")
 
@@ -264,14 +373,14 @@ class TestEnvironment:
 
 
     def seed_database(self, db_service_name: str, fixture_path: str):
-        \"\"\"
+        """
         Declare data seeding for a database associated with a service.
 
         Args:
             db_service_name: The name of the database service (e.g., 'postgres').
                              Needs to be added via add_service first.
             fixture_path: Path to the SQL or data file in e2e/fixtures/.
-        \"\"\"
+        """
         if self._is_setup:
             raise RuntimeError("Cannot seed database after the environment is set up.")
 
@@ -284,7 +393,7 @@ class TestEnvironment:
 
 
     def setup(self):
-        \"\"\"Creates the network, starts declared services, and seeds databases.\"\"\"
+        """Creates the network, starts declared services, and seeds databases."""
         if self._is_setup:
             logger.warning("Setup already called.")
             return
@@ -363,7 +472,7 @@ class TestEnvironment:
             raise
 
     def teardown(self):
-        \"\"\"Stops services, cleans up databases, and removes the network.\"\"\"
+        """Stops services, cleans up databases, and removes the network."""
         if not self._is_setup and not self.service_manager.network: # Avoid teardown if setup never started properly unless network exists
              logger.info("Teardown skipped - environment was not fully set up.")
              return
@@ -395,7 +504,7 @@ class TestEnvironment:
         logger.info("Test environment teardown complete.")
 
     def get_service_url(self, service_name: str) -> Optional[str]:
-        \"\"\"Get the base URL for an active service.\"\"\"
+        """Get the base URL for an active service."""
         if not self._is_setup:
             logger.warning("Attempted to get service URL before environment setup.")
             return None
@@ -404,20 +513,50 @@ class TestEnvironment:
     # --- Context Manager Protocol ---
 
     def __enter__(self):
+    """
+      enter  .
+    
+    """
+
         self.setup()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+    """
+      exit  .
+    
+    Args:
+        exc_type: Description of exc_type
+        exc_val: Description of exc_val
+        exc_tb: Description of exc_tb
+    
+    """
+
         self.teardown()
 
     # --- Async Context Manager Protocol (Optional) ---
     # If setup/teardown become async
 
     # async def __aenter__(self):
+    """
+      aenter  .
+    
+    """
+
     #     await self.setup() # Assuming setup becomes async
     #     return self
 
     # async def __aexit__(self, exc_type, exc_val, exc_tb):
+    """
+      aexit  .
+    
+    Args:
+        exc_type: Description of exc_type
+        exc_val: Description of exc_val
+        exc_tb: Description of exc_tb
+    
+    """
+
     #     await self.teardown() # Assuming teardown becomes async
 
 
@@ -428,7 +567,7 @@ def create_environment(services: List[str],
                        use_mocks: Optional[Dict[str, bool]] = None,
                        seed_data: Optional[Dict[str, str]] = None,
                        config: Optional[TestEnvironmentConfig] = None) -> Generator['TestEnvironment', None, None]:
-    \"\"\"
+    """
     Context manager to create and manage a TestEnvironment for specific tests.
 
     Example Usage:
@@ -448,7 +587,7 @@ def create_environment(services: List[str],
 
     Yields:
         The configured and set up TestEnvironment instance.
-    \"\"\"
+    """
     env = TestEnvironment(config=config)
     use_mocks = use_mocks or {}
     seed_data = seed_data or {}
@@ -489,6 +628,11 @@ def create_environment(services: List[str],
 # Example Pytest fixture (can be adapted)
 # @pytest.fixture(scope="function") # or "session"
 # def live_trading_env():
+    """
+    Live trading env.
+    
+    """
+
 #     services = ["api-gateway", "trading-gateway-service", "data-pipeline-service", "kafka", "zookeeper", "postgres"]
 #     data = {"postgres": "initial_portfolio.sql"}
 #     with create_environment(services, seed_data=data) as env:

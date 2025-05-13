@@ -30,10 +30,18 @@ class FeedbackTimeSeriesAggregator:
         self.db_client = db_client
         self.time_bucket = time_bucket
         # Example for InfluxDB:
-        # self.influx_url = "http://localhost:8086"
-        # self.influx_token = "YOUR_INFLUX_TOKEN"
-        # self.influx_org = "your_org"
-        # self.influx_bucket = "feedback_aggregated"
+        # import os
+        # from dotenv import load_dotenv
+        #
+        # # Load environment variables from .env file
+        # load_dotenv()
+        #
+        # # Get InfluxDB connection parameters from environment variables
+        # self.influx_url = os.getenv("INFLUX_URL", "http://localhost:8086")
+        # self.influx_token = os.getenv("INFLUX_TOKEN", "")
+        # self.influx_org = os.getenv("INFLUX_ORG", "your_org")
+        # self.influx_bucket = os.getenv("INFLUX_BUCKET", "feedback_aggregated")
+        #
         # try:
         #     self.influx_client = InfluxDBClient(url=self.influx_url, token=self.influx_token, org=self.influx_org)
         #     self.write_api = self.influx_client.write_api(write_options=SYNCHRONOUS)
@@ -72,7 +80,7 @@ class FeedbackTimeSeriesAggregator:
                  bucket_size_sec = int(self.time_bucket[:-1]) * 3600
             else:
                 bucket_size_sec = 60 # Default to 1 minute
-            
+
             floored_timestamp = (timestamp_sec // bucket_size_sec) * bucket_size_sec
             timestamp_dt = time.gmtime(floored_timestamp) # For potential grouping
 
@@ -85,7 +93,7 @@ class FeedbackTimeSeriesAggregator:
                 # Group by strategy and timestamp bucket
                 time_key = floored_timestamp # Use the floored timestamp as key
                 strategy_buffer = self._buffer[strategy_id][time_key]
-                
+
                 # Append metrics to lists for later aggregation
                 if pnl is not None: strategy_buffer.append({'metric': 'pnl', 'value': pnl})
                 if slippage is not None: strategy_buffer.append({'metric': 'slippage', 'value': slippage})
@@ -105,10 +113,10 @@ class FeedbackTimeSeriesAggregator:
         with self._buffer_lock:
             if not self._buffer:
                 return
-            
+
             print(f"Flushing aggregation buffer ({sum(len(ts_dict) for ts_dict in self._buffer.values())} time buckets)...")
             points_to_write = []
-            
+
             # TODO: Implement aggregation logic (sum, avg, count, min, max, etc.)
             for strategy_id, ts_data in self._buffer.items():
                 for timestamp_sec, metrics_list in ts_data.items():
@@ -125,13 +133,13 @@ class FeedbackTimeSeriesAggregator:
                         else:
                             aggregated[metric_name]['sum'] += value
                             aggregated[metric_name]['count'] += 1
-                    
+
                     # Prepare points for the time series database (e.g., InfluxDB Line Protocol)
                     # Example for InfluxDB:
                     point = Point("feedback_summary") \
                         .tag("strategy_id", strategy_id) \
                         .time(timestamp_sec, WritePrecision.S)
-                    
+
                     point.field("event_count", total_count)
                     for metric, values in aggregated.items():
                         if values['count'] > 0:
@@ -139,7 +147,7 @@ class FeedbackTimeSeriesAggregator:
                             point.field(f"{metric}_avg", values['sum'] / values['count'])
                             point.field(f"{metric}_count", values['count'])
                             # Add min, max, stddev if needed
-                    
+
                     points_to_write.append(point)
 
             # Clear the buffer now that we've processed it

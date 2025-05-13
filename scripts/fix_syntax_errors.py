@@ -297,6 +297,11 @@ class SyntaxErrorFixer:
         return False
 
 def main():
+    """
+    Main.
+    
+    """
+
     if len(sys.argv) > 1:
         root_dir = sys.argv[1]
     else:

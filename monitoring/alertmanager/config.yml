@@ -1,0 +1,43 @@
+global:
+  resolve_timeout: 5m
+  smtp_auth_password: password
+  smtp_auth_username: alertmanager
+  smtp_from: alertmanager@example.com
+  smtp_require_tls: true
+  smtp_smarthost: smtp.example.com:587
+inhibit_rules:
+- equal:
+  - alertname
+  - service
+  source_match:
+    severity: critical
+  target_match:
+    severity: warning
+receivers:
+- email_configs:
+  - send_resolved: true
+    to: alerts@example.com
+  name: email-notifications
+- name: pager-duty-critical
+  pagerduty_configs:
+  - description: '{{ .CommonAnnotations.summary }}'
+    details:
+      firing: '{{ .Alerts.Firing | len }}'
+      instances: '{{ range .Alerts }}{{ .Labels.instance }} {{ end }}'
+      resolved: '{{ .Alerts.Resolved | len }}'
+    send_resolved: true
+    service_key: your-pagerduty-service-key
+    severity: critical
+route:
+  group_by:
+  - alertname
+  - service
+  group_interval: 5m
+  group_wait: 30s
+  receiver: email-notifications
+  repeat_interval: 4h
+  routes:
+  - match:
+      severity: critical
+    receiver: pager-duty-critical
+    repeat_interval: 1h

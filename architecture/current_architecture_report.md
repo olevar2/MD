@@ -14,7 +14,7 @@ Generated: 2025-05-10 04:08:01
 - analysis-engine
 - analysis-engine-service
 - ml-integration-service
-- ml-workbench-service
+- ml_workbench-service
 
 ### Cross-cutting
 
@@ -94,7 +94,7 @@ Generated: 2025-05-10 04:08:01
 | .pytest-cache | unknown | 4 | 0 | 0 |  |
 | .vscode | unknown | 3 | 0 | 0 |  |
 | analysis-engine | analysis | 17 | 21 | 70 | analysis-engine-service, data |
-| analysis-engine-service | analysis | 499 | 889 | 3110 | data, ml-integration-service, ml-workbench-service, risk-management-service, tests, trading-gateway-service |
+| analysis-engine-service | analysis | 499 | 889 | 3110 | data, ml-integration-service, ml_workbench-service, risk-management-service, tests, trading-gateway-service |
 | architecture | unknown | 214 | 0 | 0 |  |
 | chat-interface-template | unknown | 7 | 1 | 8 | analysis-engine-service, ml-integration-service, trading-gateway-service |
 | code-quality-report | unknown | 2 | 0 | 0 |  |
@@ -120,7 +120,7 @@ Generated: 2025-05-10 04:08:01
 | mcp-server | unknown | 8 | 3 | 17 |  |
 | mcp-servers.log | unknown | 1 | 0 | 0 |  |
 | ml-integration-service | analysis | 57 | 81 | 302 | data |
-| ml-workbench-service | analysis | 129 | 281 | 948 | data, risk-management-service, trading-gateway-service |
+| ml_workbench-service | analysis | 129 | 281 | 948 | data, risk-management-service, trading-gateway-service |
 | model-registry-service | unknown | 15 | 32 | 11 |  |
 | monitoring | cross-cutting | 4 | 0 | 0 |  |
 | monitoring-alerting-service | cross-cutting | 89 | 42 | 279 | analysis-engine-service, data, ml-integration-service, monitoring, strategy-execution-engine |
@@ -136,7 +136,7 @@ Generated: 2025-05-10 04:08:01
 | start-mcp-servers.bat | unknown | 1 | 0 | 0 |  |
 | strategy-execution-engine | execution | 146 | 145 | 732 | analysis-engine-service, optimization, tests |
 | test-mcp.txt | unknown | 1 | 0 | 0 |  |
-| testing | unknown | 55 | 94 | 364 | analysis-engine-service, data, feature-store-service, ml-integration-service, ml-workbench-service, risk-management-service, strategy-execution-engine |
+| testing | unknown | 55 | 94 | 364 | analysis-engine-service, data, feature-store-service, ml-integration-service, ml_workbench-service, risk-management-service, strategy-execution-engine |
 | tests | unknown | 26 | 13 | 89 | analysis-engine-service, feature-store-service |
 | trading-gateway-service | execution | 115 | 181 | 733 | analysis-engine-service, common-js-lib, data, risk-management-service, tests |
 | ui-service | presentation | 158 | 36 | 155 | analysis-engine-service, data, feature-store-service |
@@ -152,7 +152,7 @@ Generated: 2025-05-10 04:08:01
 
 - data
 - ml-integration-service
-- ml-workbench-service
+- ml_workbench-service
 - risk-management-service
 - tests
 - trading-gateway-service
@@ -204,7 +204,7 @@ Generated: 2025-05-10 04:08:01
 
 - data
 
-### ml-workbench-service
+### ml_workbench-service
 
 - data
 - risk-management-service
@@ -246,7 +246,7 @@ Generated: 2025-05-10 04:08:01
 - data
 - feature-store-service
 - ml-integration-service
-- ml-workbench-service
+- ml_workbench-service
 - risk-management-service
 - strategy-execution-engine
 

@@ -1,3 +1,9 @@
+"""
+Main module.
+
+This module provides functionality for...
+"""
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
@@ -5,10 +11,24 @@ from typing import List, Dict, Any, Optional
 app = FastAPI(title="Trading Analysis API")
 
 class BreakdownRequest(BaseModel):
+    """
+    BreakdownRequest class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     task: str
     max_steps: int = 5
 
 class DependencyRequest(BaseModel):
+    """
+    DependencyRequest class that inherits from BaseModel.
+    
+    Attributes:
+        Add attributes here
+    """
+
     components: List[str]
 
 @app.get("/")

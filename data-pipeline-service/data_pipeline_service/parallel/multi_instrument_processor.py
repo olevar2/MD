@@ -22,7 +22,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Uni
 import pandas as pd
 from common_lib.exceptions import DataProcessingError
 
-from data_pipeline_service.parallel.parallel_processing_framework import (
+from common_lib.parallel import ParallelProcessor, ParallelizationMethod, ResourceManager, TaskDefinition, TaskPriority, TaskResult, get_parallel_processor
     ParallelExecutor,
     ParallelizationMethod,
     ResourceManager,
@@ -220,6 +220,15 @@ class MultiInstrumentProcessor:
             
             # Create a wrapper function to pass both instrument and data
             def create_wrapper(inst, d):
+    """
+    Create wrapper.
+    
+    Args:
+        inst: Description of inst
+        d: Description of d
+    
+    """
+
                 return lambda _: process_func(inst, d)
             
             wrapper_func = create_wrapper(instrument, data)

@@ -28,6 +28,13 @@ try:
 
             # Try to import the ConfluenceAnalyzer class
             try:
+    """
+    try class.
+    
+    Attributes:
+        Add attributes here
+    """
+
                 from analysis_engine.analysis.confluence.confluence_analyzer import ConfluenceAnalyzer
                 print("Successfully imported ConfluenceAnalyzer")
                 print("ConfluenceAnalyzer class exists and can be imported")
@@ -51,6 +58,13 @@ except ImportError as e:
 
 # Try to import the RelatedPairsConfluenceAnalyzer class
 try:
+    """
+    try class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     from analysis_engine.multi_asset.related_pairs_confluence_detector import RelatedPairsConfluenceAnalyzer
     print("Successfully imported RelatedPairsConfluenceAnalyzer")
     print("RelatedPairsConfluenceAnalyzer class exists and can be imported")

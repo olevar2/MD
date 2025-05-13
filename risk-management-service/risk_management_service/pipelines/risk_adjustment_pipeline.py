@@ -623,13 +623,47 @@ if __name__ == "__main__":
     
     # Create mocks for testing
     class MockMarketDataClient:
+    """
+    MockMarketDataClient class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def get_atr(self, pair, timeframe="1H", periods=14):
+    """
+    Get atr.
+    
+    Args:
+        pair: Description of pair
+        timeframe: Description of timeframe
+        periods: Description of periods
+    
+    """
+
             # Mock ATR values
             atrs = {"EURUSD": 0.0012, "GBPUSD": 0.0015, "USDJPY": 0.15}
             return atrs.get(pair, 0.001)
             
     class MockConfluenceClient:
+    """
+    MockConfluenceClient class.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def get_confluence_zones(self, currency_pair, direction, current_price):
+    """
+    Get confluence zones.
+    
+    Args:
+        currency_pair: Description of currency_pair
+        direction: Description of direction
+        current_price: Description of current_price
+    
+    """
+
             # Mock confluence zones
             return {
                 'support': current_price * 0.995,

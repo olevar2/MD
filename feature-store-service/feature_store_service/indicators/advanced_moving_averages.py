@@ -57,18 +57,44 @@ class TripleExponentialMovingAverage(BaseIndicator):
     }
 
     def __init__(self, period: int = 14, source_col: str = 'close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f"TEMA_{source_col}_{period}"
         self.period = period
         self.source_col = source_col
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f"Period must be an integer greater than 1, got {self.period}")
         if not isinstance(self.source_col, str) or not self.source_col:
             raise ValueError("source_col must be a non-empty string")
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.source_col])
         source_data = data[self.source_col]
 
@@ -112,18 +138,44 @@ class DoubleExponentialMovingAverage(BaseIndicator):
     }
 
     def __init__(self, period: int = 14, source_col: str = 'close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f"DEMA_{source_col}_{period}"
         self.period = period
         self.source_col = source_col
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f"Period must be an integer greater than 1, got {self.period}")
         if not isinstance(self.source_col, str) or not self.source_col:
             raise ValueError("source_col must be a non-empty string")
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.source_col])
         source_data = data[self.source_col]
 
@@ -165,18 +217,44 @@ class HullMovingAverage(BaseIndicator):
     }
 
     def __init__(self, period: int = 9, source_col: str = 'close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f"HullMA_{source_col}_{period}"
         self.period = period
         self.source_col = source_col
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period < 2:
             raise ValueError(f"Period must be an integer >= 2, got {self.period}")
         if not isinstance(self.source_col, str) or not self.source_col:
             raise ValueError("source_col must be a non-empty string")
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.source_col])
         source_data = data[self.source_col]
 
@@ -233,6 +311,18 @@ class KaufmanAdaptiveMovingAverage(BaseIndicator):
     }
 
     def __init__(self, period: int = 10, fast_ema_period: int = 2, slow_ema_period: int = 30, source_col: str = 'close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        fast_ema_period: Description of fast_ema_period
+        slow_ema_period: Description of slow_ema_period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f"KAMA_{source_col}_{period}_{fast_ema_period}_{slow_ema_period}"
         self.period = period
         self.fast_ema_period = fast_ema_period
@@ -241,6 +331,11 @@ class KaufmanAdaptiveMovingAverage(BaseIndicator):
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f"Period must be an integer greater than 1, got {self.period}")
         if not isinstance(self.fast_ema_period, int) or self.fast_ema_period <= 1:
@@ -251,6 +346,17 @@ class KaufmanAdaptiveMovingAverage(BaseIndicator):
             raise ValueError("source_col must be a non-empty string")
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.source_col])
         price = data[self.source_col]
 
@@ -308,18 +414,44 @@ class ZeroLagExponentialMovingAverage(BaseIndicator):
     }
 
     def __init__(self, period: int = 14, source_col: str = 'close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f"ZLEMA_{source_col}_{period}"
         self.period = period
         self.source_col = source_col
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f"Period must be an integer greater than 1, got {self.period}")
         if not isinstance(self.source_col, str) or not self.source_col:
             raise ValueError("source_col must be a non-empty string")
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.source_col])
         source_data = data[self.source_col]
 
@@ -371,6 +503,18 @@ class ArnaudLegouxMovingAverage(BaseIndicator):
     }
 
     def __init__(self, period: int = 9, sigma: float = 6.0, offset: float = 0.85, source_col: str = 'close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        sigma: Description of sigma
+        offset: Description of offset
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f"ALMA_{source_col}_{period}_{sigma}_{offset}"
         self.period = period
         self.sigma = sigma
@@ -379,6 +523,11 @@ class ArnaudLegouxMovingAverage(BaseIndicator):
         self._validate_params()
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f"Period must be an integer greater than 1, got {self.period}")
         if not isinstance(self.sigma, (float, int)) or self.sigma <= 0:
@@ -389,6 +538,17 @@ class ArnaudLegouxMovingAverage(BaseIndicator):
             raise ValueError("source_col must be a non-empty string")
 
     def calculate(self, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate.
+    
+    Args:
+        data: Description of data
+    
+    Returns:
+        pd.DataFrame: Description of return value
+    
+    """
+
         self.validate_input(data, [self.source_col])
         source_data = data[self.source_col]
 
@@ -441,6 +601,17 @@ class JurikMovingAverage(BaseIndicator):
     }
 
     def __init__(self, period: int = 7, phase: float = 0.0, source_col: str = 'close', **kwargs):
+    """
+      init  .
+    
+    Args:
+        period: Description of period
+        phase: Description of phase
+        source_col: Description of source_col
+        kwargs: Description of kwargs
+    
+    """
+
         self.name = f"JMA_{source_col}_{period}_{phase}"
         self.period = period
         self.phase = phase
@@ -450,6 +621,11 @@ class JurikMovingAverage(BaseIndicator):
         logging.warning("Jurik Moving Average (JMA) is using a placeholder (EMA) implementation due to formula complexity/proprietary nature.")
 
     def _validate_params(self):
+    """
+     validate params.
+    
+    """
+
         if not isinstance(self.period, int) or self.period <= 1:
             raise ValueError(f"Period must be an integer greater than 1, got {self.period}")
         if not isinstance(self.phase, (float, int)) or not (-100.0 <= self.phase <= 100.0):

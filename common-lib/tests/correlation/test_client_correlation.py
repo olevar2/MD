@@ -119,10 +119,33 @@ def test_client_correlation_mixin():
     """Test ClientCorrelationMixin."""
     # Create a test class that implements ClientCorrelationMixin
     class TestClient(ClientCorrelationMixin):
+    """
+    TestClient class that inherits from ClientCorrelationMixin.
+    
+    Attributes:
+        Add attributes here
+    """
+
         def __init__(self, config=None):
+    """
+      init  .
+    
+    Args:
+        config: Description of config
+    
+    """
+
             self.config = config or {}
 
         def with_correlation_id(self, correlation_id=None):
+    """
+    With correlation id.
+    
+    Args:
+        correlation_id: Description of correlation_id
+    
+    """
+
             # Implementation of abstract method
             if correlation_id is None:
                 correlation_id = get_correlation_id() or "default-id"

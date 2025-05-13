@@ -1,3 +1,9 @@
+"""
+Framework module.
+
+This module provides functionality for...
+"""
+
 \
 import pytest
 import logging

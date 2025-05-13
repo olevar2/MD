@@ -26,8 +26,31 @@ def inject(container: ServiceContainer) -> Callable[[F], F]:
         Decorated function with dependencies injected
     """
     def decorator(func: F) -> F:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    Returns:
+        F: Description of return value
+    
+    """
+
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
             # Get the function signature
             signature = inspect.signature(func)
             type_hints = get_type_hints(func)
@@ -72,8 +95,31 @@ def async_inject(container: ServiceContainer) -> Callable[[F], F]:
         Decorated async function with dependencies injected
     """
     def decorator(func: F) -> F:
+    """
+    Decorator.
+    
+    Args:
+        func: Description of func
+    
+    Returns:
+        F: Description of return value
+    
+    """
+
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    Returns:
+        Any: Description of return value
+    
+    """
+
             # Get the function signature
             signature = inspect.signature(func)
             type_hints = get_type_hints(func)

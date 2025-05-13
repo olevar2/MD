@@ -1,3 +1,9 @@
+"""
+Test related pairs confluence detector module.
+
+This module provides functionality for...
+"""
+
 import unittest
 import pandas as pd
 import numpy as np

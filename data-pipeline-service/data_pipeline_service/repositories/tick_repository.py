@@ -7,16 +7,22 @@ and managing tick-level market data.
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 import logging
-
 import asyncpg
 from asyncpg.pool import Pool
-
 from ..models.schemas import TickData
 from data_pipeline_service.monitoring import track_query_performance
 from data_pipeline_service.optimization.connection_pool import get_optimized_asyncpg_connection
-
 logger = logging.getLogger(__name__)
 
+
+from data_pipeline_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class TickRepository:
     """
@@ -28,14 +34,10 @@ class TickRepository:
         """Initialize with database connection pool."""
         self.pool = pool
 
-    @track_query_performance(query_type="select", table="ticks")
-    async def fetch_tick_data(
-        self,
-        instrument: str,
-        start_time: datetime,
-        end_time: datetime,
-        use_optimized_pool: bool = False
-    ) -> List[TickData]:
+    @track_query_performance(query_type='select', table='ticks')
+    @async_with_exception_handling
+    async def fetch_tick_data(self, instrument: str, start_time: datetime,
+        end_time: datetime, use_optimized_pool: bool=False) ->List[TickData]:
         """
         Fetch tick data for specified instrument and time range.
 
@@ -64,38 +66,23 @@ class TickRepository:
                 AND timestamp < $3
             ORDER BY timestamp ASC
             """
-
-            # Optimize the query
             from data_pipeline_service.optimization import optimize_query
             optimized_query, _ = optimize_query(query)
-
-            # Execute query with parameterized inputs
             if use_optimized_pool:
-                # Use optimized connection pool for better performance
                 async with get_optimized_asyncpg_connection() as conn:
-                    result = await conn.fetch(
-                        optimized_query,
-                        instrument,
-                        start_time,
-                        end_time
-                    )
+                    result = await conn.fetch(optimized_query, instrument,
+                        start_time, end_time)
             else:
-                # Use regular connection pool
-                result = await self.pool.fetch(
-                    optimized_query,
-                    instrument,
-                    start_time,
-                    end_time
-                )
-
+                result = await self.pool.fetch(optimized_query, instrument,
+                    start_time, end_time)
             return [TickData.from_record(record) for record in result]
-
         except Exception as e:
-            logger.error(f"Error fetching tick data: {e}")
+            logger.error(f'Error fetching tick data: {e}')
             raise
 
-    @track_query_performance(query_type="insert", table="ticks")
-    async def insert_tick_data(self, data: List[TickData]) -> int:
+    @track_query_performance(query_type='insert', table='ticks')
+    @async_with_exception_handling
+    async def insert_tick_data(self, data: List[TickData]) ->int:
         """
         Insert tick data into the database.
 
@@ -107,21 +94,11 @@ class TickRepository:
         """
         if not data:
             return 0
-
         try:
-            # Prepare values for bulk insert
             values = []
             for point in data:
-                values.append((
-                    point.timestamp,
-                    point.instrument,
-                    point.bid,
-                    point.ask,
-                    point.bid_volume,
-                    point.ask_volume
-                ))
-
-            # Prepare statement
+                values.append((point.timestamp, point.instrument, point.bid,
+                    point.ask, point.bid_volume, point.ask_volume))
             stmt = """
             INSERT INTO ticks (
                 timestamp, instrument, bid, ask, bid_volume, ask_volume
@@ -135,25 +112,17 @@ class TickRepository:
                 ask_volume = EXCLUDED.ask_volume,
                 updated_at = NOW()
             """
-
-            # Execute batch insert
             async with self.pool.acquire() as conn:
                 result = await conn.executemany(stmt, values)
-
-            # Return count of affected rows
             return len(values)
-
         except Exception as e:
-            logger.error(f"Error inserting tick data: {e}")
+            logger.error(f'Error inserting tick data: {e}')
             raise
 
-    @track_query_performance(query_type="select", table="ticks")
-    async def fetch_bulk_tick_data(
-        self,
-        instruments: List[str],
-        start_time: datetime,
-        end_time: datetime
-    ) -> Dict[str, List[TickData]]:
+    @track_query_performance(query_type='select', table='ticks')
+    @async_with_exception_handling
+    async def fetch_bulk_tick_data(self, instruments: List[str], start_time:
+        datetime, end_time: datetime) ->Dict[str, List[TickData]]:
         """
         Fetch tick data for multiple instruments in a single optimized query.
 
@@ -169,7 +138,6 @@ class TickRepository:
         """
         if not instruments:
             return {}
-
         try:
             query = """
             SELECT
@@ -186,37 +154,26 @@ class TickRepository:
                 AND timestamp < $3
             ORDER BY instrument, timestamp ASC
             """
-
-            # Optimize the query
             from data_pipeline_service.optimization import optimize_query
             optimized_query, _ = optimize_query(query)
-
-            # Use optimized connection pool for better performance
             async with get_optimized_asyncpg_connection() as conn:
-                result = await conn.fetch(
-                    optimized_query,
-                    instruments,
-                    start_time,
-                    end_time
-                )
-
-            # Group results by instrument
+                result = await conn.fetch(optimized_query, instruments,
+                    start_time, end_time)
             grouped_results: Dict[str, List[TickData]] = {}
             for record in result:
-                instrument = record["instrument"]
+                instrument = record['instrument']
                 if instrument not in grouped_results:
                     grouped_results[instrument] = []
-
-                grouped_results[instrument].append(TickData.from_record(record))
-
+                grouped_results[instrument].append(TickData.from_record(record)
+                    )
             return grouped_results
-
         except Exception as e:
-            logger.error(f"Error fetching bulk tick data: {e}")
+            logger.error(f'Error fetching bulk tick data: {e}')
             raise
 
-    @track_query_performance(query_type="select", table="ticks")
-    async def get_latest_tick(self, instrument: str) -> Optional[TickData]:
+    @track_query_performance(query_type='select', table='ticks')
+    @async_with_exception_handling
+    async def get_latest_tick(self, instrument: str) ->Optional[TickData]:
         """
         Get the latest tick for a specific instrument.
 
@@ -241,15 +198,11 @@ class TickRepository:
             ORDER BY timestamp DESC
             LIMIT 1
             """
-
-            # Execute query
             async with self.pool.acquire() as conn:
                 record = await conn.fetchrow(query, instrument)
-
             if record:
                 return TickData.from_record(record)
             return None
-
         except Exception as e:
-            logger.error(f"Error fetching latest tick: {e}")
+            logger.error(f'Error fetching latest tick: {e}')
             raise

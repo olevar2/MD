@@ -33,6 +33,16 @@ class CriticalComponentMonitor:
         base_dir: str = "monitoring",
         config: Optional[Dict[str, Any]] = None
     ):
+    """
+      init  .
+    
+    Args:
+        base_dir: Description of base_dir
+        config: Description of config
+        Any]]: Description of Any]]
+    
+    """
+
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(exist_ok=True)
         
@@ -81,6 +91,11 @@ class CriticalComponentMonitor:
     def _start_monitoring(self):
         """Start the monitoring thread for all components."""
         def monitor():
+    """
+    Monitor.
+    
+    """
+
             while True:
                 try:
                     self._collect_metrics()

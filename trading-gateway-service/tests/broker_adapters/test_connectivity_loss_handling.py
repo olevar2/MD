@@ -22,6 +22,15 @@ class TestBrokerAdapter(BaseBrokerAdapter):
     """Test implementation of BaseBrokerAdapter for testing."""
     
     def __init__(self, name="TestBroker", config=None):
+    """
+      init  .
+    
+    Args:
+        name: Description of name
+        config: Description of config
+    
+    """
+
         super().__init__(name, config or {})
         self.connect_broker_called = False
         self.connect_broker_return = True
@@ -45,14 +54,41 @@ class TestBrokerAdapter(BaseBrokerAdapter):
         self.check_connection_broker_return = True
     
     def _connect_broker(self) -> bool:
+    """
+     connect broker.
+    
+    Returns:
+        bool: Description of return value
+    
+    """
+
         self.connect_broker_called = True
         return self.connect_broker_return
     
     def _disconnect_broker(self) -> bool:
+    """
+     disconnect broker.
+    
+    Returns:
+        bool: Description of return value
+    
+    """
+
         self.disconnect_broker_called = True
         return self.disconnect_broker_return
     
     def _place_order_broker(self, order: OrderRequest) -> ExecutionReport:
+    """
+     place order broker.
+    
+    Args:
+        order: Description of order
+    
+    Returns:
+        ExecutionReport: Description of return value
+    
+    """
+
         self.place_order_broker_called = True
         return self.place_order_broker_return or ExecutionReport(
             order_id="test-order-1",
@@ -68,6 +104,17 @@ class TestBrokerAdapter(BaseBrokerAdapter):
         )
     
     def _cancel_order_broker(self, order_id: str) -> ExecutionReport:
+    """
+     cancel order broker.
+    
+    Args:
+        order_id: Description of order_id
+    
+    Returns:
+        ExecutionReport: Description of return value
+    
+    """
+
         self.cancel_order_broker_called = True
         return self.cancel_order_broker_return or ExecutionReport(
             order_id=order_id,
@@ -77,6 +124,18 @@ class TestBrokerAdapter(BaseBrokerAdapter):
         )
     
     def _modify_order_broker(self, order_id: str, modifications: dict) -> ExecutionReport:
+    """
+     modify order broker.
+    
+    Args:
+        order_id: Description of order_id
+        modifications: Description of modifications
+    
+    Returns:
+        ExecutionReport: Description of return value
+    
+    """
+
         self.modify_order_broker_called = True
         return self.modify_order_broker_return or ExecutionReport(
             order_id=order_id,
@@ -86,18 +145,50 @@ class TestBrokerAdapter(BaseBrokerAdapter):
         )
     
     def _get_orders_broker(self) -> list:
+    """
+     get orders broker.
+    
+    Returns:
+        list: Description of return value
+    
+    """
+
         self.get_orders_broker_called = True
         return self.get_orders_broker_return
     
     def _get_positions_broker(self) -> list:
+    """
+     get positions broker.
+    
+    Returns:
+        list: Description of return value
+    
+    """
+
         self.get_positions_broker_called = True
         return self.get_positions_broker_return
     
     def _get_account_info_broker(self) -> dict:
+    """
+     get account info broker.
+    
+    Returns:
+        dict: Description of return value
+    
+    """
+
         self.get_account_info_broker_called = True
         return self.get_account_info_broker_return
     
     def _get_broker_info_broker(self) -> dict:
+    """
+     get broker info broker.
+    
+    Returns:
+        dict: Description of return value
+    
+    """
+
         self.get_broker_info_broker_called = True
         return self.get_broker_info_broker_return
     
@@ -127,6 +218,14 @@ class TestConnectivityLossHandling(unittest.TestCase):
         connect_calls = 0
         
         async def mock_connect(credentials):
+    """
+    Mock connect.
+    
+    Args:
+        credentials: Description of credentials
+    
+    """
+
             nonlocal connect_calls
             connect_calls += 1
             if connect_calls == 1:
@@ -208,6 +307,11 @@ class TestConnectivityLossHandling(unittest.TestCase):
         check_connection_calls = 0
         
         async def mock_check_connection():
+    """
+    Mock check connection.
+    
+    """
+
             nonlocal check_connection_calls
             check_connection_calls += 1
             return await original_check_connection()
@@ -243,6 +347,14 @@ class TestConnectivityLossHandling(unittest.TestCase):
         position_updates = []
         
         async def mock_position_callback(position):
+    """
+    Mock position callback.
+    
+    Args:
+        position: Description of position
+    
+    """
+
             position_updates.append(position)
             
         self.adapter._position_callback = mock_position_callback

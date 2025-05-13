@@ -67,6 +67,15 @@ def with_correlation_headers(func: Callable[..., T]) -> Callable[..., T]:
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         # Check if headers are in kwargs
         if "headers" in kwargs:
             kwargs["headers"] = add_correlation_id_to_headers(kwargs["headers"])
@@ -95,6 +104,15 @@ def with_async_correlation_headers(func: Callable[..., T]) -> Callable[..., T]:
     """
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
+    """
+    Wrapper.
+    
+    Args:
+        args: Description of args
+        kwargs: Description of kwargs
+    
+    """
+
         # Check if headers are in kwargs
         if "headers" in kwargs:
             kwargs["headers"] = add_correlation_id_to_headers(kwargs["headers"])

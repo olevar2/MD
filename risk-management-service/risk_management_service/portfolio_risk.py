@@ -52,6 +52,23 @@ class PortfolioRiskCalculator:
         var_confidence_level: float = 0.95,
         risk_free_rate: float = 0.02  # 2% annual risk-free rate
     ):
+    """
+      init  .
+    
+    Args:
+        risk_manager: Description of risk_manager
+        stress_testing_engine: Description of stress_testing_engine
+        historical_data_provider: Description of historical_data_provider
+        # Interface to historical data
+        lookback_days: Description of # Interface to historical data
+        lookback_days
+        # One trading year
+        var_confidence_level: Description of # One trading year
+        var_confidence_level
+        risk_free_rate: Description of risk_free_rate
+    
+    """
+
         self.risk_manager = risk_manager
         self.stress_testing_engine = stress_testing_engine
         self.historical_data = historical_data_provider

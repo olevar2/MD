@@ -40,8 +40,8 @@ class TimeframeFeedbackService:
         """
         self.feedback_repository = feedback_repository
         self.config = config or {}
-        self.correlation_threshold = self.config.get('correlation_threshold', 0.6)
-        self.significance_threshold = self.config.get('significance_threshold', 0.7)
+        self.correlation_threshold = self.config_manager.get('correlation_threshold', 0.6)
+        self.significance_threshold = self.config_manager.get('significance_threshold', 0.7)
         logger.info("TimeframeFeedbackService initialized with correlation threshold: %.2f", 
                    self.correlation_threshold)
     
@@ -101,7 +101,7 @@ class TimeframeFeedbackService:
         feedback_id = self._store_feedback(feedback)
         
         # Trigger asynchronous correlation analysis if configured
-        if self.config.get('auto_correlate', True):
+        if self.config_manager.get('auto_correlate', True):
             self._schedule_correlation_analysis(feedback_id, model_id, timeframe)
             
         return feedback_id
@@ -317,9 +317,9 @@ class TimeframeFeedbackService:
         weighted_score = abs(prediction_error) * significance
         
         # Apply thresholds from config or use defaults
-        critical_threshold = self.config.get('critical_error_threshold', 0.8)
-        high_threshold = self.config.get('high_error_threshold', 0.6)
-        medium_threshold = self.config.get('medium_error_threshold', 0.3)
+        critical_threshold = self.config_manager.get('critical_error_threshold', 0.8)
+        high_threshold = self.config_manager.get('high_error_threshold', 0.6)
+        medium_threshold = self.config_manager.get('medium_error_threshold', 0.3)
         
         if weighted_score >= critical_threshold:
             return FeedbackPriority.CRITICAL

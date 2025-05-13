@@ -41,6 +41,17 @@ class RiskLimit:
         risk_level: RiskLevel,
         action: Optional[str] = None
     ):
+    """
+      init  .
+    
+    Args:
+        risk_type: Description of risk_type
+        threshold: Description of threshold
+        risk_level: Description of risk_level
+        action: Description of action
+    
+    """
+
         self.risk_type = risk_type
         self.threshold = threshold
         self.risk_level = risk_level
@@ -74,6 +85,20 @@ class Position:
         stop_loss: Optional[float] = None,
         take_profit: Optional[float] = None
     ):
+    """
+      init  .
+    
+    Args:
+        symbol: Description of symbol
+        size: Description of size
+        entry_price: Description of entry_price
+        direction: Description of direction
+        leverage: Description of leverage
+        stop_loss: Description of stop_loss
+        take_profit: Description of take_profit
+    
+    """
+
         self.symbol = symbol
         self.size = size
         self.entry_price = entry_price
@@ -114,6 +139,20 @@ class RiskManager:
         max_drawdown: float = 0.20,  # 20% max drawdown
         risk_per_trade: float = 0.02  # 2% risk per trade
     ):
+    """
+      init  .
+    
+    Args:
+        initial_balance: Description of initial_balance
+        max_position_size: Description of max_position_size
+        max_leverage: Description of max_leverage
+        max_drawdown: Description of max_drawdown
+        # 20% max drawdown
+        risk_per_trade: Description of # 20% max drawdown
+        risk_per_trade
+    
+    """
+
         self.initial_balance = initial_balance
         self.current_balance = initial_balance
         self.max_position_size = max_position_size

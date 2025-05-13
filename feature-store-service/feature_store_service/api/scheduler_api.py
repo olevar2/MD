@@ -11,8 +11,19 @@ import uuid
 from core_foundations.utils.logger import get_logger
 from feature_store_service.scheduling.scheduler import ComputationScheduler
 logger = get_logger('feature-store-service.scheduler-api')
-scheduler_router = APIRouter(prefix='/api/v1/scheduler', tags=['scheduler'], responses={404: {'description': 'Not found'}})
+scheduler_router = APIRouter(prefix='/api/v1/scheduler', tags=['scheduler'],
+    responses={(404): {'description': 'Not found'}})
 scheduler: Optional[ComputationScheduler] = None
+
+
+from feature_store_service.error.exceptions_bridge import (
+    with_exception_handling,
+    async_with_exception_handling,
+    ForexTradingPlatformError,
+    ServiceError,
+    DataError,
+    ValidationError
+)
 
 class ScheduleInterval(BaseModel):
     """Schedule interval for recurring computations."""
@@ -23,7 +34,8 @@ class ScheduleInterval(BaseModel):
     def validate_unit(cls, v):
         """Validate the time unit."""
         if v not in ['minutes', 'hours', 'days', 'weeks']:
-            raise ValueError('Unit must be one of: minutes, hours, days, weeks')
+            raise ValueError('Unit must be one of: minutes, hours, days, weeks'
+                )
         return v
 
     @validator('value')
@@ -40,21 +52,28 @@ class ScheduleInterval(BaseModel):
             raise ValueError('Weeks must be between 1 and 52')
         return v
 
+
 class IndicatorParams(BaseModel):
     """Parameters for an indicator."""
     indicator_id: str
     params: Optional[Dict[str, Any]] = None
 
+
 class ScheduleRequest(BaseModel):
     """Request model for scheduling recurring computations."""
     name: str = Field(..., description='Name of the scheduled job')
     description: Optional[str] = None
-    symbols: List[str] = Field(..., description='List of symbols to compute indicators for')
-    timeframes: List[str] = Field(..., description='List of timeframes to compute indicators for')
-    indicators: List[Union[str, IndicatorParams]] = Field(..., description='Indicators to compute')
-    lookback_days: int = Field(30, description='Number of days of historical data to compute initially')
+    symbols: List[str] = Field(..., description=
+        'List of symbols to compute indicators for')
+    timeframes: List[str] = Field(..., description=
+        'List of timeframes to compute indicators for')
+    indicators: List[Union[str, IndicatorParams]] = Field(..., description=
+        'Indicators to compute')
+    lookback_days: int = Field(30, description=
+        'Number of days of historical data to compute initially')
     interval: ScheduleInterval
     enabled: bool = True
+
 
 class ScheduleInfo(BaseModel):
     """Information about a scheduled job."""
@@ -73,52 +92,67 @@ class ScheduleInfo(BaseModel):
     next_run: Optional[datetime] = None
     status: str
 
+
 @scheduler_router.post('/jobs', response_model=ScheduleInfo)
+@async_with_exception_handling
 async def create_schedule(request: ScheduleRequest):
     """
     Create a new scheduled computation job.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         indicator_specs = []
         for item in request.indicators:
             if isinstance(item, str):
                 indicator_specs.append({'id': item})
             else:
-                indicator_specs.append({'id': item.indicator_id, 'params': item.params})
+                indicator_specs.append({'id': item.indicator_id, 'params':
+                    item.params})
         job_id = str(uuid.uuid4())
         interval_seconds = _get_interval_seconds(request.interval)
-        job_info = await scheduler.add_job(job_id=job_id, name=request.name, description=request.description, symbols=request.symbols, timeframes=request.timeframes, indicators=indicator_specs, lookback_days=request.lookback_days, interval_seconds=interval_seconds, enabled=request.enabled)
+        job_info = await scheduler.add_job(job_id=job_id, name=request.name,
+            description=request.description, symbols=request.symbols,
+            timeframes=request.timeframes, indicators=indicator_specs,
+            lookback_days=request.lookback_days, interval_seconds=
+            interval_seconds, enabled=request.enabled)
         return job_info
     except Exception as e:
         logger.error(f'Error creating scheduled job: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @scheduler_router.get('/jobs', response_model=List[ScheduleInfo])
+@async_with_exception_handling
 async def get_all_schedules():
     """
     Get all scheduled computation jobs.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         return await scheduler.get_all_jobs()
     except Exception as e:
         logger.error(f'Error getting scheduled jobs: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @scheduler_router.get('/jobs/{job_id}', response_model=ScheduleInfo)
+@async_with_exception_handling
 async def get_schedule(job_id: str):
     """
     Get details of a specific scheduled computation job.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         job_info = await scheduler.get_job(job_id)
         if not job_info:
-            raise HTTPException(status_code=404, detail=f'Job with ID {job_id} not found')
+            raise HTTPException(status_code=404, detail=
+                f'Job with ID {job_id} not found')
         return job_info
     except HTTPException:
         raise
@@ -126,24 +160,33 @@ async def get_schedule(job_id: str):
         logger.error(f'Error getting scheduled job: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @scheduler_router.put('/jobs/{job_id}', response_model=ScheduleInfo)
+@async_with_exception_handling
 async def update_schedule(job_id: str, request: ScheduleRequest):
     """
     Update a scheduled computation job.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         indicator_specs = []
         for item in request.indicators:
             if isinstance(item, str):
                 indicator_specs.append({'id': item})
             else:
-                indicator_specs.append({'id': item.indicator_id, 'params': item.params})
+                indicator_specs.append({'id': item.indicator_id, 'params':
+                    item.params})
         interval_seconds = _get_interval_seconds(request.interval)
-        job_info = await scheduler.update_job(job_id=job_id, name=request.name, description=request.description, symbols=request.symbols, timeframes=request.timeframes, indicators=indicator_specs, lookback_days=request.lookback_days, interval_seconds=interval_seconds, enabled=request.enabled)
+        job_info = await scheduler.update_job(job_id=job_id, name=request.
+            name, description=request.description, symbols=request.symbols,
+            timeframes=request.timeframes, indicators=indicator_specs,
+            lookback_days=request.lookback_days, interval_seconds=
+            interval_seconds, enabled=request.enabled)
         if not job_info:
-            raise HTTPException(status_code=404, detail=f'Job with ID {job_id} not found')
+            raise HTTPException(status_code=404, detail=
+                f'Job with ID {job_id} not found')
         return job_info
     except HTTPException:
         raise
@@ -151,17 +194,21 @@ async def update_schedule(job_id: str, request: ScheduleRequest):
         logger.error(f'Error updating scheduled job: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @scheduler_router.delete('/jobs/{job_id}')
+@async_with_exception_handling
 async def delete_schedule(job_id: str):
     """
     Delete a scheduled computation job.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         success = await scheduler.delete_job(job_id)
         if not success:
-            raise HTTPException(status_code=404, detail=f'Job with ID {job_id} not found')
+            raise HTTPException(status_code=404, detail=
+                f'Job with ID {job_id} not found')
         return {'message': f'Job {job_id} deleted successfully'}
     except HTTPException:
         raise
@@ -169,17 +216,21 @@ async def delete_schedule(job_id: str):
         logger.error(f'Error deleting scheduled job: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @scheduler_router.post('/jobs/{job_id}/enable')
+@async_with_exception_handling
 async def enable_schedule(job_id: str):
     """
     Enable a scheduled computation job.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         success = await scheduler.enable_job(job_id)
         if not success:
-            raise HTTPException(status_code=404, detail=f'Job with ID {job_id} not found')
+            raise HTTPException(status_code=404, detail=
+                f'Job with ID {job_id} not found')
         return {'message': f'Job {job_id} enabled successfully'}
     except HTTPException:
         raise
@@ -187,17 +238,21 @@ async def enable_schedule(job_id: str):
         logger.error(f'Error enabling scheduled job: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @scheduler_router.post('/jobs/{job_id}/disable')
+@async_with_exception_handling
 async def disable_schedule(job_id: str):
     """
     Disable a scheduled computation job.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         success = await scheduler.disable_job(job_id)
         if not success:
-            raise HTTPException(status_code=404, detail=f'Job with ID {job_id} not found')
+            raise HTTPException(status_code=404, detail=
+                f'Job with ID {job_id} not found')
         return {'message': f'Job {job_id} disabled successfully'}
     except HTTPException:
         raise
@@ -205,26 +260,32 @@ async def disable_schedule(job_id: str):
         logger.error(f'Error disabling scheduled job: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @scheduler_router.post('/jobs/{job_id}/run')
+@async_with_exception_handling
 async def run_schedule_now(job_id: str, background_tasks: BackgroundTasks):
     """
     Manually trigger a scheduled computation job to run immediately.
     """
     if scheduler is None:
-        raise HTTPException(status_code=503, detail='Scheduler is not initialized')
+        raise HTTPException(status_code=503, detail=
+            'Scheduler is not initialized')
     try:
         job_info = await scheduler.get_job(job_id)
         if not job_info:
-            raise HTTPException(status_code=404, detail=f'Job with ID {job_id} not found')
+            raise HTTPException(status_code=404, detail=
+                f'Job with ID {job_id} not found')
         background_tasks.add_task(scheduler.run_job_now, job_id)
-        return {'message': f'Job {job_id} triggered to run', 'job_name': job_info['name']}
+        return {'message': f'Job {job_id} triggered to run', 'job_name':
+            job_info['name']}
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f'Error running scheduled job: {str(e)}')
         raise HTTPException(status_code=500, detail=str(e))
 
-def get_interval_seconds(interval: ScheduleInterval) -> int:
+
+def get_interval_seconds(interval: ScheduleInterval) ->int:
     """Convert interval to seconds."""
     if interval.unit == 'minutes':
         return interval.value * 60
@@ -236,6 +297,7 @@ def get_interval_seconds(interval: ScheduleInterval) -> int:
         return interval.value * 7 * 24 * 60 * 60
     else:
         raise ValueError(f'Unsupported interval unit: {interval.unit}')
+
 
 def set_scheduler(scheduler_instance: ComputationScheduler):
     """Set the scheduler instance."""

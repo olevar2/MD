@@ -11,6 +11,13 @@ from pathlib import Path
 
 # Import the MLPipelineIntegrator class
 try:
+    """
+    try class.
+    
+    Attributes:
+        Add attributes here
+    """
+
     from ml_workbench_service.optimization.ml_pipeline_integrator import MLPipelineIntegrator
     INTEGRATOR_AVAILABLE = True
 except ImportError:

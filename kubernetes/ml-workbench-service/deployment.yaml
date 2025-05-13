@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ml-workbench-service
+  name: ml-workbench-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-workbench-service
+  template:
+    metadata:
+      labels:
+        app: ml-workbench-service
+    spec:
+      containers:
+      - image: forex-trading-platform/ml-workbench-service:latest
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 8007
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: ml-workbench-service
+        ports:
+        - containerPort: 8007
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 8007
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: 400m
+            memory: 512Mi
+          requests:
+            cpu: 200m
+            memory: 256Mi

@@ -98,6 +98,11 @@ class TestTradingGatewayOrderExecutionPerformance:
         # Test performance
         @time_it("market_order_submission")
         async def submit_market_order():
+    """
+    Submit market order.
+    
+    """
+
             return await mock_order_manager.submit_order({
                 "symbol": "EURUSD",
                 "side": "buy",
@@ -139,6 +144,11 @@ class TestTradingGatewayOrderExecutionPerformance:
         # Test performance
         @time_it("limit_order_submission")
         async def submit_limit_order():
+    """
+    Submit limit order.
+    
+    """
+
             return await mock_order_manager.submit_order({
                 "symbol": "EURUSD",
                 "side": "buy",
@@ -193,6 +203,11 @@ class TestTradingGatewayOrderExecutionPerformance:
         # Test performance
         @time_it("order_cancellation_request")
         async def cancel_order():
+    """
+    Cancel order.
+    
+    """
+
             return await mock_order_manager.cancel_order(order_id)
         
         # Run multiple times to get better statistics
@@ -235,6 +250,11 @@ class TestTradingGatewayOrderExecutionPerformance:
         # Test performance
         @time_it("get_order_status_request")
         async def get_order_status():
+    """
+    Get order status.
+    
+    """
+
             return await mock_order_manager.get_order_status(order_id)
         
         # Run multiple times to get better statistics
@@ -266,6 +286,11 @@ class TestTradingGatewayOrderExecutionPerformance:
         # Test performance
         @time_it("multiple_orders_submission")
         async def submit_multiple_orders():
+    """
+    Submit multiple orders.
+    
+    """
+
             # Submit orders in parallel
             tasks = [
                 mock_order_manager.submit_order({
