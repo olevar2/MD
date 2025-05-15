@@ -1,0 +1,57 @@
+{
+  "services": {
+    "causal-analysis-service": {
+      "success": true,
+      "completion": 100.0,
+      "components": {
+        "commands": true,
+        "queries": true,
+        "handlers_dir": true,
+        "command_handlers": true,
+        "query_handlers": true,
+        "read_repositories": true,
+        "write_repositories": true
+      }
+    },
+    "backtesting-service": {
+      "success": true,
+      "completion": 100.0,
+      "components": {
+        "commands": true,
+        "queries": true,
+        "handlers_dir": true,
+        "command_handlers": true,
+        "query_handlers": true,
+        "read_repositories": true,
+        "write_repositories": true
+      }
+    },
+    "market-analysis-service": {
+      "success": true,
+      "completion": 100.0,
+      "components": {
+        "commands": true,
+        "queries": true,
+        "handlers_dir": true,
+        "command_handlers": true,
+        "query_handlers": true,
+        "read_repositories": true,
+        "write_repositories": true
+      }
+    },
+    "analysis-coordinator-service": {
+      "success": true,
+      "completion": 100.0,
+      "components": {
+        "commands": true,
+        "queries": true,
+        "handlers_dir": true,
+        "command_handlers": true,
+        "query_handlers": true,
+        "read_repositories": true,
+        "write_repositories": true
+      }
+    }
+  },
+  "overall_completion": 100.0
+}

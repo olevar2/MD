@@ -1,0 +1,330 @@
+# Enhanced API Gateway Configuration
+
+# Service information
+service:
+  name: api-gateway
+  version: 1.0.0
+  description: API Gateway for the Forex Trading Platform
+
+# Server configuration
+server:
+  host: 0.0.0.0
+  port: 8000
+  debug: false
+
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/api-gateway.log
+  rotation: 10MB
+  retention: 30 days
+
+# Authentication configuration
+auth:
+  secret_key: ${JWT_SECRET_KEY}
+  algorithm: HS256
+  public_paths:
+    - /health
+    - /api/v1/auth/login
+    - /api/v1/auth/register
+    - /api/v1/auth/refresh
+    - /docs*
+    - /redoc*
+    - /openapi.json
+  api_key_paths:
+    - /api/v1/internal/*
+  api_keys:
+    ${ANALYSIS_ENGINE_API_KEY}:
+      service_id: analysis-engine-service
+      roles: [internal]
+    ${TRADING_GATEWAY_API_KEY}:
+      service_id: trading-gateway-service
+      roles: [internal]
+    ${FEATURE_STORE_API_KEY}:
+      service_id: feature-store-service
+      roles: [internal]
+    ${PORTFOLIO_MANAGEMENT_API_KEY}:
+      service_id: portfolio-management-service
+      roles: [internal]
+    ${RISK_MANAGEMENT_API_KEY}:
+      service_id: risk-management-service
+      roles: [internal]
+  role_permissions:
+    admin:
+      - path: /api/v1/*
+        methods: [GET, POST, PUT, DELETE, PATCH]
+    trader:
+      - path: /api/v1/trading/*
+        methods: [GET, POST, PUT, DELETE]
+      - path: /api/v1/market-data/*
+        methods: [GET]
+      - path: /api/v1/analysis/*
+        methods: [GET, POST]
+      - path: /api/v1/portfolio/*
+        methods: [GET]
+    readonly:
+      - path: /api/v1/*
+        methods: [GET]
+    internal:
+      - path: /api/v1/internal/*
+        methods: [GET, POST, PUT, DELETE, PATCH]
+
+# Rate limiting configuration
+rate_limit:
+  enabled: true
+  limit: 100
+  window: 60
+  exempt_paths:
+    - /health
+    - /docs*
+    - /redoc*
+    - /openapi.json
+  role_limits:
+    admin:
+      limit: 1000
+      window: 60
+    trader:
+      limit: 500
+      window: 60
+    readonly:
+      limit: 200
+      window: 60
+    internal:
+      limit: 5000
+      window: 60
+  api_key_limits:
+    analysis-engine-service:
+      limit: 5000
+      window: 60
+    trading-gateway-service:
+      limit: 5000
+      window: 60
+    feature-store-service:
+      limit: 5000
+      window: 60
+    portfolio-management-service:
+      limit: 5000
+      window: 60
+    risk-management-service:
+      limit: 5000
+      window: 60
+
+# CORS configuration
+cors:
+  allow_origins:
+    - http://localhost:3000
+    - https://app.forexplatform.com
+  allow_methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allow_headers:
+    - Content-Type
+    - Authorization
+    - X-Correlation-ID
+    - X-Request-ID
+  allow_credentials: true
+  max_age: 600
+
+# XSS protection configuration
+xss_protection:
+  enabled: true
+  exempt_paths:
+    - /health
+    - /docs*
+    - /redoc*
+    - /openapi.json
+
+# CSRF protection configuration
+csrf_protection:
+  enabled: true
+  cookie_name: csrf_token
+  header_name: X-CSRF-Token
+  cookie_max_age: 86400  # 24 hours
+  secure: true
+  same_site: lax
+  exempt_paths:
+    - /health
+    - /api/v1/auth/login
+    - /api/v1/auth/register
+    - /api/v1/auth/refresh
+    - /docs*
+    - /redoc*
+    - /openapi.json
+
+# Security headers configuration
+security_headers:
+  enabled: true
+  headers:
+    X-Content-Type-Options: nosniff
+    X-Frame-Options: DENY
+    X-XSS-Protection: 1; mode=block
+    Strict-Transport-Security: max-age=31536000; includeSubDomains
+    Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'
+    Referrer-Policy: strict-origin-when-cross-origin
+  exempt_paths:
+    - /health
+    - /docs*
+    - /redoc*
+    - /openapi.json
+
+# Services configuration
+services:
+  analysis-engine-service:
+    url: http://analysis-engine-service:8000/api/v1
+    health_check_url: http://analysis-engine-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/analysis/*
+  trading-gateway-service:
+    url: http://trading-gateway-service:8000/api/v1
+    health_check_url: http://trading-gateway-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/trading/*
+  feature-store-service:
+    url: http://feature-store-service:8000/api/v1
+    health_check_url: http://feature-store-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/features/*
+  portfolio-management-service:
+    url: http://portfolio-management-service:8000/api/v1
+    health_check_url: http://portfolio-management-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/portfolio/*
+  risk-management-service:
+    url: http://risk-management-service:8000/api/v1
+    health_check_url: http://risk-management-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/risk/*
+  data-pipeline-service:
+    url: http://data-pipeline-service:8000/api/v1
+    health_check_url: http://data-pipeline-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/data/*
+  ml-integration-service:
+    url: http://ml-integration-service:8000/api/v1
+    health_check_url: http://ml-integration-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/ml/*
+  ml-workbench-service:
+    url: http://ml-workbench-service:8000/api/v1
+    health_check_url: http://ml-workbench-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/workbench/*
+  model-registry-service:
+    url: http://model-registry-service:8000/api/v1
+    health_check_url: http://model-registry-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/models/*
+  strategy-execution-engine:
+    url: http://strategy-execution-engine:8000/api/v1
+    health_check_url: http://strategy-execution-engine:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/strategies/*
+  monitoring-alerting-service:
+    url: http://monitoring-alerting-service:8000/api/v1
+    health_check_url: http://monitoring-alerting-service:8000/health
+    health_check_interval: 60
+    timeout: 30
+    retry:
+      retries: 3
+      delay: 1.0
+      backoff: 2.0
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 30
+    endpoints:
+      - /api/v1/monitoring/*
+      - /api/v1/alerts/*

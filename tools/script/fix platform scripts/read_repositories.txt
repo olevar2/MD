@@ -1,0 +1,8 @@
+D:\MD\forex_trading_platform\causal-analysis-service\repositories\read_repositories\causal_graph_read_repository.py
+D:\MD\forex_trading_platform\causal-analysis-service\repositories\read_repositories\intervention_effect_read_repository.py
+D:\MD\forex_trading_platform\backtesting-service\repositories\read_repositories\backtest_read_repository.py
+D:\MD\forex_trading_platform\backtesting-service\repositories\read_repositories\optimization_read_repository.py
+D:\MD\forex_trading_platform\backtesting-service\repositories\read_repositories\walk_forward_read_repository.py
+D:\MD\forex_trading_platform\market-analysis-service\repositories\read_repositories\analysis_read_repository.py
+D:\MD\forex_trading_platform\market-analysis-service\market_analysis_service\repositories\read_repositories\analysis_read_repository.py
+D:\MD\forex_trading_platform\analysis-coordinator-service\analysis_coordinator_service\repositories\read_repositories\task_read_repository.py

@@ -1,0 +1,23 @@
+fastapi==0.104.1
+uvicorn[standard]==0.23.2
+pydantic==1.10.13
+SQLAlchemy==2.0.23
+asyncpg==0.29.0  # For PostgreSQL, if used
+# mysqlclient==2.2.0  # For MySQL, if used
+# psycopg2-binary==2.9.9 # For PostgreSQL, if used (alternative to asyncpg for synchronous operations)
+aiokafka==0.8.1
+python-dotenv==1.0.0
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+# For caching, if Redis is used
+redis==5.0.1 
+aioredis==2.0.1
+
+# Testing dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.1
+requests==2.31.0
+
+# Common library (assuming it's installed as a package or path dependency)
+# common-lib @ file:///./common-lib  # Example if it's a local path
