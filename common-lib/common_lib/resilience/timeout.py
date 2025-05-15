@@ -28,7 +28,7 @@ class TimeoutError(ServiceError):
             timeout: Timeout in seconds
         """
         super().__init__(
-            code=1008,
+            error_code=1008,
             message=f"Operation {operation} timed out after {timeout} seconds",
             details=f"The operation took longer than the specified timeout"
         )
@@ -118,14 +118,14 @@ class Timeout:
             Decorated function
         """
         async def wrapper(*args, **kwargs):
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+            """
+            Wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            """
 
             return await self.execute(lambda: func(*args, **kwargs))
         

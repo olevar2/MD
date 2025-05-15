@@ -54,30 +54,29 @@ def with_exception_handling(
         Decorated function with exception handling
     """
     def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
-
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        Returns:
+            F: Description of return value
+        
+        """
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             # Generate correlation ID if not provided
             nonlocal correlation_id
@@ -188,30 +187,29 @@ def async_with_exception_handling(
         Decorated function with exception handling
     """
     def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
-
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        Returns:
+            F: Description of return value
+        
+        """
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             # Generate correlation ID if not provided
             nonlocal correlation_id

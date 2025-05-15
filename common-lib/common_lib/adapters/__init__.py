@@ -41,6 +41,13 @@ from common_lib.adapters.risk_management_adapter import (
 )
 
 from common_lib.adapters.factory import AdapterFactory
+from common_lib.adapters.analysis_services_factory import AnalysisServicesFactory
+
+# Import new service adapters
+from common_lib.adapters.causal_analysis import CausalAnalysisAdapter
+from common_lib.adapters.backtesting import BacktestingAdapter
+from common_lib.adapters.market_analysis import MarketAnalysisAdapter
+from common_lib.adapters.analysis_coordinator import AnalysisCoordinatorAdapter
 
 __all__ = [
     # Market Data Adapters
@@ -71,6 +78,13 @@ __all__ = [
     # Risk Management Adapters
     'RiskManagementAdapter',
 
-    # Factory
-    'AdapterFactory'
+    # New Analysis Service Adapters
+    'CausalAnalysisAdapter',
+    'BacktestingAdapter',
+    'MarketAnalysisAdapter',
+    'AnalysisCoordinatorAdapter',
+
+    # Factories
+    'AdapterFactory',
+    'AnalysisServicesFactory'
 ]

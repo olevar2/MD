@@ -15,7 +15,7 @@ from common_lib.resilience.resilience import (
     Resilience,
     ResilienceConfig,
     resilient,
-    get_resilience
+    get_resilience as get_resilience_instance
 )
 from common_lib.resilience.decorators import (
     circuit_breaker,
@@ -23,6 +23,46 @@ from common_lib.resilience.decorators import (
     timeout,
     bulkhead,
     with_resilience
+)
+
+# Import standardized configuration
+from common_lib.resilience.config import (
+    CircuitBreakerConfig as StandardCircuitBreakerConfig,
+    RetryConfig,
+    BulkheadConfig,
+    TimeoutConfig,
+    ResilienceConfig as StandardResilienceConfig,
+    ResilienceProfiles,
+    get_resilience_config
+)
+
+# Import factory functions
+from common_lib.resilience.factory import (
+    create_circuit_breaker,
+    create_retry_policy,
+    create_bulkhead,
+    create_timeout,
+    create_resilience,
+    get_circuit_breaker,
+    get_retry_policy,
+    get_bulkhead,
+    get_timeout,
+    get_resilience
+)
+
+# Import enhanced decorators
+from common_lib.resilience.enhanced_decorators import (
+    with_standard_circuit_breaker,
+    with_standard_retry,
+    with_standard_bulkhead,
+    with_standard_timeout,
+    with_standard_resilience,
+    with_database_resilience,
+    with_broker_api_resilience,
+    with_market_data_resilience,
+    with_external_api_resilience,
+    with_critical_resilience,
+    with_high_throughput_resilience
 )
 
 __all__ = [
@@ -42,12 +82,46 @@ __all__ = [
     'Resilience',
     'ResilienceConfig',
     'resilient',
-    'get_resilience',
+    'get_resilience_instance',
 
     # Standardized decorators
     'circuit_breaker',
     'retry_with_backoff',
     'timeout',
     'bulkhead',
-    'with_resilience'
+    'with_resilience',
+    
+    # Standardized configuration
+    'StandardCircuitBreakerConfig',
+    'RetryConfig',
+    'BulkheadConfig',
+    'TimeoutConfig',
+    'StandardResilienceConfig',
+    'ResilienceProfiles',
+    'get_resilience_config',
+    
+    # Factory functions
+    'create_circuit_breaker',
+    'create_retry_policy',
+    'create_bulkhead',
+    'create_timeout',
+    'create_resilience',
+    'get_circuit_breaker',
+    'get_retry_policy',
+    'get_bulkhead',
+    'get_timeout',
+    'get_resilience',
+    
+    # Enhanced decorators
+    'with_standard_circuit_breaker',
+    'with_standard_retry',
+    'with_standard_bulkhead',
+    'with_standard_timeout',
+    'with_standard_resilience',
+    'with_database_resilience',
+    'with_broker_api_resilience',
+    'with_market_data_resilience',
+    'with_external_api_resilience',
+    'with_critical_resilience',
+    'with_high_throughput_resilience'
 ]

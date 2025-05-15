@@ -118,7 +118,7 @@ class CircuitBreaker:
                 else:
                     self.logger.warning(f"Circuit {self.name} is open, rejecting request")
                     raise ServiceError(
-                        code=2000,
+                        error_code=2000,
                         message=f"Service {self.name} is unavailable",
                         details=f"Circuit breaker is open"
                     )

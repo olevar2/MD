@@ -110,14 +110,14 @@ class Fallback:
         """
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+            """
+            Wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            """
 
             return await self.execute(func, *args, **kwargs)
         

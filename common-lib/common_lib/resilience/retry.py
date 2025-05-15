@@ -34,24 +34,23 @@ def retry(
     exceptions = exceptions or [Exception]
 
     def decorator(func):
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    """
-
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        """
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+            """
+            Wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            """
 
             # Initialize retry counter
             retry_count = 0
@@ -179,14 +178,14 @@ class RetryPolicy:
         """
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    """
+            """
+            Wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            """
 
             return await self.execute(lambda: func(*args, **kwargs))
 

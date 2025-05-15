@@ -188,31 +188,29 @@ class ErrorHandler:
             A decorator function
         """
         def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
-
+            """
+            Decorator.
+            
+            Args:
+                func: Description of func
+            
+            Returns:
+                F: Description of return value
+            
+            """
             @wraps(func)
             def wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
-
+                """
+                Wrapper.
+                
+                Args:
+                    args: Description of args
+                    kwargs: Description of kwargs
+                
+                Returns:
+                    Any: Description of return value
+                
+                """
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
@@ -239,31 +237,29 @@ class ErrorHandler:
             A decorator function
         """
         def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
-
+            """
+            Decorator.
+            
+            Args:
+                func: Description of func
+            
+            Returns:
+                F: Description of return value
+            
+            """
             @wraps(func)
             async def wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
-
+                """
+                Wrapper.
+                
+                Args:
+                    args: Description of args
+                    kwargs: Description of kwargs
+                
+                Returns:
+                    Any: Description of return value
+                
+                """
                 try:
                     return await func(*args, **kwargs)
                 except Exception as e:

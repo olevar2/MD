@@ -47,16 +47,16 @@ def circuit_breaker(
         Decorated function
     """
     def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        Returns:
+            F: Description of return value
+        
+        """
 
         # Generate service and resource names if not provided
         nonlocal service_name, resource_name
@@ -86,23 +86,23 @@ def circuit_breaker(
 
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Async wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Async wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
@@ -112,17 +112,17 @@ def circuit_breaker(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Sync wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Sync wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             # For synchronous functions, we need to run in an event loop
             try:
@@ -132,10 +132,10 @@ def circuit_breaker(
                 asyncio.set_event_loop(loop)
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 return func(*args, **kwargs)
 
@@ -178,16 +178,16 @@ def retry_with_backoff(
         Decorated function
     """
     def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        Returns:
+            F: Description of return value
+        
+        """
 
         # Create retry policy
         retry_policy = RetryPolicy(
@@ -200,23 +200,23 @@ def retry_with_backoff(
 
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Async wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Async wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
@@ -226,17 +226,17 @@ def retry_with_backoff(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Sync wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Sync wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             # For synchronous functions, we need to run in an event loop
             try:
@@ -246,10 +246,10 @@ def retry_with_backoff(
                 asyncio.set_event_loop(loop)
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 return func(*args, **kwargs)
 
@@ -284,16 +284,16 @@ def timeout(
         Decorated function
     """
     def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        Returns:
+            F: Description of return value
+        
+        """
 
         # Get operation name if not provided
         nonlocal operation
@@ -305,23 +305,23 @@ def timeout(
 
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Async wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Async wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
@@ -331,17 +331,17 @@ def timeout(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Sync wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Sync wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             # For synchronous functions, we need to run in an event loop
             try:
@@ -351,10 +351,10 @@ def timeout(
                 asyncio.set_event_loop(loop)
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 return func(*args, **kwargs)
 
@@ -391,16 +391,16 @@ def bulkhead(
         Decorated function
     """
     def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        Returns:
+            F: Description of return value
+        
+        """
 
         # Generate bulkhead name if not provided
         nonlocal name
@@ -416,23 +416,23 @@ def bulkhead(
 
         @functools.wraps(func)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Async wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Async wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
@@ -442,17 +442,17 @@ def bulkhead(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-    """
-    Sync wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        Any: Description of return value
-    
-    """
+            """
+            Sync wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                Any: Description of return value
+            
+            """
 
             # For synchronous functions, we need to run in an event loop
             try:
@@ -462,10 +462,10 @@ def bulkhead(
                 asyncio.set_event_loop(loop)
 
             async def awaitable_func():
-    """
-    Awaitable func.
-    
-    """
+                """
+                Awaitable func.
+                
+                """
 
                 return func(*args, **kwargs)
 
@@ -535,16 +535,16 @@ def with_resilience(
         Decorated function
     """
     def decorator(func: F) -> F:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-    
-    Returns:
-        F: Description of return value
-    
-    """
+        """
+        Decorator.
+        
+        Args:
+            func: Description of func
+        
+        Returns:
+            F: Description of return value
+        
+        """
 
         # Generate service and resource names if not provided
         nonlocal service_name, resource_name
