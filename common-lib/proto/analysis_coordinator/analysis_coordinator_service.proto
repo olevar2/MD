@@ -1,0 +1,365 @@
+syntax = "proto3";
+
+package forex.analysis_coordinator;
+
+import "common/common_types.proto";
+import "common/error_types.proto";
+import "causal_analysis/causal_analysis_service.proto";
+import "backtesting/backtesting_service.proto";
+import "market_analysis/market_analysis_service.proto";
+
+option go_package = "github.com/olevar2/MD/common-lib/proto/analysis_coordinator";
+option java_package = "com.olevar2.forex.analysis_coordinator";
+option java_multiple_files = true;
+
+// AnalysisCoordinatorService coordinates analysis tasks across multiple services
+service AnalysisCoordinatorService {
+  // CreateAnalysisTask creates a new analysis task
+  rpc CreateAnalysisTask(CreateAnalysisTaskRequest) returns (CreateAnalysisTaskResponse);
+  
+  // GetTaskStatus gets the status of an analysis task
+  rpc GetTaskStatus(GetTaskStatusRequest) returns (GetTaskStatusResponse);
+  
+  // GetTaskResult gets the result of an analysis task
+  rpc GetTaskResult(GetTaskResultRequest) returns (GetTaskResultResponse);
+  
+  // CancelTask cancels an analysis task
+  rpc CancelTask(CancelTaskRequest) returns (CancelTaskResponse);
+  
+  // PerformIntegratedAnalysis performs an integrated analysis using multiple services
+  rpc PerformIntegratedAnalysis(PerformIntegratedAnalysisRequest) returns (PerformIntegratedAnalysisResponse);
+  
+  // PerformMultiTimeframeAnalysis performs analysis across multiple timeframes
+  rpc PerformMultiTimeframeAnalysis(PerformMultiTimeframeAnalysisRequest) returns (PerformMultiTimeframeAnalysisResponse);
+  
+  // PerformMultiSymbolAnalysis performs analysis across multiple symbols
+  rpc PerformMultiSymbolAnalysis(PerformMultiSymbolAnalysisRequest) returns (PerformMultiSymbolAnalysisResponse);
+}
+
+// TaskType represents the type of analysis task
+enum TaskType {
+  // Unknown task type
+  UNKNOWN = 0;
+  // Technical indicator calculation
+  INDICATOR_CALCULATION = 1;
+  // Pattern detection
+  PATTERN_DETECTION = 2;
+  // Support/resistance detection
+  SUPPORT_RESISTANCE_DETECTION = 3;
+  // Market regime detection
+  MARKET_REGIME_DETECTION = 4;
+  // Correlation analysis
+  CORRELATION_ANALYSIS = 5;
+  // Volatility analysis
+  VOLATILITY_ANALYSIS = 6;
+  // Causal graph generation
+  CAUSAL_GRAPH_GENERATION = 7;
+  // Counterfactual generation
+  COUNTERFACTUAL_GENERATION = 8;
+  // Effect estimation
+  EFFECT_ESTIMATION = 9;
+  // Structure discovery
+  STRUCTURE_DISCOVERY = 10;
+  // Intervention effect calculation
+  INTERVENTION_EFFECT_CALCULATION = 11;
+  // Backtest execution
+  BACKTEST_EXECUTION = 12;
+  // Optimization execution
+  OPTIMIZATION_EXECUTION = 13;
+  // Walk-forward analysis
+  WALK_FORWARD_ANALYSIS = 14;
+  // Integrated analysis
+  INTEGRATED_ANALYSIS = 15;
+  // Multi-timeframe analysis
+  MULTI_TIMEFRAME_ANALYSIS = 16;
+  // Multi-symbol analysis
+  MULTI_SYMBOL_ANALYSIS = 17;
+}
+
+// TaskStatus represents the status of an analysis task
+enum TaskStatus {
+  // Unknown status
+  UNKNOWN_STATUS = 0;
+  // Task created
+  CREATED = 1;
+  // Task queued
+  QUEUED = 2;
+  // Task running
+  RUNNING = 3;
+  // Task completed successfully
+  COMPLETED = 4;
+  // Task failed
+  FAILED = 5;
+  // Task cancelled
+  CANCELLED = 6;
+  // Task timed out
+  TIMED_OUT = 7;
+}
+
+// Task represents an analysis task
+message Task {
+  // Task ID
+  string id = 1;
+  // Task type
+  TaskType type = 2;
+  // Task status
+  TaskStatus status = 3;
+  // Creation time
+  forex.common.Timestamp creation_time = 4;
+  // Start time
+  forex.common.Timestamp start_time = 5;
+  // End time
+  forex.common.Timestamp end_time = 6;
+  // Progress (0-100)
+  int32 progress = 7;
+  // Error message (if any)
+  string error_message = 8;
+  // Task parameters
+  map<string, string> parameters = 9;
+  // Task metadata
+  forex.common.Metadata metadata = 10;
+}
+
+// CreateAnalysisTaskRequest represents a request to create an analysis task
+message CreateAnalysisTaskRequest {
+  // Task type
+  TaskType type = 1;
+  // Symbol to analyze
+  forex.common.Symbol symbol = 2;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 3;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 4;
+  // End date for analysis
+  forex.common.Timestamp end_date = 5;
+  // Task parameters
+  map<string, string> parameters = 6;
+  // Priority (1-10, higher is more important)
+  int32 priority = 7;
+  // Timeout in seconds
+  int32 timeout = 8;
+}
+
+// CreateAnalysisTaskResponse represents a response containing a created task
+message CreateAnalysisTaskResponse {
+  // Created task
+  Task task = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// GetTaskStatusRequest represents a request to get a task status
+message GetTaskStatusRequest {
+  // Task ID
+  string task_id = 1;
+}
+
+// GetTaskStatusResponse represents a response containing a task status
+message GetTaskStatusResponse {
+  // Task
+  Task task = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// GetTaskResultRequest represents a request to get a task result
+message GetTaskResultRequest {
+  // Task ID
+  string task_id = 1;
+}
+
+// TaskResult represents the result of an analysis task
+message TaskResult {
+  // Task
+  Task task = 1;
+  // Result type
+  string result_type = 2;
+  // Result data (serialized as bytes)
+  bytes result_data = 3;
+  // Result summary
+  string summary = 4;
+}
+
+// GetTaskResultResponse represents a response containing a task result
+message GetTaskResultResponse {
+  // Task result
+  TaskResult result = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// CancelTaskRequest represents a request to cancel a task
+message CancelTaskRequest {
+  // Task ID
+  string task_id = 1;
+}
+
+// CancelTaskResponse represents a response to a cancel task request
+message CancelTaskResponse {
+  // Success flag
+  bool success = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// AnalysisComponent represents a component of an integrated analysis
+message AnalysisComponent {
+  // Component ID
+  string id = 1;
+  // Component type
+  TaskType type = 2;
+  // Component parameters
+  map<string, string> parameters = 3;
+  // Component weight in the integrated analysis
+  double weight = 4;
+  // Component dependencies (IDs of other components)
+  repeated string dependencies = 5;
+}
+
+// IntegratedAnalysisResult represents the result of an integrated analysis
+message IntegratedAnalysisResult {
+  // Analysis ID
+  string id = 1;
+  // Symbol
+  forex.common.Symbol symbol = 2;
+  // Timeframe
+  forex.common.Timeframe timeframe = 3;
+  // Start time
+  forex.common.Timestamp start_time = 4;
+  // End time
+  forex.common.Timestamp end_time = 5;
+  // Component results (component ID to result)
+  map<string, TaskResult> component_results = 6;
+  // Integrated signals (timestamp to signal value mapping)
+  map<int64, double> signals = 7;
+  // Signal confidence (timestamp to confidence value mapping)
+  map<int64, double> confidence = 8;
+  // Analysis metadata
+  forex.common.Metadata metadata = 9;
+}
+
+// PerformIntegratedAnalysisRequest represents a request for integrated analysis
+message PerformIntegratedAnalysisRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Analysis components
+  repeated AnalysisComponent components = 5;
+  // Integration method
+  string integration_method = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// PerformIntegratedAnalysisResponse represents a response with integrated analysis
+message PerformIntegratedAnalysisResponse {
+  // Integrated analysis result (if synchronous)
+  IntegratedAnalysisResult result = 1;
+  // Task ID (if asynchronous)
+  string task_id = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}
+
+// MultiTimeframeAnalysisResult represents the result of a multi-timeframe analysis
+message MultiTimeframeAnalysisResult {
+  // Analysis ID
+  string id = 1;
+  // Symbol
+  forex.common.Symbol symbol = 2;
+  // Timeframes analyzed
+  repeated forex.common.Timeframe timeframes = 3;
+  // Start time
+  forex.common.Timestamp start_time = 4;
+  // End time
+  forex.common.Timestamp end_time = 5;
+  // Timeframe results (timeframe name to result)
+  map<string, IntegratedAnalysisResult> timeframe_results = 6;
+  // Integrated signals (timestamp to signal value mapping)
+  map<int64, double> signals = 7;
+  // Signal confidence (timestamp to confidence value mapping)
+  map<int64, double> confidence = 8;
+  // Analysis metadata
+  forex.common.Metadata metadata = 9;
+}
+
+// PerformMultiTimeframeAnalysisRequest represents a request for multi-timeframe analysis
+message PerformMultiTimeframeAnalysisRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframes to analyze
+  repeated forex.common.Timeframe timeframes = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Analysis components for each timeframe
+  repeated AnalysisComponent components = 5;
+  // Integration method
+  string integration_method = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// PerformMultiTimeframeAnalysisResponse represents a response with multi-timeframe analysis
+message PerformMultiTimeframeAnalysisResponse {
+  // Multi-timeframe analysis result (if synchronous)
+  MultiTimeframeAnalysisResult result = 1;
+  // Task ID (if asynchronous)
+  string task_id = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}
+
+// MultiSymbolAnalysisResult represents the result of a multi-symbol analysis
+message MultiSymbolAnalysisResult {
+  // Analysis ID
+  string id = 1;
+  // Symbols analyzed
+  repeated forex.common.Symbol symbols = 2;
+  // Timeframe
+  forex.common.Timeframe timeframe = 3;
+  // Start time
+  forex.common.Timestamp start_time = 4;
+  // End time
+  forex.common.Timestamp end_time = 5;
+  // Symbol results (symbol name to result)
+  map<string, IntegratedAnalysisResult> symbol_results = 6;
+  // Correlation matrix (symbol pair to correlation value)
+  map<string, double> correlation_matrix = 7;
+  // Analysis metadata
+  forex.common.Metadata metadata = 8;
+}
+
+// PerformMultiSymbolAnalysisRequest represents a request for multi-symbol analysis
+message PerformMultiSymbolAnalysisRequest {
+  // Symbols to analyze
+  repeated forex.common.Symbol symbols = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Analysis components for each symbol
+  repeated AnalysisComponent components = 5;
+  // Integration method
+  string integration_method = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// PerformMultiSymbolAnalysisResponse represents a response with multi-symbol analysis
+message PerformMultiSymbolAnalysisResponse {
+  // Multi-symbol analysis result (if synchronous)
+  MultiSymbolAnalysisResult result = 1;
+  // Task ID (if asynchronous)
+  string task_id = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}

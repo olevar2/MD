@@ -9,7 +9,8 @@ from analysis_coordinator_service.models.coordinator_models import (
     IntegratedAnalysisRequest,
     AnalysisTaskRequest,
     AnalysisServiceType,
-    AnalysisTaskStatusEnum
+    AnalysisTaskStatusEnum,
+    AnalysisTaskResult
 )
 
 @pytest.mark.asyncio
@@ -44,7 +45,14 @@ async def test_create_analysis_task():
     )
     
     # Act
-    response = await service.create_analysis_task(request)
+    response = await service.create_analysis_task(
+        service_type=request.service_type,
+        symbol=request.symbol,
+        timeframe=request.timeframe,
+        start_date=request.start_date,
+        end_date=request.end_date,
+        parameters=request.parameters
+    )
     
     # Assert
     assert response is not None
@@ -62,15 +70,15 @@ async def test_get_task_result():
     
     # Mock task repository get_task method
     task_id = str(uuid.uuid4())
-    mock_task_repository.get_task.return_value = {
-        "task_id": task_id,
-        "service_type": "market_analysis",
-        "status": "completed",
-        "created_at": datetime.now(UTC).isoformat(),
-        "completed_at": (datetime.now(UTC) + timedelta(minutes=2)).isoformat(),
-        "result": {"patterns": [{"type": "head_and_shoulders", "confidence": 0.85}]},
-        "error": None
-    }
+    mock_task_repository.get_task.return_value = AnalysisTaskResult(
+        task_id=task_id,
+        service_type=AnalysisServiceType.MARKET_ANALYSIS,
+        status=AnalysisTaskStatusEnum.COMPLETED,
+        created_at=datetime.now(UTC),
+        completed_at=datetime.now(UTC) + timedelta(minutes=2),
+        result={"patterns": [{"type": "head_and_shoulders", "confidence": 0.85}]},
+        error=None
+    )
     
     # Create service with mocked dependencies
     service = CoordinatorService(
@@ -85,9 +93,9 @@ async def test_get_task_result():
     
     # Assert
     assert result is not None
-    assert isinstance(result, dict)
-    assert result["task_id"] == task_id
-    assert result["service_type"] == "market_analysis"
-    assert result["status"] == "completed"
-    assert "patterns" in result["result"]
+    assert isinstance(result, AnalysisTaskResult)
+    assert result.task_id == task_id
+    assert result.service_type == AnalysisServiceType.MARKET_ANALYSIS
+    assert result.status == AnalysisTaskStatusEnum.COMPLETED
+    assert "patterns" in result.result
     mock_task_repository.get_task.assert_called_once_with(task_id)

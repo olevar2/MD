@@ -1,2 +1,0 @@
-This is a test file for Augment MCP integration.
-Created at: D:\MD\forex_trading_platform\augment_mcp_test.txt

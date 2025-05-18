@@ -152,3 +152,33 @@ class CircuitBreaker:
 
             # Re-raise exception
             raise
+
+
+class CircuitBreakerOpen(ServiceError):
+    """
+    Exception raised when the circuit breaker is open and a request is attempted.
+    """
+    def __init__(self, service_name: str, resource_name: str):
+        """
+        Initialize the exception.
+
+        Args:
+            service_name: The name of the service.
+            resource_name: The name of the resource.
+        """
+        super().__init__(
+            error_code=2001, # Define a specific error code for circuit breaker open
+            message=f"Circuit breaker for {service_name}/{resource_name} is open",
+            details="Requests are currently being rejected due to excessive failures."
+        )
+        self.service_name = service_name
+        self.resource_name = resource_name
+
+
+__all__ = [
+    'CircuitState',
+    'CircuitBreakerConfig',
+    'CircuitBreaker',
+    'create_circuit_breaker',
+    'CircuitBreakerOpen'
+]

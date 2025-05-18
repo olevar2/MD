@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # Unit tests
+  unit-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["pytest", "tests/unit", "-v", "--cov=causal_analysis_service"]
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - causal-analysis-network
+
+  # Integration tests
+  integration-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["pytest", "tests/integration", "-v"]
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+      - causal-analysis-service
+    networks:
+      - causal-analysis-network
+
+  # End-to-end tests
+  e2e-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["pytest", "tests/e2e", "-v"]
+    environment:
+      - SERVICE_URL=http://causal-analysis-service:8000
+    depends_on:
+      - causal-analysis-service
+      - redis
+    networks:
+      - causal-analysis-network
+
+  # Load tests
+  load-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["locust", "-f", "tests/load/locustfile.py", "--host=http://causal-analysis-service:8000", "--headless", "-u", "100", "-r", "10", "--run-time", "1m"]
+    depends_on:
+      - causal-analysis-service
+    networks:
+      - causal-analysis-network
+
+  # The service being tested
+  causal-analysis-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - causal-analysis-network
+
+  # Redis service
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - causal-analysis-network
+
+networks:
+  causal-analysis-network:
+    driver: bridge
+
+volumes:
+  redis-data:

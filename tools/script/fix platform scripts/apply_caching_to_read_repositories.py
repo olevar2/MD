@@ -31,7 +31,8 @@ class ReadRepositoryTransformer(ast.NodeTransformer):
     
     def __init__(self, service_name):
         self.service_name = service_name
-        self.module_name = service_name.replace("-", "_")
+        # Assuming the package root is 'analysis_engine' based on directory structure
+        self.module_name = "analysis_engine"
         self.has_cache_import = False
         self.has_cache_factory_import = False
         self.has_cache_attribute = False

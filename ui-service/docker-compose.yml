@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  ui-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - forex-platform-network
+
+networks:
+  forex-platform-network:
+    driver: bridge

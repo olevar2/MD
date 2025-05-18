@@ -214,3 +214,25 @@ async def retry_with_policy(
         Exception: If the function raises an exception after all retries
     """
     return await policy.execute(lambda: func(*args, **kwargs))
+
+
+class RetryExhaustedException(Exception):
+    """
+    Exception raised when a retry policy has exhausted all attempts.
+    """
+    def __init__(self, message: str = "Retry attempts exhausted"):
+        """
+        Initialize the exception.
+
+        Args:
+            message: The exception message.
+        """
+        super().__init__(message)
+
+
+__all__ = [
+    'retry',
+    'RetryPolicy',
+    'retry_with_policy',
+    'RetryExhaustedException'
+]

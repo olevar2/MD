@@ -93,6 +93,8 @@ async def startup_event():
     logger.info("Starting Analysis Coordinator Service")
     
     # Initialize command and query buses
+    # Settings will be retrieved within get_command_bus and get_query_bus
+    # as they now manage settings internally for their dependencies.
     get_command_bus()
     get_query_bus()
     

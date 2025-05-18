@@ -1,0 +1,88 @@
+{
+  "name": "Forex Trading Platform",
+  "description": "Comprehensive mind map of the forex trading platform architecture",
+  "children": [
+    {
+      "name": "Architecture Layers",
+      "children": [
+        {
+          "name": "Presentation Layer",
+          "children": [
+            {
+              "name": "ui-service"
+            },
+            {
+              "name": "api-gateway"
+            }
+          ]
+        },
+        {
+          "name": "Business Layer",
+          "children": [
+            {
+              "name": "analysis-engine-service"
+            },
+            {
+              "name": "portfolio-management-service"
+            },
+            {
+              "name": "risk-management-service"
+            },
+            {
+              "name": "strategy-execution-engine"
+            }
+          ]
+        },
+        {
+          "name": "Data Layer",
+          "children": [
+            {
+              "name": "data-management-service"
+            },
+            {
+              "name": "data-pipeline-service"
+            },
+            {
+              "name": "feature-store-service"
+            }
+          ]
+        },
+        {
+          "name": "Integration Layer",
+          "children": [
+            {
+              "name": "ml-integration-service"
+            },
+            {
+              "name": "trading-gateway-service"
+            },
+            {
+              "name": "ml-workbench-service"
+            },
+            {
+              "name": "model-registry-service"
+            }
+          ]
+        },
+        {
+          "name": "Cross-cutting Layer",
+          "children": [
+            {
+              "name": "common-lib"
+            },
+            {
+              "name": "common-js-lib"
+            },
+            {
+              "name": "monitoring-alerting-service"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Service Dependencies",
+      "children": []
+    }
+  ]
+}

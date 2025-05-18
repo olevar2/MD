@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package forex.common;
+
+option go_package = "github.com/olevar2/MD/common-lib/proto/common";
+option java_package = "com.olevar2.forex.common";
+option java_multiple_files = true;
+
+// ErrorCode represents standardized error codes for the platform
+enum ErrorCode {
+  // Unknown error
+  UNKNOWN_ERROR = 0;
+  // Invalid input parameters
+  INVALID_INPUT = 1;
+  // Resource not found
+  NOT_FOUND = 2;
+  // Authentication failed
+  AUTHENTICATION_FAILED = 3;
+  // Authorization failed
+  AUTHORIZATION_FAILED = 4;
+  // Resource already exists
+  ALREADY_EXISTS = 5;
+  // Resource state conflict
+  CONFLICT = 6;
+  // Internal server error
+  INTERNAL_ERROR = 7;
+  // Service unavailable
+  SERVICE_UNAVAILABLE = 8;
+  // Timeout occurred
+  TIMEOUT = 9;
+  // Rate limit exceeded
+  RATE_LIMIT_EXCEEDED = 10;
+  // Bad gateway
+  BAD_GATEWAY = 11;
+  // Validation error
+  VALIDATION_ERROR = 12;
+  // Database error
+  DATABASE_ERROR = 13;
+  // External service error
+  EXTERNAL_SERVICE_ERROR = 14;
+}
+
+// ErrorDetail represents detailed information about a specific error
+message ErrorDetail {
+  // Field name that caused the error
+  string field = 1;
+  // Error message
+  string message = 2;
+  // Error code
+  ErrorCode code = 3;
+}
+
+// ErrorResponse represents a standardized error response
+message ErrorResponse {
+  // Error code
+  ErrorCode code = 1;
+  // Error message
+  string message = 2;
+  // Request ID for tracking
+  string request_id = 3;
+  // Detailed error information
+  repeated ErrorDetail details = 4;
+  // Additional error context
+  map<string, string> context = 5;
+}

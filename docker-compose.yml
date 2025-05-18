@@ -1,0 +1,262 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    networks:
+      - forex-platform-network
+    depends_on:
+      - causal-analysis-service
+      - backtesting-service
+      - market-analysis-service
+      - analysis-coordinator-service
+      - data-management-service
+      - data-pipeline-service
+      - feature-store-service
+      - ml-integration-service
+      - ml-workbench-service
+      - model-registry-service
+      - monitoring-alerting-service
+      - portfolio-management-service
+      - risk-management-service
+      - trading-gateway-service
+
+  # UI Service
+  ui-service:
+    build:
+      context: ./ui-service
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - forex-platform-network
+    depends_on:
+      - api-gateway
+
+  # Causal Analysis Service
+  causal-analysis-service:
+    build:
+      context: ./causal-analysis-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8000
+    networks:
+      - forex-platform-network
+
+  # Backtesting Service
+  backtesting-service:
+    build:
+      context: ./backtesting-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8002
+    networks:
+      - forex-platform-network
+
+  # Market Analysis Service
+  market-analysis-service:
+    build:
+      context: ./market-analysis-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8000
+    networks:
+      - forex-platform-network
+
+  # Analysis Coordinator Service
+  analysis-coordinator-service:
+    build:
+      context: ./analysis-coordinator-service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8003
+    networks:
+      - forex-platform-network
+    depends_on:
+      - causal-analysis-service
+      - backtesting-service
+      - market-analysis-service
+
+  # Data Management Service
+  data-management-service:
+    build:
+      context: ./data-management-service
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8004
+    networks:
+      - forex-platform-network
+
+  # Data Pipeline Service
+  data-pipeline-service:
+    build:
+      context: ./data-pipeline-service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8005
+    networks:
+      - forex-platform-network
+
+  # Feature Store Service
+  feature-store-service:
+    build:
+      context: ./feature-store-service
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8006
+    networks:
+      - forex-platform-network
+
+  # ML Integration Service
+  ml-integration-service:
+    build:
+      context: ./ml-integration-service
+      dockerfile: Dockerfile
+    ports:
+      - "8007:8007"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8007
+    networks:
+      - forex-platform-network
+
+  # ML Workbench Service
+  ml-workbench-service:
+    build:
+      context: ./ml-workbench-service
+      dockerfile: Dockerfile
+    ports:
+      - "8008:8008"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8008
+    networks:
+      - forex-platform-network
+
+  # Model Registry Service
+  model-registry-service:
+    build:
+      context: ./model-registry-service
+      dockerfile: Dockerfile
+    ports:
+      - "8009:8009"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8009
+    networks:
+      - forex-platform-network
+
+  # Monitoring Alerting Service
+  monitoring-alerting-service:
+    build:
+      context: ./monitoring-alerting-service
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8010"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8010
+    networks:
+      - forex-platform-network
+
+  # Portfolio Management Service
+  portfolio-management-service:
+    build:
+      context: ./portfolio-management-service
+      dockerfile: Dockerfile
+    ports:
+      - "8011:8011"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8011
+    networks:
+      - forex-platform-network
+
+  # Risk Management Service
+  risk-management-service:
+    build:
+      context: ./risk-management-service
+      dockerfile: Dockerfile
+    ports:
+      - "8012:8012"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8012
+    networks:
+      - forex-platform-network
+
+  # Trading Gateway Service
+  trading-gateway-service:
+    build:
+      context: ./trading-gateway-service
+      dockerfile: Dockerfile
+    ports:
+      - "8013:8013"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8013
+    networks:
+      - forex-platform-network
+
+networks:
+  forex-platform-network:
+    driver: bridge

@@ -6,8 +6,9 @@ retry, bulkhead, timeout, and fallback patterns. It also includes decorators for
 applying these patterns to functions.
 """
 
-from common_lib.resilience.circuit_breaker import CircuitBreaker, CircuitState, CircuitBreakerConfig
-from common_lib.resilience.retry import retry, RetryPolicy, retry_with_policy
+from common_lib.resilience.circuit_breaker import CircuitBreaker, CircuitState, CircuitBreakerConfig, CircuitBreakerOpen
+from common_lib.resilience.retry import retry, RetryPolicy, retry_with_policy, RetryExhaustedException
+from common_lib.resilience.retry_policy import register_common_retryable_exceptions
 from common_lib.resilience.bulkhead import Bulkhead
 from common_lib.resilience.timeout import with_timeout, Timeout, TimeoutError
 from common_lib.resilience.fallback import with_fallback, Fallback
@@ -70,9 +71,12 @@ __all__ = [
     'CircuitBreaker',
     'CircuitState',
     'CircuitBreakerConfig',
+    'CircuitBreakerOpen',
     'retry',
     'RetryPolicy',
     'retry_with_policy',
+    'RetryExhaustedException',
+    'register_common_retryable_exceptions',
     'Bulkhead',
     'with_timeout',
     'Timeout',
@@ -90,7 +94,7 @@ __all__ = [
     'timeout',
     'bulkhead',
     'with_resilience',
-    
+
     # Standardized configuration
     'StandardCircuitBreakerConfig',
     'RetryConfig',

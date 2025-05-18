@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  causal-analysis-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - causal-analysis-network
+
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - causal-analysis-network
+
+networks:
+  causal-analysis-network:
+    driver: bridge
+
+volumes:
+  redis-data:

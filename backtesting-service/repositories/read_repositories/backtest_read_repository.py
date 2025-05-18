@@ -62,6 +62,7 @@ class BacktestReadRepository(ReadRepository):
         logger.warning(f'Backtest {id} not found')
         return None
 
+    @cached(cache_factory.get_cache(), 'backtest_all', ttl=3600)
     async def get_all(self) ->List[BacktestResult]:
         """
         Get all backtests.
@@ -83,6 +84,7 @@ class BacktestReadRepository(ReadRepository):
                         )
         return backtests
 
+    @cached(cache_factory.get_cache(), 'backtest_criteria', ttl=3600)
     async def get_by_criteria(self, criteria: Dict[str, Any]) ->List[
         BacktestResult]:
         """

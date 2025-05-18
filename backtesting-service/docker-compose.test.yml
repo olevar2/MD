@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # Unit tests
+  unit-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["pytest", "tests/unit", "-v", "--cov=backtesting_service"]
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=backtesting_test
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - USE_MOCKS=true
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - backtesting-network
+
+  # Integration tests
+  integration-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["pytest", "tests/integration", "-v"]
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=backtesting_test
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - postgres
+      - redis
+      - backtesting-service
+    networks:
+      - backtesting-network
+
+  # End-to-end tests
+  e2e-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["pytest", "tests/e2e", "-v"]
+    environment:
+      - SERVICE_URL=http://backtesting-service:8002
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=backtesting_test
+    depends_on:
+      - backtesting-service
+      - postgres
+      - redis
+    networks:
+      - backtesting-network
+
+  # Load tests
+  load-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    command: ["locust", "-f", "tests/load/locustfile.py", "--host=http://backtesting-service:8002", "--headless", "-u", "100", "-r", "10", "--run-time", "1m"]
+    depends_on:
+      - backtesting-service
+    networks:
+      - backtesting-network
+
+  # The service being tested
+  backtesting-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    ports:
+      - "8002:8002"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=backtesting
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - backtesting-network
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:13-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_MULTIPLE_DATABASES=backtesting,backtesting_test
+    volumes:
+      - ./scripts/create-multiple-postgresql-databases.sh:/docker-entrypoint-initdb.d/create-multiple-postgresql-databases.sh
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - backtesting-network
+
+  # Redis service
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - backtesting-network
+
+networks:
+  backtesting-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

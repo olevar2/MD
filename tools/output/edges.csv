@@ -1,0 +1,42 @@
+Source,Target,Type,Label
+layer_Presentation,ui-service,contains,contains
+layer_Presentation,api-gateway,contains,contains
+layer_Business,analysis-engine-service,contains,contains
+layer_Business,portfolio-management-service,contains,contains
+layer_Business,risk-management-service,contains,contains
+layer_Business,strategy-execution-engine,contains,contains
+layer_Data,data-management-service,contains,contains
+layer_Data,data-pipeline-service,contains,contains
+layer_Data,feature-store-service,contains,contains
+layer_Integration,ml-integration-service,contains,contains
+layer_Integration,trading-gateway-service,contains,contains
+layer_Integration,ml-workbench-service,contains,contains
+layer_Integration,model-registry-service,contains,contains
+layer_Cross-cutting,common-lib,contains,contains
+layer_Cross-cutting,common-js-lib,contains,contains
+layer_Cross-cutting,monitoring-alerting-service,contains,contains
+analysis-engine-service,ml-integration-service,depends_on,depends on
+analysis-engine-service,common-lib,depends_on,depends on
+analysis-engine-service,ml-workbench-service,depends_on,depends on
+analysis-engine-service,trading-gateway-service,depends_on,depends on
+api-gateway,common-lib,depends_on,depends on
+data-management-service,common-lib,depends_on,depends on
+data-pipeline-service,common-lib,depends_on,depends on
+feature-store-service,data-pipeline-service,depends_on,depends on
+feature-store-service,common-lib,depends_on,depends on
+feature-store-service,monitoring-alerting-service,depends_on,depends on
+ml-integration-service,data-pipeline-service,depends_on,depends on
+ml-integration-service,common-lib,depends_on,depends on
+ml-workbench-service,risk-management-service,depends_on,depends on
+ml-workbench-service,trading-gateway-service,depends_on,depends on
+ml-workbench-service,common-lib,depends_on,depends on
+model-registry-service,common-lib,depends_on,depends on
+monitoring-alerting-service,common-lib,depends_on,depends on
+monitoring-alerting-service,strategy-execution-engine,depends_on,depends on
+portfolio-management-service,common-lib,depends_on,depends on
+risk-management-service,common-lib,depends_on,depends on
+strategy-execution-engine,common-lib,depends_on,depends on
+trading-gateway-service,risk-management-service,depends_on,depends on
+trading-gateway-service,common-lib,depends_on,depends on
+ui-service,feature-store-service,depends_on,depends on
+ui-service,common-lib,depends_on,depends on

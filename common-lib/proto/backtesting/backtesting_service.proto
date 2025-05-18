@@ -1,0 +1,349 @@
+syntax = "proto3";
+
+package forex.backtesting;
+
+import "common/common_types.proto";
+import "common/error_types.proto";
+
+option go_package = "github.com/olevar2/MD/common-lib/proto/backtesting";
+option java_package = "com.olevar2.forex.backtesting";
+option java_multiple_files = true;
+
+// BacktestingService provides methods for backtesting trading strategies
+service BacktestingService {
+  // RunBacktest runs a backtest for a trading strategy
+  rpc RunBacktest(RunBacktestRequest) returns (RunBacktestResponse);
+  
+  // GetBacktestResult retrieves the result of a backtest
+  rpc GetBacktestResult(GetBacktestResultRequest) returns (GetBacktestResultResponse);
+  
+  // RunOptimization runs an optimization for a trading strategy
+  rpc RunOptimization(RunOptimizationRequest) returns (RunOptimizationResponse);
+  
+  // GetOptimizationResult retrieves the result of an optimization
+  rpc GetOptimizationResult(GetOptimizationResultRequest) returns (GetOptimizationResultResponse);
+  
+  // RunWalkForwardAnalysis runs a walk-forward analysis for a trading strategy
+  rpc RunWalkForwardAnalysis(RunWalkForwardAnalysisRequest) returns (RunWalkForwardAnalysisResponse);
+  
+  // GetWalkForwardResult retrieves the result of a walk-forward analysis
+  rpc GetWalkForwardResult(GetWalkForwardResultRequest) returns (GetWalkForwardResultResponse);
+}
+
+// StrategyParameter represents a parameter for a trading strategy
+message StrategyParameter {
+  // Parameter name
+  string name = 1;
+  // Parameter value (as string)
+  string value = 2;
+  // Parameter type
+  string type = 3;
+}
+
+// Trade represents a trade executed in a backtest
+message Trade {
+  // Trade ID
+  string id = 1;
+  // Symbol
+  string symbol = 2;
+  // Direction (buy/sell)
+  string direction = 3;
+  // Entry price
+  double entry_price = 4;
+  // Exit price
+  double exit_price = 5;
+  // Entry time
+  forex.common.Timestamp entry_time = 6;
+  // Exit time
+  forex.common.Timestamp exit_time = 7;
+  // Position size
+  double position_size = 8;
+  // Profit/loss
+  double pnl = 9;
+  // Trade metadata
+  forex.common.Metadata metadata = 10;
+}
+
+// PerformanceMetric represents a performance metric for a backtest
+message PerformanceMetric {
+  // Metric name
+  string name = 1;
+  // Metric value
+  double value = 2;
+  // Metric description
+  string description = 3;
+}
+
+// BacktestResult represents the result of a backtest
+message BacktestResult {
+  // Backtest ID
+  string id = 1;
+  // Strategy name
+  string strategy_name = 2;
+  // Symbol
+  forex.common.Symbol symbol = 3;
+  // Timeframe
+  forex.common.Timeframe timeframe = 4;
+  // Start date
+  forex.common.Timestamp start_date = 5;
+  // End date
+  forex.common.Timestamp end_date = 6;
+  // Initial capital
+  double initial_capital = 7;
+  // Final capital
+  double final_capital = 8;
+  // Total return
+  double total_return = 9;
+  // Annualized return
+  double annualized_return = 10;
+  // Sharpe ratio
+  double sharpe_ratio = 11;
+  // Maximum drawdown
+  double max_drawdown = 12;
+  // Win rate
+  double win_rate = 13;
+  // Profit factor
+  double profit_factor = 14;
+  // Trades
+  repeated Trade trades = 15;
+  // Performance metrics
+  repeated PerformanceMetric metrics = 16;
+  // Strategy parameters
+  repeated StrategyParameter parameters = 17;
+  // Equity curve (timestamp, equity value pairs)
+  map<int64, double> equity_curve = 18;
+  // Backtest metadata
+  forex.common.Metadata metadata = 19;
+}
+
+// RunBacktestRequest represents a request to run a backtest
+message RunBacktestRequest {
+  // Strategy name
+  string strategy_name = 1;
+  // Symbol to backtest
+  forex.common.Symbol symbol = 2;
+  // Timeframe to backtest
+  forex.common.Timeframe timeframe = 3;
+  // Start date for backtest
+  forex.common.Timestamp start_date = 4;
+  // End date for backtest
+  forex.common.Timestamp end_date = 5;
+  // Initial capital
+  double initial_capital = 6;
+  // Strategy parameters
+  repeated StrategyParameter parameters = 7;
+  // Additional options
+  map<string, string> options = 8;
+}
+
+// RunBacktestResponse represents a response containing a backtest result or task ID
+message RunBacktestResponse {
+  // Backtest result (if synchronous)
+  BacktestResult result = 1;
+  // Task ID (if asynchronous)
+  string task_id = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}
+
+// GetBacktestResultRequest represents a request to get a backtest result
+message GetBacktestResultRequest {
+  // Backtest ID or task ID
+  string id = 1;
+}
+
+// GetBacktestResultResponse represents a response containing a backtest result
+message GetBacktestResultResponse {
+  // Backtest result
+  BacktestResult result = 1;
+  // Task status (if asynchronous)
+  string status = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}
+
+// ParameterRange represents a range for a parameter in optimization
+message ParameterRange {
+  // Parameter name
+  string name = 1;
+  // Minimum value
+  double min = 2;
+  // Maximum value
+  double max = 3;
+  // Step size
+  double step = 4;
+  // Discrete values (if applicable)
+  repeated double values = 5;
+}
+
+// OptimizationResult represents the result of an optimization
+message OptimizationResult {
+  // Optimization ID
+  string id = 1;
+  // Strategy name
+  string strategy_name = 2;
+  // Symbol
+  forex.common.Symbol symbol = 3;
+  // Timeframe
+  forex.common.Timeframe timeframe = 4;
+  // Start date
+  forex.common.Timestamp start_date = 5;
+  // End date
+  forex.common.Timestamp end_date = 6;
+  // Optimization objective
+  string objective = 7;
+  // Parameter ranges
+  repeated ParameterRange parameter_ranges = 8;
+  // Best parameters
+  repeated StrategyParameter best_parameters = 9;
+  // Best backtest result
+  BacktestResult best_result = 10;
+  // All results (parameter combination ID to result)
+  map<string, BacktestResult> all_results = 11;
+  // Optimization metadata
+  forex.common.Metadata metadata = 12;
+}
+
+// RunOptimizationRequest represents a request to run an optimization
+message RunOptimizationRequest {
+  // Strategy name
+  string strategy_name = 1;
+  // Symbol to optimize
+  forex.common.Symbol symbol = 2;
+  // Timeframe to optimize
+  forex.common.Timeframe timeframe = 3;
+  // Start date for optimization
+  forex.common.Timestamp start_date = 4;
+  // End date for optimization
+  forex.common.Timestamp end_date = 5;
+  // Initial capital
+  double initial_capital = 6;
+  // Parameter ranges to optimize
+  repeated ParameterRange parameter_ranges = 7;
+  // Optimization objective
+  string objective = 8;
+  // Additional options
+  map<string, string> options = 9;
+}
+
+// RunOptimizationResponse represents a response containing an optimization result or task ID
+message RunOptimizationResponse {
+  // Optimization result (if synchronous)
+  OptimizationResult result = 1;
+  // Task ID (if asynchronous)
+  string task_id = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}
+
+// GetOptimizationResultRequest represents a request to get an optimization result
+message GetOptimizationResultRequest {
+  // Optimization ID or task ID
+  string id = 1;
+}
+
+// GetOptimizationResultResponse represents a response containing an optimization result
+message GetOptimizationResultResponse {
+  // Optimization result
+  OptimizationResult result = 1;
+  // Task status (if asynchronous)
+  string status = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}
+
+// WalkForwardWindow represents a window in walk-forward analysis
+message WalkForwardWindow {
+  // Window ID
+  string id = 1;
+  // In-sample start date
+  forex.common.Timestamp in_sample_start = 2;
+  // In-sample end date
+  forex.common.Timestamp in_sample_end = 3;
+  // Out-of-sample start date
+  forex.common.Timestamp out_of_sample_start = 4;
+  // Out-of-sample end date
+  forex.common.Timestamp out_of_sample_end = 5;
+  // Optimization result for in-sample period
+  OptimizationResult optimization_result = 6;
+  // Backtest result for out-of-sample period
+  BacktestResult backtest_result = 7;
+}
+
+// WalkForwardResult represents the result of a walk-forward analysis
+message WalkForwardResult {
+  // Walk-forward analysis ID
+  string id = 1;
+  // Strategy name
+  string strategy_name = 2;
+  // Symbol
+  forex.common.Symbol symbol = 3;
+  // Timeframe
+  forex.common.Timeframe timeframe = 4;
+  // Start date
+  forex.common.Timestamp start_date = 5;
+  // End date
+  forex.common.Timestamp end_date = 6;
+  // Window size (in days)
+  int32 window_size = 7;
+  // Step size (in days)
+  int32 step_size = 8;
+  // Windows
+  repeated WalkForwardWindow windows = 9;
+  // Aggregate performance metrics
+  repeated PerformanceMetric metrics = 10;
+  // Walk-forward metadata
+  forex.common.Metadata metadata = 11;
+}
+
+// RunWalkForwardAnalysisRequest represents a request to run a walk-forward analysis
+message RunWalkForwardAnalysisRequest {
+  // Strategy name
+  string strategy_name = 1;
+  // Symbol to analyze
+  forex.common.Symbol symbol = 2;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 3;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 4;
+  // End date for analysis
+  forex.common.Timestamp end_date = 5;
+  // Initial capital
+  double initial_capital = 6;
+  // Window size (in days)
+  int32 window_size = 7;
+  // Step size (in days)
+  int32 step_size = 8;
+  // Parameter ranges to optimize
+  repeated ParameterRange parameter_ranges = 9;
+  // Optimization objective
+  string objective = 10;
+  // Additional options
+  map<string, string> options = 11;
+}
+
+// RunWalkForwardAnalysisResponse represents a response containing a walk-forward result or task ID
+message RunWalkForwardAnalysisResponse {
+  // Walk-forward result (if synchronous)
+  WalkForwardResult result = 1;
+  // Task ID (if asynchronous)
+  string task_id = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}
+
+// GetWalkForwardResultRequest represents a request to get a walk-forward result
+message GetWalkForwardResultRequest {
+  // Walk-forward analysis ID or task ID
+  string id = 1;
+}
+
+// GetWalkForwardResultResponse represents a response containing a walk-forward result
+message GetWalkForwardResultResponse {
+  // Walk-forward result
+  WalkForwardResult result = 1;
+  // Task status (if asynchronous)
+  string status = 2;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 3;
+}

@@ -202,7 +202,7 @@ async def delete_task(
         raise HTTPException(status_code=500, detail=f"Failed to delete task: {str(e)}")
 
 
-@router.get("/available-services")
+@router.get("/available-services", response_model=Dict[str, List[str]])
 async def get_available_services(
     coordinator_service: CoordinatorService = Depends(get_coordinator_service)
 ):

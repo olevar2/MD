@@ -12,6 +12,8 @@ from ...interfaces.broker_adapter_interface import BrokerAdapterInterface, Order
 from .base_execution_service import BaseExecutionService
 from .execution_mode_handler import ExecutionModeHandler, ExecutionMode
 
+# Import monitoring and tracing components
+from common_lib.monitoring import MetricsManager, TracingManager, track_time, trace_function
 
 from core.exceptions_bridge_1 import (
     with_exception_handling,
@@ -45,6 +47,7 @@ class MarketExecutionService(BaseExecutionService):
         self.logger.info('MarketExecutionService initialized')
 
     @with_exception_handling
+    @trace_function
     def place_order(self, order: OrderRequest, broker_name: Optional[str]=
         None, **kwargs) ->ExecutionReport:
         """
@@ -120,6 +123,7 @@ class MarketExecutionService(BaseExecutionService):
             return rejection_report
 
     @with_exception_handling
+    @trace_function
     def cancel_order(self, order_id: str) ->ExecutionReport:
         """
         Cancel an existing market order.
@@ -179,6 +183,7 @@ class MarketExecutionService(BaseExecutionService):
             return rejection_report
 
     @with_exception_handling
+    @trace_function
     def modify_order(self, order_id: str, modifications: Dict[str, Any]
         ) ->ExecutionReport:
         """
