@@ -1,263 +1,160 @@
-"""
-Retry Policy Implementation
-
-This module provides enhanced retry functionality by extending
-the core implementation from core-foundations with integration to common-lib
-monitoring, logging, and configuration.
-"""
-
+import asyncio
 import functools
 import logging
-import time
-import asyncio
 import random
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, Coroutine, Set # Import Set from typing
+import time
+from typing import Any, Callable, TypeVar
 
-# Import the base retry policy implementation
-from core_foundations.resilience.retry_policy import (
-    RetryPolicy as CoreRetryPolicy,
-    RetryExhaustedException,
-    register_common_retryable_exceptions as core_register_common_retryable_exceptions,
-    retry_with_policy as core_retry_with_policy
-)
+from common_lib.exceptions import RetryExhaustedError
 
-# Setup logger
-logger = logging.getLogger(__name__)
+# Generic type for the decorated function's return value
+ResultT = TypeVar("ResultT")
 
-# Type variables for function return types
-T = TypeVar('T')
-R = TypeVar('R')
+# Global set to store exception types that should trigger a retry
+_RETRYABLE_EXCEPTIONS = set()
 
-# Re-export RetryExhaustedException
-__all__ = [
-    "RetryPolicy", "RetryExhaustedException", "retry_with_policy",
-    "register_common_retryable_exceptions", "register_database_retryable_exceptions"
-]
+def register_common_retryable_exceptions(exceptions: list[type[Exception]]) -> None:
+    """Register common exceptions that should trigger a retry."""
+    for exc in exceptions:
+        _RETRYABLE_EXCEPTIONS.add(exc)
 
+class RetryPolicy:
+    """Implements a retry mechanism with exponential backoff and jitter."""
 
-class RetryPolicy(CoreRetryPolicy):
-    """
-    Enhanced RetryPolicy that integrates with common_lib monitoring
-    and provides additional utilities specific to the Forex platform.
-    """
-    
     def __init__(
         self,
-        max_attempts: int = 3,
-        base_delay: float = 1.0,
-        max_delay: Optional[float] = 60.0,
+        max_retries: int = 3,
+        delay_seconds: float = 1.0,
         backoff_factor: float = 2.0,
-        jitter: bool = True,
-        exceptions: Optional[List[Type[Exception]]] = None,
-        on_retry: Optional[Callable[[Any], None]] = None,
-        metric_handler: Optional[Callable[[str, Dict[str, Any]], None]] = None,
-        service_name: Optional[str] = None,
-        operation_name: Optional[str] = None
-    ):
-        """
-        Initialize an enhanced retry policy with specific parameters.
-        
+        jitter_range: float = 0.1,
+        logger: logging.Logger | None = None,
+    ) -> None:
+        """Initializes the RetryPolicy.
+
         Args:
-            max_attempts: Maximum number of attempts before failing.
-            base_delay: Base delay time in seconds for exponential backoff.
-            max_delay: Maximum delay between retries in seconds.
-            backoff_factor: Multiplier for exponential backoff (typically 2).
-            jitter: If True, adds randomization to delay times.
-            exceptions: Set of exception types that trigger a retry.
-            on_retry: Optional callback executed before sleeping on retry.
-            metric_handler: Optional callback for reporting retry metrics.
-            service_name: Name of the service using the retry policy.
-            operation_name: Name of the operation being retried.
+            max_retries: Maximum number of retry attempts.
+            delay_seconds: Initial delay between retries in seconds.
+            backoff_factor: Factor by which the delay increases after each retry.
+            jitter_range: Percentage of jitter to apply to the delay (0.0 to 1.0).
+            logger: Optional logger for logging retry attempts.
         """
-        super().__init__(
-            max_attempts=max_attempts,
-            base_delay=base_delay,
-            max_delay=max_delay,
-            backoff_factor=backoff_factor,
-            jitter=jitter,
-            exceptions=exceptions,
-            on_retry=on_retry,
-            metric_handler=metric_handler
-        )
-        
-        # Additional attributes for enhanced retry policy
-        self.service_name = service_name
-        self.operation_name = operation_name
-        
-    def _report_metrics(self, attempts: int, successful: bool, duration: float, exception: Optional[Exception] = None) -> None:
-        """
-        Enhanced metrics reporting that includes service and operation names.
-        
-        Args:
-            attempts: Number of attempts made.
-            successful: Whether the operation eventually succeeded.
-            duration: Total duration including all retries in seconds.
-            exception: The last exception if the operation failed.
-        """
-        if self.metric_handler:
-            metrics_data = {
-                "attempts": attempts,
-                "successful": successful,
-                "duration_seconds": duration,
-                "policy_max_attempts": self.max_attempts,
-                "policy_base_delay": self.base_delay,
-                "policy_max_delay": self.max_delay,
-                "policy_jitter": self.jitter,
-                "timestamp": time.time()
-            }
+        if max_retries < 0:
+            raise ValueError("max_retries must be non-negative")
+        if delay_seconds <= 0:
+            raise ValueError("delay_seconds must be positive")
+        if backoff_factor < 1:
+            raise ValueError("backoff_factor must be at least 1")
+        if not 0 <= jitter_range <= 1:
+            raise ValueError("jitter_range must be between 0 and 1")
+
+        self.max_retries = max_retries
+        self.delay_seconds = delay_seconds
+        self.backoff_factor = backoff_factor
+        self.jitter_range = jitter_range
+        self.logger = logger or logging.getLogger(__name__)
+
+    def _should_retry(self, exception: Exception) -> bool:
+        """Determines if a retry should be attempted for the given exception."""
+        return any(isinstance(exception, retryable_exc) for retryable_exc in _RETRYABLE_EXCEPTIONS)
+
+    def _calculate_delay(self, attempt: int) -> float:
+        """Calculates the delay for the current attempt with jitter."""
+        delay = self.delay_seconds * (self.backoff_factor ** (attempt - 1))
+        jitter = random.uniform(-self.jitter_range, self.jitter_range) * delay
+        return delay + jitter
+
+    async def execute_async(self, func: Callable[..., ResultT], *args: Any, **kwargs: Any) -> ResultT:
+        """Executes an async function with retry logic."""
+        last_exception = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                last_exception = e
+                if not self._should_retry(e) or attempt == self.max_retries:
+                    self.logger.error(
+                        f"Attempt {attempt + 1} failed with non-retryable error or max retries reached: {e}"
+                    )
+                    raise
+                delay = self._calculate_delay(attempt + 1)
+                self.logger.warning(
+                    f"Attempt {attempt + 1} failed with {e.__class__.__name__}. Retrying in {delay:.2f} seconds..."
+                )
+                await asyncio.sleep(delay)
+        # This line should ideally not be reached if max_retries is handled correctly
+        raise RetryExhaustedError(
+            f"All {self.max_retries + 1} attempts failed. Last error: {last_exception}"
+        ) from last_exception
+
+    def execute_sync(self, func: Callable[..., ResultT], *args: Any, **kwargs: Any) -> ResultT:
+        """Executes a synchronous function with retry logic."""
+        last_exception = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                last_exception = e
+                if not self._should_retry(e) or attempt == self.max_retries:
+                    self.logger.error(
+                        f"Attempt {attempt + 1} failed with non-retryable error or max retries reached: {e}"
+                    )
+                    raise
+                delay = self._calculate_delay(attempt + 1)
+                self.logger.warning(
+                    f"Attempt {attempt + 1} failed with {e.__class__.__name__}. Retrying in {delay:.2f} seconds..."
+                )
+                time.sleep(delay)
+        # This line should ideally not be reached if max_retries is handled correctly
+        raise RetryExhaustedError(
+            f"All {self.max_retries + 1} attempts failed. Last error: {last_exception}"
+        ) from last_exception
+
+def retry(max_retries: int = 3, delay_seconds: float = 1.0, backoff_factor: float = 2.0, jitter_range: float = 0.1):
+    """Decorator to apply retry logic to a function.
+
+    Args:
+        max_retries (int): Maximum number of retry attempts.
+        delay_seconds (float): Initial delay between retries in seconds.
+        backoff_factor (float): Factor by which the delay increases after each retry.
+        jitter_range (float): Percentage of jitter to apply to the delay (0.0 to 1.0).
+    """
+    policy = RetryPolicy(max_retries, delay_seconds, backoff_factor, jitter_range)
+
+    def decorator(func: Callable[..., ResultT]) -> Callable[..., ResultT]:
+        """Decorator function that wraps the original function with retry logic."""
+        @functools.wraps(func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -> ResultT:
+            """
+            Async wrapper.
             
-            # Add service and operation names if available
-            if self.service_name:
-                metrics_data["service_name"] = self.service_name
-            if self.operation_name:
-                metrics_data["operation_name"] = self.operation_name
-                
-            if exception:
-                metrics_data["last_exception_type"] = type(exception).__name__
-                
-            self.metric_handler("resilience.retry.execution", metrics_data)
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                T: Description of return value
+            
+            """
+            return await policy.execute_async(func, *args, **kwargs)
 
-
-def retry_with_policy(
-    max_attempts: int = 3,
-    base_delay: float = 1.0,
-    max_delay: Optional[float] = 60.0,
-    backoff_factor: float = 2.0,
-    jitter: bool = True,
-    exceptions: Optional[List[Type[Exception]]] = None,
-    on_retry: Optional[Callable[[Any], None]] = None,
-    metric_handler: Optional[Callable[[str, Dict[str, Any]], None]] = None,
-    service_name: Optional[str] = None,
-    operation_name: Optional[str] = None
-) -> Callable[[Callable[..., Union[T, Coroutine[Any, Any, R]]]], 
-             Callable[..., Union[T, Coroutine[Any, Any, R]]]]:
-    """
-    Enhanced decorator that applies a RetryPolicy to a function or coroutine.
-    
-    Args:
-        max_attempts: Maximum number of attempts before failing.
-        base_delay: Base delay time in seconds for exponential backoff.
-        max_delay: Maximum delay between retries in seconds.
-        backoff_factor: Multiplier for exponential backoff (typically 2).
-        jitter: If True, adds randomization to delay times.
-        exceptions: Set of exception types that trigger a retry.
-        on_retry: Optional callback executed before sleeping on retry.
-        metric_handler: Optional callback for reporting retry metrics.
-        service_name: Name of the service using the retry policy.
-        operation_name: Name of the operation being retried.
-        
-    Returns:
-        A decorator function.
-    """
-    policy = RetryPolicy(
-        max_attempts=max_attempts,
-        base_delay=base_delay,
-        max_delay=max_delay,
-        backoff_factor=backoff_factor,
-        jitter=jitter,
-        exceptions=exceptions,
-        on_retry=on_retry,
-        metric_handler=metric_handler,
-        service_name=service_name,
-        operation_name=operation_name
-    )
-
-    def decorator(func: Callable[..., Union[T, Coroutine[Any, Any, R]]]) -> Callable[..., Union[T, Coroutine[Any, Any, R]]]:
-    """
-    Decorator.
-    
-    Args:
-        func: Description of func
-        Union[T: Description of Union[T
-        Coroutine[Any: Description of Coroutine[Any
-        Any: Description of Any
-        R]]]: Description of R]]]
-    
-    Returns:
-        Callable[..., Union[T, Coroutine[Any, Any, R]]]: Description of return value
-    
-    """
+        @functools.wraps(func)
+        def sync_wrapper(*args: Any, **kwargs: Any) -> ResultT:
+            """
+            Sync wrapper.
+            
+            Args:
+                args: Description of args
+                kwargs: Description of kwargs
+            
+            Returns:
+                T: Description of return value
+            
+            """
+            return policy.execute_sync(func, *args, **kwargs)
 
         if asyncio.iscoroutinefunction(func):
-            @functools.wraps(func)
-            async def async_wrapper(*args: Any, **kwargs: Any) -> R:
-    """
-    Async wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        R: Description of return value
-    
-    """
-
-                return await policy.execute_async(func, *args, **kwargs)
-            return async_wrapper # type: ignore
+            return async_wrapper
         else:
-            @functools.wraps(func)
-            def sync_wrapper(*args: Any, **kwargs: Any) -> T:
-    """
-    Sync wrapper.
-    
-    Args:
-        args: Description of args
-        kwargs: Description of kwargs
-    
-    Returns:
-        T: Description of return value
-    
-    """
+            return sync_wrapper
 
-                return policy.execute_sync(func, *args, **kwargs)
-            return sync_wrapper # type: ignore
     return decorator
-
-
-def register_common_retryable_exceptions() -> Set[Type[Exception]]:
-    """
-    Re-exports the core register_common_retryable_exceptions function.
-    
-    Returns:
-        Set of exception types that should typically be retried.
-    """
-    return core_register_common_retryable_exceptions()
-
-
-def register_database_retryable_exceptions() -> Set[Type[Exception]]:
-    """
-    Registers database-specific exceptions that should be retried.
-    
-    Returns:
-        Set of database-specific exception types that should be retried.
-    """
-    db_retryable_exceptions = set()
-    
-    # Add SQLAlchemy errors
-    try:
-        from sqlalchemy.exc import DBAPIError, TimeoutError as SATimeoutError, OperationalError
-        db_retryable_exceptions.add(DBAPIError)
-        db_retryable_exceptions.add(SATimeoutError)
-        db_retryable_exceptions.add(OperationalError)
-    except ImportError:
-        pass
-    
-    # Add asyncpg errors
-    try:
-        import asyncpg
-        db_retryable_exceptions.add(asyncpg.exceptions.CannotConnectNowError)
-        db_retryable_exceptions.add(asyncpg.exceptions.ConnectionDoesNotExistError)
-        db_retryable_exceptions.add(asyncpg.exceptions.InterfaceError)
-    except ImportError:
-        pass
-    
-    # Add psycopg2 errors
-    try:
-        import psycopg2.errors
-        db_retryable_exceptions.add(psycopg2.errors.OperationalError)
-        db_retryable_exceptions.add(psycopg2.errors.ConnectionException)
-    except ImportError:
-        pass
-    
-    return db_retryable_exceptions

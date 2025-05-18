@@ -198,35 +198,41 @@ class MarketAnalysisService(IMarketAnalysisService):
                         "correlation_matrix": correlation_response.correlation_matrix,
                         "correlation_pairs": correlation_response.correlation_pairs
                     }
-                else:
-                    result = {
-                        "correlation_matrix": {},
-                        "correlation_pairs": []
-                    }
-                    
-            elif analysis_type == AnalysisType.VOLATILITY:
-                # Analyze volatility
-                volatility_result = await self.analyze_volatility(
-                    symbol=request.symbol,
-                    timeframe=request.timeframe,
-                    start_date=start_date,
-                    end_date=end_date,
-                    parameters=request.additional_parameters
-                )
-                
-                result = volatility_result
-                
+
             elif analysis_type == AnalysisType.SENTIMENT:
                 # Analyze sentiment
-                sentiment_result = await self.analyze_sentiment(
+                sentiment_response = await self.analyze_sentiment(
                     symbol=request.symbol,
                     timeframe=request.timeframe,
                     start_date=start_date,
                     end_date=end_date,
                     parameters=request.additional_parameters
                 )
-                
-                result = sentiment_result
+
+                result = {
+                    "sentiment": sentiment_response.sentiment,
+                    "technical_sentiment": sentiment_response.technical_sentiment,
+                    "price_sentiment": sentiment_response.price_sentiment,
+                    "external_sentiment": sentiment_response.external_sentiment,
+                    "combined_sentiment": sentiment_response.combined_sentiment
+                }
+
+            elif analysis_type == AnalysisType.VOLATILITY:
+                # Analyze volatility
+                volatility_response = await self.analyze_volatility(
+                    symbol=request.symbol,
+                    timeframe=request.timeframe,
+                    start_date=start_date,
+                    end_date=end_date,
+                    parameters=request.additional_parameters
+                )
+
+                result = {
+                    "volatility": volatility_response.volatility,
+                    "regimes": volatility_response.regimes,
+                    "forecasts": volatility_response.forecasts,
+                    "term_structure": volatility_response.term_structure
+                }
                 
             elif analysis_type == AnalysisType.COMPREHENSIVE:
                 # Perform all analyses

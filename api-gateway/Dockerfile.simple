@@ -1,0 +1,19 @@
+FROM node:16-alpine
+
+WORKDIR /app
+
+# Create a simple package.json
+RUN echo '{"name":"api-gateway","version":"1.0.0","scripts":{"start":"node server.js"}}' > package.json
+
+# Create a simple server.js
+RUN echo 'const http = require("http");\n\nconst server = http.createServer((req, res) => {\n  if (req.url === "/health") {\n    res.writeHead(200, { "Content-Type": "application/json" });\n    res.end(JSON.stringify({ status: "ok" }));\n  } else {\n    res.writeHead(200, { "Content-Type": "application/json" });\n    res.end(JSON.stringify({ message: "API Gateway" }));\n  }\n});\n\nserver.listen(8080, () => {\n  console.log("Server running on port 8080");\n});' > server.js
+
+# Expose port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD wget -qO- http://localhost:8080/health || exit 1
+
+# Run the application
+CMD ["node", "server.js"]

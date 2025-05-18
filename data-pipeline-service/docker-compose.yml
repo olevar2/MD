@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  data-pipeline-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8005
+    volumes:
+      - ./:/app
+    networks:
+      - forex-platform-network
+
+networks:
+  forex-platform-network:
+    driver: bridge

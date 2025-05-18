@@ -51,62 +51,57 @@ _command_bus: Optional[CommandBus] = None
 _query_bus: Optional[QueryBus] = None
 
 
-def get_market_analysis_adapter():
+def get_market_analysis_adapter(settings):
     """
     Get the market analysis adapter.
     """
-    settings = get_settings()
     return MarketAnalysisAdapter(base_url=settings.market_analysis_service_url)
 
 
-def get_causal_analysis_adapter():
+def get_causal_analysis_adapter(settings):
     """
     Get the causal analysis adapter.
     """
-    settings = get_settings()
     return CausalAnalysisAdapter(base_url=settings.causal_analysis_service_url)
 
 
-def get_backtesting_adapter():
+def get_backtesting_adapter(settings):
     """
     Get the backtesting adapter.
     """
-    settings = get_settings()
     return BacktestingAdapter(base_url=settings.backtesting_service_url)
 
 
-def get_task_read_repository():
+def get_task_read_repository(settings):
     """
     Get the task read repository.
     """
-    settings = get_settings()
     return TaskReadRepository(connection_string=settings.database_connection_string)
 
 
-def get_task_write_repository():
+def get_task_write_repository(settings):
     """
     Get the task write repository.
     """
-    settings = get_settings()
     return TaskWriteRepository(connection_string=settings.database_connection_string)
 
 
-def get_task_repository():
+def get_task_repository(settings):
     """
     Get the task repository (write repository for backward compatibility).
     """
-    return get_task_write_repository()
+    return get_task_write_repository(settings)
 
 
-def get_coordinator_service():
+def get_coordinator_service(settings):
     """
     Get the coordinator service.
     """
     return CoordinatorService(
-        market_analysis_adapter=get_market_analysis_adapter(),
-        causal_analysis_adapter=get_causal_analysis_adapter(),
-        backtesting_adapter=get_backtesting_adapter(),
-        task_repository=get_task_write_repository()
+        market_analysis_adapter=get_market_analysis_adapter(settings),
+        causal_analysis_adapter=get_causal_analysis_adapter(settings),
+        backtesting_adapter=get_backtesting_adapter(settings),
+        task_repository=get_task_write_repository(settings)
     )
 
 
@@ -121,12 +116,13 @@ def get_command_bus() -> CommandBus:
     
     if _command_bus is None:
         _command_bus = CommandBus()
+        settings = get_settings() # Get settings once
         
         # Create repositories
-        task_write_repository = get_task_write_repository()
+        task_write_repository = get_task_write_repository(settings)
         
         # Create services
-        coordinator_service = get_coordinator_service()
+        coordinator_service = get_coordinator_service(settings)
         
         # Create command handlers
         run_integrated_analysis_handler = RunIntegratedAnalysisCommandHandler(
@@ -164,12 +160,13 @@ def get_query_bus() -> QueryBus:
     
     if _query_bus is None:
         _query_bus = QueryBus()
+        settings = get_settings() # Get settings once
         
         # Create repositories
-        task_read_repository = get_task_read_repository()
+        task_read_repository = get_task_read_repository(settings)
         
         # Create services
-        coordinator_service = get_coordinator_service()
+        coordinator_service = get_coordinator_service(settings)
         
         # Create query handlers
         get_analysis_task_handler = GetAnalysisTaskQueryHandler(

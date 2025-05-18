@@ -190,3 +190,31 @@ def get_query_bus() -> QueryBus:
         _query_bus.register_handler(GetAvailableMethodsQuery, get_available_methods_handler)
     
     return _query_bus
+
+
+def get_market_analysis_service() -> MarketAnalysisService:
+    """
+    Get the Market Analysis Service instance.
+
+    Returns:
+        The Market Analysis Service instance
+    """
+    # Create repositories
+    analysis_read_repository = AnalysisReadRepository()
+    analysis_write_repository = AnalysisWriteRepository()
+
+    # Create adapters (assuming these dependencies are available or can be initialized here)
+    # TODO: Properly initialize adapters with their dependencies
+    data_pipeline_adapter = DataPipelineAdapter() # Placeholder
+    analysis_coordinator_adapter = AnalysisCoordinatorAdapter() # Placeholder
+    feature_store_adapter = FeatureStoreAdapter() # Placeholder
+
+    # Create and return the Market Analysis Service instance
+    market_analysis_service = MarketAnalysisService(
+        data_pipeline_adapter=data_pipeline_adapter,
+        analysis_coordinator_adapter=analysis_coordinator_adapter,
+        feature_store_adapter=feature_store_adapter,
+        analysis_repository=analysis_write_repository # Assuming write repository is needed for the service
+    )
+
+    return market_analysis_service

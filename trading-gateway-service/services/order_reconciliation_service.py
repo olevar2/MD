@@ -14,6 +14,8 @@ from adapters.broker_adapter import BrokerAdapter, OrderRequest, OrderType, Orde
 logger = logging.getLogger(__name__)
 from core.exceptions_bridge_1 import with_exception_handling, async_with_exception_handling, ForexTradingPlatformError, ServiceError, DataError, ValidationError
 
+# Import monitoring and tracing components
+from common_lib.monitoring import MetricsManager, TracingManager, track_time, trace_function
 
 from utils.utils import (
     with_broker_api_resilience,
@@ -213,6 +215,7 @@ class OrderReconciliationService:
                 reconciliation_type.value, 'status': 'failed', 'error': str(e)}
 
     @async_with_exception_handling
+    @trace_function
     async def _reconcile_orders(self) ->Dict[str, Any]:
         """
         Reconcile orders between internal system and broker.
@@ -338,6 +341,7 @@ class OrderReconciliationService:
         return resolved
 
     @async_with_exception_handling
+    @trace_function
     async def _reconcile_positions(self) ->Dict[str, Any]:
         """
         Reconcile positions between internal system and broker.
@@ -453,6 +457,7 @@ class OrderReconciliationService:
         return resolved
 
     @async_with_exception_handling
+    @trace_function
     async def _reconcile_account(self) ->Dict[str, Any]:
         """
         Reconcile account balances and metrics between internal system and broker.

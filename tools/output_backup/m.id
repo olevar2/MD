@@ -1,1 +1,0 @@
-  const index = db.memories.findIndex(m = === req.params.id);

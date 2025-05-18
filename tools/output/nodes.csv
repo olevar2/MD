@@ -1,0 +1,22 @@
+Id,Label,Type,Layer
+layer_Presentation,Presentation Layer,layer,
+layer_Business,Business Layer,layer,
+layer_Data,Data Layer,layer,
+layer_Integration,Integration Layer,layer,
+layer_Cross-cutting,Cross-cutting Layer,layer,
+ui-service,ui-service,service,Presentation
+api-gateway,api-gateway,service,Presentation
+analysis-engine-service,analysis-engine-service,service,Business
+portfolio-management-service,portfolio-management-service,service,Business
+risk-management-service,risk-management-service,service,Business
+strategy-execution-engine,strategy-execution-engine,service,Business
+data-management-service,data-management-service,service,Data
+data-pipeline-service,data-pipeline-service,service,Data
+feature-store-service,feature-store-service,service,Data
+ml-integration-service,ml-integration-service,service,Integration
+trading-gateway-service,trading-gateway-service,service,Integration
+ml-workbench-service,ml-workbench-service,service,Integration
+model-registry-service,model-registry-service,service,Integration
+common-lib,common-lib,service,Cross-cutting
+common-js-lib,common-js-lib,service,Cross-cutting
+monitoring-alerting-service,monitoring-alerting-service,service,Cross-cutting

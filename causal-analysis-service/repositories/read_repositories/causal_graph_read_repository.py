@@ -1,3 +1,4 @@
+from analysis_engine.utils.cache_factory import cache_factory
 """
 Causal Graph Read Repository
 

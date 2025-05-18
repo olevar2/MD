@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  model-registry-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8009:8009"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8009
+    volumes:
+      - ./:/app
+    networks:
+      - forex-platform-network
+
+networks:
+  forex-platform-network:
+    driver: bridge

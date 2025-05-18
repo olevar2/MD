@@ -8,35 +8,32 @@ from analysis_coordinator_service.adapters.backtesting_adapter import Backtestin
 from analysis_coordinator_service.repositories.task_repository import TaskRepository
 from analysis_coordinator_service.config.settings import get_settings
 
-def get_market_analysis_adapter():
+def get_market_analysis_adapter(settings) -> MarketAnalysisAdapter:
     """
     Get the market analysis adapter.
     """
-    settings = get_settings()
     return MarketAnalysisAdapter(base_url=settings.market_analysis_service_url)
 
-def get_causal_analysis_adapter():
+def get_causal_analysis_adapter(settings) -> CausalAnalysisAdapter:
     """
     Get the causal analysis adapter.
     """
-    settings = get_settings()
     return CausalAnalysisAdapter(base_url=settings.causal_analysis_service_url)
 
-def get_backtesting_adapter():
+def get_backtesting_adapter(settings) -> BacktestingAdapter:
     """
     Get the backtesting adapter.
     """
-    settings = get_settings()
     return BacktestingAdapter(base_url=settings.backtesting_service_url)
 
-def get_task_repository():
+def get_task_repository(settings) -> TaskRepository:
     """
     Get the task repository.
     """
-    settings = get_settings()
     return TaskRepository(connection_string=settings.database_connection_string)
 
 def get_coordinator_service(
+    settings = Depends(get_settings),
     market_analysis_adapter: MarketAnalysisAdapter = Depends(get_market_analysis_adapter),
     causal_analysis_adapter: CausalAnalysisAdapter = Depends(get_causal_analysis_adapter),
     backtesting_adapter: BacktestingAdapter = Depends(get_backtesting_adapter),

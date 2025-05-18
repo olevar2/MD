@@ -1,0 +1,303 @@
+syntax = "proto3";
+
+package forex.market_analysis;
+
+import "common/common_types.proto";
+import "common/error_types.proto";
+
+option go_package = "github.com/olevar2/MD/common-lib/proto/market_analysis";
+option java_package = "com.olevar2.forex.market_analysis";
+option java_multiple_files = true;
+
+// MarketAnalysisService provides methods for analyzing market data
+service MarketAnalysisService {
+  // CalculateIndicators calculates technical indicators for market data
+  rpc CalculateIndicators(CalculateIndicatorsRequest) returns (CalculateIndicatorsResponse);
+  
+  // DetectPatterns detects chart patterns in market data
+  rpc DetectPatterns(DetectPatternsRequest) returns (DetectPatternsResponse);
+  
+  // DetectSupportResistance detects support and resistance levels
+  rpc DetectSupportResistance(DetectSupportResistanceRequest) returns (DetectSupportResistanceResponse);
+  
+  // DetectMarketRegime detects the current market regime
+  rpc DetectMarketRegime(DetectMarketRegimeRequest) returns (DetectMarketRegimeResponse);
+  
+  // PerformCorrelationAnalysis performs correlation analysis between symbols
+  rpc PerformCorrelationAnalysis(PerformCorrelationAnalysisRequest) returns (PerformCorrelationAnalysisResponse);
+  
+  // PerformVolatilityAnalysis performs volatility analysis for a symbol
+  rpc PerformVolatilityAnalysis(PerformVolatilityAnalysisRequest) returns (PerformVolatilityAnalysisResponse);
+}
+
+// Indicator represents a technical indicator value
+message Indicator {
+  // Indicator name
+  string name = 1;
+  // Indicator values (timestamp to value mapping)
+  map<int64, double> values = 2;
+  // Indicator parameters
+  map<string, string> parameters = 3;
+  // Indicator metadata
+  forex.common.Metadata metadata = 4;
+}
+
+// CalculateIndicatorsRequest represents a request to calculate indicators
+message CalculateIndicatorsRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Indicators to calculate
+  repeated string indicators = 5;
+  // Indicator parameters (serialized as JSON strings)
+  map<string, string> parameters = 6;
+}
+
+// CalculateIndicatorsResponse represents a response containing calculated indicators
+message CalculateIndicatorsResponse {
+  // Calculated indicators
+  repeated Indicator indicators = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// Pattern represents a detected chart pattern
+message Pattern {
+  // Pattern ID
+  string id = 1;
+  // Pattern type
+  string type = 2;
+  // Start time
+  forex.common.Timestamp start_time = 3;
+  // End time
+  forex.common.Timestamp end_time = 4;
+  // Strength/confidence (0-1)
+  double strength = 5;
+  // Direction (bullish/bearish)
+  string direction = 6;
+  // Target price
+  double target_price = 7;
+  // Stop loss price
+  double stop_loss_price = 8;
+  // Pattern points (key points defining the pattern)
+  map<string, double> points = 9;
+  // Pattern metadata
+  forex.common.Metadata metadata = 10;
+}
+
+// DetectPatternsRequest represents a request to detect patterns
+message DetectPatternsRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Pattern types to detect
+  repeated string pattern_types = 5;
+  // Minimum pattern strength (0-1)
+  double min_strength = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// DetectPatternsResponse represents a response containing detected patterns
+message DetectPatternsResponse {
+  // Detected patterns
+  repeated Pattern patterns = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// Level represents a support or resistance level
+message Level {
+  // Level ID
+  string id = 1;
+  // Level type (support/resistance)
+  string type = 2;
+  // Price level
+  double price = 3;
+  // Strength/confidence (0-1)
+  double strength = 4;
+  // Start time
+  forex.common.Timestamp start_time = 5;
+  // End time (if broken)
+  forex.common.Timestamp end_time = 6;
+  // Number of touches
+  int32 touches = 7;
+  // Level metadata
+  forex.common.Metadata metadata = 8;
+}
+
+// DetectSupportResistanceRequest represents a request to detect support/resistance
+message DetectSupportResistanceRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Method to use
+  string method = 5;
+  // Minimum level strength (0-1)
+  double min_strength = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// DetectSupportResistanceResponse represents a response containing support/resistance levels
+message DetectSupportResistanceResponse {
+  // Detected levels
+  repeated Level levels = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// MarketRegime represents a detected market regime
+message MarketRegime {
+  // Regime ID
+  string id = 1;
+  // Regime type (trending/ranging/volatile)
+  string type = 2;
+  // Start time
+  forex.common.Timestamp start_time = 3;
+  // End time
+  forex.common.Timestamp end_time = 4;
+  // Strength/confidence (0-1)
+  double strength = 5;
+  // Direction (if trending)
+  string direction = 6;
+  // Volatility level
+  double volatility = 7;
+  // Regime metadata
+  forex.common.Metadata metadata = 8;
+}
+
+// DetectMarketRegimeRequest represents a request to detect market regime
+message DetectMarketRegimeRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Method to use
+  string method = 5;
+  // Additional parameters
+  map<string, string> parameters = 6;
+}
+
+// DetectMarketRegimeResponse represents a response containing market regimes
+message DetectMarketRegimeResponse {
+  // Detected regimes
+  repeated MarketRegime regimes = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// Correlation represents a correlation between two symbols
+message Correlation {
+  // Correlation ID
+  string id = 1;
+  // First symbol
+  forex.common.Symbol symbol1 = 2;
+  // Second symbol
+  forex.common.Symbol symbol2 = 3;
+  // Correlation coefficient
+  double coefficient = 4;
+  // Start time
+  forex.common.Timestamp start_time = 5;
+  // End time
+  forex.common.Timestamp end_time = 6;
+  // Correlation over time (timestamp to value mapping)
+  map<int64, double> time_series = 7;
+  // Correlation metadata
+  forex.common.Metadata metadata = 8;
+}
+
+// PerformCorrelationAnalysisRequest represents a request for correlation analysis
+message PerformCorrelationAnalysisRequest {
+  // Symbols to analyze
+  repeated forex.common.Symbol symbols = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Method to use
+  string method = 5;
+  // Rolling window size (in bars)
+  int32 window_size = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// PerformCorrelationAnalysisResponse represents a response with correlation analysis
+message PerformCorrelationAnalysisResponse {
+  // Correlations between symbols
+  repeated Correlation correlations = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// VolatilityAnalysis represents volatility analysis for a symbol
+message VolatilityAnalysis {
+  // Analysis ID
+  string id = 1;
+  // Symbol
+  forex.common.Symbol symbol = 2;
+  // Timeframe
+  forex.common.Timeframe timeframe = 3;
+  // Start time
+  forex.common.Timestamp start_time = 4;
+  // End time
+  forex.common.Timestamp end_time = 5;
+  // Historical volatility
+  double historical_volatility = 6;
+  // Implied volatility (if available)
+  double implied_volatility = 7;
+  // Volatility over time (timestamp to value mapping)
+  map<int64, double> time_series = 8;
+  // Volatility regimes
+  repeated MarketRegime volatility_regimes = 9;
+  // Analysis metadata
+  forex.common.Metadata metadata = 10;
+}
+
+// PerformVolatilityAnalysisRequest represents a request for volatility analysis
+message PerformVolatilityAnalysisRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Method to use
+  string method = 5;
+  // Window size (in bars)
+  int32 window_size = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// PerformVolatilityAnalysisResponse represents a response with volatility analysis
+message PerformVolatilityAnalysisResponse {
+  // Volatility analysis
+  VolatilityAnalysis analysis = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}

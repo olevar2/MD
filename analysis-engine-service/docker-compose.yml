@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  analysis-engine-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8002
+    volumes:
+      - ./:/app
+    networks:
+      - forex-platform-network
+
+networks:
+  forex-platform-network:
+    driver: bridge

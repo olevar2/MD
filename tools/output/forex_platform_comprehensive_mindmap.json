@@ -1,0 +1,1024 @@
+{
+  "name": "Forex Trading Platform",
+  "description": "Comprehensive mind map of the forex trading platform architecture",
+  "children": [
+    {
+      "name": "Architecture Layers",
+      "children": [
+        {
+          "name": "Presentation Layer",
+          "children": [
+            {
+              "name": "ui-service (37 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "components"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "monitoring"
+                    },
+                    {
+                      "name": "node_modules"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "api-gateway (46 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "repositories"
+                    },
+                    {
+                      "name": "services"
+                    },
+                    {
+                      "name": "tests"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Business Layer",
+          "children": [
+            {
+              "name": "analysis-engine-service (536 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "analysis_engine"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "common_lib"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "examples"
+                    },
+                    {
+                      "name": "interfaces"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "portfolio-management-service (89 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "monitoring"
+                    },
+                    {
+                      "name": "portfolio_management"
+                    },
+                    {
+                      "name": "portfolio_management_service"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "risk-management-service (85 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "repositories"
+                    },
+                    {
+                      "name": "risk_management_service"
+                    },
+                    {
+                      "name": "services"
+                    },
+                    {
+                      "name": "tests"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "strategy-execution-engine (138 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "k8s"
+                    },
+                    {
+                      "name": "mocks"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "monitoring"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "analysis-coordinator-service (76 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "analysis_coordinator_service"
+                    },
+                    {
+                      "name": "analysis_coordinator_service.egg-info"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "repositories"
+                    },
+                    {
+                      "name": "services"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Data Layer",
+          "children": [
+            {
+              "name": "data-management-service (93 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "data_management_service"
+                    },
+                    {
+                      "name": "examples"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "repositories"
+                    },
+                    {
+                      "name": "scripts"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "data-pipeline-service (143 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "data_pipeline"
+                    },
+                    {
+                      "name": "data_pipeline_service"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "examples"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "feature-store-service (348 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "examples"
+                    },
+                    {
+                      "name": "feature_store_service"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Analysis Layer",
+          "children": [
+            {
+              "name": "causal-analysis-service (70 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "causal_analysis_service"
+                    },
+                    {
+                      "name": "causal_analysis_service.egg-info"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "cqrs"
+                    },
+                    {
+                      "name": "grpc_server"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "backtesting-service (79 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "app"
+                    },
+                    {
+                      "name": "backtesting_service"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "cqrs"
+                    },
+                    {
+                      "name": "grpc_server"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "market-analysis-service (73 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "cqrs"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "market_analysis_service"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "repositories"
+                    },
+                    {
+                      "name": "services"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Integration Layer",
+          "children": [
+            {
+              "name": "ml-integration-service (106 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "examples"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "ml_integration"
+                    },
+                    {
+                      "name": "ml_integration_service"
+                    },
+                    {
+                      "name": "models"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "trading-gateway-service (148 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "monitoring"
+                    },
+                    {
+                      "name": "node_modules"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "ml-workbench-service (158 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "examples"
+                    },
+                    {
+                      "name": "hardware_optimization_output"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "ml_workbench"
+                    },
+                    {
+                      "name": "ml_workbench_service"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "model-registry-service (32 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "models"
+                    },
+                    {
+                      "name": "model_registry"
+                    },
+                    {
+                      "name": "repositories"
+                    },
+                    {
+                      "name": "services"
+                    },
+                    {
+                      "name": "tests"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Cross-cutting Layer",
+          "children": [
+            {
+              "name": "common-lib (347 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "analysis"
+                    },
+                    {
+                      "name": "common_lib"
+                    },
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "events"
+                    },
+                    {
+                      "name": "examples"
+                    },
+                    {
+                      "name": "interfaces"
+                    },
+                    {
+                      "name": "proto"
+                    },
+                    {
+                      "name": "templates"
+                    },
+                    {
+                      "name": "tests"
+                    },
+                    {
+                      "name": "trading"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "common-js-lib (0 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "node_modules"
+                    },
+                    {
+                      "name": "templates"
+                    },
+                    {
+                      "name": "test"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "monitoring-alerting-service (88 files)",
+              "children": [
+                {
+                  "name": "Key Modules",
+                  "children": [
+                    {
+                      "name": "adapters"
+                    },
+                    {
+                      "name": "alerts"
+                    },
+                    {
+                      "name": "api"
+                    },
+                    {
+                      "name": "config"
+                    },
+                    {
+                      "name": "core"
+                    },
+                    {
+                      "name": "dashboards"
+                    },
+                    {
+                      "name": "docs"
+                    },
+                    {
+                      "name": "error"
+                    },
+                    {
+                      "name": "infrastructure"
+                    },
+                    {
+                      "name": "interfaces"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Service Relationships",
+      "children": [
+        {
+          "name": "ui-service",
+          "children": [
+            {
+              "name": "User Interface \u2192 api-gateway"
+            }
+          ]
+        },
+        {
+          "name": "api-gateway",
+          "children": [
+            {
+              "name": "Portfolio Management \u2192 portfolio-management-service"
+            },
+            {
+              "name": "Trading Execution \u2192 trading-gateway-service"
+            },
+            {
+              "name": "Analysis \u2192 analysis-engine-service"
+            }
+          ]
+        },
+        {
+          "name": "analysis-engine-service",
+          "children": [
+            {
+              "name": "Causal Analysis \u2192 causal-analysis-service"
+            },
+            {
+              "name": "Backtesting \u2192 backtesting-service"
+            },
+            {
+              "name": "Market Analysis \u2192 market-analysis-service"
+            }
+          ]
+        },
+        {
+          "name": "analysis-coordinator-service",
+          "children": [
+            {
+              "name": "Coordination \u2192 causal-analysis-service"
+            },
+            {
+              "name": "Coordination \u2192 backtesting-service"
+            },
+            {
+              "name": "Coordination \u2192 market-analysis-service"
+            }
+          ]
+        },
+        {
+          "name": "portfolio-management-service",
+          "children": [
+            {
+              "name": "Risk Management \u2192 risk-management-service"
+            },
+            {
+              "name": "Strategy Execution \u2192 strategy-execution-engine"
+            }
+          ]
+        },
+        {
+          "name": "strategy-execution-engine",
+          "children": [
+            {
+              "name": "Trading Execution \u2192 trading-gateway-service"
+            }
+          ]
+        },
+        {
+          "name": "data-pipeline-service",
+          "children": [
+            {
+              "name": "Feature Engineering \u2192 feature-store-service"
+            }
+          ]
+        },
+        {
+          "name": "feature-store-service",
+          "children": [
+            {
+              "name": "ML Features \u2192 ml-integration-service"
+            }
+          ]
+        },
+        {
+          "name": "ml-integration-service",
+          "children": [
+            {
+              "name": "ML Models \u2192 ml-workbench-service"
+            }
+          ]
+        },
+        {
+          "name": "ml-workbench-service",
+          "children": [
+            {
+              "name": "Model Registry \u2192 model-registry-service"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data Flow",
+      "children": [
+        {
+          "name": "Market Data Flow",
+          "children": [
+            {
+              "name": "External Data Sources"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "data-management-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "data-pipeline-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "feature-store-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "analysis-engine-service"
+            }
+          ]
+        },
+        {
+          "name": "Analysis Flow",
+          "children": [
+            {
+              "name": "analysis-coordinator-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "causal-analysis-service / market-analysis-service / backtesting-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "ml-integration-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "strategy-execution-engine"
+            }
+          ]
+        },
+        {
+          "name": "Trading Flow",
+          "children": [
+            {
+              "name": "strategy-execution-engine"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "portfolio-management-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "risk-management-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "trading-gateway-service"
+            },
+            {
+              "name": "\u2193"
+            },
+            {
+              "name": "External Brokers/Exchanges"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

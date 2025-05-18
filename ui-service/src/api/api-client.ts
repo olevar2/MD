@@ -180,19 +180,22 @@ export class ApiClient {
     if (!config.headers) {
       config.headers = {};
     }
-    
+
     if (!config.headers['X-Correlation-ID']) {
       config.headers['X-Correlation-ID'] = generateCorrelationId();
     }
-    
+
     // Add retry count to request if not present
     if (config.headers && typeof config.headers['X-Retry-Count'] === 'undefined') {
       config.headers['X-Retry-Count'] = 0;
     }
-    
+
+    // Log outgoing request
+    console.info(`[API Client] Outgoing request: ${config.method?.toUpperCase()} ${config.url}`, { correlationId: config.headers['X-Correlation-ID'], retryCount: config.headers['X-Retry-Count'] });
+
     return config;
   }
-  
+
   /**
    * Handle request error interceptor
    * 
@@ -201,12 +204,13 @@ export class ApiClient {
    */
   private handleRequestError(error: any): Promise<never> {
     // Log the error
+    console.error('[API Client] Request error:', error);
     handleApiError(error, {
       action: 'request',
       url: error.config?.url,
       method: error.config?.method
     });
-    
+
     return Promise.reject(error);
   }
   
@@ -217,19 +221,22 @@ export class ApiClient {
    * @returns Modified response object
    */
   private handleResponse(response: AxiosResponse): AxiosResponse {
+    // Log incoming response
+    console.info(`[API Client] Incoming response: ${response.config.method?.toUpperCase()} ${response.config.url} - Status: ${response.status}`, { correlationId: response.config.headers?.['X-Correlation-ID'] });
+
     // Reset failure count on successful response if in half-open state
     if (this.circuitState === CircuitState.HALF_OPEN) {
       this.halfOpenSuccessCount++;
-      
+
       // If we've had enough successful requests, close the circuit
       if (this.halfOpenSuccessCount >= this.circuitBreakerConfig.halfOpenMaxRequests) {
         this.closeCircuit();
       }
     }
-    
+
     return response;
   }
-  
+
   /**
    * Handle response error interceptor with retry logic
    * 
@@ -237,19 +244,22 @@ export class ApiClient {
    * @returns Promise with retried request or rejected with error
    */
   private async handleResponseError(error: any): Promise<any> {
+    // Log response error
+    console.error('[API Client] Response error:', error);
+
     // Get retry count from headers
     const config = error.config;
     if (!config) {
       return Promise.reject(error);
     }
-    
+
     // Initialize retry count if not present
     if (!config.headers) {
       config.headers = {};
     }
-    
+
     const retryCount = config.headers['X-Retry-Count'] || 0;
-    
+
     // Check if we should retry
     if (
       retryCount < this.retryConfig.maxRetries &&
@@ -257,33 +267,34 @@ export class ApiClient {
     ) {
       // Increment retry count
       config.headers['X-Retry-Count'] = retryCount + 1;
-      
+
       // Calculate delay with exponential backoff
       const delay = Math.min(
         this.retryConfig.initialDelayMs * Math.pow(this.retryConfig.backoffFactor, retryCount),
         this.retryConfig.maxDelayMs
       );
-      
+
       // Wait for the delay
+      console.warn(`[API Client] Retrying request: ${config.method?.toUpperCase()} ${config.url} in ${delay}ms (Attempt ${retryCount + 1})`, { correlationId: config.headers['X-Correlation-ID'] });
       await new Promise(resolve => setTimeout(resolve, delay));
-      
+
       // Retry the request
       return this.axiosInstance.request(config);
     }
-    
+
     // If we're in half-open state, increment failure count
     if (this.circuitState === CircuitState.HALF_OPEN) {
       this.openCircuit();
     } else if (this.circuitState === CircuitState.CLOSED) {
       // Increment failure count
       this.failureCount++;
-      
+
       // Check if we should open the circuit
       if (this.failureCount >= this.circuitBreakerConfig.failureThreshold) {
         this.openCircuit();
       }
     }
-    
+
     // Format and throw the error
     if (error.response) {
       // The request was made and the server responded with a status code
@@ -291,7 +302,7 @@ export class ApiClient {
       const errorResponse = error.response.data as ErrorResponse;
       const errorType = errorResponse?.error_type as ErrorType || ErrorType.UNKNOWN_ERROR;
       const message = errorResponse?.message || 'An error occurred';
-      
+
       throw createError(message, errorType, {
         status: error.response.status,
         data: errorResponse,
@@ -363,7 +374,7 @@ export class ApiClient {
     this.circuitState = CircuitState.OPEN;
     this.circuitOpenTime = Date.now();
     this.failureCount = 0;
-    console.warn('Circuit breaker opened');
+    console.warn('[API Client] Circuit breaker opened');
   }
   
   /**
@@ -373,7 +384,7 @@ export class ApiClient {
     this.circuitState = CircuitState.CLOSED;
     this.failureCount = 0;
     this.halfOpenSuccessCount = 0;
-    console.info('Circuit breaker closed');
+    console.info('[API Client] Circuit breaker closed');
   }
   
   /**

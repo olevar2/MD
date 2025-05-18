@@ -1,0 +1,222 @@
+syntax = "proto3";
+
+package forex.causal_analysis;
+
+import "common/common_types.proto";
+import "common/error_types.proto";
+
+option go_package = "github.com/olevar2/MD/common-lib/proto/causal_analysis";
+option java_package = "com.olevar2.forex.causal_analysis";
+option java_multiple_files = true;
+
+// CausalAnalysisService provides methods for causal analysis of market data
+service CausalAnalysisService {
+  // GetCausalGraph retrieves or generates a causal graph for the specified parameters
+  rpc GetCausalGraph(GetCausalGraphRequest) returns (GetCausalGraphResponse);
+  
+  // GenerateCounterfactuals generates counterfactual scenarios based on a causal graph
+  rpc GenerateCounterfactuals(GenerateCounterfactualsRequest) returns (GenerateCounterfactualsResponse);
+  
+  // EstimateEffects estimates the effects of interventions on a causal graph
+  rpc EstimateEffects(EstimateEffectsRequest) returns (EstimateEffectsResponse);
+  
+  // DiscoverStructure discovers the causal structure from data
+  rpc DiscoverStructure(DiscoverStructureRequest) returns (DiscoverStructureResponse);
+  
+  // GetInterventionEffect calculates the effect of an intervention on a target variable
+  rpc GetInterventionEffect(GetInterventionEffectRequest) returns (GetInterventionEffectResponse);
+}
+
+// Node represents a node in a causal graph
+message Node {
+  // Node ID
+  string id = 1;
+  // Node name
+  string name = 2;
+  // Node type
+  string type = 3;
+  // Node metadata
+  forex.common.Metadata metadata = 4;
+}
+
+// Edge represents an edge in a causal graph
+message Edge {
+  // Source node ID
+  string source_id = 1;
+  // Target node ID
+  string target_id = 2;
+  // Edge weight
+  double weight = 3;
+  // Edge type
+  string type = 4;
+  // Edge metadata
+  forex.common.Metadata metadata = 5;
+}
+
+// CausalGraph represents a causal graph with nodes and edges
+message CausalGraph {
+  // Graph ID
+  string id = 1;
+  // Graph name
+  string name = 2;
+  // Graph nodes
+  repeated Node nodes = 3;
+  // Graph edges
+  repeated Edge edges = 4;
+  // Graph metadata
+  forex.common.Metadata metadata = 5;
+}
+
+// GetCausalGraphRequest represents a request to get a causal graph
+message GetCausalGraphRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Optional graph ID to retrieve an existing graph
+  string graph_id = 5;
+  // Additional parameters for graph generation
+  map<string, string> parameters = 6;
+}
+
+// GetCausalGraphResponse represents a response containing a causal graph
+message GetCausalGraphResponse {
+  // Causal graph
+  CausalGraph graph = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// CounterfactualScenario represents a counterfactual scenario
+message CounterfactualScenario {
+  // Scenario ID
+  string id = 1;
+  // Intervention node ID
+  string intervention_node_id = 2;
+  // Intervention value
+  double intervention_value = 3;
+  // Target node ID
+  string target_node_id = 4;
+  // Counterfactual outcome
+  double counterfactual_outcome = 5;
+  // Confidence level
+  double confidence = 6;
+  // Scenario metadata
+  forex.common.Metadata metadata = 7;
+}
+
+// GenerateCounterfactualsRequest represents a request to generate counterfactuals
+message GenerateCounterfactualsRequest {
+  // Graph ID
+  string graph_id = 1;
+  // Intervention node ID
+  string intervention_node_id = 2;
+  // Intervention value
+  double intervention_value = 3;
+  // Target node ID
+  string target_node_id = 4;
+  // Number of scenarios to generate
+  int32 num_scenarios = 5;
+  // Additional parameters
+  map<string, string> parameters = 6;
+}
+
+// GenerateCounterfactualsResponse represents a response containing counterfactual scenarios
+message GenerateCounterfactualsResponse {
+  // Counterfactual scenarios
+  repeated CounterfactualScenario scenarios = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// Effect represents the estimated effect of an intervention
+message Effect {
+  // Effect ID
+  string id = 1;
+  // Intervention node ID
+  string intervention_node_id = 2;
+  // Target node ID
+  string target_node_id = 3;
+  // Effect size
+  double effect_size = 4;
+  // Confidence interval lower bound
+  double confidence_lower = 5;
+  // Confidence interval upper bound
+  double confidence_upper = 6;
+  // P-value
+  double p_value = 7;
+  // Effect metadata
+  forex.common.Metadata metadata = 8;
+}
+
+// EstimateEffectsRequest represents a request to estimate effects
+message EstimateEffectsRequest {
+  // Graph ID
+  string graph_id = 1;
+  // Intervention node IDs
+  repeated string intervention_node_ids = 2;
+  // Target node IDs
+  repeated string target_node_ids = 3;
+  // Additional parameters
+  map<string, string> parameters = 4;
+}
+
+// EstimateEffectsResponse represents a response containing estimated effects
+message EstimateEffectsResponse {
+  // Estimated effects
+  repeated Effect effects = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// DiscoverStructureRequest represents a request to discover causal structure
+message DiscoverStructureRequest {
+  // Symbol to analyze
+  forex.common.Symbol symbol = 1;
+  // Timeframe to analyze
+  forex.common.Timeframe timeframe = 2;
+  // Start date for analysis
+  forex.common.Timestamp start_date = 3;
+  // End date for analysis
+  forex.common.Timestamp end_date = 4;
+  // Variables to include
+  repeated string variables = 5;
+  // Discovery algorithm to use
+  string algorithm = 6;
+  // Additional parameters
+  map<string, string> parameters = 7;
+}
+
+// DiscoverStructureResponse represents a response containing a discovered causal structure
+message DiscoverStructureResponse {
+  // Discovered causal graph
+  CausalGraph graph = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}
+
+// GetInterventionEffectRequest represents a request to get intervention effect
+message GetInterventionEffectRequest {
+  // Graph ID
+  string graph_id = 1;
+  // Intervention node ID
+  string intervention_node_id = 2;
+  // Intervention value
+  double intervention_value = 3;
+  // Target node ID
+  string target_node_id = 4;
+  // Additional parameters
+  map<string, string> parameters = 5;
+}
+
+// GetInterventionEffectResponse represents a response containing intervention effect
+message GetInterventionEffectResponse {
+  // Intervention effect
+  Effect effect = 1;
+  // Error response (if any)
+  forex.common.ErrorResponse error = 2;
+}

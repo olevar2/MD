@@ -22,8 +22,8 @@ from analysis_coordinator_service.config.settings import get_settings
 # Create a test client
 from fastapi import FastAPI
 app = FastAPI()
-settings = get_settings()
-app.include_router(router, prefix=settings.api_prefix)
+# settings = get_settings() # Removed module-level call
+# app.include_router(router, prefix=settings.api_prefix) # Will include router within tests
 client = TestClient(app)
 
 # Mock the task repository

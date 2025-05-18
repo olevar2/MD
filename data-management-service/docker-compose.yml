@@ -1,37 +1,22 @@
 version: '3.8'
 
 services:
-  historical-data-service:
+  data-management-service:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8004:8004"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/forex_platform
-      - PORT=8000
-    depends_on:
-      - db
-    restart: unless-stopped
-    networks:
-      - forex-network
-
-  db:
-    image: timescale/timescaledb:latest-pg13
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=forex_platform
+      - DEBUG_MODE=true
+      - LOG_LEVEL=DEBUG
+      - HOST=0.0.0.0
+      - PORT=8004
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ./:/app
     networks:
-      - forex-network
+      - forex-platform-network
 
 networks:
-  forex-network:
+  forex-platform-network:
     driver: bridge
-
-volumes:
-  postgres-data:
