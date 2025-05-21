@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package ml_workbench_service;
+
+import "protos/common.proto"; // For common types like UUID
+import "google/protobuf/struct.proto"; // For dynamic map values in hyperparameters
+
+option go_package = "github.com/yourorg/yourproject/genprotos/mlworkbenchservice"; // Example Go package option
+
+// Service for managing machine learning experiments and model training.
+service MLWorkbenchService {
+  // Starts a new machine learning experiment.
+  rpc StartExperiment(StartExperimentRequest) returns (StartExperimentResponse);
+
+  // Gets the status of an ongoing or completed experiment.
+  rpc GetExperimentStatus(GetExperimentStatusRequest) returns (GetExperimentStatusResponse);
+
+  // Registers a trained model from an experiment (e.g., to a model registry).
+  // This is a simplified representation; actual registration might involve more steps
+  // or direct interaction with a dedicated model registry service by the workbench.
+  rpc RegisterModel(RegisterModelRequest) returns (RegisterModelResponse);
+}
+
+// Enum for supported model types.
+enum ModelType {
+  MODEL_TYPE_UNSPECIFIED = 0;
+  LSTM = 1;
+  XGBOOST = 2;
+  TRANSFORMER = 3;
+  RL = 4; // Reinforcement Learning
+}
+
+// Enum for experiment status.
+enum ExperimentStatus {
+  EXPERIMENT_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  RUNNING = 2;
+  COMPLETED = 3;
+  FAILED = 4;
+  CANCELLED = 5;
+}
+
+// Configuration for feature engineering.
+message FeatureEngineeringConfig {
+  repeated string feature_names = 1; // Specific list of features to use or generate.
+                                     // If empty, could imply using a default set or all available.
+  bool auto_selection = 2;           // Enable automated feature selection (e.g., RFE, importance-based).
+  map<string, google.protobuf.Value> selection_params = 3; // Parameters for auto-selection algorithm.
+  // Example: {"method": "rfe", "n_features_to_select": 10}
+}
+
+// Configuration for hyperparameter search.
+message HyperparameterSearchConfig {
+  bool enable_optuna = 1;             // Whether to use Optuna for HPO.
+  int32 optuna_trials = 2;            // Number of trials for Optuna to run.
+  string optuna_metric_name = 3;      // Metric to optimize (e.g., "val_loss", "sharpe_ratio").
+  bool optuna_minimize_metric = 4;    // True if Optuna should minimize the metric, false to maximize.
+  map<string, google.protobuf.Value> manual_hyperparameters = 5; // Key-value pairs for manual hyperparameters.
+                                                                // e.g., {"learning_rate": 0.01, "n_estimators": 100}
+                                                                // If Optuna is enabled, these might be fixed params or initial guesses.
+}
+
+// Configuration for model training.
+message TrainingConfig {
+  int32 epochs = 1;
+  int32 batch_size = 2;
+  optional double learning_rate = 3; // Can also be part of HyperparameterSearchConfig for HPO.
+  string validation_split_ratio = 4; // e.g., "0.2" for 20% validation data.
+  // Add other common training parameters as needed, e.g., loss_function, optimizer_type
+  map<string, google.protobuf.Value> model_specific_params = 5; // For params not covered or highly model-specific
+}
+
+// Request to start a new experiment.
+message StartExperimentRequest {
+  string experiment_name = 1;
+  string dataset_id = 2; // Identifier for the dataset to be used (e.g., from a data management service).
+  ModelType model_type = 3;
+  FeatureEngineeringConfig feature_engineering_config = 4;
+  HyperparameterSearchConfig hyperparameter_search_config = 5;
+  TrainingConfig training_config = 6;
+  optional common.UUID user_id = 7; // User initiating the experiment.
+  map<string, string> tags = 8;    // For experiment tracking (e.g., MLflow tags).
+}
+
+// Response after starting an experiment.
+message StartExperimentResponse {
+  common.UUID experiment_id = 1;
+  ExperimentStatus status = 2;       // Initial status, likely PENDING or RUNNING.
+  string message = 3;                // e.g., "Experiment started successfully."
+}
+
+// Request to get the status of an experiment.
+message GetExperimentStatusRequest {
+  common.UUID experiment_id = 1;
+}
+
+// Represents various model metrics.
+message ModelMetrics {
+  map<string, double> general_metrics = 1; // e.g., {"accuracy": 0.85, "f1_score": 0.82}
+  map<string, double> financial_metrics = 2; // e.g., {"sharpe_ratio": 1.5, "max_drawdown": 0.1}
+  // Can add more specific metric groups if needed.
+}
+
+// Response containing the status of an experiment.
+message GetExperimentStatusResponse {
+  common.UUID experiment_id = 1;
+  ExperimentStatus status = 2;
+  double progress = 3; // e.g., 0.75 for 75% complete.
+  optional common.UUID current_best_model_id = 4; // ID of the best model found so far in this experiment.
+  ModelMetrics metrics = 5; // Metrics for the current best model or overall experiment.
+  string status_message = 6; // More detailed status message.
+  common.Timestamp last_updated_time = 7;
+  optional common.StandardErrorResponse error = 8; // If the experiment failed.
+}
+
+// Request to register a model from an experiment.
+message RegisterModelRequest {
+  common.UUID experiment_id = 1;
+  common.UUID model_id_to_register = 2; // The specific model ID from the experiment (e.g., best run).
+  string model_name = 3;                // Name to register the model under (e.g., "EURUSD_LSTM_v1").
+  string description = 4;
+  map<string, string> tags = 5;        // Tags for the registered model.
+}
+
+// Response after registering a model.
+message RegisterModelResponse {
+  common.UUID registered_model_id = 1; // ID in the model registry.
+  string version = 2;                  // Version of the registered model.
+  string message = 3;                  // e.g., "Model registered successfully."
+  optional common.StandardErrorResponse error = 4;
+}

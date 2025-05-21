@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package analysis_engine_service;
+
+import "common.proto";
+
+// Service for performing market analysis.
+service AnalysisEngineService {
+  // Requests an analysis of market data.
+  rpc RequestAnalysis(AnalysisRequest) returns (AnalysisResponse);
+}
+
+// Represents a request for market analysis.
+message AnalysisRequest {
+  common.UUID request_id = 1;
+  string instrument_symbol = 2;
+  AnalysisType analysis_type = 3;
+  common.Timestamp start_time = 4;
+  common.Timestamp end_time = 5;
+  map<string, string> parameters = 6; // For additional analysis-specific parameters
+}
+
+// Represents the response from an analysis request.
+message AnalysisResponse {
+  common.UUID request_id = 1;
+  common.UUID analysis_id = 2;
+  AnalysisStatus status = 3;
+  string summary = 4; // A summary of the analysis results
+  // Potentially a more structured result could be defined here,
+  // For example, using Any or a oneof field for different result types.
+  // For now, a JSON string can be used for flexibility.
+  string result_data_json = 5; 
+  common.Timestamp timestamp = 6;
+  optional common.StandardErrorResponse error = 7;
+}
+
+// Enum for different types of analysis.
+enum AnalysisType {
+  ANALYSIS_TYPE_UNSPECIFIED = 0;
+  TREND_ANALYSIS = 1;
+  VOLATILITY_ANALYSIS = 2;
+  SENTIMENT_ANALYSIS = 3;
+}
+
+// Enum for the status of an analysis.
+enum AnalysisStatus {
+  ANALYSIS_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  COMPLETED = 2;
+  FAILED = 3;
+}

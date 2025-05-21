@@ -46,7 +46,20 @@ try:
 except ImportError:
     MULTI_TIMEFRAME_AVAILABLE = False
     logger.warning('Multi-timeframe analyzer not available')
-logger = get_logger(__name__)
+
+# gRPC specific imports
+import grpc.aio
+from analysis_engine_service.services.grpc_servicer import AnalysisEngineServicer
+# Assuming 'generated_protos' is in PYTHONPATH for this import to work:
+from analysis_engine_service.analysis_engine_pb2_grpc import add_AnalysisEngineServiceServicer_to_server
+# Import for JWT Interceptor (assuming common-lib is in PYTHONPATH)
+from common_lib.security.grpc_interceptors import JwtAuthServerInterceptor
+
+logger = get_logger(__name__) # Already exists, ensure it's fine
+GRPC_PORT = 50052 # Define gRPC port
+grpc_server_task = None # To hold the asyncio task for the gRPC server
+grpc_server_instance = None # To hold the grpc.aio.Server instance
+
 shutdown_event = asyncio.Event()
 APP_NAME = 'Analysis Engine Service'
 APP_VERSION = '1.0.0'
@@ -116,12 +129,56 @@ async def lifespan(app: FastAPI):
         logger.info('Async performance monitoring started')
         await initialize_schedulers(service_container)
         logger.info('Schedulers initialized and started')
+
+        # Start gRPC server
+        global grpc_server_task, grpc_server_instance
+        
+        # Initialize your interceptor
+        jwt_interceptor = JwtAuthServerInterceptor(
+            # Example placeholder values; replace with actual configuration
+            # secret_key="your-analysis-engine-secret",
+            # required_audience="analysis-engine-service",
+            # issuer="your-auth-issuer"
+        )
+        interceptors = [jwt_interceptor]
+        
+        grpc_server_instance = grpc.aio.server(interceptors=interceptors)
+        add_AnalysisEngineServiceServicer_to_server(AnalysisEngineServicer(), grpc_server_instance)
+        listen_addr = f'[::]:{GRPC_PORT}'
+        grpc_server_instance.add_insecure_port(listen_addr)
+        logger.info(f"Starting gRPC server on {listen_addr}")
+        grpc_server_task = asyncio.create_task(grpc_server_instance.start())
+        logger.info("gRPC server startup task created and started.")
+
         logger.info('Service initialization complete')
     except Exception as e:
         logger.error(f'Error during startup: {e}', exc_info=True)
+        # If gRPC server started, try to stop it
+        if grpc_server_instance:
+            await grpc_server_instance.stop(0)
+        if grpc_server_task and not grpc_server_task.done():
+            grpc_server_task.cancel()
         raise
     yield
+    # Shutdown phase
     try:
+        logger.info("Initiating shutdown sequence...")
+        # Stop gRPC server first
+        global grpc_server_task, grpc_server_instance # Ensure they are accessible
+        if grpc_server_instance:
+            logger.info("Attempting to stop gRPC server...")
+            await grpc_server_instance.stop(5) # 5 seconds grace period
+            logger.info("gRPC server stopped.")
+        if grpc_server_task and not grpc_server_task.done():
+            logger.info("Cancelling gRPC server task...")
+            grpc_server_task.cancel()
+            try:
+                await grpc_server_task
+            except asyncio.CancelledError:
+                logger.info("gRPC server task cancelled successfully.")
+            except Exception as e_task: # pylint: disable=broad-except
+                logger.error(f"Error awaiting cancelled gRPC task: {e_task}", exc_info=True)
+        
         service_template = app.state.service_template
         await service_template.shutdown()
         logger.info('Service template shut down')
@@ -222,4 +279,25 @@ async def main():
 
 
 if __name__ == '__main__':
+    # Similar to trading-gateway-service, adjust sys.path for imports
+    # Assumes this script is in analysis-engine-service/core/main.py
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    service_root = os.path.dirname(current_dir)  # analysis-engine-service directory
+    project_root = os.path.dirname(service_root) # Repository root (/app)
+
+    # Path to generated_protos directory (e.g., /app/generated_protos)
+    generated_protos_path = os.path.join(project_root, "generated_protos")
+
+    # Add project_root for `from analysis_engine_service...`
+    # and generated_protos for proto stubs
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+        logger.info(f"Added project root to sys.path: {project_root}")
+    if generated_protos_path not in sys.path:
+        sys.path.insert(0, generated_protos_path)
+        logger.info(f"Added generated_protos to sys.path: {generated_protos_path}")
+
+    # Log the updated sys.path for debugging if needed
+    # logger.debug(f"Updated sys.path: {sys.path}")
+    
     asyncio.run(main())
