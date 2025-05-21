@@ -20,6 +20,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# gRPC specific imports
+import asyncio
+import grpc.aio
+from concurrent import futures # Added for ThreadPoolExecutor
+from trading_gateway_service.services.grpc_servicer import TradingGatewayServicer
+# Assuming 'generated_protos' is in PYTHONPATH for this import to work:
+from trading_gateway_service.trading_gateway_pb2_grpc import add_TradingGatewayServiceServicer_to_server
+# Import for JWT Interceptor (assuming common-lib is in PYTHONPATH)
+from common_lib.security.grpc_interceptors import JwtAuthServerInterceptor
+
+GRPC_PORT = 50051
+grpc_server = None
+
 # Create FastAPI app
 app = FastAPI(
     title="Trading Gateway Service",
@@ -150,12 +163,103 @@ async def test_ml_interaction() -> Dict[str, Any]:
     # This is a mock implementation
     return {"status": "success", "message": "Interaction with ML Integration Service successful"}
 
+# gRPC Server setup
+async def start_grpc_server():
+    """Starts the gRPC server."""
+    global grpc_server
+    # Initialize your interceptor
+    # You might fetch JWT validation parameters (secret, audience, issuer) from config here
+    jwt_interceptor = JwtAuthServerInterceptor(
+        # Example placeholder values; replace with actual configuration
+        # secret_key="your-trading-gateway-secret",
+        # required_audience="trading-gateway-service",
+        # issuer="your-auth-issuer"
+    )
+    
+    interceptors = [jwt_interceptor]
+    
+    grpc_server = grpc.aio.server(
+        futures.ThreadPoolExecutor(max_workers=10),
+        interceptors=interceptors
+    )
+    # Alternatively, without ThreadPoolExecutor for a purely async server:
+    # grpc_server = grpc.aio.server(interceptors=interceptors) 
+    
+    add_TradingGatewayServiceServicer_to_server(TradingGatewayServicer(), grpc_server)
+    listen_addr = f'[::]:{GRPC_PORT}'
+    grpc_server.add_insecure_port(listen_addr)
+    logger.info(f"Starting gRPC server on {listen_addr}")
+    await grpc_server.start()
+    logger.info("gRPC server started.")
+    try:
+        await grpc_server.wait_for_termination()
+    except asyncio.CancelledError:
+        logger.info("gRPC server stopping due to task cancellation.")
+        await grpc_server.stop(0) # Graceful stop
+        logger.info("gRPC server stopped.")
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Run on FastAPI startup."""
+    logger.info("FastAPI app startup: Initializing services...")
+    # Start gRPC server in a background task
+    loop = asyncio.get_event_loop()
+    loop.create_task(start_grpc_server())
+    logger.info("gRPC server startup task created.")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Run on FastAPI shutdown."""
+    logger.info("FastAPI app shutdown: Cleaning up...")
+    if grpc_server:
+        logger.info("Attempting to stop gRPC server...")
+        # This might require more sophisticated handling if wait_for_termination
+        # is the main way the task is being kept alive.
+        # For now, relying on task cancellation from asyncio loop shutdown or explicit stop.
+        # The stop is handled in start_grpc_server's finally block on CancelledError.
+        # Alternatively, one could call grpc_server.stop(grace_period_seconds) here.
+        # For simplicity, we assume the task cancellation is sufficient.
+        # A more robust approach might involve `grpc_server.stop(grace_period)`
+        # and ensuring the asyncio task is properly cancelled and awaited.
+        # Let's trigger a stop here if it's still running.
+        stop_task = asyncio.create_task(grpc_server.stop(5)) # 5 second grace
+        await stop_task
+        logger.info("gRPC server shutdown process initiated.")
+
+
 def main():
     """Main function to run the service."""
     import uvicorn
+    # Note: PYTHONPATH needs to include the 'generated_protos' directory and project root.
+    # Example: export PYTHONPATH=./generated_protos:.:$PYTHONPATH (if run from project root)
+    # or ensure generated_protos is installed as a package or accessible.
     
-    logger.info("Starting Trading Gateway Service")
+    logger.info("Starting Trading Gateway Service (FastAPI & gRPC)")
+    # Uvicorn will run the FastAPI app. The gRPC server is started via FastAPI's startup event.
     uvicorn.run(app, host="0.0.0.0", port=8001)
 
 if __name__ == "__main__":
+    # This setup ensures that PYTHONAPTH is correctly set for the imports
+    # This is a common pattern if `generated_protos` is not installed as a package.
+    # For production, you'd typically ensure PYTHONPATH is set in the environment
+    # or use a proper package structure.
+    
+    # Get the absolute path to the project root (assuming this script is in trading-gateway-service/core)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    service_root = os.path.dirname(current_dir) # This should be 'trading-gateway-service'
+    project_root = os.path.dirname(service_root) # This should be the repository root
+
+    # Path to generated_protos directory
+    generated_protos_path = os.path.join(project_root, "generated_protos")
+
+    # Add project_root for `from trading_gateway_service...` and generated_protos for proto stubs
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+    if generated_protos_path not in sys.path:
+        sys.path.insert(0, generated_protos_path)
+    
+    # Log the updated sys.path for debugging if needed
+    # logger.info(f"Updated sys.path: {sys.path}")
+
     main()

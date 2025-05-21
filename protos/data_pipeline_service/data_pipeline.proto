@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package data_pipeline_service;
+
+import "protos/common.proto"; // Assuming common.proto is in a 'protos' directory relative to include path
+
+option go_package = "github.com/yourorg/yourproject/genprotos/datapipelineservice"; // Example Go package option
+
+// Service for providing market data, both real-time and historical.
+service DataPipelineService {
+  // Streams live market data updates for a requested instrument and timeframe.
+  rpc StreamMarketData(MarketDataStreamRequest) returns (stream MarketDataUpdate);
+
+  // Retrieves historical market data for a requested instrument and time range.
+  // Could also return a stream if datasets are expected to be very large.
+  rpc GetHistoricalData(HistoricalDataRequest) returns (HistoricalDataResponse);
+}
+
+// Request message for subscribing to a market data stream.
+message MarketDataStreamRequest {
+  common.UUID request_id = 1;
+  string instrument_symbol = 2; // e.g., "EUR/USD", "BTC/USD", "AAPL"
+  string timeframe = 3;         // e.g., "1s", "1m", "5m", "1h", "1d"
+  // Optional: Specific exchange or data provider hint
+  optional string data_provider_hint = 4;
+}
+
+// Represents a single market data update.
+// This can be used for live streams or as part of historical data.
+message MarketDataUpdate {
+  common.UUID event_id = 1;         // Unique ID for this specific update/event
+  string instrument_symbol = 2;
+  common.Timestamp timestamp = 3;   // Timestamp of the data point
+  double open_price = 4;
+  double high_price = 5;
+  double low_price = 6;
+  double close_price = 7;
+  double volume = 8;
+  // Optional: Best bid/ask for tick-level data or finer-grained updates
+  optional double bid_price = 9;
+  optional double ask_price = 10;
+  optional double bid_volume = 11;
+  optional double ask_volume = 12;
+}
+
+// Request message for historical market data.
+message HistoricalDataRequest {
+  common.UUID request_id = 1;
+  string instrument_symbol = 2;
+  string timeframe = 3;           // e.g., "1m", "1h", "1d"
+  common.Timestamp start_time = 4; // Inclusive start time for the historical data
+  common.Timestamp end_time = 5;   // Inclusive end time for the historical data
+  // Optional: Specify data provider or exchange
+  optional string data_provider_hint = 6;
+  // Optional: Specify if adjustments like dividend splits should be applied
+  optional bool adjusted_for_splits_dividends = 7;
+}
+
+// Response message containing historical market data.
+message HistoricalDataResponse {
+  common.UUID request_id = 1;
+  string instrument_symbol = 2;
+  string timeframe = 3;
+  repeated MarketDataUpdate data_points = 4; // A list of historical data points
+  // Optional: Pagination or metadata if data is very large and chunked
+  // For simplicity, not including full pagination fields here.
+  optional bool more_data_available = 5;
+  optional string next_page_token = 6; // If pagination is used
+  optional common.StandardErrorResponse error = 7; // For reporting errors if any
+}

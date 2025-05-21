@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package strategy_execution_engine;
+
+import "protos/common.proto"; // For common types like UUID
+import "google/protobuf/struct.proto"; // For dynamic parameters
+
+option go_package = "github.com/yourorg/yourproject/genprotos/strategyexecutionservice"; // Example
+
+// Service for managing and monitoring trading strategies within the Strategy Execution Engine.
+service StrategyExecutionService {
+  // Controls the operational state of a strategy.
+  rpc ControlStrategy(StrategyControlRequest) returns (StrategyControlResponse);
+
+  // Retrieves the current status and performance metrics of a strategy.
+  rpc GetStrategyStatus(StrategyStatusRequest) returns (StrategyStatusResponse);
+
+  // Updates the parameters of a running strategy.
+  rpc UpdateStrategyParameters(UpdateStrategyParametersRequest) returns (UpdateStrategyParametersResponse);
+
+  // Lists all managed strategies and their high-level status.
+  rpc ListStrategies(ListStrategiesRequest) returns (ListStrategiesResponse);
+}
+
+// Enum for strategy control actions.
+enum StrategyAction {
+  ACTION_UNSPECIFIED = 0;
+  START = 1;   // Start or deploy a new strategy instance.
+  STOP = 2;    // Stop and undeploy a strategy instance.
+  PAUSE = 3;   // Pause trading activity for a strategy (no new trades).
+  RESUME = 4;  // Resume trading activity for a paused strategy.
+}
+
+// Enum for the operational status of a strategy.
+enum StrategyOperationalStatus {
+  STATUS_UNSPECIFIED = 0;
+  RUNNING = 1;
+  STOPPED = 2;
+  PAUSED = 3;
+  ERROR = 4; // Strategy encountered an operational error.
+  STARTING = 5;
+  STOPPING = 6;
+}
+
+// Request to control a strategy.
+message StrategyControlRequest {
+  common.UUID request_id = 1;
+  string strategy_instance_id = 2; // Unique ID for a running instance of a strategy.
+                                   // Could be assigned when a strategy config is deployed.
+  StrategyAction action = 3;
+  // Optional: For START action, provide configuration for the strategy if not already known by ID.
+  // This might include model_id, dataset_id (for data feeds), specific parameters.
+  optional string strategy_definition_id = 4; // ID of the strategy template/logic
+  map<string, google.protobuf.Value> initial_parameters = 5; // Initial parameters if starting a new instance.
+}
+
+// Response to a strategy control command.
+message StrategyControlResponse {
+  common.UUID request_id = 1;
+  string strategy_instance_id = 2;
+  StrategyOperationalStatus new_status = 3;
+  string message = 4; // e.g., "Strategy successfully started."
+  optional common.StandardErrorResponse error = 5;
+}
+
+// Request to get the status of a strategy.
+message StrategyStatusRequest {
+  common.UUID request_id = 1;
+  string strategy_instance_id = 2;
+}
+
+// Detailed status and performance metrics for a strategy.
+message StrategyStatusResponse {
+  common.UUID request_id = 1;
+  string strategy_instance_id = 2;
+  string strategy_definition_id = 3; // ID of the strategy template/logic
+  StrategyOperationalStatus status = 4;
+  double current_pnl = 5;             // Profit and Loss for a defined period (e.g., daily, since start).
+  int32 active_trades_count = 6;
+  common.Timestamp last_trade_time = 7;
+  map<string, google.protobuf.Value> current_parameters = 8; // Current operational parameters.
+  string status_message = 9;          // e.g., "Monitoring market conditions", "Signal cooldown active".
+  optional common.StandardErrorResponse error_details = 10; // If status is ERROR.
+}
+
+// Request to update parameters of a running strategy.
+message UpdateStrategyParametersRequest {
+  common.UUID request_id = 1;
+  string strategy_instance_id = 2;
+  map<string, google.protobuf.Value> parameters_to_update = 3; // Key-value pairs of parameters to change.
+}
+
+// Response after attempting to update strategy parameters.
+message UpdateStrategyParametersResponse {
+  common.UUID request_id = 1;
+  string strategy_instance_id = 2;
+  bool update_applied = 3; // True if update was accepted and applied (might be async).
+  string message = 4;      // e.g., "Parameters updated successfully. Changes will apply on next cycle."
+  optional common.StandardErrorResponse error = 5;
+}
+
+// Request to list all managed strategies.
+message ListStrategiesRequest {
+  common.UUID request_id = 1;
+  // Optional filters, e.g., by status, by definition_id
+  optional StrategyOperationalStatus status_filter = 2;
+}
+
+// Brief status of a single strategy for list purposes.
+message StrategyInfo {
+  string strategy_instance_id = 1;
+  string strategy_definition_id = 2;
+  StrategyOperationalStatus status = 3;
+  double current_pnl = 4;
+}
+
+// Response for listing strategies.
+message ListStrategiesResponse {
+  common.UUID request_id = 1;
+  repeated StrategyInfo strategies = 2;
+  optional common.StandardErrorResponse error = 3;
+}

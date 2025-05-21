@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package feature_store_service;
+
+import "protos/common.proto"; // Assuming common.proto is in a 'protos' directory relative to include path
+import "google/protobuf/struct.proto"; // For dynamic feature values (e.g., Value type)
+
+option go_package = "github.com/yourorg/yourproject/genprotos/featurestoreservice"; // Example Go package option
+
+// Service for retrieving and managing features.
+service FeatureStoreService {
+  // Retrieves a set of features for a given instrument, timeframe, and time.
+  rpc GetFeatures(FeatureRequest) returns (FeatureResponse);
+
+  // Optional: Could add RPCs for feature registration, updates, or listing available features.
+  // rpc ListFeatures(ListFeaturesRequest) returns (ListFeaturesResponse);
+}
+
+// Request message for retrieving features.
+message FeatureRequest {
+  common.UUID request_id = 1;
+  string instrument_symbol = 2;   // e.g., "EUR/USD", "AAPL"
+  string timeframe = 3;           // e.g., "1m", "1h", "1d" (context for the features)
+  common.Timestamp timestamp = 4; // The specific point in time for which features are requested
+                                  // (e.g., features based on data up to this timestamp)
+  repeated string feature_names = 5; // List of specific feature names to retrieve, e.g., "SMA_20", "RSI_14", "volatility_30d"
+  
+  // Optional: Parameters for on-demand feature calculation, if supported.
+  // These could be specific to the features requested.
+  map<string, google.protobuf.Value> calculation_parameters = 6; 
+}
+
+// Represents a single feature's value.
+// Using google.protobuf.Value allows for flexibility in feature value types (number, string, bool, struct, list).
+message FeatureValue {
+  string name = 1;                      // Name of the feature, e.g., "SMA_20"
+  google.protobuf.Value value = 2;      // The actual value of the feature
+  common.Timestamp generated_at = 3;    // Timestamp when this feature value was computed or last updated
+  // Optional: Confidence score or quality metric for the feature value
+  optional double confidence_score = 4; 
+}
+
+// Response message containing the requested features.
+message FeatureResponse {
+  common.UUID request_id = 1;
+  string instrument_symbol = 2;
+  string timeframe = 3;
+  common.Timestamp features_for_timestamp = 4; // The timestamp for which these features were generated
+
+  repeated FeatureValue features = 5; // A list of feature values
+
+  // Optional: Metadata about the feature retrieval process
+  map<string, string> metadata = 6; // e.g., "source": "realtime_cache", "calculation_time_ms": "10"
+  
+  optional common.StandardErrorResponse error = 7; // For reporting errors if any
+}
+
+// Optional: For ListFeatures RPC
+/*
+message ListFeaturesRequest {
+  common.UUID request_id = 1;
+  optional string instrument_symbol_filter = 2; // Filter by symbol
+  optional string timeframe_filter = 3;         // Filter by timeframe
+  // Add other filters like feature_group, tags, etc.
+}
+
+message FeatureDefinition {
+  string name = 1;
+  string description = 2;
+  string value_type = 3; // e.g., "numeric", "boolean", "string_categorical"
+  repeated string available_timeframes = 4;
+  map<string, string> example_parameters = 5; // Example parameters for on-demand calculation
+}
+
+message ListFeaturesResponse {
+  common.UUID request_id = 1;
+  repeated FeatureDefinition available_features = 2;
+  optional common.StandardErrorResponse error = 3;
+}
+*/

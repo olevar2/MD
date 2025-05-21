@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package common;
+
+// A universally unique identifier (UUID).
+message UUID {
+  string value = 1;
+}
+
+// A Timestamp message to represent a point in time.
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
+
+// Standard error response message
+message StandardErrorResponse {
+  UUID error_id = 1;
+  string error_message = 2;
+  int32 error_code = 3;
+}

@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package risk_management_service;
+
+import "protos/common.proto"; // For common types like UUID
+import "google/protobuf/struct.proto"; // For potential future use with dynamic parameters
+
+option go_package = "github.com/yourorg/yourproject/genprotos/riskmanagementservice"; // Example
+
+// Service for managing trading risk, including pre-trade checks and portfolio risk monitoring.
+service RiskManagementService {
+  // Performs pre-trade risk checks for a proposed order.
+  rpc CheckPreTradeRisk(PreTradeCheckRequest) returns (PreTradeCheckResponse);
+
+  // Retrieves the current overall risk assessment for a portfolio/account.
+  rpc GetPortfolioRisk(PortfolioRiskRequest) returns (PortfolioRiskResponse);
+
+  // Updates the risk configuration for a specific account.
+  rpc UpdateAccountRiskConfiguration(UpdateRiskConfigurationRequest) returns (UpdateRiskConfigurationResponse);
+
+  // Optional: Retrieves the current risk configuration for an account.
+  // rpc GetAccountRiskConfiguration(GetAccountRiskConfigurationRequest) returns (RiskLimitConfiguration);
+}
+
+// Details of a proposed order for risk assessment.
+message ProposedOrderDetails {
+  string instrument_symbol = 1;
+  double quantity = 2;
+  optional double price = 3; // Relevant for limit/stop orders
+  string direction = 4;     // e.g., "BUY", "SELL", "LONG", "SHORT"
+  // Potentially include order type (MARKET, LIMIT) if it affects risk assessment differently
+}
+
+// Request for a pre-trade risk check.
+message PreTradeCheckRequest {
+  common.UUID request_id = 1;
+  string account_id = 2;
+  ProposedOrderDetails order_details = 3;
+  optional string strategy_id = 4; // ID of the strategy proposing the trade.
+  // Optional: context about the market or strategy state for more nuanced checks.
+  map<string, google.protobuf.Value> additional_context = 5;
+}
+
+// Represents an adjustment applied to an order due to risk management.
+message OrderAdjustment {
+  optional double modified_quantity = 1;
+  optional double modified_price = 2; // e.g., if price needs to be adjusted based on limits
+  string reason = 3; // Reason for the adjustment, e.g., "Reduced quantity due to max exposure limit."
+}
+
+// Response from a pre-trade risk check.
+message PreTradeCheckResponse {
+  common.UUID request_id = 1;
+  common.UUID risk_assessment_id = 2; // ID for this specific risk assessment.
+  bool is_approved = 3;               // True if the trade is approved as is, or with minor adjustments.
+  repeated string reasons_for_rejection = 4; // List of reasons if not approved.
+  repeated OrderAdjustment applied_adjustments = 5; // List of adjustments made to the order to meet risk criteria.
+                                                  // If empty and is_approved is true, order is fine as-is.
+  // Optional: Detailed breakdown of risk metrics checked.
+  map<string, string> risk_metrics_summary = 6; // e.g., {"margin_utilization": "0.6", "concentration_risk_MSFT": "0.2"}
+}
+
+// Request to get current portfolio risk.
+message PortfolioRiskRequest {
+  common.UUID request_id = 1;
+  string account_id = 2;
+}
+
+// Response containing portfolio risk details.
+message PortfolioRiskResponse {
+  common.UUID request_id = 1;
+  string account_id = 2;
+  common.Timestamp report_time = 3;
+
+  double overall_portfolio_var = 4;        // Value at Risk for the entire portfolio.
+  double max_portfolio_drawdown_limit = 5; // Configured maximum drawdown limit.
+  double current_portfolio_drawdown = 6;   // Current drawdown from peak.
+  map<string, double> exposure_by_asset_class = 7; // e.g., {"EQUITY": 50000.00, "FX": 20000.00}
+  map<string, double> exposure_by_instrument = 8;  // e.g., {"AAPL": 15000.00, "EUR/USD": 10000.00}
+  double account_leverage = 9;
+  double margin_utilization_percentage = 10;
+
+  // Optional: Alerts or warnings based on current risk levels.
+  repeated string risk_warnings = 11; // e.g., "Approaching max drawdown limit", "High concentration in AAPL"
+}
+
+// Configuration for various risk limits.
+message RiskLimitConfiguration {
+  string account_id = 1; // Identifier for which account this configuration applies to.
+  
+  // Trade-level limits
+  optional double max_risk_per_trade_percentage = 2; // Max percentage of account equity to risk on a single trade.
+  optional double max_order_value_usd = 3;           // Max notional value for a single order.
+  
+  // Instrument/Asset class level limits
+  map<string, double> max_exposure_per_instrument_usd = 4; // Key: instrument_symbol, Value: max exposure in USD
+  map<string, double> max_exposure_per_asset_class_percentage = 5; // Key: asset_class, Value: max % of portfolio
+
+  // Portfolio-level limits
+  optional double overall_portfolio_drawdown_limit_percentage = 6; // Max % drawdown for the entire portfolio.
+  optional double max_portfolio_leverage = 7;
+  
+  // Other limits
+  optional int32 max_open_positions_per_instrument = 8;
+  optional int32 max_total_open_positions = 9;
+
+  // Enable/Disable specific checks
+  optional bool enable_concentration_checks = 10;
+  optional bool enable_var_limits = 11;
+
+  common.Timestamp last_updated = 12;
+  string updated_by = 13; // User or system component that made the last update.
+}
+
+// Request to update risk configuration for an account.
+message UpdateRiskConfigurationRequest {
+  common.UUID request_id = 1;
+  RiskLimitConfiguration new_configuration = 2;
+}
+
+// Response from updating risk configuration.
+message UpdateRiskConfigurationResponse {
+  common.UUID request_id = 1;
+  bool success = 2;
+  string message = 3; // e.g., "Risk configuration updated successfully."
+  optional RiskLimitConfiguration applied_configuration = 4; // The configuration as it was applied.
+  optional common.StandardErrorResponse error = 5;
+}
+
+// Optional: Request to get current risk configuration for an account.
+/*
+message GetAccountRiskConfigurationRequest {
+  common.UUID request_id = 1;
+  string account_id = 2;
+}
+// Response would be RiskLimitConfiguration message directly, or wrapped if error reporting needed.
+*/

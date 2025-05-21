@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package backtesting_service;
+
+import "protos/common.proto"; // For common types like UUID, Timestamp
+
+option go_package = "github.com/yourorg/yourproject/genprotos/backtestingservice"; // Example Go package option
+
+// Service for running backtests on trading strategies and models.
+service BacktestingService {
+  // Runs a backtest based on the provided parameters.
+  rpc RunBacktest(RunBacktestRequest) returns (BacktestReport);
+
+  // Optional: Could add RPCs for getting status of long-running backtests,
+  // listing available backtestable models/strategies, or retrieving past reports.
+  // rpc GetBacktestStatus(GetBacktestStatusRequest) returns (BacktestStatusResponse);
+  // rpc GetBacktestReport(GetBacktestReportRequest) returns (BacktestReport);
+}
+
+// Configuration for trading fees and slippage.
+message FeeSlippageConfig {
+  double percentage_fee_per_trade = 1; // e.g., 0.001 for 0.1%
+  double fixed_fee_per_trade = 2;      // e.g., 1.0 for $1 per trade
+  double slippage_percentage = 3;      // e.g., 0.0005 for 0.05% slippage simulation
+}
+
+// Parameters for initiating a backtest.
+message RunBacktestRequest {
+  common.UUID request_id = 1;
+  string strategy_id = 2;         // Identifier for a predefined strategy logic.
+  string model_id = 3;            // Identifier for a registered ML model to be used by the strategy.
+                                  // (e.g., from ml-workbench-service or model-registry)
+  string dataset_id = 4;          // Identifier for the historical dataset to use (e.g., from data-pipeline-service).
+  common.Timestamp start_time = 5;  // Start time for the backtest period.
+  common.Timestamp end_time = 6;    // End time for the backtest period.
+  double initial_capital = 7;
+  FeeSlippageConfig fee_slippage_config = 8;
+  map<string, google.protobuf.Value> strategy_parameters = 9; // Custom parameters for the strategy/model.
+                                                              // e.g., {"take_profit_pct": 0.05, "stop_loss_pct": 0.02}
+  optional common.UUID user_id = 10; // User initiating the backtest.
+  map<string, string> tags = 11;     // For tracking and organization.
+}
+
+// Represents a single executed trade during the backtest.
+message TradeExecutionRecord {
+  string trade_id = 1;
+  string instrument_symbol = 2;
+  common.Timestamp entry_time = 3;
+  common.Timestamp exit_time = 4;
+  string direction = 5; // e.g., "LONG", "SHORT"
+  double entry_price = 6;
+  double exit_price = 7;
+  double quantity = 8;
+  double gross_pnl = 9; // Profit and loss before fees/slippage
+  double net_pnl = 10;  // Profit and loss after fees/slippage
+  double fees_paid = 11;
+  double slippage_amount = 12; // Monetary value of slippage experienced
+}
+
+// Represents a data point in a time series (e.g., for equity curve).
+message TimestampedValue {
+  common.Timestamp timestamp = 1;
+  double value = 2;
+}
+
+// Comprehensive report generated after a backtest.
+message BacktestReport {
+  common.UUID backtest_id = 1;
+  common.UUID request_id = 2; // Corresponds to the RunBacktestRequest.request_id
+  common.Timestamp report_generated_time = 3;
+  
+  // Overall Performance Metrics
+  double total_net_pnl = 4;
+  double total_gross_pnl = 5;
+  double profit_factor = 6;       // Gross profit / Gross loss
+  double sharpe_ratio = 7;
+  double sortino_ratio = 8;
+  double max_drawdown = 9;        // Maximum peak-to-valley decline
+  double annualized_return = 10;
+  double total_return_percentage = 11; // (final_equity - initial_capital) / initial_capital
+
+  // Trade Statistics
+  int32 total_trades = 12;
+  int32 winning_trades = 13;
+  int32 losing_trades = 14;
+  double win_rate = 15;           // winning_trades / total_trades
+  double loss_rate = 16;          // losing_trades / total_trades
+  double average_win_pnl = 17;
+  double average_loss_pnl = 18;
+  double average_trade_pnl = 19;
+  double largest_winning_trade = 20;
+  double largest_losing_trade = 21;
+
+  // Duration Metrics
+  string total_backtest_duration_str = 22; // e.g., "250 days"
+  string average_trade_duration_str = 23;  // e.g., "3 hours 15 minutes"
+
+  // Detailed Logs
+  repeated TradeExecutionRecord trade_log = 24;
+  repeated TimestampedValue equity_curve = 25; // Time series of portfolio equity
+
+  // Parameters used for this backtest
+  RunBacktestRequest backtest_parameters_used = 26; // Echo back the parameters for context
+
+  optional common.StandardErrorResponse error = 27; // If the backtest itself failed to run
+  map<string, string> additional_metrics = 28; // For any other custom metrics
+}
