@@ -176,6 +176,34 @@ services:
       - timescaledb
     restart: unless-stopped
 
+  analysis-engine-service:
+    build:
+      context: ../../analysis-engine-service
+      dockerfile: Dockerfile
+    container_name: forex_analysis_engine
+    ports:
+      - "8000:8000"  # FastAPI port
+      - "50051:50051" # gRPC port
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ANALYSIS_ENGINE_PORT=8000 # Ensure FastAPI runs on this port inside container
+      - ANALYSIS_ENGINE_GRPC_PORT=50051 # Ensure gRPC runs on this port inside container
+      # Add other necessary environment variables, e.g., DB_HOST, REDIS_HOST
+      # These should ideally point to the service names defined in this docker-compose file
+      - DB_HOST=timescaledb 
+      - DB_USER=forex_user
+      - DB_PASSWORD=forex_password
+      - DB_NAME=forex_db
+      - REDIS_HOST=redis
+    volumes:
+      - ../../analysis-engine-service:/app # Mount local code for development (optional)
+    depends_on:
+      - timescaledb
+      - redis
+    networks:
+      - default
+    restart: unless-stopped
+
 volumes:
   timescaledb_data:
     driver: local

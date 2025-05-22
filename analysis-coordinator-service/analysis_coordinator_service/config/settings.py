@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     market_analysis_service_url: str = Field(default="http://market-analysis-service:8000")
     causal_analysis_service_url: str = Field(default="http://causal-analysis-service:8000")
     backtesting_service_url: str = Field(default="http://backtesting-service:8000")
+    analysis_engine_grpc_url: str = Field(default="localhost:50051", description="gRPC URL for the Analysis Engine Service")
 
     # Database settings
     database_connection_string: str = Field(default="postgresql://postgres:postgres@postgres:5432/analysis_coordinator")

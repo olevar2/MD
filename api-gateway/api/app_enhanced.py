@@ -15,7 +15,8 @@ from fastapi.responses import JSONResponse
 from common_lib.config.config_manager import ConfigManager
 from common_lib.errors.handler import ErrorHandler, ErrorContext, ErrorResponse
 
-from .routes import proxy_router
+# Updated to import both routers
+from .routes import proxy_router, analysis_engine_router 
 from ..core.auth import EnhancedAuthMiddleware
 from ..core.rate_limit import EnhancedRateLimitMiddleware
 from ..core.response.standard_response import create_error_response
@@ -49,7 +50,9 @@ app.add_middleware(EnhancedRateLimitMiddleware)
 
 
 # Include routers
-app.include_router(proxy_router, prefix="/api/v1")
+# IMPORTANT: Specific routes for Analysis Engine (gRPC) must be added BEFORE the generic proxy router
+app.include_router(analysis_engine_router, prefix="/api/v1") # Matches /api/v1/analysis-engine-service/...
+app.include_router(proxy_router, prefix="/api/v1") # Generic proxy for other services or paths
 
 
 # Create error handler
