@@ -152,7 +152,8 @@ service_clients:
       recovery_timeout: 60.0
 
   analysis_engine_service:
-    base_url: http://analysis-engine-service:8002
+    base_url: http://analysis-engine-service:8002 # Existing REST endpoint
+    grpc_url: analysis-engine-service:50051 # New gRPC endpoint, using service name
     timeout: 30.0
     retry:
       max_retries: 3

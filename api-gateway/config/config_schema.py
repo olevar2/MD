@@ -15,3 +15,4 @@ class ServiceConfig(BaseModel):
     version: str = Field(..., description="Service version")
     debug: bool = Field(False, description="Debug mode")
     log_level: str = Field("INFO", description="Logging level")
+    analysis_engine_grpc_url: Optional[str] = Field(default="localhost:50051", description="gRPC URL for the Analysis Engine Service")

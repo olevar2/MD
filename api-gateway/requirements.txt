@@ -1,0 +1,8 @@
+# Basic dependencies (assuming FastAPI, as it's common in this project)
+fastapi>=0.95.0
+uvicorn>=0.21.0
+httpx>=0.24.0 # For making HTTP requests if it's a proxy
+
+# gRPC dependencies
+grpcio>=1.60.0,<2.0.0
+grpcio-tools>=1.60.0,<2.0.0

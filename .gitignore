@@ -68,3 +68,12 @@ vulkan-1.dll
 unins000.dat
 unins000.exe
 unins000.msg
+
+# Generated gRPC stubs for analysis-engine-service
+analysis-engine-service/generated_protos/
+
+# Generated gRPC stubs for analysis-coordinator-service
+analysis-coordinator-service/generated_protos/
+
+# Generated gRPC stubs for api-gateway
+api-gateway/generated_protos/

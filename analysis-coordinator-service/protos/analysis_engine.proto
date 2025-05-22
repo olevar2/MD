@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package analysis_engine;
+
+import "google/protobuf/timestamp.proto";
+
+// Enum for Order Side
+enum OrderSide {
+  BUY = 0;
+  SELL = 1;
+}
+
+// AnalysisEngine Service Definition
+service AnalysisEngine {
+  // RPC method for market overview
+  rpc GetMarketOverview(GetMarketOverviewRequest) returns (MarketOverviewResponse);
+
+  // RPC method for trading opportunity
+  rpc GetTradingOpportunity(GetTradingOpportunityRequest) returns (TradingOpportunityResponse);
+
+  // Placeholder RPC methods
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GetIndicators(GetIndicatorsRequest) returns (GetIndicatorsResponse);
+  rpc GetPatterns(GetPatternsRequest) returns (GetPatternsResponse);
+  rpc PerformAnalysis(PerformAnalysisRequest) returns (PerformAnalysisResponse);
+}
+
+// Request and Response Messages for Market Overview
+message GetMarketOverviewRequest {
+  string symbol = 1;
+  string timeframe = 2;
+  int32 lookback_days = 3;
+}
+
+message MarketOverviewResponse {
+  message MarketData {
+    double open = 1;
+    double high = 2;
+    double low = 3;
+    double close = 4;
+    int64 volume = 5;
+    google.protobuf.Timestamp timestamp = 6;
+  }
+
+  message RiskAssessment {
+    double volatility = 1;
+    double var = 2; // Value at Risk
+    string sentiment = 3;
+  }
+
+  MarketData market_data = 1;
+  map<string, double> technical_indicators = 2;
+  map<string, string> model_predictions = 3;
+  RiskAssessment risk_assessment = 4;
+}
+
+// Request and Response Messages for Trading Opportunity
+message GetTradingOpportunityRequest {
+  string symbol = 1;
+  string timeframe = 2;
+  string account_id = 3;
+  float risk_percentage = 4;
+}
+
+message TradingOpportunityResponse {
+  message RiskDetails {
+    double stop_loss_price = 1;
+    double take_profit_price = 2;
+    double risk_reward_ratio = 3;
+  }
+
+  double account_balance = 1;
+  OrderSide trade_direction = 2;
+  double entry_price = 3;
+  double target_price = 4;
+  double position_size = 5;
+  RiskDetails risk_details = 6;
+  map<string, string> model_predictions = 7;
+}
+
+// Placeholder Request and Response Messages
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+  }
+  ServingStatus status = 1;
+}
+
+message GetIndicatorsRequest {
+  string symbol = 1;
+  string timeframe = 2;
+  repeated string indicator_names = 3;
+}
+
+message GetIndicatorsResponse {
+  map<string, double> indicators = 1;
+}
+
+message GetPatternsRequest {
+  string symbol = 1;
+  string timeframe = 2;
+  repeated string pattern_names = 3;
+}
+
+message GetPatternsResponse {
+  map<string, bool> patterns = 1; // boolean indicates if pattern is detected
+}
+
+message PerformAnalysisRequest {
+  string symbol = 1;
+  string timeframe = 2;
+  string analysis_type = 3; // e.g., "trend", "volatility"
+}
+
+message PerformAnalysisResponse {
+  string summary = 1;
+  map<string, string> details = 2;
+}

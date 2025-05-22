@@ -32,6 +32,8 @@ class AnalysisEngineSettings(AppSettings):
         'Host to bind the API server')
     PORT: int = Field(default=8000, ge=1024, le=65535, env='PORT',
         description='Port to bind the API server')
+    GRPC_PORT: int = Field(default=50051, ge=1024, le=65535, env='GRPC_PORT',
+        description='Port to bind the gRPC server')
 
     @field_validator('API_VERSION')
     @classmethod
